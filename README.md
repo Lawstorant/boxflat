@@ -1,2 +1,2 @@
 # boxflat
-Boxllat for Moza Racing. Control your Moza wheelbase settings!
+Boxflat for Moza Racing. Control your Moza wheelbase settings!
