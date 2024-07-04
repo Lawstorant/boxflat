@@ -1,12 +1,12 @@
 .sidebar-button {
     border-radius: 4px;
     font-weight: bold;
-    padding: 10px;
-    margin: 4px 6px;
+    padding: 8px 10px;
+    margin: 6px 6px;
 }
 
 .settings-pane {
-    padding: 20px;
+    margin: 0;
 }
 
 .transparent-bg {
