@@ -25,15 +25,28 @@ class BaseSettings(SettingsPanel):
 
         slider.connect('value-changed', self.slider_changed)
         
+        slider_ffb = Gtk.Scale()
+        slider_ffb.set_digits(0)  # Number of decimal places to use
+        slider_ffb.set_range(0, 100)
+        slider_ffb.set_increments(1, 10)
+        slider_ffb.set_draw_value(True)
+        slider_ffb.set_value(50)
+        slider_ffb.set_size_request(350,0)
+        
+        slider_ffb.add_mark(0, Gtk.PositionType.BOTTOM, "0%")
+        slider_ffb.add_mark(50, Gtk.PositionType.BOTTOM, "50%")
+        slider_ffb.add_mark(100, Gtk.PositionType.BOTTOM, "100%")     
+        
+        
         dialog = Adw.PreferencesPage()
         group = Adw.PreferencesGroup()
         group.set_title("Generic settings")
         row = Adw.ActionRow()
         row.add_suffix(slider)
         row.set_title("Rotation range")
-        row.set_title_lines(0)
         row2 = Adw.ActionRow()
-        row2.set_title("Rotation")
+        row2.set_title("FFB Strength")
+        row2.add_suffix(slider_ffb)
         
         
         group.add(row)
