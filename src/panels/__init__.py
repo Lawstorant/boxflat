@@ -3,6 +3,9 @@ from panels.base import BaseSettings
 from panels.wheel import WheelSettings
 from panels.home import HomeSettings
 from panels.dash import DashSettings
+from panels.pedals import PedalsSettings
+from panels.sequential import SequentialSettings
+from panels.h_pattern import HPatternSettings
 
 _panels = {}
 
@@ -11,6 +14,9 @@ def prepare_panels(button_callback) -> dict:
     _panels["Base"] = BaseSettings(button_callback)
     _panels["Wheel"] = WheelSettings(button_callback)
     _panels["Dash"] = DashSettings(button_callback)
+    _panels["Pedals"] = PedalsSettings(button_callback)
+    _panels["Sequential Shifter"] = SequentialSettings(button_callback)
+    _panels["H-Pattern Shifter"] = HPatternSettings(button_callback)
         
     return _panels
 
