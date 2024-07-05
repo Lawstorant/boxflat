@@ -1,18 +1,40 @@
-base_value:
+magic-value: 13
+message-start: "\\x7e"
 
 bases:
-  r9: "\\x29\\x13"
+  r3:
+  r5:
+  r9:
+  r9v2: "\\x29\\x13"
+  r12:
+  r16:
+  r21:
 
 wheels:
+  es:
+  cs:
+  csv2p:
+  rs:
   rsv2: "\\x3f\\x17"
+  tsw:
+  ks:
+  gs:
+  gsv2p:
+  fsr:
+
+pedals:
+  srp-lite:
+  srp:
+  crp:
 
 accessories:
-  hpattern: "\\x00\\x00"
-  hpattern-usb: "\\x00\\x00"
+  hpattern:
+  hpattern-usb:
   sequential: "\\x52\\x1a"
   sequential-usb: "\\x52\\x12"
   handbrake: "\\x5c\\x1b"
   handbrake-usb: "\\x5c\\x12"
+  hub:
 
 base:
   limit:
