@@ -1,7 +1,18 @@
-base_value: 
+base_value:
 
-devices:
+bases:
   r9: "\\x29\\x13"
+
+wheels:
+  rsv2: "\\x3f\\x17"
+
+accessories:
+  hpattern: "\\x00\\x00"
+  hpattern-usb: "\\x00\\x00"
+  sequential: "\\x52\\x1a"
+  sequential-usb: "\\x52\\x12"
+  handbrake: "\\x5c\\x1b"
+  handbrake-usb: "\\x5c\\x12"
 
 base:
   limit:

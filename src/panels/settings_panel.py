@@ -12,6 +12,7 @@ class SettingsPanel(object):
         self._content = self._prepare_content()
         self._button = self._prepare_button(title, button_callback)
         self._banner = self._prepare_banner()
+        self._prepare_ui()
 
     def _prepare_button(self, title, button_callback) -> Gtk.ToggleButton:
         button = Gtk.ToggleButton()
@@ -40,6 +41,9 @@ class SettingsPanel(object):
         self._content.append(banner)
         return banner
 
+    def _prepare_ui(self) -> None:
+        pass
+
     def show_banner(self, *arg) -> None:
         self._banner.set_revealed(True)
 
@@ -49,9 +53,9 @@ class SettingsPanel(object):
     def set_banner_title(self, new_title: str) -> None:
         self._banner.set_title(new_title)
 
-    def apply(self) -> None:
+    def apply(self, *arg) -> None:
         # self.hide_banner()
-        pass
+        print(f"Applying {self.title} settings...")
 
     @property
     def content(self) -> Gtk.Box:
@@ -119,6 +123,9 @@ class SettingsPanel(object):
         self._current_group.add(row)
 
     def _add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> None:
+        if self._current_group == None:
+            return
+
         switch = Adw.SwitchRow()
         switch.set_title(title)
         switch.set_subtitle(subtitle)
@@ -130,6 +137,9 @@ class SettingsPanel(object):
         self._current_group.add(switch)
 
     def _add_combo_row(self, title: str, values: dict, callback=None, subtitle="") -> None:
+        if self._current_group == None:
+            return
+
         combo = Adw.ComboRow()
         combo.set_title(title)
         combo.set_subtitle(subtitle)
@@ -150,3 +160,28 @@ class SettingsPanel(object):
             pass
 
         self._current_group.add(combo)
+
+    def _add_button_row(self, title: str, button_label: str, callback=None, subtitle="") -> None:
+        if self._current_group == None:
+            return
+
+        button = Gtk.Button(label=button_label)
+        button.add_css_class("row-button")
+        if callback != None:
+            button.connect('clicked', callback)
+
+        row = Adw.ActionRow()
+        row.set_title(title)
+        row.set_subtitle(subtitle)
+        row.add_suffix(button)
+
+        self._current_group.add(row)
+
+        # code for libadwaita 1.6
+        # button = Adw.ButtonRow()
+        # button.set_title(title)
+        # button.set_subtitle(subtitle)
+
+        # if callback != None:
+        #     button.connect('activated', callback)
+

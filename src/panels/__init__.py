@@ -16,7 +16,7 @@ def prepare_panels(button_callback) -> dict:
     # _panels["Wheel"] = WheelSettings(button_callback)
     # _panels["Pedals"] = PedalsSettings(button_callback)
     # _panels["Dash"] = DashSettings(button_callback)
-    # _panels["H-Pattern Shifter"] = HPatternSettings(button_callback)
+    _panels["H-Pattern Shifter"] = HPatternSettings(button_callback)
     # _panels["Sequential Shifter"] = SequentialSettings(button_callback)
     # _panels["Handbrake"] = HandbrakeSettings(button_callback)
 

@@ -16,3 +16,7 @@
 .transparent {
     opacity: 0;
 }
+
+.row-button {
+    margin: 6px;
+}

@@ -9,11 +9,9 @@ class BaseSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:
         super(BaseSettings, self).__init__("Base", button_callback)
         # self._settings = connection_manager.get_base_settings()
-        self.prepare_ui()
 
     def apply(self, *arg) -> None:
         super(BaseSettings, self).apply()
-        print("Applying base settings...")
         # connection_manager.set_base_settings()
 
     def slider_rotation_changed(self, slider) -> None:
@@ -22,7 +20,7 @@ class BaseSettings(SettingsPanel):
             slider.set_value(value + 1)
             value += 1
 
-    def prepare_ui(self) -> None:
+    def _prepare_ui(self) -> None:
         self._add_preferences_page()
         self._add_preferences_group("Important settings")
 
