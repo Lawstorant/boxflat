@@ -1,7 +1,3 @@
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw
 from panels.settings_panel import SettingsPanel
 
 class HPatternSettings(SettingsPanel):

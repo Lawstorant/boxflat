@@ -1,7 +1,7 @@
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Gio, Adw
+from gi.repository import Gtk, Gdk, Gio, Adw
 from structs import *
 
 class SettingsPanel(object):
@@ -72,6 +72,11 @@ class SettingsPanel(object):
     def deactivate_button(self) -> None:
         self._button.set_active(False)
 
+    def open_url(self, url: str) -> None:
+        launcher = Gtk.UriLauncher()
+        launcher.set_uri(url)
+        launcher.launch()
+
     def _add_preferences_page(self) -> None:
         self._current_page = Adw.PreferencesPage()
         self._content.append(self._current_page)
@@ -93,7 +98,7 @@ class SettingsPanel(object):
         self._current_group.add(row)
 
     def _add_slider_row(self, title: str, range_start: int, range_stop: int,
-                        value=0, size_request=(350,0), marks=[], mark_suffix="",
+                        value=0, size_request=(300,0), marks=[], mark_suffix="",
                         callback=None, subtitle="") -> None:
 
         if self._current_group == None:
@@ -185,3 +190,31 @@ class SettingsPanel(object):
         # if callback != None:
         #     button.connect('activated', callback)
 
+    def _add_toggle_button_row(self, title: str, labels: list,
+                               callback=None, subtitle="") -> None:
+        if self._current_group == None:
+            return
+
+        group = None
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        for label in labels:
+            button = Gtk.ToggleButton(label=label)
+            button.add_css_class("row-button")
+            button.add_css_class("toggle-button")
+            box.append(button)
+
+            if group is None:
+                group = button
+            else:
+                button.set_group(group)
+
+        # if callback != None:
+        #     button.connect('clicked', callback)
+
+        row = Adw.ActionRow()
+        row.set_title(title)
+        row.set_subtitle(subtitle)
+        row.add_suffix(box)
+
+        self._current_group.add(row)

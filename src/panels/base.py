@@ -1,7 +1,3 @@
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-from gi.repository import Gtk, Gdk, Adw
 from panels.settings_panel import SettingsPanel
 import connection_manager
 
@@ -111,14 +107,15 @@ class BaseSettings(SettingsPanel):
             marks=[5]
         )
 
-        self._add_combo_row("Soft Limit Strength", {
-            100: "Soft",
-            78: "Middle",
-            56: "Hard"
-        })
+        # self._add_combo_row("Soft Limit Strength", {
+        #     100: "Soft",
+        #     78: "Middle",
+        #     56: "Hard"
+        # })
+        self._add_toggle_button_row("Soft Limit Strength",["Soft", "Middle", "Hard"])
 
         self._add_switch_row("Soft Limit Game Force Strength", subtitle="I have no idea")
-        self._add_combo_row("Temperature Control Strategy", {
-            0: "Conservative",
-            1: "Radical"
-        }, subtitle="Conservative = 50°C, Radical = 60°C")
+        self._add_toggle_button_row(
+            "Temperature Control Strategy",
+            ["Conservative", "Radical"],
+            subtitle="Conservative = 50°C, Radical = 60°C")

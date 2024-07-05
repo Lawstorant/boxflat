@@ -18,5 +18,18 @@
 }
 
 .row-button {
-    margin: 6px;
+    margin: 8px 0;
+    border-radius: 5px;
+}
+
+.toggle-button {
+    border-radius: 0;
+}
+
+.toggle-button:first-child {
+    border-radius: 5px 0 0 5px;
+}
+
+.toggle-button:last-child {
+    border-radius: 0 5px 5px 0;
 }
