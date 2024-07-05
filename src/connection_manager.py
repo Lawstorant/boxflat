@@ -1,8 +1,8 @@
 import sys
 import yaml
 
-MESSAGE_START="\\x7e"
-BASE_VALUE=13
+MESSAGE_START=""
+MAGIC_VALUE=0
 RETRY_COUNT=3
 SERIAL_VALUES = {}
 
@@ -13,13 +13,16 @@ with open("serial.yml") as stream:
         print(exc)
         quit(1)
 
+    MAGIC_VALUE = SERIAL_VALUES["magic-value"]
+    MESSAGE_START = SERIAL_VALUES["message-start"]
+
 
 def byte_len(data: str) -> int:
     return int(len(data)/4)
 
 
 def calculate_security_sum(byte_str: str) -> str:
-    value = BASE_VALUE
+    value = MAGIC_VALUE
     for i in range (0, byte_len(byte_str)):
         start = 4*i+2
         end = 4*i+4
@@ -44,7 +47,7 @@ def send_serial_packet(serial_data: str) -> None:
     # with open("/dev/ttyACM0") as tty:
     #     for i in range(0, RETRY_COUNT):
     #         tty.write(message)
-
+    #     tty.close()
 
 def tohex(value: int, length=1) -> str:
     string = hex(value)[2:]
