@@ -1,0 +1,25 @@
+base_value: 
+
+devices:
+  r9: "\\x29\\x13"
+
+base:
+  limit:
+    id: 1
+    length: 3
+
+  angle:
+    id: 23
+    length: 3
+
+  damper:
+    id: 7
+    length: 3
+
+  spring:
+    id: 9
+    length: 3
+
+  speed:
+    id: 10
+    length: 3
