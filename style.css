@@ -33,3 +33,7 @@
 .toggle-button:last-child {
     border-radius: 0 5px 5px 0;
 }
+
+levelbar {
+    margin: 12px 0;
+}

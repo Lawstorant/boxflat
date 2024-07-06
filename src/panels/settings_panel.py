@@ -90,11 +90,20 @@ class SettingsPanel(object):
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
-    def _add_preferences_group(self, title: str) -> None:
+    def _add_preferences_group(self, title: str, level_bar=False) -> None:
         if self._current_page != None:
             self._current_group = Adw.PreferencesGroup()
             self._current_group.set_title(title)
             self._current_page.add(self._current_group)
+
+            if level_bar:
+                bar = Gtk.LevelBar()
+                bar.set_mode(Gtk.LevelBarMode.CONTINUOUS)
+                bar.set_min_value(0)
+                bar.set_max_value(1000)
+                bar.set_value(500)
+                bar.set_size_request(300,0)
+                self._current_group.set_header_suffix(bar)
 
     def _add_view_stack(self) -> None:
         stack = Adw.ViewStack()
@@ -221,6 +230,34 @@ class SettingsPanel(object):
             button = Gtk.ToggleButton(label=label)
             button.add_css_class("row-button")
             button.add_css_class("toggle-button")
+            box.append(button)
+
+            if group is None:
+                group = button
+            else:
+                button.set_group(group)
+
+        # if callback != None:
+        #     button.connect('clicked', callback)
+
+        row = Adw.ActionRow()
+        row.set_title(title)
+        row.set_subtitle(subtitle)
+        row.add_suffix(box)
+
+        self._current_group.add(row)
+
+    def _add_color_picker_row(self, title: str, callback=None, subtitle="") -> None:
+        if self._current_group == None:
+            return
+
+        group = None
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        for color in PICKER_COLORS:
+            button = Gtk.ToggleButton(label="")
+            button.add_css_class("row-button")
+            button.add_css_class("color-button")
             box.append(button)
 
             if group is None:

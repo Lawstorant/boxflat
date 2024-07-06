@@ -1,5 +1,10 @@
 from gi.repository import GObject
 
+PICKER_COLORS = [
+    "",
+    ""
+]
+
 class ComboRow(GObject.Object):
     __gtype_name__ = 'ComboRow'
 

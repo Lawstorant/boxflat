@@ -16,7 +16,8 @@ class SequentialSettings(SettingsPanel):
         self._add_switch_row("Paddle Shifter Synchronization")
 
         self._add_slider_row(
-            "Auto Blip Duration", 0, 1000, 300,
-            marks=[250, 500, 750],
-            mark_suffix=" ms"
+            "Button Brightness", 0, 10, 8,
+            marks=[5]
         )
+
+        # TODO: Add color picker row

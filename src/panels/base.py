@@ -13,8 +13,7 @@ class BaseSettings(SettingsPanel):
     def slider_rotation_changed(self, slider) -> None:
         value = slider.get_value()
         if value % 2:
-            slider.set_value(value + 1)
-            value += 1
+            slider.set_value(int(value) + 1)
 
     def _prepare_ui(self) -> None:
         self._add_view_stack()
