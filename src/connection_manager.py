@@ -16,10 +16,6 @@ with open("serial.yml") as stream:
     MESSAGE_START = int("0x" + SERIAL_VALUES["message-start"], 0)
 
 
-def byte_len(data: str) -> int:
-    return int(len(data)/4)
-
-
 def calculate_security_sum(data: bytearray) -> int:
     value = MAGIC_VALUE
     for d in data:
