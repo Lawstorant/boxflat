@@ -6,14 +6,8 @@ class BaseSettings(SettingsPanel):
         super(BaseSettings, self).__init__("Base", button_callback)
         # self._settings = connection_manager.get_base_settings()
 
-    def apply(self, *arg) -> None:
-        super(BaseSettings, self).apply()
-        # connection_manager.set_base_settings()
-
-    def slider_rotation_changed(self, slider) -> None:
-        value = slider.get_value()
-        if value % 2:
-            slider.set_value(int(value) + 1)
+    def slider_rotation_changed(self, value) -> None:
+        print(value)
 
     def _prepare_ui(self) -> None:
         self._add_view_stack()
@@ -24,8 +18,9 @@ class BaseSettings(SettingsPanel):
         self._add_slider_row(
             "", 90, 2700, 540,
             size_request=(570,0),
-            marks=[360, 540, 720, 900, 1080, 1800],
-            callback=self.slider_rotation_changed
+            marks=[360, 540, 720, 900, 1080, 1440, 1800, 2160],
+            callback=self.slider_rotation_changed,
+            increment=2
         )
 
         self._add_slider_row(
@@ -70,7 +65,7 @@ class BaseSettings(SettingsPanel):
         self._add_switch_row("Hands-Off Protection")
         self._add_slider_row(
             "Steering Wheel Inertia", 100, 4000, 2800,
-            marks=[1250, 2800, 3500]
+            marks=[1100, 1550, 2800, 3500]
         )
 
         self._add_slider_row(

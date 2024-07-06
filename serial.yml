@@ -45,6 +45,10 @@ base:
     id: 23
     length: 3
 
+  ffb-strength:
+    id: 2
+    length: 3
+
   damper:
     id: 7
     length: 3
@@ -56,3 +60,129 @@ base:
   speed:
     id: 10
     length: 3
+
+  torque:
+    id: 28
+    length: 3
+
+  reversal:
+    id: 24
+    length: 3
+
+  protection:
+    id: 19
+    length: 3
+
+  inertia:
+    id: 4
+    length: 3
+
+  friction:
+    id: 8
+    length: 3
+
+  speed-damping:
+    id: 25
+    length: 3
+
+  speed-damping-point:
+    id: 26
+    length: 3
+
+  limit-stifness:
+    id: 31
+    length: 3
+
+  limit-strength:
+    id: 27
+    length: 3
+
+  soft-limit:
+    id: 28
+    length: 3
+
+  temperature:
+    id: 30
+    length: 3
+
+wheel:
+  clutch-point:
+    id: 9
+    length: 3
+
+  paddles-mode:
+    id: 3
+    length: 3
+
+  stick-mode:
+    id: 5
+    length: 3
+
+  indicator-mode:
+    id: 4
+    length: 3
+
+  display-mode:
+    id: 7
+    length: 3
+
+  indicator-timings:
+    id: 2
+    length: 11
+
+  brightness:
+    id: 1
+    length: 3
+
+  colors:
+    id: 0
+    length: 10
+
+pedals:
+
+h-pattern:
+
+sequential:
+  brightness:
+    id: 3
+    lenght: 3
+
+  lights:
+    id: 4
+    length: 3
+
+  direction:
+    id: 5
+    lenght: 3
+
+  paddle-sync:
+    id: 6
+    length: 3
+
+handbrake:
+  reverse:
+    id: 1
+    length: 3
+
+  mode:
+    id: 11
+    length: 3
+
+  button-treshold:
+    id: 10
+    length: 3
+
+  curve-start:
+    id: 2
+    length: 3
+
+  curve-end:
+    id: 3
+    length: 3
+
+  #add id's here up to 9 to set other points
+  curve-y1:
+    id: 5
+    length: 5
+
+hub:

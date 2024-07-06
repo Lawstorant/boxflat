@@ -40,7 +40,7 @@ class SettingsPanel(object):
         banner = Adw.Banner()
         banner.set_title("Remember to apply settings")
         banner.set_button_label("Apply")
-        banner.set_revealed(True)
+        banner.set_revealed(False)
         banner.connect("button-clicked", self.apply)
         self._content.append(banner)
         return banner
@@ -125,18 +125,29 @@ class SettingsPanel(object):
 
         self._current_group.add(row)
 
+    def _slider_increment_handler(self, scale: Gtk.Scale, increment: int, callback) -> None:
+        value = int(scale.get_value())
+        modulo = value % increment
+
+        if modulo != 0:
+            scale.set_value(value + (increment - modulo))
+        else:
+            if callback != None:
+                callback(value)
+
     def _add_slider_row(self, title: str, range_start: int, range_stop: int,
                         value=0, size_request=(320,0), marks=[], mark_suffix="",
-                        callback=None, subtitle="") -> None:
+                        callback=None, increment=1, subtitle="") -> None:
 
         if self._current_group == None:
             return
 
         slider = Gtk.Scale()
-        slider.set_digits(0)
         slider.set_range(range_start, range_stop)
-        slider.set_increments(1, 0)
+        slider.set_increments(2, 0)
         slider.set_draw_value(True)
+        slider.set_round_digits(0)
+        slider.set_digits(0)
         slider.set_value(value)
         slider.set_size_request(size_request[0], size_request[1])
 
@@ -145,14 +156,12 @@ class SettingsPanel(object):
         for mark in marks:
             slider.add_mark(mark, Gtk.PositionType.BOTTOM, f"{mark}{mark_suffix}")
 
-        if callback != None:
-            slider.connect('value-changed', callback)
+        slider.connect('value-changed', lambda scale: self._slider_increment_handler(scale, increment, callback))
 
         row = Adw.ActionRow()
         row.add_suffix(slider)
         row.set_title(title)
         row.set_subtitle(subtitle)
-
         self._current_group.add(row)
 
     def _add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> None:
@@ -232,13 +241,13 @@ class SettingsPanel(object):
             button.add_css_class("toggle-button")
             box.append(button)
 
+            if callback != None:
+                button.connect('toggled', lambda button: callback(button.get_label()) if button.get_active() == True else callback(None))
+
             if group is None:
                 group = button
             else:
                 button.set_group(group)
-
-        # if callback != None:
-        #     button.connect('clicked', callback)
 
         row = Adw.ActionRow()
         row.set_title(title)
@@ -254,19 +263,21 @@ class SettingsPanel(object):
         group = None
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
-        for color in PICKER_COLORS:
-            button = Gtk.ToggleButton(label="")
-            button.add_css_class("row-button")
+        for i in range(0, PICKER_COLORS):
+            button = Gtk.ToggleButton(label=i)
+            button.add_css_class("toggle-button")
             button.add_css_class("color-button")
+            button.add_css_class(f"c{i}")
             box.append(button)
+            button.connect('toggled', lambda button: button.add_css_class("color-selected") if button.get_active() == True else button.remove_css_class("color-selected"))
+
+            if callback != None:
+                button.connect('toggled', lambda button: callback(int(button.get_label())) if button.get_active() == True else callback(None))
 
             if group is None:
                 group = button
             else:
                 button.set_group(group)
-
-        # if callback != None:
-        #     button.connect('clicked', callback)
 
         row = Adw.ActionRow()
         row.set_title(title)

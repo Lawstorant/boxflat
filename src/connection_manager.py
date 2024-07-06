@@ -1,4 +1,3 @@
-import sys
 import yaml
 
 MESSAGE_START=""
@@ -31,19 +30,20 @@ def calculate_security_sum(byte_str: str) -> str:
     return tohex(value % 256)
 
 
-def prepare_serial_message(serial_data: str) -> str:
+def prepare_serial_message(device_id:str, serial_data: str) -> str:
     message = MESSAGE_START
     message += tohex(byte_len(serial_data))
-    message += SERIAL_VALUES["devices"]["r9"]
+    message += device_id
     message += serial_data
     message += calculate_security_sum(message)
     return message
 
 
-def send_serial_packet(serial_data: str) -> None:
-    message = prepare_serial_message(serial_data)
+def send_serial_packet(device_id: str, serial_data: str) -> None:
+    message = prepare_serial_message(device_id, serial_data)
     print(f"Sending: {message}")
 
+    # TODO: device search
     # with open("/dev/ttyACM0") as tty:
     #     for i in range(0, RETRY_COUNT):
     #         tty.write(message)
@@ -61,22 +61,33 @@ def tohex(value: int, length=1) -> str:
 
     return ret
 
+def set_setting(typ: str, name: str, value: int, device_id: str):
+    length = SERIAL_VALUES[typ][name]["length"]
+    id = tohex(SERIAL_VALUES[typ][name]["id"])
 
-def set_rotation_limit(angle: int) -> None:
-    length = SERIAL_VALUES["base"]["limit"]["length"]
-    id = tohex(SERIAL_VALUES["base"]["limit"]["id"])
-
-    data = tohex(int(angle/2), length-1)
+    data = tohex(value, length-1)
     data = id + data
+    send_serial_packet(device_id, data)
 
-    send_serial_packet(data)
+# helper functions
+def set_base_setting(name: str, value: int) -> None:
+    set_setting("base", name, value)
 
+def set_wheel_setting(name: str, value: int) -> None:
+    id = SERIAL_VALUES["wheels"]["rsv2"]
+    set_setting("wheel", name, value, id)
 
-def set_rotatoion_angle(angle: int) -> None:
-    length = SERIAL_VALUES["base"]["angle"]["length"]
-    id = tohex(SERIAL_VALUES["base"]["angle"]["id"])
+def set_pedals_setting(name: str, value: int) -> None:
+    set_setting("pedals", name, value)
 
-    data = tohex(int(angle/2), length-1)
-    data = id + data
+def set_h_pattern_setting(name: str, value: int) -> None:
+    set_setting("pedals", name, value)
 
-    send_serial_packet(data)
+def set_sequential_setting(name: str, value: int) -> None:
+    set_setting("sequential", name, value)
+
+def set_handbrake_setting(name: str, value: int) -> None:
+    set_setting("handbrake", name, value)
+
+def set_hub_setting(name: str, value: int) -> None:
+    set_setting("hub", name, value)

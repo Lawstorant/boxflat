@@ -20,4 +20,14 @@ class SequentialSettings(SettingsPanel):
             marks=[5]
         )
 
-        # TODO: Add color picker row
+        self._add_color_picker_row("S1 Color", callback=lambda color: self._color_handler(1, color))
+        self._add_color_picker_row("S2 Color", callback=lambda color: self._color_handler(2, color))
+
+
+    def _color_handler(self, button: int, color: int) -> None:
+        if color == None:
+            return
+
+        print(f"Button: {button}\nColor: {color}\n")
+
+
