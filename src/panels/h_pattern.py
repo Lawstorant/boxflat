@@ -22,4 +22,4 @@ class HPatternSettings(SettingsPanel):
         )
 
         self._add_preferences_group("Calibration")
-        self._add_button_row("Device Calibration", "Calibrate")
+        self._add_button_row("Device Calibration", "Calibrate", subtitle="In case of weird behavior")

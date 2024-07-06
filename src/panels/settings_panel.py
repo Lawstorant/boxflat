@@ -7,6 +7,8 @@ from structs import *
 class SettingsPanel(object):
     _current_page: Adw.PreferencesPage
     _current_group: Adw.PreferencesGroup
+    _current_stack = None
+    _header = None
 
     def __init__(self, title, button_callback) -> None:
         self._content = self._prepare_content()
@@ -30,6 +32,8 @@ class SettingsPanel(object):
     def _prepare_content(self) -> Gtk.Box:
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         content.set_css_classes(['settings-pane'])
+        self._header = Adw.HeaderBar()
+        content.append(self._header)
         return content
 
     def _prepare_banner(self) -> Adw.Banner:
@@ -77,15 +81,30 @@ class SettingsPanel(object):
         launcher.set_uri(url)
         launcher.launch()
 
-    def _add_preferences_page(self) -> None:
-        self._current_page = Adw.PreferencesPage()
-        self._content.append(self._current_page)
+    def _add_preferences_page(self, name="", icon="preferences-system-symbolic") -> None:
+        page = Adw.PreferencesPage()
+        self._current_page = page
+
+        if self._current_stack == None:
+            self._content.append(page)
+        else:
+            self._current_stack.add_titled_with_icon(page, name, name, icon)
 
     def _add_preferences_group(self, title: str) -> None:
         if self._current_page != None:
             self._current_group = Adw.PreferencesGroup()
             self._current_group.set_title(title)
             self._current_page.add(self._current_group)
+
+    def _add_view_stack(self) -> None:
+        stack = Adw.ViewStack()
+        self._content.append(stack)
+        self._current_stack = stack
+
+        switcher = Adw.ViewSwitcher()
+        switcher.set_stack(stack)
+        switcher.set_policy(Adw.ViewSwitcherPolicy.WIDE)
+        self._header.set_title_widget(switcher)
 
     def _add_title_row(self, title: str, subtitle="") -> None:
         if self._current_group == None:
@@ -98,7 +117,7 @@ class SettingsPanel(object):
         self._current_group.add(row)
 
     def _add_slider_row(self, title: str, range_start: int, range_stop: int,
-                        value=0, size_request=(300,0), marks=[], mark_suffix="",
+                        value=0, size_request=(320,0), marks=[], mark_suffix="",
                         callback=None, subtitle="") -> None:
 
         if self._current_group == None:

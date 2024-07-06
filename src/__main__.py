@@ -35,11 +35,9 @@ class MainWindow(Adw.ApplicationWindow):
 
         content = Adw.NavigationPage()
         content.set_title("Whatever")
-        right_header = Adw.HeaderBar()
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         content_box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        content_box.append(right_header)
         content_box.append(content_box2)
         content.set_child(content_box)
 

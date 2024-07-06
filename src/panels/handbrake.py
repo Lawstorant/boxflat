@@ -11,7 +11,7 @@ class HandbrakeSettings(SettingsPanel):
     def _prepare_ui(self) -> None:
         self._add_preferences_page()
         self._add_preferences_group("Handbrake settings")
-        self._add_switch_row("Reverse Directiion")
+        self._add_switch_row("Reverse Direction")
         self._add_toggle_button_row("Handbrake Mode", ["Axis", "Button"])
         self._add_slider_row(
             "Button Treshold",
@@ -23,4 +23,4 @@ class HandbrakeSettings(SettingsPanel):
         )
 
         self._add_preferences_group("Calibration")
-        self._add_button_row("Device Calibration", "Calibrate")
+        self._add_button_row("Device Calibration", "Calibrate", subtitle="Set device range")

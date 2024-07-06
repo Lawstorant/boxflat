@@ -17,7 +17,8 @@ class BaseSettings(SettingsPanel):
             value += 1
 
     def _prepare_ui(self) -> None:
-        self._add_preferences_page()
+        self._add_view_stack()
+        self._add_preferences_page("Base")
         self._add_preferences_group("Important settings")
 
         self._add_title_row("Wheel Rotation Angle", "Round and round")
@@ -91,15 +92,20 @@ class BaseSettings(SettingsPanel):
         )
 
         self._add_slider_row(
-            "Speed-depended Damping Start Point", 0, 400, 120,
+            "Speed-depended Damping\nStart Point", 0, 400, 120,
             marks=[120],
             mark_suffix=" kph"
         )
 
-        self._add_preferences_group("Graphs")
+        self._add_preferences_page("Equalizer", "network-cellular-signal-excellent-symbolic")
+        self._add_preferences_group("FFB Effect Equalizer")
         self._add_title_row("FFB Effect Equalizer", "Work In Progress")
+
+        self._add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
+        self._add_preferences_group("Base FFB Curve")
         self._add_title_row("Base FFB Curve", "Work In Progress")
 
+        self._add_preferences_page("Misc", "preferences-other-symbolic")
         self._add_preferences_group("Misc Settings")
         self._add_switch_row("Base Status Indicator", subtitle="Does nothing if your base doesn't have it")
         self._add_slider_row(
@@ -107,13 +113,7 @@ class BaseSettings(SettingsPanel):
             marks=[5]
         )
 
-        # self._add_combo_row("Soft Limit Strength", {
-        #     100: "Soft",
-        #     78: "Middle",
-        #     56: "Hard"
-        # })
         self._add_toggle_button_row("Soft Limit Strength",["Soft", "Middle", "Hard"])
-
         self._add_switch_row("Soft Limit Game Force Strength", subtitle="I have no idea")
         self._add_toggle_button_row(
             "Temperature Control Strategy",
