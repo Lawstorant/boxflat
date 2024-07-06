@@ -20,7 +20,6 @@ def calculate_security_sum(data: bytearray) -> int:
     value = MAGIC_VALUE
     for d in data:
         value += int(d)
-
     return value % 256
 
 
@@ -38,12 +37,13 @@ def prepare_serial_message(device_id:str, serial_data: bytearray) -> bytes:
 def send_serial_packet(device_id: str, serial_data: bytearray) -> None:
     message = prepare_serial_message(device_id, serial_data)
     print(f"Sending: {message}")
+    for b in message:
+        print(hex(b))
 
     # TODO: device search
     with open("/dev/ttyACM0", "wb") as tty:
         for i in range(0, RETRY_COUNT):
             tty.write(message)
-            print(f"Sending try #{i+1}")
         tty.close()
 
 

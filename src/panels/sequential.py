@@ -33,6 +33,8 @@ class SequentialSettings(SettingsPanel):
         if button == 2:
             self.colorS2 = color
 
+        connection_manager.set_sequential_setting("lights", 0)
+        connection_manager.set_sequential_setting("lights", self.colorS1*256)
         connection_manager.set_sequential_setting("lights", self.colorS1*256 + self.colorS2)
 
     def _set_brightness(self, value) -> None:
