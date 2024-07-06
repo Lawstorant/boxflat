@@ -6,8 +6,9 @@ class BaseSettings(SettingsPanel):
         super(BaseSettings, self).__init__("Base", button_callback)
         # self._settings = connection_manager.get_base_settings()
 
-    def slider_rotation_changed(self, value) -> None:
-        print(value)
+    def _rotation_range(self, value) -> None:
+        connection_manager.set_base_setting("angle", int(value/2))
+        connection_manager.set_base_setting("limit", int(value/2))
 
     def _prepare_ui(self) -> None:
         self._add_view_stack()
@@ -19,7 +20,7 @@ class BaseSettings(SettingsPanel):
             "", 90, 2700, 540,
             size_request=(570,0),
             marks=[360, 540, 720, 900, 1080, 1440, 1800, 2160],
-            callback=self.slider_rotation_changed,
+            callback=self._rotation_range,
             increment=2
         )
 

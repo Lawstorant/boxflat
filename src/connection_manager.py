@@ -71,7 +71,8 @@ def set_setting(typ: str, name: str, value: int, device_id: str):
 
 # helper functions
 def set_base_setting(name: str, value: int) -> None:
-    set_setting("base", name, value)
+    id = SERIAL_VALUES["bases"]["r9v2"]
+    set_setting("base", name, value, id)
 
 def set_wheel_setting(name: str, value: int) -> None:
     id = SERIAL_VALUES["wheels"]["rsv2"]
