@@ -1,11 +1,11 @@
 magic-value: 13
-message-start: "\\x7e"
+message-start: "7e"
 
 bases:
   r3:
   r5:
   r9:
-  r9v2: "\\x29\\x13"
+  r9v2: "2913"
   r12:
   r16:
   r21:
@@ -15,7 +15,7 @@ wheels:
   cs:
   csv2p:
   rs:
-  rsv2: "\\x3f\\x17"
+  rsv2: "3f17"
   tsw:
   ks:
   gs:
@@ -30,10 +30,10 @@ pedals:
 accessories:
   hpattern:
   hpattern-usb:
-  sequential: "\\x52\\x1a"
-  sequential-usb: "\\x52\\x12"
-  handbrake: "\\x5c\\x1b"
-  handbrake-usb: "\\x5c\\x12"
+  sequential: "521a"
+  sequential-usb: "5212"
+  handbrake: "5c1b"
+  handbrake-usb: "5c12"
   hub:
 
 base:
