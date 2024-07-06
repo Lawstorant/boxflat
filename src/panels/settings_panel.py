@@ -144,7 +144,7 @@ class SettingsPanel(object):
 
         slider = Gtk.Scale()
         slider.set_range(range_start, range_stop)
-        slider.set_increments(2, 0)
+        slider.set_increments(increment, 0)
         slider.set_draw_value(True)
         slider.set_round_digits(0)
         slider.set_digits(0)

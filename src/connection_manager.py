@@ -74,7 +74,8 @@ def set_h_pattern_setting(name: str, value: int) -> None:
     set_setting("pedals", name, value)
 
 def set_sequential_setting(name: str, value: int) -> None:
-    set_setting("sequential", name, value)
+    id = SERIAL_VALUES["accessories"]["sequential"]
+    set_setting("sequential", name, value, id)
 
 def set_handbrake_setting(name: str, value: int) -> None:
     set_setting("handbrake", name, value)

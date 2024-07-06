@@ -145,7 +145,7 @@ h-pattern:
 sequential:
   brightness:
     id: 3
-    lenght: 3
+    length: 3
 
   lights:
     id: 4
