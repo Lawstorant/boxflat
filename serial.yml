@@ -116,11 +116,11 @@ wheel:
 
   stick-mode:
     id: 5
-    length: 3
+    length: 1
 
   indicator-mode:
     id: 4
-    length: 3
+    length: 2
 
   display-mode:
     id: 7
