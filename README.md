@@ -5,7 +5,7 @@ Boxflat for Moza Racing. Control your Moza wheelbase settings!
 
 This is still work in progress, but I managed to hook up to the serial connection and a few settings are already functional.
 
-For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff)
+#### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by @JacKeTUs
 
 ## Implemented features
 ### Base
@@ -23,9 +23,9 @@ For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff)
 ### Pedals
 
 ### H-Pattern shifter
-- Throttle blip switch
-- Throttle blip level
-- Throttle blip duration
+- Downshift throttle blip switch
+- Downshift throttle blip level
+- Downshift throttle blip duration
 
 ### Sequential shifter
 - Shift direction reversal
