@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Boxflat
+Comment=Moza Racing settings app
+GenericName=settings
+Path=./
+Exec=./boxflat
+Icon=boxflat
+Terminal=false
+Categories=Settings;
