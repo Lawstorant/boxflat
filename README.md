@@ -5,7 +5,7 @@ Boxflat for Moza Racing. Control your Moza wheelbase settings!
 
 This is still work in progress, but I managed to hook up to the serial connection and a few settings are already functional.
 
-#### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by @JacKeTUs
+#### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by [@JacKeTUs](https://github.com/JacKeTUs)
 
 ## Implemented features
 ### Base
@@ -52,6 +52,14 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Loading Pit House profile jsons
 - Pedal settings (I don't own any Moza pedals)
 - Calibrations
+
+## Compatibility list (confirmed working)
+- Moza R9v2
+- Moza RSv2 Wheel
+- Moza CRP Pedals 200kg (incoming)
+- Moza HGP H-Pattern Shifter
+- Moza SGP Sequential Shifter
+- Moza HBP Handbrake
 
 # Some more early screenshots
 ![Pedals panel](./screens/pedals.png)
