@@ -1,4 +1,4 @@
-from src.panels.settings_panel import SettingsPanel
+from boxflat.panels.settings_panel import SettingsPanel
 
 class HomeSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:

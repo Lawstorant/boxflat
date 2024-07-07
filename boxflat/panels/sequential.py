@@ -1,5 +1,5 @@
-from src.panels.settings_panel import SettingsPanel
-import src.connection_manager as connection_manager
+from boxflat.panels.settings_panel import SettingsPanel
+import boxflat.connection_manager as connection_manager
 
 class SequentialSettings(SettingsPanel):
     colorS1 = 0

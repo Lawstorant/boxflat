@@ -1,11 +1,11 @@
-from src.panels.settings_panel import SettingsPanel
-from src.panels.base import BaseSettings
-from src.panels.wheel import WheelSettings
-from src.panels.home import HomeSettings
-from src.panels.pedals import PedalsSettings
-from src.panels.h_pattern import HPatternSettings
-from src.panels.sequential import SequentialSettings
-from src.panels.handbrake import HandbrakeSettings
+from boxflat.panels.settings_panel import SettingsPanel
+from boxflat.panels.base import BaseSettings
+from boxflat.panels.wheel import WheelSettings
+from boxflat.panels.home import HomeSettings
+from boxflat.panels.pedals import PedalsSettings
+from boxflat.panels.h_pattern import HPatternSettings
+from boxflat.panels.sequential import SequentialSettings
+from boxflat.panels.handbrake import HandbrakeSettings
 
 _panels = {}
 
