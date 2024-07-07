@@ -3,6 +3,7 @@ import boxflat.connection_manager as connection_manager
 
 class WheelSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:
+        self._split = None
         super(WheelSettings, self).__init__("Wheel", button_callback)
 
 
@@ -10,10 +11,13 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page()
         self.add_preferences_group("Input settings")
         self.add_toggle_button_row("Dual Clutch Paddles Mode", ["Combined", "Split", "Buttons"], callback=self._set_paddles_mode)
-        self.add_slider_row("Clutch Split Point", 0 , 100, 50,
-                             marks=[25, 50, 75],
-                             mark_suffix=" %",
-                             callback=self._set_clutch_point)
+        self._split = self.add_slider_row(
+            "Clutch Split Point", 0 , 100, 50,
+            marks=[25, 50, 75],
+            mark_suffix=" %",
+            subtitle="Left paddle cutoff",
+            callback=self._set_clutch_point
+        )
         self.add_toggle_button_row("Left Stick Mode", ["Buttons", "D-Pad"], callback=self._set_stick_mode)
 
         self.add_preferences_group("Indicator settings")
@@ -35,10 +39,13 @@ class WheelSettings(SettingsPanel):
 
     def _set_paddles_mode(self, label: str) -> None:
         if label == "Combined":
+            self._split(True)
             connection_manager.set_wheel_setting("paddles-mode", 2)
         elif label == "Split":
+            self._split(False)
             connection_manager.set_wheel_setting("paddles-mode", 3)
         elif label == "Buttons":
+            self._split(False)
             connection_manager.set_wheel_setting("paddles-mode", 1)
 
 

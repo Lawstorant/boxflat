@@ -3,6 +3,8 @@ import boxflat.connection_manager as connection_manager
 
 class HPatternSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:
+        self._slider1 = None
+        self._slider2 = None
         super(HPatternSettings, self).__init__("H-Pattern Shifter", button_callback)
 
 
@@ -11,17 +13,17 @@ class HPatternSettings(SettingsPanel):
         self.add_preferences_group("Shifter Settings")
 
         self.add_switch_row("Auto Downshift Throttle Blip", True, subtitle="Easy rev match", callback=self._set_throttle_blip)
-        self.add_slider_row(
+        self._slider1 = self.add_slider_row(
             "Auto Blip Output", 0, 100, 80,
             marks=[50],
             mark_suffix="%",
             subtitle="Throttle level",
             callback=self._set_blip_output
         )
-        self.add_slider_row(
+        self._slider2 = self.add_slider_row(
             "Auto Blip Duration", 0, 1000, 300,
             marks=[250, 500, 750],
-            mark_suffix=" ms",
+            subtitle="Miliseconds",
             callback=self._set_blip_duration
         )
 
@@ -30,8 +32,12 @@ class HPatternSettings(SettingsPanel):
 
 
     def _set_throttle_blip(self, value: int) -> None:
-        if value != None:
-            connection_manager.set_h_pattern_setting("throttle-blip", value)
+        if value == None:
+            return
+
+        self._slider1(bool(value))
+        self._slider2(bool(value))
+        connection_manager.set_h_pattern_setting("throttle-blip", value)
 
 
     def _set_blip_output(self, value: int) -> None:
@@ -46,4 +52,3 @@ class HPatternSettings(SettingsPanel):
 
     def _set_calibration(self) -> None:
         connection_manager.set_h_pattern_setting("calibration", 1)
-

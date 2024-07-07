@@ -18,18 +18,18 @@ class BaseSettings(SettingsPanel):
         self.add_title_row("Wheel Rotation Angle", "Round and round")
         self.add_slider_row(
             "", 90, 2700, 540,
-            size_request=(570,0),
+            size_request=(200,0),
             marks=[360, 540, 720, 900, 1080, 1440, 1800, 2160],
             callback=self._rotation_range,
             increment=2
         )
 
-        # self.add_slider_row(
-        #     "FFB Strength", 0, 100, 70,
-        #     marks=[50],
-        #     mark_suffix="%",
-        #     subtitle="Don't loose your grip!"
-        # )
+        self.add_slider_row(
+            "FFB Strength", 0, 100, 70,
+            marks=[50],
+            mark_suffix="%",
+            subtitle="Don't loose your grip!"
+        )
 
         # self.add_preferences_group("Basic settings")
         # self.add_slider_row(
