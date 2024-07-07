@@ -9,26 +9,39 @@ For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff)
 
 ## Implemented features
 ### Base
-- Base rotation angle
+- Rotation angle limit
+- Game FFB Strength
 
 ### Wheel
-- Wheel stick mode switch
-- Wheel RPM indicator mode
-- Wheel brightness
+- Clutch paddles mode
+- Clutch paddles split point
+- Left stick mode switch
+- RPM indicator mode
+- RPM indicator display mode
+- Brightness adjustement
 
 ### Pedals
 
 ### H-Pattern shifter
+- Throttle blip switch
+- Throttle blip level
+- Throttle blip duration
 
 ### Sequential shifter
-- Sequential shifter button colors
+- Shift direction reversal
+- Paddle shifter synchronization
+- Button brightness adjustement
+- Button colors
 
 ### Handbrake
+- Direction reversal
+- Handbrake mode switch
+- Button mode threshold
 
 ## WiP
 - Calibration
 - Calibration warning dialog
-- Device discovery
+- Device discovery (currently defaulting to `/dev/ttyACM0`)
 - USB/Wheelbase accessory discovery
 
 ## Not implemented
@@ -38,6 +51,7 @@ For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff)
 - Handbrake Curve
 - Loading Pit House profile jsons
 - Pedal settings (I don't own any Moza pedals)
+- Calibrations
 
 # Some more early screenshots
 ![Pedals panel](./screens/pedals.png)

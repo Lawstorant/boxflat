@@ -18,7 +18,7 @@ class BaseSettings(SettingsPanel):
         self.add_title_row("Wheel Rotation Angle", "Round and round")
         self.add_slider_row(
             "", 90, 2700, 540,
-            size_request=(200,0),
+            size_request=(550,0),
             marks=[360, 540, 720, 900, 1080, 1440, 1800, 2160],
             callback=self._rotation_range,
             increment=2

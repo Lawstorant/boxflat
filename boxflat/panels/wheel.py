@@ -23,9 +23,9 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_group("Indicator settings")
         self.add_toggle_button_row("RPM Indicator Mode", ["RPM", "On", "Off"], callback=self._set_indicator_mode)
 
-        # self.add_toggle_button_row("RPM Indicator Display Mode", ["Mode 1", "Mode 2"])
+        self.add_toggle_button_row("RPM Indicator Display Mode", ["Mode 1", "Mode 2"], callback=self._set_display_mode)
         # # TODO: Add custom timing with a vertical sliders widget
-        # self.add_toggle_button_row("RPM Indicator Timing", ["Early", "Normal", "Late"])
+        self.add_toggle_button_row("RPM Indicator Timing", ["Early", "Normal", "Late"], callback=self._set_indicator_timings)
         # # TODO: Add color picker for every light
         self.add_slider_row("Brightness", 0 , 100, 50,
                              marks=[25, 50, 75], mark_suffix=" %",
@@ -69,6 +69,24 @@ class WheelSettings(SettingsPanel):
         elif label == "On":
             connection_manager.set_wheel_setting("indicator-mode", 3)
 
+
     def _set_brightness(self, value: int) -> None:
         if value != None:
             connection_manager.set_wheel_setting("brightness", value)
+
+
+    def _set_display_mode(self, label: str) -> None:
+        if label != None:
+            connection_manager.set_wheel_setting("display-mode", int(label[-1]))
+
+
+    def _set_indicator_timings(self, label:str) -> None:
+        if label == "Early":
+            value = bytes([65, 69, 72, 75, 78, 80, 83, 85, 88, 91])
+            connection_manager.set_wheel_setting("indicator-timings", byte_value=value)
+        elif label == "Normal":
+            value = bytes([75, 79, 82, 85, 87, 88, 89, 90, 92, 94])
+            connection_manager.set_wheel_setting("indicator-timings", byte_value=value)
+        elif label == "Late":
+            value = bytes([80, 83, 86, 89, 91, 92, 93, 94, 96, 97])
+            connection_manager.set_wheel_setting("indicator-timings", byte_value=value)

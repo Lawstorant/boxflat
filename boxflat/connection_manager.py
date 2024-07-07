@@ -54,7 +54,7 @@ def send_serial_packet(device_id: str, serial_data: bytearray) -> None:
         tty.close()
 
 
-def set_setting(typ: str, name: str, value: int, device_id: str):
+def set_setting(typ: str, name: str, value: int, device_id: str, bytes: bytes):
     length = int(SERIAL_VALUES[typ][name]["length"])
     setting_id = int(SERIAL_VALUES[typ][name]["id"])
 
@@ -64,33 +64,37 @@ def set_setting(typ: str, name: str, value: int, device_id: str):
 
     data = bytearray()
     data.append(setting_id)
-    data.extend(value.to_bytes(length-1))
+
+    if bytes == None:
+        data.extend(value.to_bytes(length-1))
+    else:
+        data.extend(bytes)
 
     send_serial_packet(device_id, data)
 
 
 # TODO: USB/Base device discovery
 # helper functions
-def set_base_setting(name: str, value: int) -> None:
+def set_base_setting(name: str, value=0, byte_value=None) -> None:
     id = SERIAL_VALUES["bases"]["r9v2"]
-    set_setting("base", name, value, id)
+    set_setting("base", name, value, id, byte_value)
 
-def set_wheel_setting(name: str, value: int) -> None:
+def set_wheel_setting(name: str, value=0, byte_value=None) -> None:
     id = SERIAL_VALUES["wheels"]["rsv2"]
-    set_setting("wheel", name, value, id)
+    set_setting("wheel", name, value, id, byte_value)
 
-def set_pedals_setting(name: str, value: int) -> None:
+def set_pedals_setting(name: str, value=0, byte_value=None) -> None:
     # set_setting("pedals", name, value)
     print("Not implemented yet")
 
-def set_h_pattern_setting(name: str, value: int) -> None:
+def set_h_pattern_setting(name: str, value=0, byte_value=None) -> None:
     id = SERIAL_VALUES["accessories"]["h-pattern"]
-    set_setting("h-pattern", name, value, id)
+    set_setting("h-pattern", name, value, id, byte_value)
 
-def set_sequential_setting(name: str, value: int) -> None:
+def set_sequential_setting(name: str, value=0, byte_value=None) -> None:
     id = SERIAL_VALUES["accessories"]["sequential"]
-    set_setting("sequential", name, value, id)
+    set_setting("sequential", name, value, id, byte_value)
 
-def set_handbrake_setting(name: str, value: int) -> None:
+def set_handbrake_setting(name: str, value=0, byte_value=None) -> None:
     id = SERIAL_VALUES["accessories"]["handbrake"]
-    set_setting("handbrake", name, value, id)
+    set_setting("handbrake", name, value, id, byte_value)

@@ -7,7 +7,7 @@ import boxflat.panels as panels
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_default_size(900, 700)
+        self.set_default_size(850, 700)
         self.set_title("Boxflat")
 
         left_header = Adw.HeaderBar()
