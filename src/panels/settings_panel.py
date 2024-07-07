@@ -198,6 +198,7 @@ class SettingsPanel(object):
         combo.set_model(store)
         combo.set_factory(factory)
 
+        # TODO: connect callback function
         if callback != None:
             pass
 
@@ -241,14 +242,14 @@ class SettingsPanel(object):
             button.add_css_class("toggle-button")
             box.append(button)
 
-            if callback != None:
-                button.connect('toggled', lambda button: callback(button.get_label()) if button.get_active() == True else callback(None))
-
             if group is None:
                 group = button
                 button.set_active(True)
             else:
                 button.set_group(group)
+
+            if callback != None:
+                button.connect('toggled', lambda button: callback(button.get_label()) if button.get_active() == True else callback(None))
 
         row = Adw.ActionRow()
         row.set_title(title)
@@ -270,16 +271,17 @@ class SettingsPanel(object):
             button.add_css_class("color-button")
             button.add_css_class(f"c{i}")
             box.append(button)
-            button.connect('toggled', lambda button: button.add_css_class("color-selected") if button.get_active() == True else button.remove_css_class("color-selected"))
-
-            if callback != None:
-                button.connect('toggled', lambda button: callback(int(button.get_label())) if button.get_active() == True else callback(None))
 
             if group is None:
                 group = button
                 button.set_active(True)
             else:
                 button.set_group(group)
+
+            button.connect('toggled', lambda button: button.add_css_class("color-selected") if button.get_active() == True else button.remove_css_class("color-selected"))
+            if callback != None:
+                button.connect('toggled', lambda button: callback(int(button.get_label())) if button.get_active() == True else callback(None))
+
 
         row = Adw.ActionRow()
         row.set_title(title)
