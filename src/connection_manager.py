@@ -36,20 +36,25 @@ def prepare_serial_message(device_id:str, serial_data: bytearray) -> bytes:
 
 def send_serial_packet(device_id: str, serial_data: bytearray) -> None:
     message = prepare_serial_message(device_id, serial_data)
-    print(f"Sending: {message}")
+    msg = ""
     for b in message:
-        print(hex(b))
+        msg += f"{hex(b)} "
+    print(f"Sending: {msg}\n")
 
     # TODO: device search
-    with open("/dev/ttyACM0", "wb") as tty:
-        for i in range(0, RETRY_COUNT):
-            tty.write(message)
-        tty.close()
+    # with open("/dev/ttyACM0", "wb") as tty:
+    #     for i in range(0, RETRY_COUNT):
+    #         tty.write(message)
+    #     tty.close()
 
 
 def set_setting(typ: str, name: str, value: int, device_id: str):
     length = int(SERIAL_VALUES[typ][name]["length"])
     setting_id = int(SERIAL_VALUES[typ][name]["id"])
+
+    if length is -1 or setting_id is -1:
+        print("Command not known yet")
+        return
 
     data = bytearray()
     data.append(setting_id)
@@ -68,7 +73,8 @@ def set_wheel_setting(name: str, value: int) -> None:
     set_setting("wheel", name, value, id)
 
 def set_pedals_setting(name: str, value: int) -> None:
-    set_setting("pedals", name, value)
+    # set_setting("pedals", name, value)
+    print("Not implemented yet")
 
 def set_h_pattern_setting(name: str, value: int) -> None:
     set_setting("pedals", name, value)
@@ -78,7 +84,9 @@ def set_sequential_setting(name: str, value: int) -> None:
     set_setting("sequential", name, value, id)
 
 def set_handbrake_setting(name: str, value: int) -> None:
-    set_setting("handbrake", name, value)
+    id = SERIAL_VALUES["accessories"]["handbrake"]
+    set_setting("handbrake", name, value, id)
 
 def set_hub_setting(name: str, value: int) -> None:
-    set_setting("hub", name, value)
+    # set_setting("hub", name, value)
+    print("Not implemented yet")

@@ -174,7 +174,7 @@ class SettingsPanel(object):
         switch.set_active(value)
 
         if callback != None:
-            switch.get_activatable_widget().connect('state-set', callback)
+            switch.connect('notify::active', lambda switch,s: callback(int(switch.get_active())))
 
         self._current_group.add(switch)
 
@@ -210,7 +210,7 @@ class SettingsPanel(object):
         button = Gtk.Button(label=button_label)
         button.add_css_class("row-button")
         if callback != None:
-            button.connect('clicked', callback)
+            button.connect('clicked', lambda button: callback())
 
         row = Adw.ActionRow()
         row.set_title(title)

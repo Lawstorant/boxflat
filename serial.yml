@@ -145,7 +145,7 @@ h-pattern:
 sequential:
   brightness:
     id: 3
-    length: 3
+    length: 2
 
   lights:
     id: 4
@@ -153,22 +153,22 @@ sequential:
 
   direction:
     id: 5
-    lenght: 3
+    length: 2
 
   paddle-sync:
     id: 6
-    length: 3
+    length: 2
 
 handbrake:
-  reverse:
+  direction:
     id: 1
-    length: 3
+    length: 2
 
   mode:
     id: 11
-    length: 3
+    length: 2
 
-  button-treshold:
+  button-threshold:
     id: 10
     length: 3
 
@@ -184,5 +184,9 @@ handbrake:
   curve-y1:
     id: 5
     length: 5
+
+  calibrate:
+    id: -1
+    length: -1
 
 hub:
