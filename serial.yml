@@ -108,11 +108,11 @@ base:
 wheel:
   clutch-point:
     id: 9
-    length: 3
+    length: 2
 
   paddles-mode:
     id: 3
-    length: 3
+    length: 2
 
   stick-mode:
     id: 5
@@ -132,7 +132,7 @@ wheel:
 
   brightness:
     id: 1
-    length: 3
+    length: 2
 
   colors:
     id: 0

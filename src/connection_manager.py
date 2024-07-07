@@ -1,4 +1,5 @@
 import yaml
+import os.path
 
 MESSAGE_START=""
 MAGIC_VALUE=0
@@ -39,13 +40,18 @@ def send_serial_packet(device_id: str, serial_data: bytearray) -> None:
     msg = ""
     for b in message:
         msg += f"{hex(b)} "
-    print(f"Sending: {msg}\n")
+    print(f"Sending: {msg}")
 
     # TODO: device search
-    # with open("/dev/ttyACM0", "wb") as tty:
-    #     for i in range(0, RETRY_COUNT):
-    #         tty.write(message)
-    #     tty.close()
+    tty_path = "/dev/ttyACM0"
+    if not os.path.isfile(tty_path):
+        print(f"{tty_path} -> Device not found\n")
+        return
+
+    with open(tty_path, "wb") as tty:
+        for i in range(0, RETRY_COUNT):
+            tty.write(message)
+        tty.close()
 
 
 def set_setting(typ: str, name: str, value: int, device_id: str):
@@ -63,6 +69,7 @@ def set_setting(typ: str, name: str, value: int, device_id: str):
     send_serial_packet(device_id, data)
 
 
+# TODO: USB/Base device discovery
 # helper functions
 def set_base_setting(name: str, value: int) -> None:
     id = SERIAL_VALUES["bases"]["r9v2"]

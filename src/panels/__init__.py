@@ -12,7 +12,7 @@ _panels = {}
 def prepare_panels(button_callback) -> dict:
     _panels["Home"] = HomeSettings(button_callback)
     _panels["Base"] = BaseSettings(button_callback)
-    # _panels["Wheel"] = WheelSettings(button_callback)
+    _panels["Wheel"] = WheelSettings(button_callback)
     # _panels["Pedals"] = PedalsSettings(button_callback)
     _panels["H-Pattern Shifter"] = HPatternSettings(button_callback)
     _panels["Sequential Shifter"] = SequentialSettings(button_callback)
