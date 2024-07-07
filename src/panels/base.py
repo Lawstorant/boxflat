@@ -1,5 +1,5 @@
-from panels.settings_panel import SettingsPanel
-import connection_manager
+from src.panels.settings_panel import SettingsPanel
+import src.connection_manager as connection_manager
 
 class BaseSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:

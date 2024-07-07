@@ -2,7 +2,7 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
-from panels.settings_panel import SettingsPanel
+from src.panels.settings_panel import SettingsPanel
 
 class PedalsSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:

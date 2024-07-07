@@ -1,5 +1,5 @@
-from panels.settings_panel import SettingsPanel
-import connection_manager
+from src.panels.settings_panel import SettingsPanel
+import src.connection_manager as connection_manager
 
 class SequentialSettings(SettingsPanel):
     colorS1 = 0

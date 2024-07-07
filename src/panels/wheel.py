@@ -2,8 +2,8 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
-from panels.settings_panel import SettingsPanel
-import connection_manager
+from src.panels.settings_panel import SettingsPanel
+import src.connection_manager as connection_manager
 
 class WheelSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:

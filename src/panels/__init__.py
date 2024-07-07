@@ -1,11 +1,11 @@
-from panels.settings_panel import SettingsPanel
-from panels.base import BaseSettings
-from panels.wheel import WheelSettings
-from panels.home import HomeSettings
-from panels.pedals import PedalsSettings
-from panels.h_pattern import HPatternSettings
-from panels.sequential import SequentialSettings
-from panels.handbrake import HandbrakeSettings
+from src.panels.settings_panel import SettingsPanel
+from src.panels.base import BaseSettings
+from src.panels.wheel import WheelSettings
+from src.panels.home import HomeSettings
+from src.panels.pedals import PedalsSettings
+from src.panels.h_pattern import HPatternSettings
+from src.panels.sequential import SequentialSettings
+from src.panels.handbrake import HandbrakeSettings
 
 _panels = {}
 

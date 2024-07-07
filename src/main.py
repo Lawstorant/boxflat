@@ -1,10 +1,8 @@
-import sys
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Gdk, Adw
-
-import panels
+from gi.repository import Gtk, Adw
+import src.panels as panels
 
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, *args, **kwargs):
@@ -80,10 +78,3 @@ class MyApp(Adw.Application):
     def on_activate(self, app):
         self.win = MainWindow(application=app)
         self.win.present()
-
-css_provider = Gtk.CssProvider()
-css_provider.load_from_path('style.css')
-Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
-app = MyApp(application_id="com.lawstorant.boxflat")
-app.run(sys.argv)

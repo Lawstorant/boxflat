@@ -1,8 +1,8 @@
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Gdk, Gio, Adw
-from structs import *
+from gi.repository import Gtk, Gio, Adw
+from src.structs import *
 
 class SettingsPanel(object):
     _current_page: Adw.PreferencesPage
