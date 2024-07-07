@@ -10,7 +10,7 @@ class MainWindow(Adw.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_default_size(900, 700)
-        self.set_title("Box Flat")
+        self.set_title("Boxflat")
 
         left_header = Adw.HeaderBar()
         left_header.set_show_end_title_buttons(False)
@@ -28,7 +28,7 @@ class MainWindow(Adw.ApplicationWindow):
         navigation.set_min_sidebar_width(150)
 
         sidebar = Adw.NavigationPage()
-        sidebar.set_title("Box Flat")
+        sidebar.set_title("Boxflat")
         box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box2.append(left_header)
         sidebar.set_child(box2)

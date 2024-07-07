@@ -16,7 +16,7 @@ class HomeSettings(SettingsPanel):
 
         self._add_preferences_page()
         self._add_preferences_group("")
-        self._add_title_row("~Welcome to Box Flat~")
+        self._add_title_row("~Welcome to Boxflat~")
         self._add_button_row("Go to the project page", "GitHub", callback=self.open_github, subtitle="Thanks")
         self._add_button_row(
             "Go to the universal-ff driver page",
