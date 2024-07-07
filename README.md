@@ -61,6 +61,24 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Moza SGP Sequential Shifter
 - Moza HBP Handbrake
 
+## Installation/dependencies
+This package depends on:
+- python3
+- gtk4
+- libadwaita ~>1.3
+- pyyaml ~>6.0.1
+- pycairo ~>1.26.1
+- PyGObject ~>3.48.2
+
+### Arch Linux:
+https://aur.archlinux.org/packages/boxflat-git
+
+### Manual:
+Just run: `./entrypoint local`
+
+Install: Run `install.sh` with root permissions. Application will be installed as `boxflat`
+Uninstall: Run `install.sh remove` with root permissions.
+
 # Some more early screenshots
 ![Pedals panel](./screens/pedals.png)
 

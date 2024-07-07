@@ -75,7 +75,7 @@ class MyApp(Adw.Application):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_path('data/style.css')
+        css_provider.load_from_path('/usr/share/boxflat/style.css')
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 
