@@ -22,7 +22,7 @@ class HandbrakeSettings(SettingsPanel):
         )
 
         self._add_preferences_group("Calibration")
-        self._add_button_row("Device Calibration", "Calibrate", subtitle="Set device range", callback=self._calibrate)
+        self._add_button_row("Device Calibration", "Calibrate", subtitle="Set device range", callback=self._set_calibration)
 
 
     def _set_direction(self, value: int) -> None:
@@ -41,5 +41,6 @@ class HandbrakeSettings(SettingsPanel):
         if value != None:
             connection_manager.set_handbrake_setting("button-threshold", value)
 
-    def _calibrate(self) -> None:
-        connection_manager.set_handbrake_setting("calibrate", 1)
+
+    def _set_calibration(self) -> None:
+        connection_manager.set_handbrake_setting("calibration", 1)

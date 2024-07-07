@@ -246,6 +246,7 @@ class SettingsPanel(object):
 
             if group is None:
                 group = button
+                button.set_active(True)
             else:
                 button.set_group(group)
 
@@ -276,6 +277,7 @@ class SettingsPanel(object):
 
             if group is None:
                 group = button
+                button.set_active(True)
             else:
                 button.set_group(group)
 

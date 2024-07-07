@@ -52,7 +52,7 @@ def set_setting(typ: str, name: str, value: int, device_id: str):
     length = int(SERIAL_VALUES[typ][name]["length"])
     setting_id = int(SERIAL_VALUES[typ][name]["id"])
 
-    if length is -1 or setting_id is -1:
+    if length == -1 or setting_id == -1:
         print("Command not known yet")
         return
 
@@ -77,7 +77,8 @@ def set_pedals_setting(name: str, value: int) -> None:
     print("Not implemented yet")
 
 def set_h_pattern_setting(name: str, value: int) -> None:
-    set_setting("pedals", name, value)
+    id = SERIAL_VALUES["accessories"]["h-pattern"]
+    set_setting("h-pattern", name, value, id)
 
 def set_sequential_setting(name: str, value: int) -> None:
     id = SERIAL_VALUES["accessories"]["sequential"]

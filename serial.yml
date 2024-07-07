@@ -28,13 +28,13 @@ pedals:
   crp:
 
 accessories:
-  hpattern:
-  hpattern-usb:
+  h-pattern: "0000"
+  h-pattern-usb: "0000"
   sequential: "521a"
   sequential-usb: "5212"
   handbrake: "5c1b"
   handbrake-usb: "5c12"
-  hub:
+  hub: "0000"
 
 base:
   limit:
@@ -141,6 +141,21 @@ wheel:
 pedals:
 
 h-pattern:
+  throttle-blip:
+    id: -1
+    length: -1
+
+  blip-output:
+    id: -1
+    length: -1
+
+  blip-duration:
+    id: -1
+    length: -1
+
+  calibration:
+    id: -1
+    length: -1
 
 sequential:
   brightness:
@@ -185,7 +200,7 @@ handbrake:
     id: 5
     length: 5
 
-  calibrate:
+  calibration:
     id: -1
     length: -1
 
