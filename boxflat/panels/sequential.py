@@ -8,20 +8,20 @@ class SequentialSettings(SettingsPanel):
     def __init__(self, button_callback) -> None:
         super(SequentialSettings, self).__init__("Sequential Shifter", button_callback)
 
-    def _prepare_ui(self) -> None:
-        self._add_preferences_page()
-        self._add_preferences_group("Shifter Settings")
-        self._add_switch_row("Reverse Shift Direction", subtitle="Why would you do that?", callback=self._set_direction)
-        self._add_switch_row("Paddle Shifter Synchronization", callback=self._set_paddle_sync)
+    def prepare_ui(self) -> None:
+        self.add_preferences_page()
+        self.add_preferences_group("Shifter Settings")
+        self.add_switch_row("Reverse Shift Direction", subtitle="Why would you do that?", callback=self._set_direction)
+        self.add_switch_row("Paddle Shifter Synchronization", callback=self._set_paddle_sync)
 
-        self._add_slider_row(
+        self.add_slider_row(
             "Button Brightness", 0, 10, 8,
             marks=[5],
             callback=self._set_brightness
         )
 
-        self._add_color_picker_row("S1 Color", callback=lambda color: self._set_colors(1, color))
-        self._add_color_picker_row("S2 Color", callback=lambda color: self._set_colors(2, color))
+        self.add_color_picker_row("S1 Color", callback=lambda color: self._set_colors(1, color))
+        self.add_color_picker_row("S2 Color", callback=lambda color: self._set_colors(2, color))
 
 
     def _set_colors(self, button: int, color: int) -> None:

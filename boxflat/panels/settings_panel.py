@@ -14,7 +14,7 @@ class SettingsPanel(object):
         self._content = self._prepare_content()
         self._button = self._prepare_button(title, button_callback)
         self._banner = self._prepare_banner()
-        self._prepare_ui()
+        self.prepare_ui()
 
     def _prepare_button(self, title, button_callback) -> Gtk.ToggleButton:
         button = Gtk.ToggleButton()
@@ -36,16 +36,16 @@ class SettingsPanel(object):
         content.append(self._header)
         return content
 
-    def _prepare_banner(self) -> Adw.Banner:
+    def _prepare_banner(self, title="Title", label="Label") -> Adw.Banner:
         banner = Adw.Banner()
-        banner.set_title("Remember to apply settings")
-        banner.set_button_label("Apply")
+        banner.set_title(title)
+        banner.set_button_label(label)
         banner.set_revealed(False)
         banner.connect("button-clicked", self.apply)
         self._content.append(banner)
         return banner
 
-    def _prepare_ui(self) -> None:
+    def prepare_ui(self) -> None:
         pass
 
     def show_banner(self, *arg) -> None:
@@ -81,7 +81,7 @@ class SettingsPanel(object):
         launcher.set_uri(url)
         launcher.launch()
 
-    def _add_preferences_page(self, name="", icon="preferences-system-symbolic") -> None:
+    def add_preferences_page(self, name="", icon="preferences-system-symbolic") -> None:
         page = Adw.PreferencesPage()
         self._current_page = page
 
@@ -90,7 +90,7 @@ class SettingsPanel(object):
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
-    def _add_preferences_group(self, title: str, level_bar=False) -> None:
+    def add_preferences_group(self, title: str, level_bar=False) -> None:
         if self._current_page != None:
             self._current_group = Adw.PreferencesGroup()
             self._current_group.set_title(title)
@@ -105,7 +105,7 @@ class SettingsPanel(object):
                 bar.set_size_request(300,0)
                 self._current_group.set_header_suffix(bar)
 
-    def _add_view_stack(self) -> None:
+    def add_view_stack(self) -> None:
         stack = Adw.ViewStack()
         self._content.append(stack)
         self._current_stack = stack
@@ -115,7 +115,7 @@ class SettingsPanel(object):
         switcher.set_policy(Adw.ViewSwitcherPolicy.WIDE)
         self._header.set_title_widget(switcher)
 
-    def _add_title_row(self, title: str, subtitle="") -> None:
+    def add_title_row(self, title: str, subtitle="") -> None:
         if self._current_group == None:
             return
 
@@ -135,9 +135,9 @@ class SettingsPanel(object):
             if callback != None:
                 callback(value)
 
-    def _add_slider_row(self, title: str, range_start: int, range_stop: int,
+    def add_slider_row(self, title: str, range_start: int, range_stop: int,
                         value=0, size_request=(320,0), marks=[], mark_suffix="",
-                        callback=None, increment=1, subtitle="") -> None:
+                        callback=None, increment=1, subtitle="") -> callable:
 
         if self._current_group == None:
             return
@@ -163,8 +163,9 @@ class SettingsPanel(object):
         row.set_title(title)
         row.set_subtitle(subtitle)
         self._current_group.add(row)
+        return lambda value: slider.set_sensitive(value)
 
-    def _add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> None:
+    def add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> callable:
         if self._current_group == None:
             return
 
@@ -177,8 +178,9 @@ class SettingsPanel(object):
             switch.connect('notify::active', lambda switch,s: callback(int(switch.get_active())))
 
         self._current_group.add(switch)
+        return switch.get_activatable_widget().set_sensitive
 
-    def _add_combo_row(self, title: str, values: dict, callback=None, subtitle="") -> None:
+    def add_combo_row(self, title: str, values: dict, callback=None, subtitle="") -> None:
         if self._current_group == None:
             return
 
@@ -204,7 +206,7 @@ class SettingsPanel(object):
 
         self._current_group.add(combo)
 
-    def _add_button_row(self, title: str, button_label: str, callback=None, subtitle="") -> None:
+    def add_button_row(self, title: str, button_label: str, callback=None, subtitle="") -> None:
         if self._current_group == None:
             return
 
@@ -228,8 +230,8 @@ class SettingsPanel(object):
         # if callback != None:
         #     button.connect('activated', callback)
 
-    def _add_toggle_button_row(self, title: str, labels: list,
-                               callback=None, subtitle="") -> None:
+    def add_toggle_button_row(self, title: str, labels: list,
+                              callback=None, subtitle="") -> None:
         if self._current_group == None:
             return
 
@@ -258,7 +260,7 @@ class SettingsPanel(object):
 
         self._current_group.add(row)
 
-    def _add_color_picker_row(self, title: str, callback=None, subtitle="") -> None:
+    def add_color_picker_row(self, title: str, callback=None, subtitle="") -> None:
         if self._current_group == None:
             return
 
@@ -271,6 +273,8 @@ class SettingsPanel(object):
             button.add_css_class("color-button")
             button.add_css_class(f"c{i}")
             box.append(button)
+            button.connect('toggled',
+                lambda button: button.add_css_class("color-selected") if button.get_active() == True else button.remove_css_class("color-selected"))
 
             if group is None:
                 group = button
@@ -278,10 +282,9 @@ class SettingsPanel(object):
             else:
                 button.set_group(group)
 
-            button.connect('toggled', lambda button: button.add_css_class("color-selected") if button.get_active() == True else button.remove_css_class("color-selected"))
             if callback != None:
-                button.connect('toggled', lambda button: callback(int(button.get_label())) if button.get_active() == True else callback(None))
-
+                button.connect('toggled',
+                    lambda button: callback(int(button.get_label())) if button.get_active() == True else callback(None))
 
         row = Adw.ActionRow()
         row.set_title(title)

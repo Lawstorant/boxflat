@@ -6,7 +6,7 @@ MAGIC_VALUE=0
 RETRY_COUNT=3
 SERIAL_VALUES = {}
 
-with open("serial.yml") as stream:
+with open("data/serial.yml") as stream:
     try:
         SERIAL_VALUES = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
