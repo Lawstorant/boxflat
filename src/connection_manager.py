@@ -87,7 +87,3 @@ def set_sequential_setting(name: str, value: int) -> None:
 def set_handbrake_setting(name: str, value: int) -> None:
     id = SERIAL_VALUES["accessories"]["handbrake"]
     set_setting("handbrake", name, value, id)
-
-def set_hub_setting(name: str, value: int) -> None:
-    # set_setting("hub", name, value)
-    print("Not implemented yet")
