@@ -74,7 +74,7 @@ This package depends on:
 https://aur.archlinux.org/packages/boxflat-git
 
 ### Manual:
-Just run: `./entrypoint local`
+Just run: `./entrypoint.py local`
 
 Install: Run `install.sh` with root permissions. Application will be installed as `boxflat`
 Uninstall: Run `install.sh remove` with root permissions.
