@@ -43,6 +43,7 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Calibration warning dialog
 - Device discovery (currently defaulting to `/dev/ttyACM0`)
 - USB/Wheelbase accessory discovery
+- Reading settings from the base :P
 
 ## Not implemented
 - Base FFB Curve

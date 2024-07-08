@@ -6,6 +6,10 @@ MAGIC_VALUE=0
 RETRY_COUNT=3
 SERIAL_VALUES = {}
 
+# TODO: convert to class
+# TODO: add notifications about parameters?
+# TODO: add start-stop watching get commands in threads
+
 with open("/usr/share/boxflat/data/serial.yml") as stream:
     try:
         SERIAL_VALUES = yaml.safe_load(stream)
