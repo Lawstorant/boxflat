@@ -793,7 +793,7 @@ commands:
     read: 91
     write: 92
     id: 1
-    bytes: 1
+    bytes: 2
 
   handbrake-range-start:
     read: 91

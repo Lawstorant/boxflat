@@ -16,9 +16,28 @@ class HandbrakeSettings(SettingsPanel):
             0,
             100,
             50,
-            marks=[50],
+            marks=[25, 50, 75],
             mark_suffix=" %",
-            callback=self._set_button_threshold
+            callback=self._set_button_threshold,
+            subtitle="Doesn't work for some reason"
+        )
+        self.add_slider_row(
+            "Handbrake Range Start",
+            0,
+            100,
+            0,
+            marks=[25, 50, 75],
+            mark_suffix=" %",
+            callback=lambda value: self._set_range("start", value)
+        )
+        self.add_slider_row(
+            "Handbrake Range End",
+            0,
+            100,
+            100,
+            marks=[25, 50, 75],
+            mark_suffix=" %",
+            callback=lambda value: self._set_range("end", value)
         )
 
         # self.add_preferences_group("Calibration")
@@ -42,6 +61,10 @@ class HandbrakeSettings(SettingsPanel):
     def _set_button_threshold(self, value: int) -> None:
         if value != None:
             self._cm.set_setting("handbrake-button-threshold", value)
+
+
+    def _set_range(self, position: str, value: int) -> None:
+        self._cm.set_setting(f"handbrake-range-{position}", value)
 
 
     def _set_calibration(self) -> None:
