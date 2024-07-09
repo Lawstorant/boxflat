@@ -1,11 +1,11 @@
 from boxflat.panels.settings_panel import SettingsPanel
-import boxflat.connection_manager as connection_manager
+from boxflat.connection_manager import MozaConnectionManager
 
 class HPatternSettings(SettingsPanel):
-    def __init__(self, button_callback) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._slider1 = None
         self._slider2 = None
-        super(HPatternSettings, self).__init__("H-Pattern Shifter", button_callback)
+        super(HPatternSettings, self).__init__("H-Pattern Shifter", button_callback, connection_manager)
 
 
     def prepare_ui(self) -> None:
@@ -37,18 +37,18 @@ class HPatternSettings(SettingsPanel):
 
         self._slider1(bool(value))
         self._slider2(bool(value))
-        connection_manager.set_h_pattern_setting("throttle-blip", value)
+        self._cm.set_h_pattern_setting("throttle-blip", value)
 
 
     def _set_blip_output(self, value: int) -> None:
         if value != None:
-            connection_manager.set_h_pattern_setting("blip-output", value)
+            self._cm.set_h_pattern_setting("blip-output", value)
 
 
     def _set_blip_duration(self, value: int) -> None:
         if value != None:
-            connection_manager.set_h_pattern_setting("blip-duration", value)
+            self._cm.set_h_pattern_setting("blip-duration", value)
 
 
     def _set_calibration(self) -> None:
-        connection_manager.set_h_pattern_setting("calibration", 1)
+        self._cm.set_h_pattern_setting("calibration", 1)

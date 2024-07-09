@@ -1,8 +1,9 @@
 from boxflat.panels.settings_panel import SettingsPanel
+from boxflat.connection_manager import MozaConnectionManager
 
 class PedalsSettings(SettingsPanel):
-    def __init__(self, button_callback) -> None:
-        super(PedalsSettings, self).__init__("Pedals", button_callback)
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+        super(PedalsSettings, self).__init__("Pedals", button_callback, connection_manager)
 
     def prepare_ui(self) -> None:
         self.add_preferences_page()

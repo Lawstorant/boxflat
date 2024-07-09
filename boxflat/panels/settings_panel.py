@@ -3,6 +3,7 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw
 from boxflat.structs import *
+from boxflat.connection_manager import MozaConnectionManager
 
 class SettingsPanel(object):
     _current_page: Adw.PreferencesPage
@@ -10,7 +11,8 @@ class SettingsPanel(object):
     _current_stack = None
     _header = None
 
-    def __init__(self, title, button_callback) -> None:
+    def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+        self._cm = connection_manager
         self._content = self._prepare_content()
         self._button = self._prepare_button(title, button_callback)
         self._banner = self._prepare_banner()
@@ -46,7 +48,15 @@ class SettingsPanel(object):
         return banner
 
     def prepare_ui(self) -> None:
+        if self._cm == None:
+            print("No connection manager")
+            return
+
+    def set_setting(self, value) -> None:
         pass
+
+    def get_setting(self) -> int:
+        return 0
 
     def show_banner(self, *arg) -> None:
         self._banner.set_revealed(True)

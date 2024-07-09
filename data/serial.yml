@@ -708,25 +708,25 @@ commands:
   h-pattern-hid-mode:
     read:
     write:
-    id:
+    id: -1
     bytes:
 
   h-pattern-throttle-blip:
     read:
     write:
-    id:
+    id: -1
     bytes:
 
   h-pattern-blip-output:
     read:
     write:
-    id:
+    id: -1
     bytes:
 
   h-pattern-blip-duration:
     read:
     write:
-    id:
+    id: -1
     bytes:
 
 # E-Stop

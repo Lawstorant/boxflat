@@ -1,104 +1,137 @@
 import yaml
 import os.path
+from boxflat.moza_command import MozaCommand
 
-MESSAGE_START=""
-MAGIC_VALUE=0
 RETRY_COUNT=3
-SERIAL_VALUES = {}
 
-# TODO: convert to class
+class MozaConnectionManager():
+    def __init__(self, serial_data_path: str):
+        self._serial_data = None
+        with open(serial_data_path) as stream:
+            try:
+                self._serial_data = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+                quit(1)
+
+        self._recipents = []
+        self._message_start= int(serial_data["message-start"])
+        self._magic_value = int(serial_data["magic-value"])
+
 # TODO: add notifications about parameters?
 # TODO: add start-stop watching get commands in threads
+    def _device_discovery(self) -> None:
+        pass
 
-with open("/usr/share/boxflat/data/serial.yml") as stream:
-    try:
-        SERIAL_VALUES = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-        quit(1)
+    def subscribe(self, callback: callable) -> None:
+        self._recipents.append(callback)
 
-    MAGIC_VALUE = int(SERIAL_VALUES["magic-value"])
-    MESSAGE_START = int("0x" + SERIAL_VALUES["message-start"], 0)
+    def notify(self) -> None:
+        for recipent in self._recipents:
+            pass
 
+    def calculate_security_byte(self, data: bytes) -> int:
+        value = self._magic_value
+        for d in data:
+            value += int(d)
+        return value % 256
 
-def calculate_security_sum(data: bytearray) -> int:
-    value = MAGIC_VALUE
-    for d in data:
-        value += int(d)
-    return value % 256
+    def send_serial_packet(self, message: bytes) -> None:
+        msg = ""
+        for b in message:
+            msg += f"{hex(b)} "
+        print(f"Sending: {msg}")
 
+        # TODO: device search
+        tty_path = "/dev/ttyACM0"
+        if not os.path.isfile(tty_path):
+            print(f"{tty_path} -> Device not found\n")
+            return
 
-def prepare_serial_message(device_id:str, serial_data: bytearray) -> bytes:
-    message = bytearray()
-    message.append(MESSAGE_START)
-    message.append(len(serial_data))
-    message.append(int("0x" + device_id[:2], 0))
-    message.append(int("0x" + device_id[2:], 0))
-    message.extend(serial_data)
-    message.append(calculate_security_sum(message))
-    return bytes(message)
+        with open(tty_path, "wb") as tty:
+            for i in range(0, RETRY_COUNT):
+                tty.write(message)
+            tty.close()
 
+    # These probably can be yeeted
+    def get_request_group(self, command_name: str, rw: str) -> int:
+        return int(_serial_data[name][rw])
 
-def send_serial_packet(device_id: str, serial_data: bytearray) -> None:
-    message = prepare_serial_message(device_id, serial_data)
-    msg = ""
-    for b in message:
-        msg += f"{hex(b)} "
-    print(f"Sending: {msg}")
+    def get_command_id(self, command_name: str) -> int:
+        return int(_serial_data[name]["id"])
 
-    # TODO: device search
-    tty_path = "/dev/ttyACM0"
-    if not os.path.isfile(tty_path):
-        print(f"{tty_path} -> Device not found\n")
-        return
-
-    with open(tty_path, "wb") as tty:
-        for i in range(0, RETRY_COUNT):
-            tty.write(message)
-        tty.close()
+    def get_device_id(self, device_type: str) -> int:
+        return int("0x" + _serial_data["device-ids"][device_type], 0)
 
 
-def set_setting(typ: str, name: str, value: int, device_id: str, bytes: bytes):
-    length = int(SERIAL_VALUES[typ][name]["length"])
-    setting_id = int(SERIAL_VALUES[typ][name]["id"])
+    # Set a setting value on a device
+    def set_setting(self, command_name: str, device_id: int, value=0, byte_value=None):
+        command = MozaCommand(command_name, self._serial_data["commands"])
 
-    if length == -1 or setting_id == -1:
-        print("Command not known yet")
-        return
+        if command.length == -1 or command.id == -1:
+            print("Command not known yet")
+            return
 
-    data = bytearray()
-    data.append(setting_id)
+        if request_group == -1:
+            print("Command doesn't support write access")
+            return
 
-    if bytes == None:
-        data.extend(value.to_bytes(length-1))
-    else:
-        data.extend(bytes)
+        if byte_value != None:
+            command.set_payload_bytes(byte_value)
+        else:
+            command.payload = value
 
-    send_serial_packet(device_id, data)
+        send_serial_packet(command.prepare_message(self._message_start, device_id, "w", self.calculate_security_byte))
 
 
-# TODO: USB/Base device discovery
-# helper functions
-def set_base_setting(name: str, value=0, byte_value=None) -> None:
-    id = SERIAL_VALUES["bases"]["r9v2"]
-    set_setting("base", name, value, id, byte_value)
+    # Get a setting value from a device
+    def get_setting(self, command_name: str, device_id: int):
+        command = MozaCommand(command_name, self._serial_data["commands"])
 
-def set_wheel_setting(name: str, value=0, byte_value=None) -> None:
-    id = SERIAL_VALUES["wheels"]["rsv2"]
-    set_setting("wheel", name, value, id, byte_value)
+        if command.length == -1 or command.id == -1:
+            print("Command not known yet")
+            return
 
-def set_pedals_setting(name: str, value=0, byte_value=None) -> None:
-    # set_setting("pedals", name, value)
-    print("Not implemented yet")
+        if request_group == -1:
+            print("Command doesn't support read access")
+            return
 
-def set_h_pattern_setting(name: str, value=0, byte_value=None) -> None:
-    id = SERIAL_VALUES["accessories"]["h-pattern"]
-    set_setting("h-pattern", name, value, id, byte_value)
+        send_serial_packet(command.prepare_message(self._message_start, device_id, "r", self.calculate_security_byte))
 
-def set_sequential_setting(name: str, value=0, byte_value=None) -> None:
-    id = SERIAL_VALUES["accessories"]["sequential"]
-    set_setting("sequential", name, value, id, byte_value)
 
-def set_handbrake_setting(name: str, value=0, byte_value=None) -> None:
-    id = SERIAL_VALUES["accessories"]["handbrake"]
-    set_setting("handbrake", name, value, id, byte_value)
+    # helper functions
+    def set_base_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["base"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_wheel_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["wheel"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_pedals_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["pedals"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_h_pattern_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["h-pattern"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_sequential_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["sequential"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_handbrake_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["handbrake"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_dashboard_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["dash"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_hub_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["hub"]
+        self.set_setting(name, device_id, value, byte_value)
+
+    def set_e_stop_setting(self, name: str, value=0, byte_value=None) -> None:
+        device_id = self._serial_data["device-ids"]["e-stop"]
+        self.set_setting(name, device_id, value, byte_value)

@@ -6,17 +6,20 @@ from boxflat.panels.pedals import PedalsSettings
 from boxflat.panels.h_pattern import HPatternSettings
 from boxflat.panels.sequential import SequentialSettings
 from boxflat.panels.handbrake import HandbrakeSettings
+from boxflat.connection_manager import MozaConnectionManager
 
 _panels = {}
 
 def prepare_panels(button_callback) -> dict:
-    _panels["Home"] = HomeSettings(button_callback)
-    _panels["Base"] = BaseSettings(button_callback)
-    _panels["Wheel"] = WheelSettings(button_callback)
-    # _panels["Pedals"] = PedalsSettings(button_callback)
-    _panels["H-Pattern Shifter"] = HPatternSettings(button_callback)
-    _panels["Sequential Shifter"] = SequentialSettings(button_callback)
-    _panels["Handbrake"] = HandbrakeSettings(button_callback)
+    cm = MozaConnectionManager("/usr/share/data/serial.yml")
+
+    _panels["Home"] = HomeSettings(button_callback, cm)
+    _panels["Base"] = BaseSettings(button_callback, cm)
+    _panels["Wheel"] = WheelSettings(button_callback, cm)
+    _panels["Pedals"] = PedalsSettings(button_callback, cm)
+    _panels["H-Pattern Shifter"] = HPatternSettings(button_callback, cm)
+    _panels["Sequential Shifter"] = SequentialSettings(button_callback, cm)
+    _panels["Handbrake"] = HandbrakeSettings(button_callback, cm)
 
     return _panels
 

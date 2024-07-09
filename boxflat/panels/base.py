@@ -1,14 +1,14 @@
 from boxflat.panels.settings_panel import SettingsPanel
-import boxflat.connection_manager as connection_manager
+from boxflat.connection_manager import MozaConnectionManager
 
 class BaseSettings(SettingsPanel):
-    def __init__(self, button_callback) -> None:
-        super(BaseSettings, self).__init__("Base", button_callback)
-        # self._settings = connection_manager.get_base_settings()
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+        super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
+        # self._settings = self._cm.get_base_settings()
 
     def _rotation_range(self, value) -> None:
-        connection_manager.set_base_setting("angle", int(value/2))
-        connection_manager.set_base_setting("limit", int(value/2))
+        self._cm.set_base_setting("angle", int(value/2))
+        self._cm.set_base_setting("limit", int(value/2))
 
     def prepare_ui(self) -> None:
         self.add_view_stack()
