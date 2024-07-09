@@ -539,6 +539,13 @@ commands:
     bytes: 4
 
 # Steering wheel
+  # TODO: check if this works
+  wheel-colors:
+    get: 64
+    set: 63
+    id: 0
+    bytes: 9
+
   wheel-brightness:
     get: 64
     set: 63
@@ -599,61 +606,61 @@ commands:
     id: 13
     bytes: 1
 
-  wheel-rmp-color1:
+  wheel-rmp-value1:
     get: 64
     set: 63
     id: [15, 0]
     bytes: 3
 
-  wheel-rmp-color2:
+  wheel-rmp-value2:
     get: 64
     set: 63
     id: [15, 1]
     bytes: 3
 
-  wheel-rmp-color3:
+  wheel-rmp-value3:
     get: 64
     set: 63
     id: [15, 2]
     bytes: 3
 
-  wheel-rmp-color4:
+  wheel-rmp-value4:
     get: 64
     set: 63
     id: [15, 3]
     bytes: 3
 
-  wheel-rmp-color5:
+  wheel-rmp-value5:
     get: 64
     set: 63
     id: [15, 4]
     bytes: 3
 
-  wheel-rmp-color6:
+  wheel-rmp-value6:
     get: 64
     set: 63
     id: [15, 5]
     bytes: 3
 
-  wheel-rmp-color7:
+  wheel-rmp-value7:
     get: 64
     set: 63
     id: [15, 6]
     bytes: 3
 
-  wheel-rmp-color8:
+  wheel-rmp-value8:
     get: 64
     set: 63
     id: [15, 7]
     bytes: 3
 
-  wheel-rmp-color9:
+  wheel-rmp-value9:
     get: 64
     set: 63
     id: [15, 8]
     bytes: 3
 
-  wheel-rmp-color10:
+  wheel-rmp-value10:
     get: 64
     set: 63
     id: [15, 9]
@@ -664,6 +671,26 @@ commands:
     set: 63
     id: 19
     bytes: 4
+
+  wheel-indicator-group-brightness:
+    get: [64, 20]
+    set: [63, 20]
+    id: 0
+    bytes: 1
+
+  wheel-buttons-group-brightness:
+    get: [64, 20]
+    set: [63, 20]
+    id: 2
+    bytes: 1
+
+  wheel-flags-group-brightness:
+    get: [64, 20]
+    set: [63, 20]
+    id: 3
+    bytes: 1
+
+  # TODO: wheel indicator, button, flag colors
 
   wheel-indicator-interval:
     get: 64
@@ -676,12 +703,6 @@ commands:
     set: 63
     id: 23
     bytes: 1
-
-  wheel-colors:
-    get: 64
-    set: 63
-    id: 0
-    bytes: 9
 
 # H-Pattern shifter
   h-pattern-hid-mode:
