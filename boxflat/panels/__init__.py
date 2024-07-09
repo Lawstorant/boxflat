@@ -11,9 +11,9 @@ from boxflat.connection_manager import MozaConnectionManager
 _panels = {}
 
 def prepare_panels(button_callback) -> dict:
-    cm = MozaConnectionManager("/usr/share/data/serial.yml")
+    cm = MozaConnectionManager("/usr/share/boxflat/data/serial.yml")
 
-    _panels["Home"] = HomeSettings(button_callback, cm)
+    _panels["Home"] = HomeSettings(button_callback)
     _panels["Base"] = BaseSettings(button_callback, cm)
     _panels["Wheel"] = WheelSettings(button_callback, cm)
     _panels["Pedals"] = PedalsSettings(button_callback, cm)

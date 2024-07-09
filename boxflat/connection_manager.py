@@ -15,8 +15,8 @@ class MozaConnectionManager():
                 quit(1)
 
         self._recipents = []
-        self._message_start= int(serial_data["message-start"])
-        self._magic_value = int(serial_data["magic-value"])
+        self._message_start= int(self._serial_data["message-start"])
+        self._magic_value = int(self._serial_data["magic-value"])
 
 # TODO: add notifications about parameters?
 # TODO: add start-stop watching get commands in threads
@@ -30,7 +30,7 @@ class MozaConnectionManager():
         for recipent in self._recipents:
             pass
 
-    def calculate_security_byte(self, data: bytes) -> int:
+    def _calculate_security_byte(self, data: bytes) -> int:
         value = self._magic_value
         for d in data:
             value += int(d)
@@ -72,7 +72,7 @@ class MozaConnectionManager():
             print("Command not known yet")
             return
 
-        if request_group == -1:
+        if command.write_group == -1:
             print("Command doesn't support write access")
             return
 
@@ -81,7 +81,8 @@ class MozaConnectionManager():
         else:
             command.payload = value
 
-        send_serial_packet(command.prepare_message(self._message_start, device_id, "w", self.calculate_security_byte))
+        self.send_serial_packet(
+            command.prepare_message(self._message_start, device_id, "w", self._calculate_security_byte))
 
 
     # Get a setting value from a device
@@ -92,46 +93,47 @@ class MozaConnectionManager():
             print("Command not known yet")
             return
 
-        if request_group == -1:
+        if command.read_group == -1:
             print("Command doesn't support read access")
             return
 
-        send_serial_packet(command.prepare_message(self._message_start, device_id, "r", self.calculate_security_byte))
+        self.send_serial_packet(
+            command.prepare_message(self._message_start, device_id, "r", self._calculate_security_byte))
 
 
     # helper functions
     def set_base_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["base"]
+        device_id = int(self._serial_data["device-ids"]["base"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_wheel_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["wheel"]
+        device_id = int(self._serial_data["device-ids"]["wheel"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_pedals_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["pedals"]
+        device_id = int(self._serial_data["device-ids"]["pedals"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_h_pattern_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["h-pattern"]
+        device_id = int(self._serial_data["device-ids"]["hpattern"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_sequential_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["sequential"]
+        device_id = int(self._serial_data["device-ids"]["sequential"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_handbrake_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["handbrake"]
+        device_id = int(self._serial_data["device-ids"]["handbrake"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_dashboard_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["dash"]
+        device_id = int(self._serial_data["device-ids"]["dash"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_hub_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["hub"]
+        device_id = int(self._serial_data["device-ids"]["hub"])
         self.set_setting(name, device_id, value, byte_value)
 
     def set_e_stop_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = self._serial_data["device-ids"]["e-stop"]
+        device_id = int(self._serial_data["device-ids"]["estop"])
         self.set_setting(name, device_id, value, byte_value)

@@ -11,7 +11,7 @@ class SettingsPanel(object):
     _current_stack = None
     _header = None
 
-    def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager=None) -> None:
         self._cm = connection_manager
         self._content = self._prepare_content()
         self._button = self._prepare_button(title, button_callback)

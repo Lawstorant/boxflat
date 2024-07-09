@@ -40,53 +40,53 @@ class WheelSettings(SettingsPanel):
     def _set_paddles_mode(self, label: str) -> None:
         if label == "Combined":
             self._split(True)
-            self._cm.set_wheel_setting("paddles-mode", 2)
+            self._cm.set_wheel_setting("wheel-paddles-mode", 2)
         elif label == "Split":
             self._split(False)
-            self._cm.set_wheel_setting("paddles-mode", 3)
+            self._cm.set_wheel_setting("wheel-paddles-mode", 3)
         elif label == "Buttons":
             self._split(False)
-            self._cm.set_wheel_setting("paddles-mode", 1)
+            self._cm.set_wheel_setting("wheel-paddles-mode", 1)
 
 
     def _set_clutch_point(self, value: int) -> None:
         if value != None:
-            self._cm.set_wheel_setting("clutch-point", value)
+            self._cm.set_wheel_setting("wheel-clutch-point", value)
 
 
     def _set_stick_mode(self, label: str) -> None:
         if label == "Buttons":
-            self._cm.set_wheel_setting("stick-mode", 0)
+            self._cm.set_wheel_setting("wheel-stick-mode", 0)
         elif label == "D-Pad":
-            self._cm.set_wheel_setting("stick-mode", 256)
+            self._cm.set_wheel_setting("wheel-stick-mode", 256)
 
 
     def _set_indicator_mode(self, label: str) -> None:
         if label == "RPM":
-            self._cm.set_wheel_setting("indicator-mode", 1)
+            self._cm.set_wheel_setting("wheel-indicator-mode", 1)
         elif label == "Off":
-            self._cm.set_wheel_setting("indicator-mode", 2)
+            self._cm.set_wheel_setting("wheel-indicator-mode", 2)
         elif label == "On":
-            self._cm.set_wheel_setting("indicator-mode", 3)
+            self._cm.set_wheel_setting("wheel-indicator-mode", 3)
 
 
     def _set_brightness(self, value: int) -> None:
         if value != None:
-            self._cm.set_wheel_setting("brightness", value)
+            self._cm.set_wheel_setting("wheel-brightness", value)
 
 
     def _set_display_mode(self, label: str) -> None:
         if label != None:
-            self._cm.set_wheel_setting("display-mode", int(label[-1]))
+            self._cm.set_wheel_setting("wheel-display-mode", int(label[-1]))
 
 
     def _set_indicator_timings(self, label:str) -> None:
         if label == "Early":
             value = bytes([65, 69, 72, 75, 78, 80, 83, 85, 88, 91])
-            self._cm.set_wheel_setting("indicator-timings", byte_value=value)
+            self._cm.set_wheel_setting("wheel-indicator-timings", byte_value=value)
         elif label == "Normal":
             value = bytes([75, 79, 82, 85, 87, 88, 89, 90, 92, 94])
-            self._cm.set_wheel_setting("indicator-timings", byte_value=value)
+            self._cm.set_wheel_setting("wheel-indicator-timings", byte_value=value)
         elif label == "Late":
             value = bytes([80, 83, 86, 89, 91, 92, 93, 94, 96, 97])
-            self._cm.set_wheel_setting("indicator-timings", byte_value=value)
+            self._cm.set_wheel_setting("wheel-indicator-timings", byte_value=value)

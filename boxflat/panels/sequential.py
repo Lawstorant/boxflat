@@ -32,21 +32,19 @@ class SequentialSettings(SettingsPanel):
         if button == 2:
             self.colorS2 = color
 
-        self._cm.set_sequential_setting("lights", 0)
-        self._cm.set_sequential_setting("lights", self.colorS1*256)
-        self._cm.set_sequential_setting("lights", self.colorS1*256 + self.colorS2)
+        self._cm.set_sequential_setting("sequential-colors", self.colorS1*256 + self.colorS2)
 
 
     def _set_brightness(self, value: int) -> None:
         if value != None:
-            self._cm.set_sequential_setting("brightness", value)
+            self._cm.set_sequential_setting("sequential-brightness", value)
 
 
     def _set_direction(self, value: int) -> None:
         if value != None:
-            self._cm.set_sequential_setting("direction", value)
+            self._cm.set_sequential_setting("sequential-direction", value)
 
 
     def _set_paddle_sync(self, value: int) -> None:
         if value != None:
-            self._cm.set_sequential_setting("paddle-sync", value)
+            self._cm.set_sequential_setting("sequential-paddle-sync", value)

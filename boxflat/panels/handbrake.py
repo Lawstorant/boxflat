@@ -27,22 +27,22 @@ class HandbrakeSettings(SettingsPanel):
 
     def _set_direction(self, value: int) -> None:
         if value != None:
-            self._cm.set_handbrake_setting("direction", value)
+            self._cm.set_handbrake_setting("handbrake-direction", value)
 
 
     def _set_mode(self, label: str) -> None:
         if label == "Axis":
-            self._cm.set_handbrake_setting("mode", 0)
+            self._cm.set_handbrake_setting("handbrake-mode", 0)
             self._threshold_active(False)
         elif label == "Button":
-            self._cm.set_handbrake_setting("mode", 1)
+            self._cm.set_handbrake_setting("handbrake-mode", 1)
             self._threshold_active(True)
 
 
     def _set_button_threshold(self, value: int) -> None:
         if value != None:
-            self._cm.set_handbrake_setting("button-threshold", value)
+            self._cm.set_handbrake_setting("handbrake-button-threshold", value)
 
 
     def _set_calibration(self) -> None:
-        self._cm.set_handbrake_setting("calibration", 1)
+        pass

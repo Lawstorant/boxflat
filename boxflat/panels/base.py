@@ -6,9 +6,12 @@ class BaseSettings(SettingsPanel):
         super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
         # self._settings = self._cm.get_base_settings()
 
-    def _rotation_range(self, value) -> None:
-        self._cm.set_base_setting("angle", int(value/2))
-        self._cm.set_base_setting("limit", int(value/2))
+    def _set_rotation_range(self, value) -> None:
+        self._cm.set_base_setting("base-maximum-angle", int(value/2))
+        self._cm.set_base_setting("base-limit", int(value/2))
+
+    def _set_ffb_strength(self, value) -> None:
+        self._cm.set_base_setting("base-ffb-strength", int(value)*10)
 
     def prepare_ui(self) -> None:
         self.add_view_stack()
@@ -20,7 +23,7 @@ class BaseSettings(SettingsPanel):
             "", 90, 2700, 540,
             size_request=(550,0),
             marks=[360, 540, 720, 900, 1080, 1440, 1800, 2160],
-            callback=self._rotation_range,
+            callback=self._set_rotation_range,
             increment=2
         )
 
@@ -28,7 +31,8 @@ class BaseSettings(SettingsPanel):
             "FFB Strength", 0, 100, 70,
             marks=[50],
             mark_suffix="%",
-            subtitle="Don't loose your grip!"
+            subtitle="Don't loose your grip!",
+            callback=self._set_ffb_strength
         )
 
         # self.add_preferences_group("Basic settings")
