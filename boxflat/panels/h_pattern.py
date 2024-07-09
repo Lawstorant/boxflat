@@ -27,8 +27,8 @@ class HPatternSettings(SettingsPanel):
             callback=self._set_blip_duration
         )
 
-        self.add_preferences_group("Calibration")
-        self.add_button_row("Device Calibration", "Calibrate", subtitle="In case of weird behavior", callback=self._set_calibration)
+        # self.add_preferences_group("Calibration")
+        # self.add_button_row("Device Calibration", "Calibrate", subtitle="In case of weird behavior", callback=self._set_calibration)
 
 
     def _set_throttle_blip(self, value: int) -> None:

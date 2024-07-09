@@ -3,13 +3,13 @@ magic-value: 13    # For security byte
 message-start: 126 #"7e"
 
 device-ids:
-  hub:
+  hub: 0
   base: 19
   wheel: 23
-  pedals:
-  dash:
-  hpattern:
-  estop:
+  pedals: 25
+  dash: 0
+  hpattern: 0
+  estop: 0
   sequential: 26
   handbrake: 27
 
@@ -83,187 +83,187 @@ commands:
     bytes: 1
 
 # Pedals
-  pedal-throttle-dir:
+  pedals-throttle-dir:
     read: 35
     write: 36
     id: 1
     bytes: 2
 
-  pedal-throttle-min:
+  pedals-throttle-min:
     read: 35
     write: 36
     id: 2
     bytes: 2
 
-  pedal-throttle-max:
+  pedals-throttle-max:
     read: 35
     write: 36
     id: 3
     bytes: 2
 
-  pedal-brake-dir:
+  pedals-brake-dir:
     read: 35
     write: 36
     id: 4
     bytes: 2
 
-  pedal-brake-min:
+  pedals-brake-min:
     read: 35
     write: 36
     id: 5
     bytes: 2
 
-  pedal-brake-max:
+  pedals-brake-max:
     read: 35
     write: 36
     id: 6
     bytes: 2
 
-  pedal-clutch-dir:
+  pedals-clutch-dir:
     read: 35
     write: 36
     id: 7
     bytes: 2
 
-  pedal-clutch-min:
+  pedals-clutch-min:
     read: 35
     write: 36
     id: 8
     bytes: 2
 
-  pedal-clutch-max:
+  pedals-clutch-max:
     read: 35
     write: 36
     id: 9
     bytes: 2
 
-  pedal-hid-mode:
+  pedals-hid-mode:
     read: 35
     write: 36
     id: 13
     bytes: 2
 
-  pedal-throttle-y1:
+  pedals-throttle-y1:
     read: 35
     write: 36
     id: 14
     bytes: 4
 
-  pedal-throttle-y2:
+  pedals-throttle-y2:
     read: 35
     write: 36
     id: 15
     bytes: 4
 
-  pedal-throttle-y3:
+  pedals-throttle-y3:
     read: 35
     write: 36
     id: 16
     bytes: 4
 
-  pedal-throttle-y4:
+  pedals-throttle-y4:
     read: 35
     write: 36
     id: 17
     bytes: 4
 
-  pedal-brake-y1:
+  pedals-brake-y1:
     read: 35
     write: 36
     id: 18
     bytes: 4
 
-  pedal-brake-y2:
+  pedals-brake-y2:
     read: 35
     write: 36
     id: 19
     bytes: 4
 
-  pedal-brake-y3:
+  pedals-brake-y3:
     read: 35
     write: 36
     id: 20
     bytes: 4
 
-  pedal-brake-y4:
+  pedals-brake-y4:
     read: 35
     write: 36
     id: 21
     bytes: 4
 
-  pedal-clutch-y1:
+  pedals-clutch-y1:
     read: 35
     write: 36
     id: 22
     bytes: 4
 
-  pedal-clutch-y2:
+  pedals-clutch-y2:
     read: 35
     write: 36
     id: 23
     bytes: 4
 
-  pedal-clutch-y3:
+  pedals-clutch-y3:
     read: 35
     write: 36
     id: 24
     bytes: 4
 
-  pedal-clutch-y4:
+  pedals-clutch-y4:
     read: 35
     write: 36
     id: 25
     bytes: 4
 
-  pedal-brake-max-force:
+  pedals-brake-max-force:
     read: 35
     write: 36
     id: 26
     bytes: 4
 
-  pedal-throttle-y5:
+  pedals-throttle-y5:
     read: 35
     write: 36
     id: 27
     bytes: 4
 
-  pedal-brake-y5:
+  pedals-brake-y5:
     read: 35
     write: 36
     id: 28
     bytes: 4
 
-  pedal-clutch-y5:
+  pedals-clutch-y5:
     read: 35
     write: 36
     id: 29
     bytes: 4
 
-  pedal-throttle-hid-source:
+  pedals-throttle-hid-source:
     read: 35
     write: 36
     id: 30
     bytes: 2
 
-  pedal-throttle-hid-cmd:
+  pedals-throttle-hid-cmd:
     read: 35
     write: 36
     id: 31
     bytes: 2
 
-  pedal-throttle-output:
+  pedals-throttle-output:
     read: 37
     write: -1
     id: 1
     bytes: 2
 
-  pedal-brake-output:
+  pedals-brake-output:
     read: 37
     write: -1
     id: 2
     bytes: 2
 
-  pedal-clutch-output:
+  pedals-clutch-output:
     read: 37
     write: -1
     id: 3

@@ -51,11 +51,11 @@ class MozaConnectionManager():
         print(f"Sending: {msg}")
 
         # TODO: device search
-        # tty_path = "/dev/ttyACM0"
         # if not os.path.isfile(tty_path):
         #     print(f"{tty_path} -> Device not found\n")
         #     return
 
+        tty_path = "/dev/ttyACM0"
         with open(tty_path, "wb") as tty:
             for i in range(0, CM_RETRY_COUNT):
                 tty.write(message)

@@ -21,8 +21,8 @@ class HandbrakeSettings(SettingsPanel):
             callback=self._set_button_threshold
         )
 
-        self.add_preferences_group("Calibration")
-        self.add_button_row("Device Calibration", "Calibrate", subtitle="Set device range", callback=self._set_calibration)
+        # self.add_preferences_group("Calibration")
+        # self.add_button_row("Device Calibration", "Calibrate", subtitle="Set device range", callback=self._set_calibration)
 
 
     def _set_direction(self, value: int) -> None:
