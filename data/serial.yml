@@ -3,21 +3,16 @@ magic-value: 13    # For security byte
 message-start: 126 #"7e"
 
 device-ids:
-  hub: 0
+  hub: -1
+  main: 18 # base id for devices connected through usb
   base: 19
   wheel: 23
+  dash: 24
   pedals: 25
-  dash: 0
-  hpattern: 0
-  estop: 0
+  hpattern: 26
   sequential: 26
   handbrake: 27
-
-  estop-usb: 18 #?
-  pedals-usb: 18 #?
-  hpattern-usb: 18 #?
-  sequential-usb: 18
-  handbrake-usb: 18
+  estop: -1
 
 # TODO: EEPROM commands
 # Maybe that's how we update FW?
@@ -891,3 +886,71 @@ commands:
     write: -1
     id: 5
     bytes: 1
+
+# calibration commands
+  # base calibration expects 1 as value
+  base-calibration:
+    read: -1
+    write:
+    id: 1
+    bytes: 2
+
+  pedals-throttle-start-calibration:
+    read: -1
+    write: 38
+    id: 12
+    bytes: 2
+
+  pedals-brake-start-calibration:
+    read: -1
+    write: 38
+    id: 13
+    bytes: 2
+
+  pedals-clutch-start-calibration:
+    read: -1
+    write: 38
+    id: 14
+    bytes: 2
+
+  pedals-throttle-stop-calibration:
+    read: -1
+    write: 38
+    id: 15
+    bytes: 2
+
+  pedals-brake-stop-calibration:
+    read: -1
+    write: 38
+    id: 16
+    bytes: 2
+
+  pedals-clutch-stop-calibration:
+    read: -1
+    write: 38
+    id: 17
+    bytes: 2
+
+  hpattern-start-calibration:
+    read: -1
+    write: 84
+    id: 3
+    bytes: 2
+
+  hpattern-stop-calibration:
+    read: -1
+    write: 84
+    id: 4
+    bytes: 2
+
+  handbrake-start-calibration:
+    read: -1
+    write: 94
+    id: 3
+    bytes: 2
+
+  handbrake-stop-calibrate:
+    read: -1
+    write: 94
+    id: 4
+    bytes: 2
