@@ -31,7 +31,7 @@ class BaseSettings(SettingsPanel):
             "FFB Strength", 0, 100, 70,
             marks=[50],
             mark_suffix="%",
-            subtitle="Don't loose your grip!",
+            subtitle="Don't lose your grip!",
             callback=self._set_ffb_strength
         )
 
