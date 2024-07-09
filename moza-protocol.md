@@ -1,9 +1,9 @@
 # Moza Racing serial connection protocol
 
 ### Table
-| Start | Payload + ids length | Request group | Device id | Command id | Payload | Check byte |
-| :---: | :------------------: | :-----------: | :-------: | :--------: | :-----: | :--------: |
-| 0x7e  | 1 byte               | 1 byte        | 1 byte    | 1+ byte    | n bytes | 1 byte     |
+| Start | (command id + payload) length | Request group | Device id | Command id | Payload | Check byte |
+| :---: | :---------------------------: | :-----------: | :-------: | :--------: | :-----: | :--------: |
+| 0x7e  | 1 byte                        | 1 byte        | 1 byte    | 1+ byte    | n bytes | 1 byte     |
 
 Length byte includes id bytes
 
