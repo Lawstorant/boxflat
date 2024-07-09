@@ -1,8 +1,9 @@
 import yaml
 import os.path
 import boxflat.moza_command as mc
+from serial import Serial
 
-CM_RETRY_COUNT=3
+CM_RETRY_COUNT=1
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str):
@@ -51,15 +52,11 @@ class MozaConnectionManager():
         print(f"Sending: {msg}")
 
         # TODO: device search
-        # if not os.path.isfile(tty_path):
-        #     print(f"{tty_path} -> Device not found\n")
-        #     return
-
         tty_path = "/dev/ttyACM0"
-        with open(tty_path, "wb") as tty:
+        with Serial(tty_path, 115200) as serial:
             for i in range(0, CM_RETRY_COUNT):
-                tty.write(message)
-            tty.close()
+                serial.write(message)
+            serial.close()
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=0, byte_value: bytes=None):

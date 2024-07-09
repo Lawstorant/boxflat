@@ -69,6 +69,7 @@ This package depends on:
 - gtk4
 - libadwaita ~>1.3
 - pyyaml ~>6.0.1
+- pyserial ~>3.5
 - pycairo ~>1.26.1
 - PyGObject ~>3.48.2
 

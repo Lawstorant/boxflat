@@ -48,8 +48,6 @@ class SettingsPanel(object):
         return banner
 
     def prepare_ui(self) -> None:
-        if self._cm == None:
-            print("No connection manager")
             return
 
     def set_setting(self, value) -> None:
