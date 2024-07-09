@@ -7,11 +7,11 @@ class BaseSettings(SettingsPanel):
         # self._settings = self._cm.get_base_settings()
 
     def _set_rotation_range(self, value) -> None:
-        self._cm.set_base_setting("base-maximum-angle", int(value/2))
-        self._cm.set_base_setting("base-limit", int(value/2))
+        self._cm.set_setting("base-maximum-angle", int(value/2))
+        self._cm.set_setting("base-limit", int(value/2))
 
     def _set_ffb_strength(self, value) -> None:
-        self._cm.set_base_setting("base-ffb-strength", int(value)*10)
+        self._cm.set_setting("base-ffb-strength", int(value)*10)
 
     def prepare_ui(self) -> None:
         self.add_view_stack()

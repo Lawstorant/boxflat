@@ -23,18 +23,26 @@ class MozaConnectionManager():
     def _device_discovery(self) -> None:
         pass
 
+
     def subscribe(self, callback: callable) -> None:
         self._recipents.append(callback)
+
 
     def notify(self) -> None:
         for recipent in self._recipents:
             pass
+
 
     def _calculate_security_byte(self, data: bytes) -> int:
         value = self._magic_value
         for d in data:
             value += int(d)
         return value % 256
+
+
+    def _get_device_id(self, command: str) -> int:
+        return int(self._serial_data["device-ids"][command.split("-")[0]])
+
 
     def send_serial_packet(self, message: bytes) -> None:
         msg = ""
@@ -53,20 +61,11 @@ class MozaConnectionManager():
                 tty.write(message)
             tty.close()
 
-    # These probably can be yeeted
-    def get_request_group(self, command_name: str, rw: str) -> int:
-        return int(_serial_data[name][rw])
-
-    def get_command_id(self, command_name: str) -> int:
-        return int(_serial_data[name]["id"])
-
-    def get_device_id(self, device_type: str) -> int:
-        return int("0x" + _serial_data["device-ids"][device_type], 0)
-
 
     # Set a setting value on a device
-    def set_setting(self, command_name: str, device_id: int, value=0, byte_value=None):
+    def set_setting(self, command_name: str, value=0, byte_value=None):
         command = MozaCommand(command_name, self._serial_data["commands"])
+        device_id = self._get_device_id(command_name)
 
         if command.length == -1 or command.id == -1:
             print("Command not known yet")
@@ -86,8 +85,9 @@ class MozaConnectionManager():
 
 
     # Get a setting value from a device
-    def get_setting(self, command_name: str, device_id: int):
+    def get_setting(self, command_name: str):
         command = MozaCommand(command_name, self._serial_data["commands"])
+        device_id = self._get_device_id(command_name)
 
         if command.length == -1 or command.id == -1:
             print("Command not known yet")
@@ -99,41 +99,3 @@ class MozaConnectionManager():
 
         self.send_serial_packet(
             command.prepare_message(self._message_start, device_id, "r", self._calculate_security_byte))
-
-
-    # helper functions
-    def set_base_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["base"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_wheel_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["wheel"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_pedals_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["pedals"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_h_pattern_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["hpattern"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_sequential_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["sequential"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_handbrake_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["handbrake"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_dashboard_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["dash"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_hub_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["hub"])
-        self.set_setting(name, device_id, value, byte_value)
-
-    def set_e_stop_setting(self, name: str, value=0, byte_value=None) -> None:
-        device_id = int(self._serial_data["device-ids"]["estop"])
-        self.set_setting(name, device_id, value, byte_value)

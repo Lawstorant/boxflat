@@ -111,7 +111,7 @@ class SettingsPanel(object):
                 bar.set_mode(Gtk.LevelBarMode.CONTINUOUS)
                 bar.set_min_value(0)
                 bar.set_max_value(1000)
-                bar.set_value(500)
+                bar.set_value(250)
                 bar.set_size_request(270,0)
                 self._current_group.set_header_suffix(bar)
 

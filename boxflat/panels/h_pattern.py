@@ -37,17 +37,17 @@ class HPatternSettings(SettingsPanel):
 
         self._slider1(bool(value))
         self._slider2(bool(value))
-        self._cm.set_h_pattern_setting("hpattern-throttle-blip", value)
+        self._cm.set_setting("hpattern-throttle-blip", value)
 
 
     def _set_blip_output(self, value: int) -> None:
         if value != None:
-            self._cm.set_h_pattern_setting("hpattern-blip-output", value)
+            self._cm.set_setting("hpattern-blip-output", value)
 
 
     def _set_blip_duration(self, value: int) -> None:
         if value != None:
-            self._cm.set_h_pattern_setting("hpattern-blip-duration", value)
+            self._cm.set_setting("hpattern-blip-duration", value)
 
 
     def _set_calibration(self) -> None:
