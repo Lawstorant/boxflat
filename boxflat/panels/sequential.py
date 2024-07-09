@@ -47,4 +47,4 @@ class SequentialSettings(SettingsPanel):
 
     def _set_paddle_sync(self, value: int) -> None:
         if value != None:
-            self._cm.set_setting("sequential-paddle-sync", value)
+            self._cm.set_setting("sequential-paddle-sync", value+1)
