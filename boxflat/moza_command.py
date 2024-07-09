@@ -10,7 +10,7 @@ class MozaCommand():
         self._payload = bytes(self.length)
 
     @property
-    def payload() -> bytes:
+    def payload(self) -> bytes:
         return self._payload
 
     @payload.setter

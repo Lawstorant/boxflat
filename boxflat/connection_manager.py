@@ -62,7 +62,7 @@ class MozaConnectionManager():
             tty.close()
 
     # Handle command operations
-    def _handle_command(self, command_name: str, rw, value: int, byte_value: bytes):
+    def _handle_command(self, command_name: str, rw, value: int=0, byte_value: bytes=None):
         command = mc.MozaCommand(command_name, self._serial_data["commands"])
         device_id = self._get_device_id(command_name)
 
@@ -89,10 +89,11 @@ class MozaConnectionManager():
 
 
     # Set a setting value on a device
-    def set_setting(self, command_name: str, value=0, byte_value=None):
+    def set_setting(self, command_name: str, value=0, byte_value=None) -> None:
         self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
 
 
     # Get a setting value from a device
-    def get_setting(self, command_name: str):
-        self._handle_command(command_name, mc.MOZA_COMMAND_READ, value, byte_value)
+    def get_setting(self, command_name: str) -> int:
+        self._handle_command(command_name, mc.MOZA_COMMAND_READ)
+        return 0
