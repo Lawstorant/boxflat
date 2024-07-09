@@ -1,9 +1,8 @@
+# MOZA Racing Serial protocol data
 magic-value: 13    # For security byte
 message-start: 126 #"7e"
 
-# Hexadecimal values for now
 device-ids:
-  # motors: "12"
   hub:
   base: 19
   wheel: 23
@@ -22,15 +21,19 @@ device-ids:
 
 # TODO: EEPROM commands
 # Maybe that's how we update FW?
-# =======================================
+# ===========================================
 # Every command in this dict consists of:
 # - read request group id
 # - write request group id
 # - command id
-# - command data size in bytes
-# =======================================
+# - command payload size in bytes
+#
+# If a read/write request group has a value
+# of -1, it doesn't support read/write
+# operation
+# ===========================================
 commands:
-# Main commands?
+# Main commands(?)
   main-set-compat-mode:
     read: -1
     write: 31

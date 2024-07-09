@@ -13,7 +13,7 @@ Check byte is the reminder of sum of the bytes divided by 0x100 (256)
 This sum includes the USB device serial endpoint (always 0x02), type (URB_BULK -> 0x03) and something(?) (0x08)
 
 ### Devices and commands
-This list of device ids and command data can be found in the [serial.yml](./data/serial.yml) file.
+The list of device ids and command data can be found in the [serial.yml](./data/serial.yml) file.
 
 #### Afterword
 This article needs some updates to variable length of command ids and USB packet length
