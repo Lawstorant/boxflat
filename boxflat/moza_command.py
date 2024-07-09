@@ -38,7 +38,7 @@ class MozaCommand():
 
     def prepare_message(self, start_value: int,
                         device_id: int, rw: int,
-                        check_function: callable) -> bytes:
+                        check_function: callable=None) -> bytes:
 
         ret = bytearray()
         ret.append(start_value)
@@ -52,6 +52,8 @@ class MozaCommand():
         ret.append(device_id)
         ret.extend(self.id_byte)
         ret.extend(self._payload)
-        ret.append(check_function(ret))
+
+        if check_function != None:
+            ret.append(check_function(ret))
 
         return bytes(ret)
