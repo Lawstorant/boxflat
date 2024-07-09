@@ -22,8 +22,13 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Brightness adjustement
 
 ### Pedals
+- Direction reversal
+- Working range (start and stop)
+- Brake max force point
 
 ### H-Pattern shifter
+These settings are implemented but they sadly don't work
+They don't even work on windows so this is just for show ATM
 - Downshift throttle blip switch
 - Downshift throttle blip level
 - Downshift throttle blip duration
@@ -38,13 +43,16 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Direction reversal
 - Handbrake mode switch
 - Button mode threshold
+- Working range (start and stop)
 
 ## WiP
+- udev rules for serial ports
 - Calibration
 - Calibration warning dialog
 - Device discovery (currently defaulting to `/dev/ttyACM0`)
-- USB/Wheelbase accessory discovery
+- USB/Wheelbase accessory connection discovery
 - Reading settings from the base :P
+- Showing only settings that are relevant to connected hardware
 
 ## Not implemented
 - Base FFB Curve
@@ -52,16 +60,9 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Pedal Curve
 - Handbrake Curve
 - Loading Pit House profile jsons
-- Pedal settings (I don't own any Moza pedals)
-- Calibrations
 
-## Compatibility list (confirmed working)
-- Moza R9v2
-- Moza RSv2 Wheel
-- Moza CRP Pedals 200kg (incoming)
-- Moza HGP H-Pattern Shifter
-- Moza SGP Sequential Shifter
-- Moza HBP Handbrake
+## Compatibility
+Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc.
 
 ## Installation/dependencies
 This package depends on:
