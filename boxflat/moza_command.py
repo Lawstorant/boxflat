@@ -1,3 +1,6 @@
+MOZA_COMMAND_READ=0
+MOZA_COMMAND_WRITE=1
+
 class MozaCommand():
     def __init__(self, name:str, commands_data: object):
         self.id = int(commands_data[name]["id"])
@@ -34,16 +37,16 @@ class MozaCommand():
         self._payload = value
 
     def prepare_message(self, start_value: int,
-                        device_id: int, rw: str,
+                        device_id: int, rw: int,
                         check_function: callable) -> bytes:
 
         ret = bytearray()
         ret.append(start_value)
         ret.append(self.length + 1)
 
-        if rw == "r":
+        if rw == MOZA_COMMAND_READ:
             ret.extend(self.read_group_byte)
-        elif rw == "w":
+        elif rw == MOZA_COMMAND_WRITE:
             ret.extend(self.write_group_byte)
 
         ret.append(device_id)

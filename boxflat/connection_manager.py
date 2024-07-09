@@ -1,8 +1,8 @@
 import yaml
 import os.path
-from boxflat.moza_command import MozaCommand
+import boxflat.moza_command as mc
 
-RETRY_COUNT=3
+CM_RETRY_COUNT=3
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str):
@@ -57,45 +57,42 @@ class MozaConnectionManager():
             return
 
         with open(tty_path, "wb") as tty:
-            for i in range(0, RETRY_COUNT):
+            for i in range(0, CM_RETRY_COUNT):
                 tty.write(message)
             tty.close()
+
+    # Handle command operations
+    def _handle_command(self, command_name: str, rw, value: int, byte_value: bytes):
+        command = mc.MozaCommand(command_name, self._serial_data["commands"])
+        device_id = self._get_device_id(command_name)
+
+        if command.length == -1 or command.id == -1:
+            print("Command not known yet")
+            return
+
+        if rw == mc.MOZA_COMMAND_READ and command.read_group == -1:
+            print("Command doesn't support READ access")
+            return
+
+        if rw == mc.MOZA_COMMAND_WRITE and command.write_group == -1:
+            print("Command doesn't support WRITE access")
+            return
+
+        if rw == mc.MOZA_COMMAND_WRITE:
+            if byte_value != None:
+                command.set_payload_bytes(byte_value)
+            else:
+                command.payload = value
+
+        self.send_serial_packet(
+            command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte))
 
 
     # Set a setting value on a device
     def set_setting(self, command_name: str, value=0, byte_value=None):
-        command = MozaCommand(command_name, self._serial_data["commands"])
-        device_id = self._get_device_id(command_name)
-
-        if command.length == -1 or command.id == -1:
-            print("Command not known yet")
-            return
-
-        if command.write_group == -1:
-            print("Command doesn't support write access")
-            return
-
-        if byte_value != None:
-            command.set_payload_bytes(byte_value)
-        else:
-            command.payload = value
-
-        self.send_serial_packet(
-            command.prepare_message(self._message_start, device_id, "w", self._calculate_security_byte))
+        self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
 
 
     # Get a setting value from a device
     def get_setting(self, command_name: str):
-        command = MozaCommand(command_name, self._serial_data["commands"])
-        device_id = self._get_device_id(command_name)
-
-        if command.length == -1 or command.id == -1:
-            print("Command not known yet")
-            return
-
-        if command.read_group == -1:
-            print("Command doesn't support read access")
-            return
-
-        self.send_serial_packet(
-            command.prepare_message(self._message_start, device_id, "r", self._calculate_security_byte))
+        self._handle_command(command_name, mc.MOZA_COMMAND_READ, value, byte_value)

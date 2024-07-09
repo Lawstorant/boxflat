@@ -25,6 +25,6 @@ class HomeSettings(SettingsPanel):
             subtitle="FFB Driver"
         )
 
-        self.add_preferences_group("")
-        self.add_title_row("About boxflat")
+        # self.add_preferences_group("")
+        # self.add_title_row("About boxflat")
 
