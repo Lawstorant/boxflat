@@ -32,859 +32,859 @@ device-ids:
 commands:
 # Main commands?
   main-set-compat-mode:
-    get: -1
-    set: 31
+    read: -1
+    write: 31
     id: 19
     bytes: 1
 
   main-get-compat-mode:
-    get: 31
-    set: -1
+    read: 31
+    write: -1
     id: 23
     bytes: 1
 
   main-get-ble-mode:
-    get: 31
-    set: -1
+    read: 31
+    write: -1
     id: 70
     bytes: 1
 
   main-set-ble-mode:
-    get: -1
-    set: 31
+    read: -1
+    write: 31
     id: 71
     bytes: 1
 
   main-get-led-status:
-    get: 31
-    set: -1
+    read: 31
+    write: -1
     id: 8
     bytes: 1
 
   main-set-led-status:
-    get: -1
-    set: 31
+    read: -1
+    write: 31
     id: 9
     bytes: 1
 
   main-set-ffb-status:
-    get: -1
-    set: 33
+    read: -1
+    write: 33
     id: 6
     bytes: 1
 
   main-get-ffb-status:
-    get: 33
-    set: -1
+    read: 33
+    write: -1
     id: 7
     bytes: 1
 
 # Pedals
   pedal-throttle-dir:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 1
     bytes: 2
 
   pedal-throttle-min:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 2
     bytes: 2
 
   pedal-throttle-max:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 3
     bytes: 2
 
   pedal-brake-dir:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 4
     bytes: 2
 
   pedal-brake-min:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 5
     bytes: 2
 
   pedal-brake-max:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 6
     bytes: 2
 
   pedal-clutch-dir:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 7
     bytes: 2
 
   pedal-clutch-min:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 8
     bytes: 2
 
   pedal-clutch-max:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 9
     bytes: 2
 
   pedal-hid-mode:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 13
     bytes: 2
 
   pedal-throttle-y1:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 14
     bytes: 4
 
   pedal-throttle-y2:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 15
     bytes: 4
 
   pedal-throttle-y3:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 16
     bytes: 4
 
   pedal-throttle-y4:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 17
     bytes: 4
 
   pedal-brake-y1:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 18
     bytes: 4
 
   pedal-brake-y2:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 19
     bytes: 4
 
   pedal-brake-y3:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 20
     bytes: 4
 
   pedal-brake-y4:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 21
     bytes: 4
 
   pedal-clutch-y1:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 22
     bytes: 4
 
   pedal-clutch-y2:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 23
     bytes: 4
 
   pedal-clutch-y3:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 24
     bytes: 4
 
   pedal-clutch-y4:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 25
     bytes: 4
 
   pedal-brake-max-force:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 26
     bytes: 4
 
   pedal-throttle-y5:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 27
     bytes: 4
 
   pedal-brake-y5:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 28
     bytes: 4
 
   pedal-clutch-y5:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 29
     bytes: 4
 
   pedal-throttle-hid-source:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 30
     bytes: 2
 
   pedal-throttle-hid-cmd:
-    get: 35
-    set: 36
+    read: 35
+    write: 36
     id: 31
     bytes: 2
 
   pedal-throttle-output:
-    get: 37
-    set: -1
+    read: 37
+    write: -1
     id: 1
     bytes: 2
 
   pedal-brake-output:
-    get: 37
-    set: -1
+    read: 37
+    write: -1
     id: 2
     bytes: 2
 
   pedal-clutch-output:
-    get: 37
-    set: -1
+    read: 37
+    write: -1
     id: 3
     bytes: 2
 
 # Wheelbase
   base-limit:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 1
     bytes: 2
 
   base-ffb-strength:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 2
     bytes: 2
 
   base-inertia:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 4
     bytes: 2
 
   base-damper:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 7
     bytes: 2
 
   base-friction:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 8
     bytes: 2
 
   base-spring:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 9
     bytes: 2
 
   base-speed:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 10
     bytes: 2
 
   base-road-sensitivity:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 12
     bytes: 2
 
   base-protection:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 13
     bytes: 2
 
   base-equalizer1:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 14
     bytes: 2
 
   base-equalizer2:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 15
     bytes: 2
 
   base-equalizer3:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 16
     bytes: 2
 
   base-equalizer4:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 17
     bytes: 2
 
   base-equalizer5:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 20
     bytes: 2
 
   base-equalizer6:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 44
     bytes: 2
 
   base-torque:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 18
     bytes: 2
 
   base-natural-inertia:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 19
     bytes: 2
 
   base-natural-inertia-enable:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 22
     bytes: 2
 
   base-maximum-angle:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 23
     bytes: 2
 
   base-ffb-reverse:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 24
     bytes: 2
 
   base-speed-damping:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 25
     bytes: 2
 
   base-speed-damping-point:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 26
     bytes: 2
 
   base-soft-limit-strength:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 27
     bytes: 2
 
   base-soft-limit-retain:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 28
     bytes: 2
 
   base-temp-strategy:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 30
     bytes: 2
 
   base-soft-limit-stifness:
-    get: 40
-    set: 41
+    read: 40
+    write: 41
     id: 31
     bytes: 2
 
   base-ffb-curve-x1:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 1
     bytes: 1
 
   base-ffb-curve-x2:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 2
     bytes: 1
 
   base-ffb-curve-x3:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 3
     bytes: 1
 
   base-ffb-curve-x4:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 4
     bytes: 1
 
   base-ffb-curve-y1:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 5
     bytes: 1
 
   base-ffb-curve-y2:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 6
     bytes: 1
 
   base-ffb-curve-y3:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 7
     bytes: 1
 
   base-ffb-curve-y4:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 8
     bytes: 1
 
   base-ffb-curve-y5:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 9
     bytes: 1
 
   base-ffb-curve-y0:
-    get: [40, 34]
-    set: [41, 34]
+    read: [40, 34]
+    write: [41, 34]
     id: 10
     bytes: 1
 
   base-output:
-    get: 43
-    set: -1
+    read: 43
+    write: -1
     id: 1
     bytes: 2
 
   base-output-err:
-    get: 43
-    set: -1
+    read: 43
+    write: -1
     id: 2
     bytes: 2
 
   base-mcu-temp:
-    get: 43
-    set: -1
+    read: 43
+    write: -1
     id: 4
     bytes: 2
 
   base-mosfet-temp:
-    get: 43
-    set: -1
+    read: 43
+    write: -1
     id: 5
     bytes: 2
 
   base-motor-temp:
-    get: 43
-    set: -1
+    read: 43
+    write: -1
     id: 6
     bytes: 2
 
 # Dashboard
   dash-brightness:
-    get: 51
-    set: 50
+    read: 51
+    write: 50
     id: 0
     bytes: 4
 
   dash-ui-index:
-    get: 51
-    set: 50
+    read: 51
+    write: 50
     id: 1
     bytes: 4
 
   dash-speed-unit:
-    get: 51
-    set: 50
+    read: 51
+    write: 50
     id: 2
     bytes: 4
 
   dash-temp-unit:
-    get: 51
-    set: 50
+    read: 51
+    write: 50
     id: 3
     bytes: 4
 
 # Steering wheel
   # TODO: check if this works
   wheel-colors:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 0
     bytes: 9
 
   wheel-brightness:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 1
     bytes: 1
 
   wheel-indicator-timings:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 2
     bytes: 10
 
   wheel-paddles-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 3
     bytes: 1
 
   wheel-indicator-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 4
     bytes: 1
 
   wheel-stick-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 5
     bytes: 2
 
   wheel-display-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 7
     bytes: 1
 
   wheel-clutch-point:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 9
     bytes: 1
 
   wheel-knob-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 10
     bytes: 1
 
   wheel-paddle-adaptive-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 11
     bytes: 1
 
   wheel-paddle-button-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 13
     bytes: 1
 
   wheel-rmp-value1:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 0]
     bytes: 3
 
   wheel-rmp-value2:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 1]
     bytes: 3
 
   wheel-rmp-value3:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 2]
     bytes: 3
 
   wheel-rmp-value4:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 3]
     bytes: 3
 
   wheel-rmp-value5:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 4]
     bytes: 3
 
   wheel-rmp-value6:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 5]
     bytes: 3
 
   wheel-rmp-value7:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 6]
     bytes: 3
 
   wheel-rmp-value8:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 7]
     bytes: 3
 
   wheel-rmp-value9:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 8]
     bytes: 3
 
   wheel-rmp-value10:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: [15, 9]
     bytes: 3
 
   wheel-key-combination:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 19
     bytes: 4
 
   wheel-indicator-group-brightness:
-    get: [64, 20]
-    set: [63, 20]
+    read: [64, 20]
+    write: [63, 20]
     id: 0
     bytes: 1
 
   wheel-buttons-group-brightness:
-    get: [64, 20]
-    set: [63, 20]
+    read: [64, 20]
+    write: [63, 20]
     id: 2
     bytes: 1
 
   wheel-flags-group-brightness:
-    get: [64, 20]
-    set: [63, 20]
+    read: [64, 20]
+    write: [63, 20]
     id: 3
     bytes: 1
 
   # TODO: wheel indicator, button, flag colors
 
   wheel-indicator-interval:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 22
     bytes: 4
 
   wheel-rpm-regulation-mode:
-    get: 64
-    set: 63
+    read: 64
+    write: 63
     id: 23
     bytes: 1
 
 # H-Pattern shifter
   h-pattern-hid-mode:
-    get:
-    set:
+    read:
+    write:
     id:
     bytes:
 
   h-pattern-throttle-blip:
-    get:
-    set:
+    read:
+    write:
     id:
     bytes:
 
   h-pattern-blip-output:
-    get:
-    set:
+    read:
+    write:
     id:
     bytes:
 
   h-pattern-blip-duration:
-    get:
-    set:
+    read:
+    write:
     id:
     bytes:
 
 # E-Stop
   e-stop-set-status:
-    get: -1
-    set: 70
+    read: -1
+    write: 70
     id: 0
     bytes: 1
 
   e-stop-get-status:
-    get: 70
-    set: -1
+    read: 70
+    write: -1
     id: 1
     bytes: 1
 
 # Sequential shifter
   sequential-hid-mode:
-    get: 81
-    set: 82
+    read: 81
+    write: 82
     id: 1
     bytes: 2
 
   sequential-apply-mode:
-    get: 81
-    set: 82
+    read: 81
+    write: 82
     id: 2
     bytes: 2
 
   sequential-brightness:
-    get: 81
-    set: 82
+    read: 81
+    write: 82
     id: 3
     bytes: 2
 
   sequential-color:
-    get: 81
-    set: 82
+    read: 81
+    write: 82
     id: 4
     bytes: 2
 
   sequential-direction:
-    get: 81
-    set: 82
+    read: 81
+    write: 82
     id: 5
     bytes: 2
 
   sequential-paddle-sync:
-    get: 81
-    set: 82
+    read: 81
+    write: 82
     id: 6
     bytes: 2
 
   sequential-output:
-    get: 83
-    set: -1
+    read: 83
+    write: -1
     id: 1
     bytes: 2
 
 # Handbrake
   handbrake-direction:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 1
     bytes: 1
 
   handbrake-range-start:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 2
     bytes: 2
 
   handbrake-range-end:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 3
     bytes: 2
 
   handbrake-hid-mode:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 4
     bytes: 2
 
   handbrake-y1:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 5
     bytes: 4
 
   handbrake-y2:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 6
     bytes: 4
 
   handbrake-y3:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 7
     bytes: 4
 
   handbrake-y4:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 8
     bytes: 4
 
   handbrake-y5:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 9
     bytes: 4
 
   handbrake-button-threshold:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 10
     bytes: 2
 
   handbrake-mode:
-    get: 91
-    set: 92
+    read: 91
+    write: 92
     id: 11
     bytes: 2
 
   handbrake-output:
-    get: 93
-    set: -1
+    read: 93
+    write: -1
     id: 1
     bytes: 2
 
 # Hub
   hub-port1:
-    get: 100
-    set: -1
+    read: 100
+    write: -1
     id: 1
     bytes: 1
 
   hub-port2:
-    get: 100
-    set: -1
+    read: 100
+    write: -1
     id: 2
     bytes: 1
 
   hub-port3:
-    get: 100
-    set: -1
+    read: 100
+    write: -1
     id: 3
     bytes: 1
 
   hub-port4:
-    get: 100
-    set: -1
+    read: 100
+    write: -1
     id: 4
     bytes: 1
 
   hub-pedals:
-    get: 100
-    set: -1
+    read: 100
+    write: -1
     id: 5
     bytes: 1

@@ -6,6 +6,7 @@ Boxflat for Moza Racing. Control your Moza wheelbase settings!
 This is still work in progress, but I managed to hook up to the serial connection and a few settings are already functional.
 
 #### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by [@JacKeTUs](https://github.com/JacKeTUs)
+#### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
 
 ## Implemented features
 ### Base
