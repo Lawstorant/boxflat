@@ -3,6 +3,7 @@ import os.path
 from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
+import time
 
 CM_RETRY_COUNT=2
 
@@ -91,12 +92,12 @@ class MozaConnectionManager():
         return device_path
 
 
-    def send_serial_message(self, serial_path: str, message: bytes) -> None:
+    def send_serial_message(self, serial_path: str, message: bytes) -> bytes:
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
-        print(f"\nSending: {msg}")
-        print(f"Device: {serial_path}")
+        print(f"\nDevice: {serial_path}")
+        print(f"Sending: {msg}")
 
         if self._dry_run:
             return
@@ -105,14 +106,23 @@ class MozaConnectionManager():
             print("No compatible device found!")
             return
 
-        with Serial(serial_path) as serial:
-            for i in range(0, CM_RETRY_COUNT):
-                serial.write(message)
+        with Serial(serial_path, baudrate=115200, timeout=1) as serial:
+            serial.reset_output_buffer()
+            serial.reset_input_buffer()
+            serial.write(message)
+            message = serial.read(len(message))
             serial.close()
+
+        msg = ""
+        for b in message:
+            msg += f"{hex(b)} "
+        print(f"Response: {msg}")
+
+        return message
 
 
     # Handle command operations
-    def _handle_command(self, command_name: str, rw, value: int=0, byte_value: bytes=None):
+    def _handle_command(self, command_name: str, rw, value: int=1, byte_value: bytes=None) -> bytes:
         command = mc.MozaCommand(command_name, self._serial_data["commands"])
 
         if command.length == -1 or command.id == -1:
@@ -127,20 +137,20 @@ class MozaConnectionManager():
             print("Command doesn't support WRITE access")
             return
 
-        if rw == mc.MOZA_COMMAND_WRITE:
-            if byte_value != None:
-                command.set_payload_bytes(byte_value)
-            else:
-                command.payload = value
+        if byte_value != None:
+            command.set_payload_bytes(byte_value)
+        else:
+            command.payload = value
 
         self._device_discovery(self._serial_path)
 
         device_id = self._get_device_id(command.device_type)
         device_path = self._get_device_path(command.device_type)
 
-        self.send_serial_message(device_path,
+        response = self.send_serial_message(device_path,
             command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte))
 
+        return response[(-1-command.length):-1]
 
     # Set a setting value on a device
     # If value should be float, provide bytes
@@ -149,8 +159,25 @@ class MozaConnectionManager():
             return
         self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
 
+    def set_setting_float(self, command_name: str, value: float) -> None:
+        self.set_setting(command_name, byte_value=bytearray(struct.pack("f", value)))
+
+    def set_setting_list(self, command_name: str, values: list) -> None:
+        self.set_setting(command_name, byte_value=bytes(values))
 
     # Get a setting value from a device
-    def get_setting(self, command_name: str):
-        self._handle_command(command_name, mc.MOZA_COMMAND_READ)
-        return 0
+    def get_setting(self, command_name: str) -> bytes:
+        return self._handle_command(command_name, mc.MOZA_COMMAND_READ)
+
+    def get_setting_int(self, command_name: str) -> int:
+        return int.from_bytes(self.get_setting(command_name))
+
+    def get_setting_list(self, command_name: str) -> list:
+        response = self.get_setting(command_name)
+        res = []
+        for value in response:
+            res.append(value)
+        return res
+
+    def get_setting_float(self, command_name: str) -> float:
+        return float.from_bytes(self.get_setting(command_name))

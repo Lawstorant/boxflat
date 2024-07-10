@@ -302,7 +302,7 @@ class SettingsPanel(object):
 
         self._current_group.add(row)
 
-    def add_color_picker_row(self, title: str, callback=None, subtitle="") -> None:
+    def add_color_picker_row(self, title: str, callback=None, subtitle="", init_color=0) -> None:
         if self._current_group == None:
             return
 
@@ -320,9 +320,11 @@ class SettingsPanel(object):
 
             if group is None:
                 group = button
-                button.set_active(True)
             else:
                 button.set_group(group)
+
+            if i == init_color:
+                button.set_active(True)
 
             if callback != None:
                 button.connect('toggled',
