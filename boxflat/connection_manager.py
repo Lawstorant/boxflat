@@ -6,8 +6,10 @@ from serial import Serial
 CM_RETRY_COUNT=1
 
 class MozaConnectionManager():
-    def __init__(self, serial_data_path: str):
+    def __init__(self, serial_data_path: str, dry_run=False):
         self._serial_data = None
+        self._dry_run = dry_run
+
         with open(serial_data_path) as stream:
             try:
                 self._serial_data = yaml.safe_load(stream)
@@ -51,12 +53,15 @@ class MozaConnectionManager():
             msg += f"{hex(b)} "
         print(f"Sending: {msg}")
 
+        if self._dry_run:
+            return
+
         # TODO: device search
-        # tty_path = "/dev/ttyACM0"
-        # with Serial(tty_path, 115200) as serial:
-        #     for i in range(0, CM_RETRY_COUNT):
-        #         serial.write(message)
-        #     serial.close()
+        tty_path = "/dev/ttyACM0"
+        with Serial(tty_path, 115200) as serial:
+            for i in range(0, CM_RETRY_COUNT):
+                serial.write(message)
+            serial.close()
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=0, byte_value: bytes=None):

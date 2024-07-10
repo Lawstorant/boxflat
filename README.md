@@ -83,6 +83,9 @@ https://aur.archlinux.org/packages/boxflat-git
 $ ./entrypoint.py --local
 # or
 $ python3 entrypoint.py --local
+
+# use `--dry-run` argument to disable serial communication
+$ ./entrypoint --local --dry-run
 ```
 Installation:
 ```bash

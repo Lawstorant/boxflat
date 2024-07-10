@@ -1,9 +1,12 @@
 from boxflat.panels.settings_panel import SettingsPanel
 
 class HomeSettings(SettingsPanel):
-    def __init__(self, button_callback) -> None:
+    def __init__(self, button_callback, dry_run: bool) -> None:
+        self._test_text = "inactive"
+        if dry_run:
+            self._test_text = "active"
+
         super().__init__("Home", button_callback)
-        self.hide_banner()
 
     def open_github(self, *args) -> None:
         self.open_url("https://github.com/Lawstorant/boxflat")
@@ -25,6 +28,7 @@ class HomeSettings(SettingsPanel):
             subtitle="FFB Driver"
         )
 
-        # self.add_preferences_group("")
+        self.add_preferences_group("")
+        self.add_title_row(f"Test mode: {self._test_text}")
         # self.add_title_row("About boxflat")
 
