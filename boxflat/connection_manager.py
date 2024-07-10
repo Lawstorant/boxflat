@@ -52,11 +52,11 @@ class MozaConnectionManager():
         print(f"Sending: {msg}")
 
         # TODO: device search
-        tty_path = "/dev/ttyACM0"
-        with Serial(tty_path, 115200) as serial:
-            for i in range(0, CM_RETRY_COUNT):
-                serial.write(message)
-            serial.close()
+        # tty_path = "/dev/ttyACM0"
+        # with Serial(tty_path, 115200) as serial:
+        #     for i in range(0, CM_RETRY_COUNT):
+        #         serial.write(message)
+        #     serial.close()
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=0, byte_value: bytes=None):
@@ -88,10 +88,14 @@ class MozaConnectionManager():
     # Set a setting value on a device
     # TODO: handle float32
     def set_setting(self, command_name: str, value=0, byte_value=None) -> None:
+        if value == None:
+            return
         self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
 
 
     # Get a setting value from a device
     def get_setting(self, command_name: str):
+        if value == None:
+            return -1
         self._handle_command(command_name, mc.MOZA_COMMAND_READ)
         return 0

@@ -11,13 +11,12 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page()
         self.add_preferences_group("Input settings")
         self.add_toggle_button_row("Dual Clutch Paddles Mode", ["Combined", "Split", "Buttons"], callback=self._set_paddles_mode)
-        self._split = self.add_slider_row(
-            "Clutch Split Point", 0 , 100, 50,
+        self._split = self.add_slider_row("Clutch Split Point", 0 , 100, 50,
             marks=[25, 50, 75],
-            mark_suffix=" %",
+            mark_suffix="%",
             subtitle="Left paddle cutoff",
-            callback=self._set_clutch_point
-        )
+            callback=self._set_clutch_point)
+
         self.add_toggle_button_row("Left Stick Mode", ["Buttons", "D-Pad"], callback=self._set_stick_mode)
 
         self.add_preferences_group("Indicator settings")
@@ -28,9 +27,9 @@ class WheelSettings(SettingsPanel):
         self.add_toggle_button_row("RPM Indicator Timing", ["Early", "Normal", "Late"], callback=self._set_indicator_timings)
         # # TODO: Add color picker for every light
         self.add_slider_row("Brightness", 0 , 100, 50,
-                             marks=[25, 50, 75], mark_suffix=" %",
-                             subtitle="RPM and buttons",
-                             callback=self._set_brightness)
+            marks=[25, 50, 75], mark_suffix="%",
+            subtitle="RPM and buttons",
+            callback=self._set_brightness)
 
         # self.add_preferences_group("Indicator colors")
         # for i in range(0, 10):

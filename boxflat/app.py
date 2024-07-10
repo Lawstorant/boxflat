@@ -5,7 +5,7 @@ from gi.repository import Gtk, Gdk, Adw
 import boxflat.panels as panels
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_default_size(850, 700)
         self.set_title("Boxflat")
@@ -45,7 +45,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_content(navigation)
         self.navigation = navigation
         self.settings_box = content_box2
-        panels.prepare_panels(self.switch_panel)
+        panels.prepare_panels(self.switch_panel, data_path)
 
         for button in panels.buttons():
             box2.append(button)
@@ -71,14 +71,15 @@ class MainWindow(Adw.ApplicationWindow):
 
 
 class MyApp(Adw.Application):
-    def __init__(self, **kwargs):
+    def __init__(self, data_path: str, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
+        self._data_path = data_path
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_path('/usr/share/boxflat/data/style.css')
+        css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 
     def on_activate(self, app):
-        self.win = MainWindow(application=app)
+        self.win = MainWindow(self._data_path, application=app)
         self.win.present()

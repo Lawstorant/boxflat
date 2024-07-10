@@ -361,12 +361,14 @@ commands:
     id: 18
     bytes: 2
 
+  # hands-off protection
   base-natural-inertia:
     read: 40
     write: 41
     id: 19
     bytes: 2
 
+  # hands-off protection
   base-natural-inertia-enable:
     read: 40
     write: 41
@@ -415,7 +417,7 @@ commands:
     id: 30
     bytes: 2
 
-  base-soft-limit-stifness:
+  base-soft-limit-stiffness:
     read: 40
     write: 41
     id: 31
@@ -704,26 +706,36 @@ commands:
 
 # hpattern shifter
   hpattern-hid-mode:
-    read:
-    write:
-    id: -1
-    bytes:
+    read: 81
+    write: 82
+    id: 1
+    bytes: 2
 
+  hpattern-output:
+    read: 83
+    write: -1
+    id: 1
+    bytes: 2
+
+  # Even PitHouse is not sending anything
+  # These options are dead
+  # They didn't work correctly and were probably disabled
+  # some time in 2023
   hpattern-throttle-blip:
-    read:
-    write:
+    read: -1
+    write: -1
     id: -1
     bytes:
 
   hpattern-blip-output:
-    read:
-    write:
+    read: -1
+    write: -1
     id: -1
     bytes:
 
   hpattern-blip-duration:
-    read:
-    write:
+    read: -1
+    write: -1
     id: -1
     bytes:
 
@@ -775,12 +787,6 @@ commands:
     read: 81
     write: 82
     id: 6
-    bytes: 2
-
-  sequential-output:
-    read: 83
-    write: -1
-    id: 1
     bytes: 2
 
 # Handbrake
@@ -891,7 +897,7 @@ commands:
   # base calibration expects 1 as value
   base-calibration:
     read: -1
-    write:
+    write: 42
     id: 1
     bytes: 2
 
@@ -949,7 +955,7 @@ commands:
     id: 3
     bytes: 2
 
-  handbrake-stop-calibrate:
+  handbrake-stop-calibration:
     read: -1
     write: 94
     id: 4
