@@ -4,7 +4,7 @@ from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
 
-CM_RETRY_COUNT=1
+CM_RETRY_COUNT=2
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
@@ -22,7 +22,7 @@ class MozaConnectionManager():
         self._recipents = []
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
-        self._device_discovery("/dev/serial/by-id")
+        self._serial_path = "/dev/serial/by-id"
 
 # TODO: add notifications about parameters?
 # TODO: add start-stop watching get commands in threads
@@ -31,26 +31,30 @@ class MozaConnectionManager():
             return
 
         devices = []
+        self._serial_devices = {}
         for device in os.listdir(path):
             if device.find("Gudsen_MOZA"):
                 devices.append(os.path.join(path, device))
 
-        # TODO: Discover estop USB name
         for device in devices:
-            if device.find("Base") != -1:
+            if device.lower().find("base") != -1:
                 self._serial_devices["base"] = device
 
-            elif device.find("HBP") != -1:
+            elif device.lower().find("hbp") != -1:
                 self._serial_devices["handbrake"] = device
 
-            elif device.find("HGP") != -1:
+            elif device.lower().find("hgp") != -1:
                 self._serial_devices["hpattern"] = device
 
-            elif device.find("SGP") != -1:
+            elif device.lower().find("sgp") != -1:
                 self._serial_devices["sequential"] = device
 
-            elif device.find("Pedals") != -1:
+            elif device.lower().find("pedals") != -1:
                 self._serial_devices["pedals"] = device
+
+            # TODO: Check this info somehow
+            elif device.lower().find("stop") != -1:
+                self._serial_devices["estop"] = device
 
 
     def subscribe(self, callback: callable) -> None:
@@ -70,14 +74,18 @@ class MozaConnectionManager():
 
 
     def _get_device_id(self, device_type: str) -> int:
-        return int(self._serial_data["device-ids"][device_type])
+        id = int(self._serial_data["device-ids"][device_type])
+        if device_type in self._serial_devices:
+            id = int(self._serial_data["device-ids"]["main"])
+        return id
+
 
     def _get_device_path(self, device_type: str) -> str:
         device_path = None
         if device_type in self._serial_devices:
             device_path = self._serial_devices[device_type]
 
-        if "base" in self._serial_devices and device_type != "hub":
+        elif "base" in self._serial_devices and device_type != "hub":
             device_path = self._serial_devices["base"]
 
         return device_path
@@ -87,13 +95,14 @@ class MozaConnectionManager():
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
-        print(f"Sending: {msg}")
+        print(f"\nSending: {msg}")
+        print(f"Device: {serial_path}")
 
         if self._dry_run:
             return
 
         if serial_path == None:
-            print("No compatible device found!\n")
+            print("No compatible device found!")
             return
 
         with Serial(serial_path) as serial:
@@ -124,6 +133,8 @@ class MozaConnectionManager():
             else:
                 command.payload = value
 
+        self._device_discovery(self._serial_path)
+
         device_id = self._get_device_id(command.device_type)
         device_path = self._get_device_path(command.device_type)
 
@@ -132,7 +143,7 @@ class MozaConnectionManager():
 
 
     # Set a setting value on a device
-    # TODO: handle float32
+    # If value should be float, provide bytes
     def set_setting(self, command_name: str, value=0, byte_value=None) -> None:
         if value == None:
             return
@@ -141,7 +152,5 @@ class MozaConnectionManager():
 
     # Get a setting value from a device
     def get_setting(self, command_name: str):
-        if value == None:
-            return -1
         self._handle_command(command_name, mc.MOZA_COMMAND_READ)
         return 0
