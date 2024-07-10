@@ -1,9 +1,11 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
+import time
 
 class HandbrakeSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._threshold_active = None
+        self._calibration_button = None
         super(HandbrakeSettings, self).__init__("Handbrake", button_callback, connection_manager)
 
     def prepare_ui(self) -> None:
@@ -40,8 +42,9 @@ class HandbrakeSettings(SettingsPanel):
             callback=lambda value: self._set_range("end", value)
         )
 
-        # self.add_preferences_group("Calibration")
-        # self.add_button_row("Device Calibration", "Calibrate", subtitle="Set device range", callback=self._set_calibration)
+        self.add_preferences_group("Calibration")
+        self.add_calibration_button_row("Device Calibration", "Calibrate",
+            callback1=self._set_calibration_start, callback2=self._set_calibration_stop)
 
 
     def _set_direction(self, value: int) -> None:
@@ -67,5 +70,8 @@ class HandbrakeSettings(SettingsPanel):
         self._cm.set_setting(f"handbrake-range-{position}", value)
 
 
-    def _set_calibration(self) -> None:
-        pass
+    def _set_calibration_start(self) -> None:
+        self._cm.set_setting(f"handbrake-start-calibration")
+
+    def _set_calibration_stop(self) -> None:
+        self._cm.set_setting(f"handbrake-stop-calibration")

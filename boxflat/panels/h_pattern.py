@@ -27,8 +27,9 @@ class HPatternSettings(SettingsPanel):
             callback=self._set_blip_duration
         )
 
-        # self.add_preferences_group("Calibration")
-        # self.add_button_row("Device Calibration", "Calibrate", subtitle="In case of weird behavior", callback=self._set_calibration)
+        self.add_preferences_group("Calibration")
+        self.add_calibration_button_row("Device Calibration", "Calibrate",
+            callback1=self._set_calibration_start, callback2=self._set_calibration_stop)
 
 
     def _set_throttle_blip(self, value: int) -> None:
@@ -50,5 +51,8 @@ class HPatternSettings(SettingsPanel):
             self._cm.set_setting("hpattern-blip-duration", value)
 
 
-    def _set_calibration(self) -> None:
-        pass
+    def _set_calibration_start(self) -> None:
+        self._cm.set_setting(f"hpattern-start-calibration")
+
+    def _set_calibration_stop(self) -> None:
+        self._cm.set_setting(f"hpattern-stop-calibration")

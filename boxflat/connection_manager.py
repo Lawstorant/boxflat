@@ -1,5 +1,6 @@
 import yaml
 import os.path
+from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
 
@@ -9,6 +10,7 @@ class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
         self._serial_data = None
         self._dry_run = dry_run
+        self._serial_devices = {}
 
         with open(serial_data_path) as stream:
             try:
@@ -20,11 +22,35 @@ class MozaConnectionManager():
         self._recipents = []
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
+        self._device_discovery("/dev/serial/by-id")
 
 # TODO: add notifications about parameters?
 # TODO: add start-stop watching get commands in threads
-    def _device_discovery(self) -> None:
-        pass
+    def _device_discovery(self, path: str) -> None:
+        if not os.path.exists(path):
+            return
+
+        devices = []
+        for device in os.listdir(path):
+            if device.find("Gudsen_MOZA"):
+                devices.append(os.path.join(path, device))
+
+        # TODO: Discover estop USB name
+        for device in devices:
+            if device.find("Base") != -1:
+                self._serial_devices["base"] = device
+
+            elif device.find("HBP") != -1:
+                self._serial_devices["handbrake"] = device
+
+            elif device.find("HGP") != -1:
+                self._serial_devices["hpattern"] = device
+
+            elif device.find("SGP") != -1:
+                self._serial_devices["sequential"] = device
+
+            elif device.find("Pedals") != -1:
+                self._serial_devices["pedals"] = device
 
 
     def subscribe(self, callback: callable) -> None:
@@ -43,11 +69,21 @@ class MozaConnectionManager():
         return value % 256
 
 
-    def _get_device_id(self, command: str) -> int:
-        return int(self._serial_data["device-ids"][command.split("-")[0]])
+    def _get_device_id(self, device_type: str) -> int:
+        return int(self._serial_data["device-ids"][device_type])
+
+    def _get_device_path(self, device_type: str) -> str:
+        device_path = None
+        if device_type in self._serial_devices:
+            device_path = self._serial_devices[device_type]
+
+        if "base" in self._serial_devices and device_type != "hub":
+            device_path = self._serial_devices["base"]
+
+        return device_path
 
 
-    def send_serial_packet(self, message: bytes) -> None:
+    def send_serial_message(self, serial_path: str, message: bytes) -> None:
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
@@ -56,17 +92,19 @@ class MozaConnectionManager():
         if self._dry_run:
             return
 
-        # TODO: device search
-        tty_path = "/dev/ttyACM0"
-        with Serial(tty_path) as serial:
+        if serial_path == None:
+            print("No compatible device found!\n")
+            return
+
+        with Serial(serial_path) as serial:
             for i in range(0, CM_RETRY_COUNT):
                 serial.write(message)
             serial.close()
 
+
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=0, byte_value: bytes=None):
         command = mc.MozaCommand(command_name, self._serial_data["commands"])
-        device_id = self._get_device_id(command_name)
 
         if command.length == -1 or command.id == -1:
             print("Command undiscovered")
@@ -86,7 +124,10 @@ class MozaConnectionManager():
             else:
                 command.payload = value
 
-        self.send_serial_packet(
+        device_id = self._get_device_id(command.device_type)
+        device_path = self._get_device_path(command.device_type)
+
+        self.send_serial_message(device_path,
             command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte))
 
 

@@ -4,6 +4,8 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw
 from boxflat.structs import *
 from boxflat.connection_manager import MozaConnectionManager
+import time
+from threading import Thread
 
 class SettingsPanel(object):
     _current_page: Adw.PreferencesPage
@@ -215,7 +217,7 @@ class SettingsPanel(object):
 
         self._current_group.add(combo)
 
-    def add_button_row(self, title: str, button_label: str, callback=None, subtitle="") -> None:
+    def add_button_row(self, title: str, button_label: str, callback=None, subtitle="") -> callable:
         if self._current_group == None:
             return
 
@@ -228,16 +230,47 @@ class SettingsPanel(object):
         row.set_title(title)
         row.set_subtitle(subtitle)
         row.add_suffix(button)
-
         self._current_group.add(row)
 
-        # code for libadwaita 1.6
-        # button = Adw.ButtonRow()
-        # button.set_title(title)
-        # button.set_subtitle(subtitle)
+        return button.set_sensitive
 
-        # if callback != None:
-        #     button.connect('activated', callback)
+
+    def _calibration_function(self, button, row, callback1: callable, callback2: callable):
+        button.set_sensitive(False)
+        subtitle = row.get_subtitle()
+        text = "Calibration in progress..."
+        print("Calibration start")
+        callback1()
+        for i in range(0,10):
+            row.set_subtitle(f"{text} {10-i}s")
+            time.sleep(1)
+
+        print("Calibration stop")
+        callback2()
+        row.set_subtitle(subtitle)
+        button.set_sensitive(True)
+
+    def _handle_calibration(self, button, row, callback1: callable, callback2: callable) -> None:
+        thread = Thread(target=self._calibration_function, args = (button, row, callback1, callback2))
+        thread.start()
+
+    def add_calibration_button_row(self, title: str, button_label: str,
+                                   callback1=None, callback2=None) -> None:
+        if self._current_group == None:
+            return
+
+        button = Gtk.Button(label=button_label)
+        button.add_css_class("row-button")
+
+        row = Adw.ActionRow()
+        row.set_title(title)
+        row.set_subtitle("Set device range")
+        row.add_suffix(button)
+
+        if callback1 != None and callback2 != None:
+            button.connect('clicked', lambda button: self._handle_calibration(button, row, callback1, callback2))
+
+        self._current_group.add(row)
 
     def add_toggle_button_row(self, title: str, labels: list,
                               callback=None, subtitle="") -> None:

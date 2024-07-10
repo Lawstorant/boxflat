@@ -8,6 +8,7 @@ class MozaCommand():
         self.write_group = int(commands_data[name]["write"])
         self.length = int(commands_data[name]["bytes"])
         self._payload = bytes(self.length)
+        self._device_type = name.split("-")[0]
 
     @property
     def payload(self) -> bytes:
@@ -32,6 +33,10 @@ class MozaCommand():
     @property
     def length_byte(self) -> bytes:
         return self.length.to_bytes(1)
+
+    @property
+    def device_type(self) -> str:
+        return self._device_type
 
     def set_payload_bytes(self, value: bytes) -> None:
         self._payload = value
