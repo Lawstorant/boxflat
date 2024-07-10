@@ -1,8 +1,6 @@
 # boxflat
 Boxflat for Moza Racing. Control your Moza wheelbase settings!
-
 ![Base panel](./screens/base.png)
-
 This is still work in progress, but I managed to hook up to the serial connection and a few settings are already functional.
 
 #### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by [@JacKeTUs](https://github.com/JacKeTUs)
@@ -74,11 +72,7 @@ $ sudo ./install.sh remove
 ```
 
 # Some more early screenshots
-
 ![Wheel panel](./screens/wheel.png)
-
 ![Pedals panel](./screens/pedals.png)
-
 ![Sequential shifter panel](./screens/sequential.png)
-
 ![Handbrake panel](./screens/handbrake.png)
