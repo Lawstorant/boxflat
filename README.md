@@ -8,61 +8,34 @@ This is still work in progress, but I managed to hook up to the serial connectio
 #### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by [@JacKeTUs](https://github.com/JacKeTUs)
 #### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
 
-## Implemented features
-### Base
-- Rotation angle limit
-- Game FFB Strength
+## Functionality
 
-### Wheel
-- Clutch paddles mode
-- Clutch paddles split point
-- Left stick mode switch
-- RPM indicator mode
-- RPM indicator display mode
-- Brightness adjustement
+| Device | Completness | WIP |
+| :-: | :-: | :- |
+| Home page | 0% | Base and pedals output, Quick settings |
+| Base | 80% | Equalizer, FFB Curve |
+| Wheel | 50% | RPM colors, anything not present on RSv2 |
+| Pedals | 80% | Output curves, calibration |
+| Dashboard | 0% | |
+| Hub | 0% | Rows with connection status |
+| H-Pattern | 90% | Calibration |
+| Sequential | 100% | |
+| Handbrake | 70% | Output curve, Calibration |
+| Other settings | 0% | Bluetooth switch, FH5 compat mode |
 
-### Pedals
-- Direction reversal
-- Working range (start and stop)
-- Brake max force point
-
-### H-Pattern shifter
-These settings are implemented but they sadly don't work
-They don't even work on windows so this is just for show ATM
-- Downshift throttle blip switch
-- Downshift throttle blip level
-- Downshift throttle blip duration
-
-### Sequential shifter
-- Shift direction reversal
-- Paddle shifter synchronization
-- Button brightness adjustement
-- Button colors
-
-### Handbrake
-- Direction reversal
-- Handbrake mode switch
-- Button mode threshold
-- Working range (start and stop)
-
-## WiP
+### WiP
 - udev rules for serial ports
-- Calibration
 - Calibration warning dialog
 - Device discovery (currently defaulting to `/dev/ttyACM0`)
 - USB/Wheelbase accessory connection discovery
 - Reading settings from the base :P
 - Showing only settings that are relevant to connected hardware
 
-## Not implemented
-- Base FFB Curve
-- Base FFB Equalizer
-- Pedal Curve
-- Handbrake Curve
-- Loading Pit House profile jsons
+### Firmware upgrades
+There are some EEPROM functions available, but I need to do more testing to make sure I won't brick anything. For now, just use Pit House on Windows if you can, as FW upgrade support is not coming in the near future.
 
 ## Compatibility
-Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc.
+Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc. Some Wheel settings are device-specific (FSR Wheel dashboard for example)
 
 ## Installation/dependencies
 This package depends on:
@@ -101,6 +74,11 @@ $ sudo ./install.sh remove
 ```
 
 # Some more early screenshots
+
+![Wheel panel](./screens/wheel.png)
+
 ![Pedals panel](./screens/pedals.png)
 
 ![Sequential shifter panel](./screens/sequential.png)
+
+![Handbrake panel](./screens/handbrake.png)

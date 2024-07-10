@@ -725,19 +725,19 @@ commands:
     read: -1
     write: -1
     id: -1
-    bytes:
+    bytes: 2
 
   hpattern-blip-output:
     read: -1
     write: -1
     id: -1
-    bytes:
+    bytes: 2
 
   hpattern-blip-duration:
     read: -1
     write: -1
     id: -1
-    bytes:
+    bytes: 2
 
 # estop
   estop-set-status:

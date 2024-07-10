@@ -69,7 +69,7 @@ class MozaConnectionManager():
         device_id = self._get_device_id(command_name)
 
         if command.length == -1 or command.id == -1:
-            print("Command not known yet")
+            print("Command undiscovered")
             return
 
         if rw == mc.MOZA_COMMAND_READ and command.read_group == -1:
