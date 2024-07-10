@@ -27,6 +27,7 @@ This is still work in progress, but I managed to hook up to the serial connectio
 - Device discovery (currently defaulting to `/dev/ttyACM0`)
 - USB/Wheelbase accessory connection discovery
 - Reading settings from the base :P
+- Showing base/pedal/handbrake output
 - Showing only settings that are relevant to connected hardware
 
 ### Firmware upgrades

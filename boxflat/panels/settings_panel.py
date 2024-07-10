@@ -145,7 +145,7 @@ class SettingsPanel(object):
 
     def add_slider_row(self, title: str, range_start: int, range_stop: int,
                         value=0, size_request=(320,0), marks=[], mark_suffix="",
-                        callback=None, increment=1, subtitle="") -> callable:
+                        callback=None, increment=1, subtitle="", active=True) -> callable:
 
         if self._current_group == None:
             return
@@ -158,6 +158,7 @@ class SettingsPanel(object):
         slider.set_digits(0)
         slider.set_value(value)
         slider.set_size_request(size_request[0], size_request[1])
+        slider.set_sensitive(active)
 
         marks.append(range_start)
         marks.append(range_stop)
@@ -171,7 +172,7 @@ class SettingsPanel(object):
         row.set_title(title)
         row.set_subtitle(subtitle)
         self._current_group.add(row)
-        return lambda value: slider.set_sensitive(value)
+        return slider.set_sensitive
 
     def add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> callable:
         if self._current_group == None:

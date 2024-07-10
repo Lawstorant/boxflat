@@ -3,8 +3,8 @@ from boxflat.connection_manager import MozaConnectionManager
 
 class BaseSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
-        super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
         self._protection_slider = None
+        super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
         # self._settings = self._cm.get_base_settings()
 
     def _set_center(self) -> None:
@@ -104,7 +104,7 @@ class BaseSettings(SettingsPanel):
             callback=self._set_road_sensitivity)
 
         self.add_slider_row("Maximum Wheel Speed", 0, 200, 100,
-            marks=[30, 50, 100],
+            marks=[50, 100, 150],
             mark_suffix="%",
             callback=self._set_wheel_speed)
 
@@ -127,8 +127,9 @@ class BaseSettings(SettingsPanel):
             callback=self._set_torque)
 
         self.add_switch_row("Hands-Off Protection", callback=self._set_protection)
-        self.add_slider_row("Steering Wheel Inertia", 100, 4000, 2800,
+        self._protection_slider = self.add_slider_row("Steering Wheel Inertia", 100, 4000, 2800,
             marks=[1100, 1550, 2800, 3500],
+            active=False,
             callback=self._set_protection_value)
 
         self.add_slider_row("Natural Inertia", 100, 500, 150,
