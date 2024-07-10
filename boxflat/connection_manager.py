@@ -58,7 +58,7 @@ class MozaConnectionManager():
 
         # TODO: device search
         tty_path = "/dev/ttyACM0"
-        with Serial(tty_path, 115200) as serial:
+        with Serial(tty_path) as serial:
             for i in range(0, CM_RETRY_COUNT):
                 serial.write(message)
             serial.close()
