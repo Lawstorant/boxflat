@@ -58,7 +58,7 @@ class BaseSettings(SettingsPanel):
         self._cm.set_setting("main-set-led-status", value)
 
     def _set_soft_limit_stiffness(self, value) -> None:
-        self._cm.set_setting("base-soft-limit-stiffness", 100)
+        self._cm.set_setting("base-soft-limit-stiffness", round((400/9)*(value-1) + 100))
 
     def _set_soft_limit_strength(self, value) -> None:
         if value == "Soft":
@@ -100,7 +100,7 @@ class BaseSettings(SettingsPanel):
 
         self.add_preferences_group("Basic settings")
         self.add_slider_row("Road Sensitivity", 0, 10, 8,
-            marks=[2, 4],
+            marks=[2, 4, 6, 8],
             callback=self._set_road_sensitivity)
 
         self.add_slider_row("Maximum Wheel Speed", 0, 200, 100,
@@ -114,7 +114,7 @@ class BaseSettings(SettingsPanel):
             callback=self._set_spring)
 
         self.add_slider_row("Wheel Damper", 0, 100, 10,
-            marks=[25, 50],
+            marks=[10, 25, 50],
             mark_suffix="%",
             callback=self._set_damper)
 
