@@ -1,15 +1,18 @@
+import time
+from threading import Thread
+from boxflat.widgets import *
+
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw
+
 from boxflat.structs import *
 from boxflat.connection_manager import MozaConnectionManager
-import time
-from threading import Thread
 
 class SettingsPanel(object):
-    _current_page: Adw.PreferencesPage
-    _current_group: Adw.PreferencesGroup
+    _current_page = None
+    _current_group = None
     _current_stack = None
     _header = None
 
@@ -100,20 +103,22 @@ class SettingsPanel(object):
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
-    def add_preferences_group(self, title: str, level_bar=False) -> None:
-        if self._current_page != None:
-            self._current_group = Adw.PreferencesGroup()
-            self._current_group.set_title(title)
-            self._current_page.add(self._current_group)
+    def add_preferences_group(self, title: str, level_bar=False):
+        if self._current_page == None:
+            self.add_preferences_page()
 
-            if level_bar:
-                bar = Gtk.LevelBar()
-                bar.set_mode(Gtk.LevelBarMode.CONTINUOUS)
-                bar.set_min_value(0)
-                bar.set_max_value(1000)
-                bar.set_value(250)
-                bar.set_size_request(270,0)
-                self._current_group.set_header_suffix(bar)
+        self._current_group = Adw.PreferencesGroup()
+        self._current_group.set_title(title)
+        self._current_page.add(self._current_group)
+
+        if level_bar:
+            bar = Gtk.LevelBar()
+            bar.set_mode(Gtk.LevelBarMode.CONTINUOUS)
+            bar.set_min_value(0)
+            bar.set_max_value(1000)
+            bar.set_value(250)
+            bar.set_size_request(270,0)
+            self._current_group.set_header_suffix(bar)
 
     def add_view_stack(self) -> None:
         stack = Adw.ViewStack()
@@ -125,6 +130,12 @@ class SettingsPanel(object):
         switcher.set_policy(Adw.ViewSwitcherPolicy.WIDE)
         self._header.set_title_widget(switcher)
 
+    def _add_row(self, row: BoxflatRow) -> None:
+        if self._current_group == None:
+            self.add_preferences_group(None)
+
+        self._current_group.add(row)
+
     def add_title_row(self, title: str, subtitle="") -> None:
         if self._current_group == None:
             return
@@ -135,46 +146,29 @@ class SettingsPanel(object):
 
         self._current_group.add(row)
 
-    def _slider_increment_handler(self, scale: Gtk.Scale, increment: int, callback) -> None:
-        value = int(scale.get_value())
-        modulo = value % increment
-
-        if modulo != 0:
-            scale.set_value(value + (increment - modulo))
-        else:
-            if callback != None:
-                callback(value)
-
-    def add_slider_row(self, title: str, range_start: int, range_stop: int,
-                        value=0, size_request=(320,0), marks=[], mark_suffix="",
-                        callback=None, increment=1, subtitle="", active=True) -> callable:
+    def add_slider_row(self, title: str, range_start: int, range_end: int,
+                        value=0, width=None, marks=[], mark_suffix="",
+                        increment=1, subtitle="", active=True,
+                        callback: callable=None) -> BoxflatSliderRow:
 
         if self._current_group == None:
             return
 
-        slider = Gtk.Scale()
-        slider.set_range(range_start, range_stop)
-        slider.set_increments(increment, 0)
-        slider.set_draw_value(True)
-        slider.set_round_digits(0)
-        slider.set_digits(0)
-        slider.set_value(value)
-        slider.set_size_request(size_request[0], size_request[1])
-        slider.set_sensitive(active)
+        slider = BoxflatSliderRow(title, range_start, range_end,
+                                     value, increment, mark_suffix)
 
-        marks.append(range_start)
-        marks.append(range_stop)
-        for mark in marks:
-            slider.add_mark(mark, Gtk.PositionType.BOTTOM, f"{mark}{mark_suffix}")
+        slider.add_marks(marks)
+        slider.subtitle = subtitle
+        slider.active = active
 
-        slider.connect('value-changed', lambda scale: self._slider_increment_handler(scale, increment, callback))
+        if width != None:
+            slider.set_width(width)
 
-        row = Adw.ActionRow()
-        row.add_suffix(slider)
-        row.set_title(title)
-        row.set_subtitle(subtitle)
-        self._current_group.add(row)
-        return slider.set_sensitive
+        if callback != None:
+            slider.subscribe(callback)
+
+        self._current_group.add(slider)
+        return slider
 
     def add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> callable:
         if self._current_group == None:

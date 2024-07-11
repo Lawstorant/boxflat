@@ -36,7 +36,6 @@ class BaseSettings(SettingsPanel):
         self._cm.set_setting("base-torque", value)
 
     def _set_protection(self, value) -> None:
-        self._protection_slider(value)
         self._cm.set_setting("base-natural-inertia-enable", value)
 
     def _set_protection_value(self, value) -> None:
@@ -85,7 +84,7 @@ class BaseSettings(SettingsPanel):
 
         self.add_title_row("Wheel Rotation Angle", "Round and round")
         self.add_slider_row("", 90, 2700, 540,
-            size_request=(550,0),
+            width=550,
             marks=[360, 540, 720, 900, 1080, 1440, 1800, 2160],
             callback=self._set_rotation_range,
             increment=2)

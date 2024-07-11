@@ -20,7 +20,7 @@ class MozaConnectionManager():
                 print(exc)
                 quit(1)
 
-        self._recipents = []
+        self._subscribers = {}
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
@@ -58,13 +58,18 @@ class MozaConnectionManager():
                 self._serial_devices["estop"] = device
 
 
-    def subscribe(self, callback: callable) -> None:
-        self._recipents.append(callback)
+    def subscribe(self, command: str, callback: callable) -> None:
+        if not command in self._subscribers:
+            self._subscribers["command"] = []
+        self._subscribers["command"].append(callback)
 
 
     def notify(self) -> None:
-        for recipent in self._recipents:
-            pass
+        for command, subscribers in self._subscribers:
+            # execute command
+            for s in subscribers:
+                # notify subscribers
+                pass
 
 
     def _calculate_security_byte(self, data: bytes) -> int:
@@ -100,11 +105,11 @@ class MozaConnectionManager():
         print(f"Sending: {msg}")
 
         if self._dry_run:
-            return
+            return bytes(1)
 
         if serial_path == None:
             print("No compatible device found!")
-            return
+            return bytes(1)
 
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
             serial.reset_output_buffer()
@@ -146,9 +151,11 @@ class MozaConnectionManager():
 
         device_id = self._get_device_id(command.device_type)
         device_path = self._get_device_path(command.device_type)
+        message = command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte)
 
-        response = self.send_serial_message(device_path,
-            command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte))
+        response = self.send_serial_message(device_path, message)
+        if response == bytes(1):
+            return message
 
         return response[(-1-command.length):-1]
 
