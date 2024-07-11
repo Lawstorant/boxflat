@@ -134,58 +134,8 @@ class SettingsPanel(object):
     def _add_row(self, row: BoxflatRow) -> None:
         if self._current_group == None:
             self.add_preferences_group()
-
         self._current_row = row
         self._current_group.add(row)
-
-    def add_title_row(self, title: str, subtitle="") -> None:
-        if self._current_group == None:
-            return
-
-        row = Adw.ActionRow()
-        row.set_title(title)
-        row.set_subtitle(subtitle)
-
-        self._current_group.add(row)
-
-    def add_slider_row(self, title: str, range_start: int, range_end: int,
-                        value=0, width=None, marks=[], mark_suffix="",
-                        increment=1, subtitle="", active=True,
-                        callback: callable=None) -> BoxflatSliderRow:
-
-        if self._current_group == None:
-            return
-
-        slider = BoxflatSliderRow(title, range_start, range_end,
-                                     value, increment, mark_suffix)
-
-        slider.add_marks(marks)
-        slider.subtitle = subtitle
-        slider.active = active
-
-        if width != None:
-            slider.set_width(width)
-
-        if callback != None:
-            slider.subscribe(callback)
-
-        self._current_group.add(slider)
-        return slider
-
-    def add_switch_row(self, title: str, value=False, callback=None, subtitle="") -> callable:
-        if self._current_group == None:
-            return
-
-        switch = Adw.SwitchRow()
-        switch.set_title(title)
-        switch.set_subtitle(subtitle)
-        switch.set_active(value)
-
-        if callback != None:
-            switch.connect('notify::active', lambda switch,s: callback(int(switch.get_active())))
-
-        self._current_group.add(switch)
-        return switch.get_activatable_widget().set_sensitive
 
     def add_combo_row(self, title: str, values: dict, callback=None, subtitle="") -> None:
         if self._current_group == None:
@@ -212,24 +162,6 @@ class SettingsPanel(object):
             pass
 
         self._current_group.add(combo)
-
-    def add_button_row(self, title: str, button_label: str, callback=None, subtitle="") -> callable:
-        if self._current_group == None:
-            return
-
-        button = Gtk.Button(label=button_label)
-        button.add_css_class("row-button")
-        if callback != None:
-            button.connect('clicked', lambda button: callback())
-
-        row = Adw.ActionRow()
-        row.set_title(title)
-        row.set_subtitle(subtitle)
-        row.add_suffix(button)
-        self._current_group.add(row)
-
-        return button.set_sensitive
-
 
     def _calibration_function(self, button, row, callback1: callable, callback2: callable):
         button.set_sensitive(False)
@@ -265,36 +197,6 @@ class SettingsPanel(object):
 
         if callback1 != None and callback2 != None:
             button.connect('clicked', lambda button: self._handle_calibration(button, row, callback1, callback2))
-
-        self._current_group.add(row)
-
-    def add_toggle_button_row(self, title: str, labels: list,
-                              callback=None, subtitle="") -> None:
-        if self._current_group == None:
-            return
-
-        group = None
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-
-        for label in labels:
-            button = Gtk.ToggleButton(label=label)
-            button.add_css_class("row-button")
-            button.add_css_class("toggle-button")
-            box.append(button)
-
-            if group is None:
-                group = button
-                button.set_active(True)
-            else:
-                button.set_group(group)
-
-            if callback != None:
-                button.connect('toggled', lambda button: callback(button.get_label()) if button.get_active() == True else callback(None))
-
-        row = Adw.ActionRow()
-        row.set_title(title)
-        row.set_subtitle(subtitle)
-        row.add_suffix(box)
 
         self._current_group.add(row)
 

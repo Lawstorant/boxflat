@@ -24,6 +24,7 @@ class BoxflatSliderRow(BoxflatRow):
         slider.set_digits(0)
         slider.set_value(value)
         slider.set_size_request(320, 0)
+        slider.set_valign(Gtk.Align.CENTER)
         self.add_marks(range_start, range_end)
 
         slider.connect('value-changed', lambda scale: self._slider_increment_handler())
@@ -47,9 +48,9 @@ class BoxflatSliderRow(BoxflatRow):
         self._slider.set_size_request(width, 0)
 
 
-    def _value_handler(self, value=None) -> int:
+    def _value_handler(self, value: int) -> int:
         if value == None:
-            return self._slider.get_value()
+            return int(self._slider.get_value())
         else:
             self._slider.set_value(value)
             return 0

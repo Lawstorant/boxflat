@@ -14,7 +14,7 @@ class BoxflatRow(Adw.ActionRow):
 
     @property
     def active(self) -> bool:
-        return self._row.get_suffix().get_sensitive()
+        return self.get_sensitive()
 
     @active.setter
     def active(self, value: bool) -> None:
@@ -37,8 +37,22 @@ class BoxflatRow(Adw.ActionRow):
         self.set_subtitle(subtitle)
 
     @property
+    def mute(self) -> bool:
+        return bool(self._mute())
+
+    @mute.setter
+    def mute(self, active: bool) -> None:
+        self._mute = active
+
+    def mute(self) -> None:
+        self._mute = True
+
+    def unmute(self) -> None:
+        self._mute = False
+
+    @property
     def value(self):
-        return self._value_handler()
+        return self._value_handler(None)
 
     @value.setter
     def value(self, value) -> None:
@@ -59,5 +73,5 @@ class BoxflatRow(Adw.ActionRow):
         for callback in self._subscribers:
             callback(self.value)
 
-    def _value_handler(self, *args):
+    def _value_handler(self, *args) -> int:
         return 1

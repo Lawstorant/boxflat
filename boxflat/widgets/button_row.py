@@ -10,11 +10,10 @@ class BoxflatButtonRow(BoxflatRow):
         super().__init__(title, subtitle)
 
         button = Gtk.Button(label=button_label)
+        button.connect('clicked', lambda button: self._notify())
+        button.set_valign(Gtk.Align.CENTER)
         self._set_widget(button)
         self._button = button
-
-        button.add_css_class("row-button")
-        button.connect('clicked', lambda button: self._notify())
 
     @property
     def button_label(self) -> str:

@@ -11,30 +11,28 @@ class HandbrakeSettings(SettingsPanel):
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Handbrake settings")
-        self.add_switch_row("Reverse Direction", callback=self._set_direction)
-        self.add_toggle_button_row("Handbrake Mode", ["Axis", "Button"], callback=self._set_mode)
+        self._add_row(BoxflatSwitchRow("Reverse Direction"))
+        self._current_row.subscribe(lambda value: self._cm.set_setting("handbrake-direction", value))
 
-        row = BoxflatSliderRow("Button threshold", suffix="%")
-        row.subtitle = "Doesn't work for some reason"
-        row.add_marks(25, 50, 75)
-        row.active = False
-        row.subscribe(lambda value: self._cm.set_setting("handbrake-button-threshold", value))
-        self._cm.subscribe("handbrake-mode", row.value)
-        self._add_row(row)
+        self._add_row(BoxflatToggleButtonRow("Handbrake Mode"))
+        self._current_row.add_buttons("Axis", "Button")
+        self._current_row.subscribe(lambda value: self._cm.set_setting("handbrake-mode", value))
 
-        row = BoxflatSliderRow("Handbrake Range Start", suffix="%")
-        row.subtitle = "Doesn't work for some reason"
-        row.add_marks(25, 50, 75)
-        row.active = False
-        row.subscribe(lambda value: self._cm.set_setting("handbrake-range-start", value))
-        self._add_row(row)
+        self._add_row(BoxflatSliderRow("Button threshold", suffix="%"))
+        self._current_row.subtitle = "Doesn't work for some reason"
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(lambda value: self._cm.set_setting("handbrake-button-threshold", value))
+        self._cm.subscribe("handbrake-mode", self._current_row.active)
 
-        row = BoxflatSliderRow("Handbrake Range End", suffix="%")
-        row.subtitle = "Doesn't work for some reason"
-        row.add_marks(25, 50, 75)
-        row.active = False
-        row.subscribe(lambda value: self._cm.set_setting("handbrake-range-end", value))
-        self._add_row(row)
+        self._add_row(BoxflatSliderRow("Handbrake Range Start", suffix="%"))
+        self._current_row.subtitle = "Doesn't work for some reason"
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(lambda value: self._cm.set_setting("handbrake-range-start", value))
+
+        self._add_row(BoxflatSliderRow("Handbrake Range End", suffix="%"))
+        self._current_row.subtitle = "Doesn't work for some reason"
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(lambda value: self._cm.set_setting("handbrake-range-end", value))
 
         self.add_preferences_group("Calibration")
         self.add_calibration_button_row("Device Calibration", "Calibrate",
