@@ -23,12 +23,11 @@ class MozaConnectionManager():
                 quit(1)
 
         self._subscribtions = {}
-        self._refresh_thread = Thread(target=self.notify)
+        self._refresh_thread = Thread(target=self._notify)
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
 
-# TODO: add notifications about parameters?
 # TODO: add start-stop watching get commands in threads
     def _device_discovery(self, path: str) -> None:
         if not os.path.exists(path):
@@ -67,10 +66,11 @@ class MozaConnectionManager():
         self._subscribtions[command].append(callback)
 
 
-    def notify(self) -> None:
+    def _notify(self) -> None:
         for com in self._subscribtions.keys():
+            response = self.get_setting_int(com)
             for subscriber in self._subscribtions[com]:
-                subscriber(self.get_setting_int(com))
+                subscriber(response)
 
 
     def refresh(self) -> None:

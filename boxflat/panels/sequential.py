@@ -20,18 +20,20 @@ class SequentialSettings(SettingsPanel):
         self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
-        self._current_row.add_marks(5)
+        self._current_row.add_marks(5);
         self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-brightness", v))
         self._cm.subscribe("sequential-brightness", self._current_row.set_value)
 
-
-        self._add_row(BoxflatColorPickerRow("S1 Color"))
+        row1 = BoxflatColorPickerRow("S1 Color")
+        self._add_row(row1)
         self._current_row.subscribe(lambda v: self._set_colors(1, v))
-        self._cm.subscribe("sequential-colors", lambda v: self._current_row.set_value(v % 256))
 
-        self._add_row(BoxflatColorPickerRow("S2 Color"))
+        row2 = BoxflatColorPickerRow("S2 Color")
+        self._add_row(row2)
         self._current_row.subscribe(lambda v: self._set_colors(2, v))
-        self._cm.subscribe("sequential-colors", lambda v: self._current_row.set_value(round(v / 256)))
+
+        self._cm.subscribe("sequential-colors", lambda v: row1.set_value(v % 256))
+        self._cm.subscribe("sequential-colors", lambda v: row2.set_value(round(v / 256)))
 
 
     def _set_colors(self, button: int, color: int) -> None:

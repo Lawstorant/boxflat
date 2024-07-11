@@ -1,11 +1,11 @@
-from .settings_panel import SettingsPanel
-from .base import BaseSettings
-from .wheel import WheelSettings
-from .home import HomeSettings
-from .pedals import PedalsSettings
-from .h_pattern import HPatternSettings
-from .sequential import SequentialSettings
-from .handbrake import HandbrakeSettings
+from .settings_panel import *
+from .base import *
+from .wheel import *
+from .home import *
+from .pedals import *
+from .h_pattern import *
+from .sequential import *
+from .handbrake import *
 from boxflat.connection_manager import MozaConnectionManager
 
 _panels = {}

@@ -11,17 +11,23 @@ class HPatternSettings(SettingsPanel):
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Shifter Settings")
+
+        row1 = BoxflatSliderRow("Auto Blip Output", 0, 100)
+        row2 = BoxflatSliderRow("Auto Blip Duration", 0, 1000, subtitle="Miliseconds")
+
         self._add_row(BoxflatSwitchRow("Auto Downshift Throttle Blip", subtitle="Easy rev match"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("hpattern-throttle-blip", v))
+        self._current_row.subscribe(row1.set_active)
+        self._current_row.subscribe(row2.set_active)
         self._cm.subscribe("hpattern-throttle-blip", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Auto Blip Output", 0, 100))
+        self._add_row(row1)
         self._current_row.add_marks(50)
         self._current_row.subscribe(lambda v: self._cm.set_setting("hpattern-blip-output", v))
         self._cm.subscribe("hpattern-blip-output", self._current_row.set_value)
         self._cm.subscribe("hpattern-throttle-blip", self._current_row.set_active)
 
-        self._add_row(BoxflatSliderRow("Auto Blip Duration", 0, 1000, subtitle="Miliseconds"))
+        self._add_row(row2)
         self._current_row.add_marks(250, 500, 750)
         self._current_row.subscribe(lambda v: self._cm.set_setting("hpattern-blip-duration", v))
         self._cm.subscribe("hpattern-blip-duration", self._current_row.set_value)
