@@ -14,6 +14,7 @@ class SettingsPanel(object):
     _current_page = None
     _current_group = None
     _current_stack = None
+    _current_row = None
     _header = None
 
     def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager=None) -> None:
@@ -103,7 +104,7 @@ class SettingsPanel(object):
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
-    def add_preferences_group(self, title: str, level_bar=False):
+    def add_preferences_group(self, title="", level_bar=False):
         if self._current_page == None:
             self.add_preferences_page()
 
@@ -132,8 +133,9 @@ class SettingsPanel(object):
 
     def _add_row(self, row: BoxflatRow) -> None:
         if self._current_group == None:
-            self.add_preferences_group(None)
+            self.add_preferences_group()
 
+        self._current_row = row
         self._current_group.add(row)
 
     def add_title_row(self, title: str, subtitle="") -> None:

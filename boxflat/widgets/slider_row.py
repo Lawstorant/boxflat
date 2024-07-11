@@ -6,10 +6,10 @@ from gi.repository import Gtk, Adw
 from boxflat.widgets import BoxflatRow
 
 class BoxflatSliderRow(BoxflatRow):
-    def __init__(self, title: str=None, range_start=0,
+    def __init__(self, title="", range_start=0,
                  range_end=100, value=0, increment=1,
-                 suffix="", draw_value=True):
-        super().__init__(title)
+                 subtitle="", suffix="", draw_value=True):
+        super().__init__(title, subtitle)
 
         slider = Gtk.Scale()
         self._set_widget(slider)
@@ -26,16 +26,16 @@ class BoxflatSliderRow(BoxflatRow):
         slider.set_size_request(320, 0)
         self.add_marks(range_start, range_end)
 
-        slider.connect('value-changed', lambda scale: self._slider_increment_handler(int(scale.get_value())))
+        slider.connect('value-changed', lambda scale: self._slider_increment_handler())
 
 
-    def _slider_increment_handler(self, value: int) -> None:
-        modulo = value % self._increment
+    def _slider_increment_handler(self) -> None:
+        modulo = self.value % self._increment
 
         if modulo != 0:
-            self._slider.set_value(value + (self._increment - modulo))
+            self.value = value + (self._increment - modulo)
         else:
-            self._notify(value)
+            self._notify()
 
 
     def add_marks(self, *marks: int) -> None:

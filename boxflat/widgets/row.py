@@ -4,16 +4,13 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 
 class BoxflatRow(Adw.ActionRow):
-    def __init__(self, title: str=None, subtitle: str=None):
+    def __init__(self, title="", subtitle=""):
         super().__init__()
         self._subscribers = []
         self._mute = False
-        self.set_sensitive(False)
-
-        if title != None:
-            self.set_title(title)
-        if subtitle != None:
-            self.set_title(subtitle)
+        self.set_sensitive(True)
+        self.title = title
+        self.subtitle = subtitle
 
     @property
     def active(self) -> bool:
@@ -55,12 +52,12 @@ class BoxflatRow(Adw.ActionRow):
     def subscribe(self, callback: callable) -> None:
         self._subscribers.append(callback)
 
-    def _notify(self, value) -> None:
+    def _notify(self) -> None:
         if self._mute:
             return
 
         for callback in self._subscribers:
-            callback(value)
+            callback(self.value)
 
-    def _value_handler(self, value=None):
-        pass
+    def _value_handler(self, *args):
+        return 1
