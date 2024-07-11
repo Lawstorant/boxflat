@@ -5,6 +5,7 @@ import boxflat.moza_command as mc
 from serial import Serial
 import time
 
+
 CM_RETRY_COUNT=2
 
 class MozaConnectionManager():
