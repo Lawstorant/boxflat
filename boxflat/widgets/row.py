@@ -18,7 +18,7 @@ class BoxflatRow(Adw.ActionRow):
 
     @active.setter
     def active(self, value: bool) -> None:
-        self.set_sensitive(value)
+        self.set_sensitive(bool(value))
 
     def set_active(self, value: bool) -> None:
         self.active = value
@@ -38,14 +38,6 @@ class BoxflatRow(Adw.ActionRow):
     @subtitle.setter
     def subtitle(self, subtitle: str) -> None:
         self.set_subtitle(subtitle)
-
-    @property
-    def mute(self) -> bool:
-        return bool(self._mute())
-
-    @mute.setter
-    def mute(self, active: bool) -> None:
-        self._mute = active
 
     def mute(self) -> None:
         self._mute = True

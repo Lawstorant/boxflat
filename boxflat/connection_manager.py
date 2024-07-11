@@ -7,7 +7,7 @@ import time
 from threading import Thread
 
 
-CM_RETRY_COUNT=2
+CM_RETRY_COUNT=1
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
@@ -137,15 +137,15 @@ class MozaConnectionManager():
 
         if command.length == -1 or command.id == -1:
             print("Command undiscovered")
-            return
+            return bytes(1)
 
         if rw == mc.MOZA_COMMAND_READ and command.read_group == -1:
             print("Command doesn't support READ access")
-            return
+            return bytes(1)
 
         if rw == mc.MOZA_COMMAND_WRITE and command.write_group == -1:
             print("Command doesn't support WRITE access")
-            return
+            return bytes(1)
 
         if byte_value != None:
             command.set_payload_bytes(byte_value)
@@ -160,7 +160,7 @@ class MozaConnectionManager():
 
         response = self.send_serial_message(device_path, message)
         if response == bytes(1):
-            return message
+            return response
 
         return response[(-1-command.length):-1]
 

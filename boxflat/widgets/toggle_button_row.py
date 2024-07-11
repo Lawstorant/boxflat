@@ -31,7 +31,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
     def _value_handler(self, value) -> int:
         if value != None:
             if value < len(self._buttons):
-                buttons[value].set_active()
+                self._buttons[value].set_active(True)
 
         for i in range(len(self._buttons)):
             if self._buttons[i].get_active():
