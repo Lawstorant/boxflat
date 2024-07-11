@@ -20,6 +20,9 @@ class BoxflatRow(Adw.ActionRow):
     def active(self, value: bool) -> None:
         self.set_sensitive(value)
 
+    def set_active(self, value: bool) -> None:
+        self.active = value
+
     @property
     def title(self) -> str:
         return self.get_title()
@@ -52,13 +55,19 @@ class BoxflatRow(Adw.ActionRow):
 
     @property
     def value(self):
-        return self._value_handler(None)
+        return self.get_value()
 
     @value.setter
     def value(self, value) -> None:
-        self._mute = True
+        self.set_value(value)
+
+    def get_value(self, ) -> int:
+        return self._value_handler(None)
+
+    def set_value(self, value) -> None:
+        self.mute()
         self._value_handler(value)
-        self._mute = False
+        self.unmute()
 
     def _set_widget(self, widget: Gtk.Widget) -> None:
         self.add_suffix(widget)

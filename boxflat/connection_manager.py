@@ -4,6 +4,7 @@ from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
 import time
+from threading import Thread
 
 
 CM_RETRY_COUNT=2
@@ -21,7 +22,8 @@ class MozaConnectionManager():
                 print(exc)
                 quit(1)
 
-        self._subscribers = {}
+        self._subscribtions = {}
+        self._refresh_thread = Thread(target=self.notify)
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
@@ -60,17 +62,19 @@ class MozaConnectionManager():
 
 
     def subscribe(self, command: str, callback: callable) -> None:
-        if not command in self._subscribers:
-            self._subscribers["command"] = []
-        self._subscribers["command"].append(callback)
+        if not command in self._subscribtions:
+            self._subscribtions[command] = []
+        self._subscribtions[command].append(callback)
 
 
     def notify(self) -> None:
-        for command, subscribers in self._subscribers:
-            # execute command
-            for s in subscribers:
-                # notify subscribers
-                pass
+        for com in self._subscribtions.keys():
+            for subscriber in self._subscribtions[com]:
+                subscriber(self.get_setting_int(com))
+
+
+    def refresh(self) -> None:
+        self._refresh_thread.start()
 
 
     def _calculate_security_byte(self, data: bytes) -> int:
@@ -162,9 +166,7 @@ class MozaConnectionManager():
 
     # Set a setting value on a device
     # If value should be float, provide bytes
-    def set_setting(self, command_name: str, value=0, byte_value=None) -> None:
-        if value == None:
-            return
+    def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
         self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
 
     def set_setting_float(self, command_name: str, value: float) -> None:

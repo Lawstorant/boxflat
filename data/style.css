@@ -80,7 +80,8 @@ levelbar {
     color: #dddddd;
 }
 
-.color-selected {
+/* Color Selected*/
+.cs {
     padding: 0 5px;
     border: 5px solid #0c0c0c;
 }

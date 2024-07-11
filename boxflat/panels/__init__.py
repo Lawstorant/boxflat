@@ -1,11 +1,11 @@
-from boxflat.panels.settings_panel import SettingsPanel
-from boxflat.panels.base import BaseSettings
-from boxflat.panels.wheel import WheelSettings
-from boxflat.panels.home import HomeSettings
-from boxflat.panels.pedals import PedalsSettings
-from boxflat.panels.h_pattern import HPatternSettings
-from boxflat.panels.sequential import SequentialSettings
-from boxflat.panels.handbrake import HandbrakeSettings
+from .settings_panel import SettingsPanel
+from .base import BaseSettings
+from .wheel import WheelSettings
+from .home import HomeSettings
+from .pedals import PedalsSettings
+from .h_pattern import HPatternSettings
+from .sequential import SequentialSettings
+from .handbrake import HandbrakeSettings
 from boxflat.connection_manager import MozaConnectionManager
 
 _panels = {}
@@ -18,10 +18,12 @@ def prepare_panels(button_callback, data_path: str, dry_run: bool) -> dict:
     # _panels["Wheel"] = WheelSettings(button_callback, cm)
     # _panels["Pedals"] = PedalsSettings(button_callback, cm)
     # _panels["H-Pattern Shifter"] = HPatternSettings(button_callback, cm)
-    # _panels["Sequential Shifter"] = SequentialSettings(button_callback, cm)
+    _panels["Sequential Shifter"] = SequentialSettings(button_callback, cm)
     _panels["Handbrake"] = HandbrakeSettings(button_callback, cm)
 
     # TODO: Add Dash,Hub and other settings panel
+
+    cm.refresh()
 
     return _panels
 

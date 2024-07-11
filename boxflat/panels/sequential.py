@@ -1,5 +1,6 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
+from boxflat.widgets import *
 
 class SequentialSettings(SettingsPanel):
     colorS1 = 0
@@ -9,25 +10,27 @@ class SequentialSettings(SettingsPanel):
         super(SequentialSettings, self).__init__("Sequential Shifter", button_callback, connection_manager)
 
     def prepare_ui(self) -> None:
-        self.add_preferences_page()
         self.add_preferences_group("Shifter Settings")
-        self.add_switch_row("Reverse Shift Direction", subtitle="Why would you do that?",
-            value=self._cm.get_setting_int("sequential-direction") ,callback=self._set_direction)
-        self.add_switch_row("Paddle Shifter Synchronization",
-            value=self._cm.get_setting_int("sequential-paddle-sync") , callback=self._set_paddle_sync)
+        self._add_row(BoxflatSwitchRow("Reverse Shift Direction", subtitle="Why would you do that?"))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-direction", v))
+        self._cm.subscribe("sequential-direction", self._current_row.set_value)
 
-        self.add_slider_row(
-            "Button Brightness", 0, 10,
-            self._cm.get_setting_int("sequential-brightness"),
-            marks=[5],
-            callback=self._set_brightness
-        )
+        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Why would you do that?"))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-paddle-sync", v))
+        self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
 
-        colors = self._cm.get_setting_list("sequential-colors")
-        self.add_color_picker_row("S1 Color", init_color=colors[0],
-                                  callback=lambda color: self._set_colors(1, color))
-        self.add_color_picker_row("S2 Color", init_color=colors[1],
-                                  callback=lambda color: self._set_colors(2, color))
+        self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
+        self._current_row.add_marks(5)
+        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-brightness", v))
+        self._cm.subscribe("sequential-brightness", self._current_row.set_value)
+
+
+        self._add_row(BoxflatColorPickerRow("S1 Color"))
+        self._current_row.subscribe(lambda v: self._set_colors(1, v))
+        # self._cm.subscribe("sequential-colors", lambda v: self._current_row.value(v % 256))
+
+        self._add_row(BoxflatColorPickerRow("S1 Color"))
+        self._current_row.subscribe(lambda v: self._set_colors(2, v))
 
 
     def _set_colors(self, button: int, color: int) -> None:

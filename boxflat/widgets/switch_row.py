@@ -1,9 +1,7 @@
 import gi
 gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw
-
-from boxflat.widgets import BoxflatRow
+from gi.repository import Gtk
+from .row import BoxflatRow
 
 class BoxflatSwitchRow(BoxflatRow):
     def __init__(self, title: str, subtitle=""):

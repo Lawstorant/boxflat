@@ -7,7 +7,6 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw
 
-from boxflat.structs import *
 from boxflat.connection_manager import MozaConnectionManager
 
 class SettingsPanel(object):
@@ -24,6 +23,7 @@ class SettingsPanel(object):
         self._banner = self._prepare_banner()
         self.prepare_ui()
 
+
     def _prepare_button(self, title, button_callback) -> Gtk.ToggleButton:
         button = Gtk.ToggleButton()
         button.set_css_classes(['sidebar-button'])
@@ -34,8 +34,8 @@ class SettingsPanel(object):
         label.set_justify(Gtk.Justification.LEFT)
         label.set_xalign(0)
         button.set_child(label)
-
         return button
+
 
     def _prepare_content(self) -> Gtk.Box:
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -43,6 +43,7 @@ class SettingsPanel(object):
         self._header = Adw.HeaderBar()
         content.append(self._header)
         return content
+
 
     def _prepare_banner(self, title="Title", label="Label") -> Adw.Banner:
         banner = Adw.Banner()
@@ -87,13 +88,16 @@ class SettingsPanel(object):
     def title(self) -> str:
         return self._button.get_child().get_label()
 
+
     def deactivate_button(self) -> None:
         self._button.set_active(False)
+
 
     def open_url(self, url: str) -> None:
         launcher = Gtk.UriLauncher()
         launcher.set_uri(url)
         launcher.launch()
+
 
     def add_preferences_page(self, name="", icon="preferences-system-symbolic") -> None:
         page = Adw.PreferencesPage()
@@ -103,6 +107,7 @@ class SettingsPanel(object):
             self._content.append(page)
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
+
 
     def add_preferences_group(self, title="", level_bar=False):
         if self._current_page == None:
@@ -121,6 +126,7 @@ class SettingsPanel(object):
             bar.set_size_request(270,0)
             self._current_group.set_header_suffix(bar)
 
+
     def add_view_stack(self) -> None:
         stack = Adw.ViewStack()
         self._content.append(stack)
@@ -131,106 +137,9 @@ class SettingsPanel(object):
         switcher.set_policy(Adw.ViewSwitcherPolicy.WIDE)
         self._header.set_title_widget(switcher)
 
+
     def _add_row(self, row: BoxflatRow) -> None:
         if self._current_group == None:
             self.add_preferences_group()
         self._current_row = row
-        self._current_group.add(row)
-
-    def add_combo_row(self, title: str, values: dict, callback=None, subtitle="") -> None:
-        if self._current_group == None:
-            return
-
-        combo = Adw.ComboRow()
-        combo.set_title(title)
-        combo.set_subtitle(subtitle)
-
-        # Jesus christ, why is this so complicated?
-        store = Gio.ListStore(item_type=ComboRow)
-        for value in values:
-            store.append(ComboRow(value, values[value]))
-
-        factory = Gtk.SignalListItemFactory()
-        factory.connect("setup", lambda factory,item : item.set_child(Gtk.Label()))
-        factory.connect("bind", lambda factory,item : item.get_child().set_text(item.get_item().row_name))
-
-        combo.set_model(store)
-        combo.set_factory(factory)
-
-        # TODO: connect callback function
-        if callback != None:
-            pass
-
-        self._current_group.add(combo)
-
-    def _calibration_function(self, button, row, callback1: callable, callback2: callable):
-        button.set_sensitive(False)
-        subtitle = row.get_subtitle()
-        text = "Calibration in progress..."
-        print("Calibration start")
-        callback1()
-        for i in range(0,10):
-            row.set_subtitle(f"{text} {10-i}s")
-            time.sleep(1)
-
-        print("Calibration stop")
-        callback2()
-        row.set_subtitle(subtitle)
-        button.set_sensitive(True)
-
-    def _handle_calibration(self, button, row, callback1: callable, callback2: callable) -> None:
-        thread = Thread(target=self._calibration_function, args = (button, row, callback1, callback2))
-        thread.start()
-
-    def add_calibration_button_row(self, title: str, button_label: str,
-                                   callback1=None, callback2=None) -> None:
-        if self._current_group == None:
-            return
-
-        button = Gtk.Button(label=button_label)
-        button.add_css_class("row-button")
-
-        row = Adw.ActionRow()
-        row.set_title(title)
-        row.set_subtitle("Set device range")
-        row.add_suffix(button)
-
-        if callback1 != None and callback2 != None:
-            button.connect('clicked', lambda button: self._handle_calibration(button, row, callback1, callback2))
-
-        self._current_group.add(row)
-
-    def add_color_picker_row(self, title: str, callback=None, subtitle="", init_color=0) -> None:
-        if self._current_group == None:
-            return
-
-        group = None
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-
-        for i in range(0, PICKER_COLORS):
-            button = Gtk.ToggleButton(label=i)
-            button.add_css_class("toggle-button")
-            button.add_css_class("color-button")
-            button.add_css_class(f"c{i}")
-            box.append(button)
-            button.connect('toggled',
-                lambda button: button.add_css_class("color-selected") if button.get_active() == True else button.remove_css_class("color-selected"))
-
-            if group is None:
-                group = button
-            else:
-                button.set_group(group)
-
-            if i == init_color:
-                button.set_active(True)
-
-            if callback != None:
-                button.connect('toggled',
-                    lambda button: callback(int(button.get_label())) if button.get_active() == True else callback(None))
-
-        row = Adw.ActionRow()
-        row.set_title(title)
-        row.set_subtitle(subtitle)
-        row.add_suffix(box)
-
         self._current_group.add(row)
