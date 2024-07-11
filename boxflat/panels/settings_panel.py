@@ -15,6 +15,7 @@ class SettingsPanel(object):
     _current_stack = None
     _current_row = None
     _header = None
+    _rows = []
 
     def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager=None) -> None:
         self._cm = connection_manager
@@ -45,12 +46,12 @@ class SettingsPanel(object):
         return content
 
 
-    def _prepare_banner(self, title="Title", label="Label") -> Adw.Banner:
+    def _prepare_banner(self, title="Title", label="Hide") -> Adw.Banner:
         banner = Adw.Banner()
         banner.set_title(title)
         banner.set_button_label(label)
         banner.set_revealed(False)
-        banner.connect("button-clicked", self.apply)
+        banner.connect("button-clicked", lambda b: self.hide_banner())
         self._content.append(banner)
         return banner
 
@@ -63,8 +64,8 @@ class SettingsPanel(object):
     def get_setting(self) -> int:
         return 0
 
-    def show_banner(self, *arg) -> None:
-        self._banner.set_revealed(True)
+    def show_banner(self, value: bool=True) -> None:
+        self._banner.set_revealed(value)
 
     def hide_banner(self, *arg) -> None:
         self._banner.set_revealed(False)
@@ -91,6 +92,14 @@ class SettingsPanel(object):
 
     def deactivate_button(self) -> None:
         self._button.set_active(False)
+
+
+    def active(self, value: bool) -> None:
+        for row in self._rows:
+            row.set_active(value)
+
+        self.set_banner_title("Device not detected")
+        self.show_banner(not value)
 
 
     def open_url(self, url: str) -> None:
@@ -143,3 +152,4 @@ class SettingsPanel(object):
             self.add_preferences_group()
         self._current_row = row
         self._current_group.add(row)
+        self._rows.append(row)

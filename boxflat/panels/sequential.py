@@ -3,11 +3,11 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 
 class SequentialSettings(SettingsPanel):
-    colorS1 = 0
-    colorS2 = 0
+    _S1 = None
+    _S2 = None
 
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
-        super(SequentialSettings, self).__init__("Sequential Shifter", button_callback, connection_manager)
+        super().__init__("Sequential Shifter", button_callback, connection_manager)
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Shifter Settings")
@@ -24,24 +24,18 @@ class SequentialSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-brightness", v))
         self._cm.subscribe("sequential-brightness", self._current_row.set_value)
 
-        row1 = BoxflatColorPickerRow("S1 Color")
-        self._add_row(row1)
-        self._current_row.subscribe(lambda v: self._set_colors(1, v))
+        self.S1 = BoxflatColorPickerRow("S1 Color")
+        self._add_row(self.S1)
 
-        row2 = BoxflatColorPickerRow("S2 Color")
-        self._add_row(row2)
-        self._current_row.subscribe(lambda v: self._set_colors(2, v))
+        self.S2 = BoxflatColorPickerRow("S2 Color")
+        self._add_row(self.S2)
 
-        self._cm.subscribe("sequential-colors", lambda v: row1.set_value(v % 256))
-        self._cm.subscribe("sequential-colors", lambda v: row2.set_value(round(v / 256)))
+        self.S1.subscribe(lambda v: self._cm.set_setting("sequential-colors", self.S1.value*256 + self.S2.value))
+        self.S2.subscribe(lambda v: self._cm.set_setting("sequential-colors", self.S1.value*256 + self.S2.value))
+
+        self._cm.subscribe("sequential-colors", lambda v: self.S1.set_value(round(v / 256)))
+        self._cm.subscribe("sequential-colors", lambda v: self.S2.set_value(v % 256))
 
 
     def _set_colors(self, button: int, color: int) -> None:
-        if color == None:
-            return
-        if button == 1:
-            self.colorS1 = color
-        if button == 2:
-            self.colorS2 = color
-
-        self._cm.set_setting("sequential-colors", self.colorS1*256 + self.colorS2)
+        self._cm.set_setting("sequential-colors", self.S1.value*256 + self.S2.value)
