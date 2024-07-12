@@ -32,9 +32,11 @@ class MozaConnectionManager():
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
+        self._device_discovery()
 
 # TODO: add start-stop watching get commands in threads
-    def _device_discovery(self, path: str) -> None:
+    def _device_discovery(self) -> None:
+        path = self._serial_path
         if not os.path.exists(path):
             return
 
@@ -155,7 +157,7 @@ class MozaConnectionManager():
             cmp = bytes([self._message_start])
             start = bytes(1)
 
-            time.sleep(0.05)
+            time.sleep(0.01)
 
             while True:
                 while start != cmp:
@@ -210,8 +212,6 @@ class MozaConnectionManager():
             command.set_payload_bytes(byte_value)
         else:
             command.payload = value
-
-        self._device_discovery(self._serial_path)
 
         device_id = self._get_device_id(command.device_type)
         device_path = self._get_device_path(command.device_type)

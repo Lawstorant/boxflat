@@ -13,10 +13,5 @@ class BoxflatButtonRow(BoxflatRow):
         self._set_widget(button)
         self._button = button
 
-    @property
-    def button_label(self) -> str:
-        return self._button.get_label()
-
-    @button_label.setter
-    def button_label(self, label: str) -> str:
-        return self._button.set_label(label)
+    def get_value(self) -> int:
+        return 1

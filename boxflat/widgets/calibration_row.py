@@ -18,28 +18,29 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
     def _notify(self) -> None:
         self._thread.start()
+        super()._notify()
 
 
-    def _value_handler(self, value) -> str:
+    def get_value(self) -> str:
         if self._in_progress:
             return "stop"
         return "start"
 
 
     def _calibration(self) -> None:
-        self.active = False
+        self.set_active(False)
         self._in_progress = True
-        tmp = self.subtitle
+        tmp = self.get_subtitle()
         text = "Calibration in progress..."
         print("Calibration start")
         super()._notify()
 
         for i in reversed(range(10)):
-            self.subtitle = f"{text} {i+1}s"
+            self.set_subtitle(f"{text} {i+1}s")
             sleep(1)
 
         self._in_progress = False
         print("Calibration stop")
         super()._notify()
-        self.subtitle = tmp
-        self.active = True
+        self.set_subtitle(tmp)
+        self.set_active(True)

@@ -25,10 +25,11 @@ def prepare_panels(button_callback, data_path: str, dry_run: bool) -> dict:
     # _panels["Handbrake"] = HandbrakeSettings(button_callback, cm)
     # _panels["Other"] = OtherSettings(button_callback, cm)
 
-    # TODO: Add Dash,Hub and other settings panel
+    # TODO: Add Dash,Hub and other settings pcm._device_discovery()
+    # cm.refresh()anel
 
-    cm.refresh()
-    cm.refresh_cont_start()
+    # cm._device_discovery()
+    # cm.refresh()
 
     return _panels
 

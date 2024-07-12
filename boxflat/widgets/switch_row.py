@@ -16,8 +16,9 @@ class BoxflatSwitchRow(BoxflatRow):
         self.set_activatable_widget(switch)
 
 
-    def _value_handler(self, value: bool) -> int:
-        if value != None:
-            self._switch.set_active(value)
+    def get_value(self) -> int:
         return int(self._switch.get_active())
 
+
+    def set_value(self, value: int) -> None:
+        self._switch.set_active(bool(value))

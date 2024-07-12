@@ -20,7 +20,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
             button.set_valign(Gtk.Align.CENTER)
             self._box.append(button)
             self._buttons.append(button)
-            button.connect('toggled', lambda button: self._notify(button.get_active()))
+            button.connect('toggled', self._notify)
 
             if self._group == None:
                 self._group = button
@@ -29,22 +29,23 @@ class BoxflatToggleButtonRow(BoxflatRow):
                 button.set_group(self._group)
 
 
-    def _value_handler(self, value) -> int:
-        if value != None:
-            if value < 0:
-                value = 0
-            elif value >= len(self._buttons):
-                value = len(self._buttons)-1
-            self._buttons[value].set_active(True)
-
+    def get_value(self) -> int:
         for i in range(len(self._buttons)):
             if self._buttons[i].get_active():
                 return i
-        return 0
 
 
-    def _notify(self, active: bool) -> None:
-        if active:
+    def set_value(self, value: int) -> None:
+        if value < 0:
+            value = 0
+        elif value >= len(self._buttons):
+            value = len(self._buttons)-1
+
+        self._buttons[value].set_active(True)
+
+
+    def _notify(self, button: Gtk.ToggleButton) -> None:
+        if button.get_active():
             super()._notify()
 
 

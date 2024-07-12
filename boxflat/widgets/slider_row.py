@@ -29,10 +29,10 @@ class BoxflatSliderRow(BoxflatRow):
 
 
     def _slider_increment_handler(self) -> None:
-        modulo = self.value % self._increment
+        modulo = self.get_value() % self._increment
 
         if modulo != 0:
-            self.value = self.value + (self._increment - modulo)
+            self.set_value(self.get_value() + (self._increment - modulo))
         else:
             self._notify()
 
@@ -46,9 +46,9 @@ class BoxflatSliderRow(BoxflatRow):
         self._slider.set_size_request(width, 0)
 
 
-    def _value_handler(self, value: int) -> int:
-        if value == None:
-            return int(self._slider.get_value())
-        else:
-            self._slider.set_value(value)
-            return 0
+    def get_value(self) -> int:
+        return int(self._slider.get_value())
+
+
+    def set_value(self, value: int) -> None:
+        self._slider.set_value(value)

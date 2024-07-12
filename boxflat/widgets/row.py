@@ -9,35 +9,14 @@ class BoxflatRow(Adw.ActionRow):
         self._subscribers = []
         self._mute = False
         self.set_sensitive(True)
-        self.title = title
-        self.subtitle = subtitle
+        self.set_title(title)
+        self.set_subtitle(subtitle)
 
-    @property
-    def active(self) -> bool:
+    def get_active(self) -> bool:
         return self.get_sensitive()
 
-    @active.setter
-    def active(self, value: bool) -> None:
-        self.set_sensitive(bool(value))
-
     def set_active(self, value: bool) -> None:
-        self.active = value
-
-    @property
-    def title(self) -> str:
-        return self.get_title()
-
-    @title.setter
-    def title(self, title: str) -> None:
-        self.set_title(title)
-
-    @property
-    def subtitle(self) -> str:
-        return self.get_subtitle()
-
-    @subtitle.setter
-    def subtitle(self, subtitle: str) -> None:
-        self.set_subtitle(subtitle)
+        self.set_sensitive(bool(value))
 
     def mute(self) -> None:
         self._mute = True
@@ -45,20 +24,15 @@ class BoxflatRow(Adw.ActionRow):
     def unmute(self) -> None:
         self._mute = False
 
-    @property
-    def value(self):
-        return self.get_value()
-
-    @value.setter
-    def value(self, value) -> None:
-        self.set_value(value)
-
-    def get_value(self, ) -> int:
-        return self._value_handler(None)
+    def get_value(self) -> int:
+        return 0
 
     def set_value(self, value) -> None:
+        pass
+
+    def set_value_discreet(self, value) -> None:
         self.mute()
-        self._value_handler(value)
+        self.set_value(value)
         self.unmute()
 
     def _set_widget(self, widget: Gtk.Widget) -> None:
@@ -72,7 +46,4 @@ class BoxflatRow(Adw.ActionRow):
             return
 
         for callback in self._subscribers:
-            callback(self.value)
-
-    def _value_handler(self, *args) -> int:
-        return 1
+            callback(self.get_value())

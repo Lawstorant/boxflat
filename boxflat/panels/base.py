@@ -32,12 +32,14 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-limit", round(v/2)))
         self._cm.subscribe("base-maximum-angle", self._current_row.set_value)
 
+        self._current_row.set_value_discreet(270)
+
         self._add_row(BoxflatSliderRow("FFB Strength", suffix="%"))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-ffb-strength", v*10))
         self._cm.subscribe("base-ffb-strength", lambda v: self._current_row.set_value(round(v/10)))
 
-        self._add_row(BoxflatCalibrationRow("Set Center"))
+        self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-calibration", 1))
 
         # Basic settings
@@ -79,7 +81,7 @@ class BaseSettings(SettingsPanel):
         self._cm.subscribe("base-natural-inertia-enable", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000))
-        self._current_row.add_marks(1100, 1550, 2800, 3500)
+        self._current_row.add_marks(900, 1550, 2800, 3500)
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-natural-inertia", v))
         self._cm.subscribe("base-natural-inertia", self._current_row.set_value)
 
