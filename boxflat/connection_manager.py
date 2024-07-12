@@ -23,7 +23,11 @@ class MozaConnectionManager():
                 quit(1)
 
         self._subscribtions = {}
+        self._cont_subscribtions = {}
         self._refresh_thread = Thread(target=self._notify)
+        self._cont_thread = Thread(target=self._notify_cont)
+        self._cont_enabled = False
+
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
@@ -59,9 +63,20 @@ class MozaConnectionManager():
             elif device.lower().find("stop") != -1:
                 self._serial_devices["estop"] = device
 
+        if self._serial_devices == {}:
+            self.refresh_cont_stop()
+        else:
+            self.refresh_cont_start()
+
 
     def subscribe(self, command: str, callback: callable) -> None:
         if not command in self._subscribtions:
+            self._subscribtions[command] = []
+        self._subscribtions[command].append(callback)
+
+
+    def subscribe_cont(self, command: str, callback: callable) -> None:
+        if not command in self._cont_subscribtions:
             self._subscribtions[command] = []
         self._subscribtions[command].append(callback)
 
@@ -73,11 +88,26 @@ class MozaConnectionManager():
                 subscriber(response)
 
 
+    def _notify_cont(self) -> None:
+        while self._cont_enabled:
+            for com in self._cont_subscribtions.keys():
+                response = self.get_setting_int(com)
+                for subscriber in self._subscribtions[com]:
+                    subscriber(response)
+            time.sleep(0.5)
+
+
     def refresh(self) -> None:
         self._refresh_thread.start()
 
+    def refresh_cont_start(self) -> None:
+        self._cont_enabled = True
+        self._cont_thread.start()
 
-    def _calculate_security_byte(self, data: bytes) -> int:
+    def refresh_cont_stop(self) -> None:
+        self._cont_enabled = False
+
+    def _calculate_checksum(self, data: bytes) -> int:
         value = self._magic_value
         for d in data:
             value += int(d)
@@ -156,7 +186,7 @@ class MozaConnectionManager():
 
         device_id = self._get_device_id(command.device_type)
         device_path = self._get_device_path(command.device_type)
-        message = command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte)
+        message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
         response = self.send_serial_message(device_path, message)
         if response == bytes(1):
