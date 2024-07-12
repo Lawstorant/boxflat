@@ -13,12 +13,14 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_group("Input settings")
         self._add_row(BoxflatToggleButtonRow("Dual Clutch Paddles Mode"))
         self._current_row.add_buttons("Buttons", "Combined", "Split")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-paddles-mode", v+1))
-        self._current_row.subscribe(lambda v: slider.set_active(v == 1))
-        self._cm.subscribe("wheel-paddles-mode", lambda v: self._current_row.set_value(v-1))
 
         slider = BoxflatSliderRow("Clutch Split Point", suffix="%")
+        self._current_row.subscribe(lambda v: slider.set_active(v == 1))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-paddles-mode", v+1))
+        self._cm.subscribe("wheel-paddles-mode", lambda v: self._current_row.set_value(v-1))
+
         self._add_row(slider)
+        self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-clutch-point", v))

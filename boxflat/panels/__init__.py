@@ -6,6 +6,7 @@ from .pedals import *
 from .h_pattern import *
 from .sequential import *
 from .handbrake import *
+from .other import *
 from boxflat.connection_manager import MozaConnectionManager
 
 import time
@@ -16,12 +17,13 @@ def prepare_panels(button_callback, data_path: str, dry_run: bool) -> dict:
     cm = MozaConnectionManager(f"{data_path}/serial.yml", dry_run)
 
     _panels["Home"] = HomeSettings(button_callback, dry_run)
-    # _panels["Base"] = BaseSettings(button_callback, cm)
+    _panels["Base"] = BaseSettings(button_callback, cm)
     _panels["Wheel"] = WheelSettings(button_callback, cm)
     _panels["Pedals"] = PedalsSettings(button_callback, cm)
     _panels["H-Pattern Shifter"] = HPatternSettings(button_callback, cm)
     _panels["Sequential Shifter"] = SequentialSettings(button_callback, cm)
     _panels["Handbrake"] = HandbrakeSettings(button_callback, cm)
+    _panels["Other"] = OtherSettings(button_callback, cm)
 
     # TODO: Add Dash,Hub and other settings panel
 

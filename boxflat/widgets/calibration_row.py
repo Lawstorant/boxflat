@@ -7,7 +7,7 @@ from time import sleep
 
 class BoxflatCalibrationRow(BoxflatButtonRow):
     def __init__(self, title: str, subtitle=""):
-        super().__init__(title, "Calibration", subtitle)
+        super().__init__(title, "Calibrate", subtitle)
         self._in_progress = False
         self._thread = Thread(target=self._calibration)
 

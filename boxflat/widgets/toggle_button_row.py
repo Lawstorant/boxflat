@@ -29,6 +29,9 @@ class BoxflatToggleButtonRow(BoxflatRow):
 
 
     def _value_handler(self, value) -> int:
+        if value < 0:
+            value = 0
+
         if value != None:
             if value < len(self._buttons):
                 self._buttons[value].set_active(True)

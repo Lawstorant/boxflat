@@ -9,8 +9,6 @@ class HomeSettings(SettingsPanel):
 
         super().__init__("Home", button_callback)
 
-    def open_github2(self, *args) -> None:
-        self.open_url("https://github.com/JacKeTUs/moza-ff")
 
     def prepare_ui(self) -> None:
         self._add_row(BoxflatRow("~Welcome to Boxflat~"))
@@ -20,7 +18,6 @@ class HomeSettings(SettingsPanel):
 
         self._add_row(BoxflatButtonRow("Go to the universal-ff driver page", "GitHub", subtitle="FFB Driver"))
         self._current_row.subscribe(lambda value: self.open_url("https://github.com/JacKeTUs/moza-ff"))
-
 
         self.add_preferences_group()
         self._add_row(BoxflatRow(f"Test mode: {self._test_text}"))
