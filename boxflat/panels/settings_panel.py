@@ -11,9 +11,9 @@ from boxflat.connection_manager import MozaConnectionManager
 
 class SettingsPanel(object):
     _current_page = None
-    _current_group = None
+    _current_group: BoxflatPreferencesGroup=None
     _current_stack = None
-    _current_row = None
+    _current_row: BoxflatRow=None
     _header = None
     _rows = []
 
@@ -56,7 +56,7 @@ class SettingsPanel(object):
         return banner
 
     def prepare_ui(self) -> None:
-            return
+        return
 
     def set_setting(self, value) -> None:
         pass
@@ -122,18 +122,9 @@ class SettingsPanel(object):
         if self._current_page == None:
             self.add_preferences_page()
 
-        self._current_group = Adw.PreferencesGroup()
-        self._current_group.set_title(title)
+        self._current_group = BoxflatPreferencesGroup(title, level_bar)
+        self._current_group.set_bar_width(270)
         self._current_page.add(self._current_group)
-
-        if level_bar:
-            bar = Gtk.LevelBar()
-            bar.set_mode(Gtk.LevelBarMode.CONTINUOUS)
-            bar.set_min_value(0)
-            bar.set_max_value(1000)
-            bar.set_value(250)
-            bar.set_size_request(270,0)
-            self._current_group.set_header_suffix(bar)
 
 
     def add_view_stack(self) -> None:
