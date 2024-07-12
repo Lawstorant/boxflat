@@ -26,7 +26,7 @@ class BaseSettings(SettingsPanel):
         self._add_row(BoxflatRow("Wheel Rotation Angle", "Round and round"))
 
         self._add_row(BoxflatSliderRow("", range_start=90, range_end=2700, increment=2))
-        self._current_row.width = 550
+        self._current_row.set_width(550)
         self._current_row.add_marks(360, 540, 720, 900, 1080, 1440, 1800, 2160)
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-maximum-angle", round(v/2)))
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-limit", round(v/2)))

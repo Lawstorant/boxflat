@@ -32,7 +32,7 @@ class BoxflatSliderRow(BoxflatRow):
         modulo = self.value % self._increment
 
         if modulo != 0:
-            self.value = value + (self._increment - modulo)
+            self.value = self.value + (self._increment - modulo)
         else:
             self._notify()
 
