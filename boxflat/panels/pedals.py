@@ -9,7 +9,7 @@ class PedalsSettings(SettingsPanel):
     def prepare_ui(self) -> None:
         # Throttle
         self.add_preferences_group("Throttle settings", level_bar=1)
-        self._cm.subscribe("pedals-throttle-output", self._current_group.set_bar_level)
+        self._cm.subscribe_cont("pedals-throttle-output", self._current_group.set_bar_level)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-throttle-dir", v))
@@ -30,7 +30,7 @@ class PedalsSettings(SettingsPanel):
 
         # Brake
         self.add_preferences_group("Brake settings", level_bar=1)
-        self._cm.subscribe("pedals-brake-output", self._current_group.set_bar_level)
+        self._cm.subscribe_cont("pedals-brake-output", self._current_group.set_bar_level)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-dir", v))
@@ -56,7 +56,7 @@ class PedalsSettings(SettingsPanel):
 
         # Clutch
         self.add_preferences_group("Clutch settings", level_bar=1)
-        self._cm.subscribe("pedals-clutch-output", self._current_group.set_bar_level)
+        self._cm.subscribe_cont("pedals-clutch-output", self._current_group.set_bar_level)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-clutch-dir", v))

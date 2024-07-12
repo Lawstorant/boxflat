@@ -8,6 +8,8 @@ from .sequential import *
 from .handbrake import *
 from boxflat.connection_manager import MozaConnectionManager
 
+import time
+
 _panels = {}
 
 def prepare_panels(button_callback, data_path: str, dry_run: bool) -> dict:
@@ -24,6 +26,7 @@ def prepare_panels(button_callback, data_path: str, dry_run: bool) -> dict:
     # TODO: Add Dash,Hub and other settings panel
 
     cm.refresh()
+    cm.refresh_cont_start()
 
     return _panels
 

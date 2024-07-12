@@ -6,6 +6,10 @@ from serial import Serial
 import time
 from threading import Thread
 
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import GLib, Gtk, GObject
+
 
 CM_RETRY_COUNT=1
 
@@ -63,11 +67,6 @@ class MozaConnectionManager():
             elif device.lower().find("stop") != -1:
                 self._serial_devices["estop"] = device
 
-        if self._serial_devices == {}:
-            self.refresh_cont_stop()
-        else:
-            self.refresh_cont_start()
-
 
     def subscribe(self, command: str, callback: callable) -> None:
         if not command in self._subscribtions:
@@ -77,8 +76,8 @@ class MozaConnectionManager():
 
     def subscribe_cont(self, command: str, callback: callable) -> None:
         if not command in self._cont_subscribtions:
-            self._subscribtions[command] = []
-        self._subscribtions[command].append(callback)
+            self._cont_subscribtions[command] = []
+        self._cont_subscribtions[command].append(callback)
 
 
     def _notify(self) -> None:
@@ -89,23 +88,25 @@ class MozaConnectionManager():
 
 
     def _notify_cont(self) -> None:
-        while self._cont_enabled:
-            for com in self._cont_subscribtions.keys():
-                response = self.get_setting_int(com)
-                for subscriber in self._subscribtions[com]:
-                    subscriber(response)
-            time.sleep(0.5)
-
+        # while True:
+        #     for com in self._cont_subscribtions.keys():
+        #         response = self.get_setting_int(com)
+        #         for subscriber in self._cont_subscribtions[com]:
+        #             GLib.idle_add(subscriber, response)
+        #     time.sleep(1)
+        pass
 
     def refresh(self) -> None:
         self._refresh_thread.start()
 
     def refresh_cont_start(self) -> None:
-        self._cont_enabled = True
-        self._cont_thread.start()
+        # self._cont_enabled = True
+        # self._cont_thread.start()
+        pass
 
     def refresh_cont_stop(self) -> None:
-        self._cont_enabled = False
+        # self._cont_enabled = False
+        pass
 
     def _calculate_checksum(self, data: bytes) -> int:
         value = self._magic_value
@@ -149,8 +150,16 @@ class MozaConnectionManager():
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
             serial.reset_output_buffer()
             serial.reset_input_buffer()
+            leng = len(message)-1
             serial.write(message)
-            message = serial.read(len(message))
+
+            response = bytes(1)
+            cmp = bytes([self._message_start])
+            while response != cmp:
+                response = serial.read(1)
+
+            message = bytearray(response)
+            message.extend(serial.read(leng))
             serial.close()
 
         msg = ""
@@ -210,6 +219,8 @@ class MozaConnectionManager():
         return self._handle_command(command_name, mc.MOZA_COMMAND_READ)
 
     def get_setting_int(self, command_name: str) -> int:
+        # if not "output" in command_name:
+        #     return 0
         return int.from_bytes(self.get_setting(command_name))
 
     def get_setting_list(self, command_name: str) -> list:
