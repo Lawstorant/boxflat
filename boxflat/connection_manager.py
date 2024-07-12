@@ -27,10 +27,11 @@ class MozaConnectionManager():
                 quit(1)
 
         self._subscribtions = {}
-        self._cont_subscribtions = {}
         self._refresh_thread = Thread(target=self._notify)
-        self._cont_thread = Thread(target=self._notify_cont)
-        self._cont_enabled = False
+
+        # self._cont_subscribtions = {}
+        # self._cont_thread = Thread(target=self._notify_cont)
+        # self._cont_enabled = False
 
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
