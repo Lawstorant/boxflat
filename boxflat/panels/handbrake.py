@@ -10,7 +10,7 @@ class HandbrakeSettings(SettingsPanel):
 
 
     def prepare_ui(self) -> None:
-        self.add_preferences_group("Handbrake settings", level_bar=True)
+        self.add_preferences_group("Handbrake settings", level_bar=0)
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-direction", v))
         self._cm.subscribe("handbrake-direction", self._current_row.set_value)
