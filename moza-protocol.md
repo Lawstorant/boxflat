@@ -6,6 +6,7 @@
 <tr>
 <th colspan=4>Header</th>
 <th colspan=2>Payload</th>
+<th></th>
 </tr>
 <tr>
 <th>Start</th>
