@@ -30,12 +30,8 @@ class SequentialSettings(SettingsPanel):
         self.S2 = BoxflatColorPickerRow("S2 Color")
         self._add_row(self.S2)
 
-        self.S1.subscribe(lambda v: self._cm.set_setting("sequential-colors", self.S1.value*256 + self.S2.value))
-        self.S2.subscribe(lambda v: self._cm.set_setting("sequential-colors", self.S1.value*256 + self.S2.value))
+        self.S1.subscribe(lambda v: self._cm.set_setting("sequential-colors", byte_value=bytes([self.S1.value, self.S2.value])))
+        self.S2.subscribe(lambda v: self._cm.set_setting("sequential-colors", byte_value=bytes([self.S1.value, self.S2.value])))
 
         self._cm.subscribe("sequential-colors", lambda v: self.S1.set_value(round(v / 256)))
         self._cm.subscribe("sequential-colors", lambda v: self.S2.set_value(v % 256))
-
-
-    def _set_colors(self, button: int, color: int) -> None:
-        self._cm.set_setting("sequential-colors", self.S1.value*256 + self.S2.value)

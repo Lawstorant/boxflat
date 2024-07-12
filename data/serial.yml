@@ -22,6 +22,10 @@ device-ids:
 # - write request group id
 # - command id
 # - command payload size in bytes
+# - command payload type
+#
+# Typically, read commands only work with
+# a value of 1
 #
 # If a read/write request group has a value
 # of -1, it doesn't support read/write
@@ -34,48 +38,58 @@ commands:
     write: 31
     id: 19
     bytes: 1
+    type: int
 
   main-get-compat-mode:
     read: 31
     write: -1
     id: 23
     bytes: 1
+    type: int
 
+  # BLE off = 0
+  # BLE on = 85
   main-get-ble-mode:
     read: 31
     write: -1
     id: 70
     bytes: 1
+    type: int
 
   main-set-ble-mode:
     read: -1
     write: 31
     id: 71
     bytes: 1
+    type: int
 
   main-get-led-status:
     read: 31
     write: -1
     id: 8
     bytes: 1
+    type: int
 
   main-set-led-status:
     read: -1
     write: 31
     id: 9
     bytes: 1
+    type: int
 
   main-set-ffb-status:
     read: -1
     write: 33
     id: 6
     bytes: 1
+    type: int
 
   main-get-ffb-status:
     read: 33
     write: -1
     id: 7
     bytes: 1
+    type: int
 
 # Pedals
   pedals-throttle-dir:
@@ -83,186 +97,217 @@ commands:
     write: 36
     id: 1
     bytes: 2
+    type: int
 
   pedals-throttle-min:
     read: 35
     write: 36
     id: 2
     bytes: 2
+    type: int
 
   pedals-throttle-max:
     read: 35
     write: 36
     id: 3
     bytes: 2
+    type: int
 
   pedals-brake-dir:
     read: 35
     write: 36
     id: 4
     bytes: 2
+    type: int
 
   pedals-brake-min:
     read: 35
     write: 36
     id: 5
     bytes: 2
+    type: int
 
   pedals-brake-max:
     read: 35
     write: 36
     id: 6
     bytes: 2
+    type: int
 
   pedals-clutch-dir:
     read: 35
     write: 36
     id: 7
     bytes: 2
+    type: int
 
   pedals-clutch-min:
     read: 35
     write: 36
     id: 8
     bytes: 2
+    type: int
 
   pedals-clutch-max:
     read: 35
     write: 36
     id: 9
     bytes: 2
+    type: int
 
   pedals-hid-mode:
     read: 35
     write: 36
     id: 13
     bytes: 2
+    type: int
 
   pedals-throttle-y1:
     read: 35
     write: 36
     id: 14
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-throttle-y2:
     read: 35
     write: 36
     id: 15
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-throttle-y3:
     read: 35
     write: 36
     id: 16
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-throttle-y4:
     read: 35
     write: 36
     id: 17
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-brake-y1:
     read: 35
     write: 36
     id: 18
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-brake-y2:
     read: 35
     write: 36
     id: 19
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-brake-y3:
     read: 35
     write: 36
     id: 20
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-brake-y4:
     read: 35
     write: 36
     id: 21
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-clutch-y1:
     read: 35
     write: 36
     id: 22
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-clutch-y2:
     read: 35
     write: 36
     id: 23
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-clutch-y3:
     read: 35
     write: 36
     id: 24
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-clutch-y4:
     read: 35
     write: 36
     id: 25
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-brake-max-force:
     read: 35
     write: 36
     id: 26
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-throttle-y5:
     read: 35
     write: 36
     id: 27
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-brake-y5:
     read: 35
     write: 36
     id: 28
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-clutch-y5:
     read: 35
     write: 36
     id: 29
-    bytes: 4
+    bytes: 1
+    type: float
 
   pedals-throttle-hid-source:
     read: 35
     write: 36
     id: 30
     bytes: 2
+    type: int
 
   pedals-throttle-hid-cmd:
     read: 35
     write: 36
     id: 31
     bytes: 2
+    type: int
 
   pedals-throttle-output:
     read: 37
     write: -1
     id: 1
     bytes: 2
+    type: int
 
   pedals-brake-output:
     read: 37
     write: -1
     id: 2
     bytes: 2
+    type: int
 
   pedals-clutch-output:
     read: 37
     write: -1
     id: 3
     bytes: 2
+    type: int
 
 # Wheelbase
   base-limit:
@@ -270,96 +315,112 @@ commands:
     write: 41
     id: 1
     bytes: 2
+    type: int
 
   base-ffb-strength:
     read: 40
     write: 41
     id: 2
     bytes: 2
+    type: int
 
   base-inertia:
     read: 40
     write: 41
     id: 4
     bytes: 2
+    type: int
 
   base-damper:
     read: 40
     write: 41
     id: 7
     bytes: 2
+    type: int
 
   base-friction:
     read: 40
     write: 41
     id: 8
     bytes: 2
+    type: int
 
   base-spring:
     read: 40
     write: 41
     id: 9
     bytes: 2
+    type: int
 
   base-speed:
     read: 40
     write: 41
     id: 10
     bytes: 2
+    type: int
 
   base-road-sensitivity:
     read: 40
     write: 41
     id: 12
     bytes: 2
+    type: int
 
   base-protection:
     read: 40
     write: 41
     id: 13
     bytes: 2
+    type: int
 
   base-equalizer1:
     read: 40
     write: 41
     id: 14
     bytes: 2
+    type: int
 
   base-equalizer2:
     read: 40
     write: 41
     id: 15
     bytes: 2
+    type: int
 
   base-equalizer3:
     read: 40
     write: 41
     id: 16
     bytes: 2
+    type: int
 
   base-equalizer4:
     read: 40
     write: 41
     id: 17
     bytes: 2
+    type: int
 
   base-equalizer5:
     read: 40
     write: 41
     id: 20
     bytes: 2
+    type: int
 
   base-equalizer6:
     read: 40
     write: 41
     id: 44
     bytes: 2
+    type: int
 
   base-torque:
     read: 40
     write: 41
     id: 18
     bytes: 2
+    type: int
 
   # hands-off protection
   base-natural-inertia:
@@ -367,6 +428,7 @@ commands:
     write: 41
     id: 19
     bytes: 2
+    type: int
 
   # hands-off protection
   base-natural-inertia-enable:
@@ -374,169 +436,197 @@ commands:
     write: 41
     id: 22
     bytes: 2
+    type: int
 
   base-maximum-angle:
     read: 40
     write: 41
     id: 23
     bytes: 2
+    type: int
 
   base-ffb-reverse:
     read: 40
     write: 41
     id: 24
     bytes: 2
+    type: int
 
   base-speed-damping:
     read: 40
     write: 41
     id: 25
     bytes: 2
+    type: int
 
   base-speed-damping-point:
     read: 40
     write: 41
     id: 26
     bytes: 2
+    type: int
 
   base-soft-limit-strength:
     read: 40
     write: 41
     id: 27
     bytes: 2
+    type: int
 
   base-soft-limit-retain:
     read: 40
     write: 41
     id: 28
     bytes: 2
+    type: int
 
   base-temp-strategy:
     read: 40
     write: 41
     id: 30
     bytes: 2
+    type: int
 
   base-soft-limit-stiffness:
     read: 40
     write: 41
     id: 31
     bytes: 2
+    type: int
 
   base-ffb-curve-x1:
     read: [40, 34]
     write: [41, 34]
     id: 1
     bytes: 1
+    type: int
 
   base-ffb-curve-x2:
     read: [40, 34]
     write: [41, 34]
     id: 2
     bytes: 1
+    type: int
 
   base-ffb-curve-x3:
     read: [40, 34]
     write: [41, 34]
     id: 3
     bytes: 1
+    type: int
 
   base-ffb-curve-x4:
     read: [40, 34]
     write: [41, 34]
     id: 4
     bytes: 1
+    type: int
 
   base-ffb-curve-y1:
     read: [40, 34]
     write: [41, 34]
     id: 5
     bytes: 1
+    type: int
 
   base-ffb-curve-y2:
     read: [40, 34]
     write: [41, 34]
     id: 6
     bytes: 1
+    type: int
 
   base-ffb-curve-y3:
     read: [40, 34]
     write: [41, 34]
     id: 7
     bytes: 1
+    type: int
 
   base-ffb-curve-y4:
     read: [40, 34]
     write: [41, 34]
     id: 8
     bytes: 1
+    type: int
 
   base-ffb-curve-y5:
     read: [40, 34]
     write: [41, 34]
     id: 9
     bytes: 1
+    type: int
 
   base-ffb-curve-y0:
     read: [40, 34]
     write: [41, 34]
     id: 10
     bytes: 1
+    type: int
 
   base-output:
     read: 43
     write: -1
     id: 1
     bytes: 2
+    type: int
 
   base-output-err:
     read: 43
     write: -1
     id: 2
     bytes: 2
+    type: int
 
   base-mcu-temp:
     read: 43
     write: -1
     id: 4
     bytes: 2
+    type: int
 
   base-mosfet-temp:
     read: 43
     write: -1
     id: 5
     bytes: 2
+    type: int
 
   base-motor-temp:
     read: 43
     write: -1
     id: 6
     bytes: 2
+    type: int
 
 # Dashboard
   dash-brightness:
     read: 51
     write: 50
     id: 0
-    bytes: 4
+    bytes: 1
+    type: float
 
   dash-ui-index:
     read: 51
     write: 50
     id: 1
-    bytes: 4
+    bytes: 1
+    type: float
 
   dash-speed-unit:
     read: 51
     write: 50
     id: 2
-    bytes: 4
+    bytes: 1
+    type: float
 
   dash-temp-unit:
     read: 51
     write: 50
     id: 3
-    bytes: 4
+    bytes: 1
+    type: float
 
 # Steering wheel
   # TODO: check if this works
@@ -545,150 +635,175 @@ commands:
     write: 63
     id: 0
     bytes: 9
+    type: byte
 
   wheel-brightness:
     read: 64
     write: 63
     id: 1
     bytes: 1
+    type: int
 
   wheel-indicator-timings:
     read: 64
     write: 63
     id: 2
     bytes: 10
+    type: array
 
   wheel-paddles-mode:
     read: 64
     write: 63
     id: 3
     bytes: 1
+    type: int
 
   wheel-indicator-mode:
     read: 64
     write: 63
     id: 4
     bytes: 1
+    type: int
 
   wheel-stick-mode:
     read: 64
     write: 63
     id: 5
     bytes: 2
+    type: int
 
   wheel-display-mode:
     read: 64
     write: 63
     id: 7
     bytes: 1
+    type: int
 
   wheel-clutch-point:
     read: 64
     write: 63
     id: 9
     bytes: 1
+    type: int
 
   wheel-knob-mode:
     read: 64
     write: 63
     id: 10
     bytes: 1
+    type: int
 
   wheel-paddle-adaptive-mode:
     read: 64
     write: 63
     id: 11
     bytes: 1
+    type: int
 
   wheel-paddle-button-mode:
     read: 64
     write: 63
     id: 13
     bytes: 1
+    type: int
 
   wheel-rmp-value1:
     read: 64
     write: 63
     id: [15, 0]
     bytes: 3
+    type: byte
 
   wheel-rmp-value2:
     read: 64
     write: 63
     id: [15, 1]
     bytes: 3
+    type: byte
 
   wheel-rmp-value3:
     read: 64
     write: 63
     id: [15, 2]
     bytes: 3
+    type: byte
 
   wheel-rmp-value4:
     read: 64
     write: 63
     id: [15, 3]
     bytes: 3
+    type: byte
 
   wheel-rmp-value5:
     read: 64
     write: 63
     id: [15, 4]
     bytes: 3
+    type: byte
 
   wheel-rmp-value6:
     read: 64
     write: 63
     id: [15, 5]
     bytes: 3
+    type: byte
 
   wheel-rmp-value7:
     read: 64
     write: 63
     id: [15, 6]
     bytes: 3
+    type: byte
 
   wheel-rmp-value8:
     read: 64
     write: 63
     id: [15, 7]
     bytes: 3
+    type: byte
 
   wheel-rmp-value9:
     read: 64
     write: 63
     id: [15, 8]
     bytes: 3
+    type: byte
 
   wheel-rmp-value10:
     read: 64
     write: 63
     id: [15, 9]
     bytes: 3
+    type: byte
 
   wheel-key-combination:
     read: 64
     write: 63
     id: 19
-    bytes: 4
+    bytes: 1
+    type: float
 
   wheel-indicator-group-brightness:
     read: [64, 20]
     write: [63, 20]
     id: 0
     bytes: 1
+    type: int
 
   wheel-buttons-group-brightness:
     read: [64, 20]
     write: [63, 20]
     id: 2
     bytes: 1
+    type: int
 
   wheel-flags-group-brightness:
     read: [64, 20]
     write: [63, 20]
     id: 3
     bytes: 1
+    type: int
 
   # TODO: wheel indicator, button, flag colors
 
@@ -696,13 +811,15 @@ commands:
     read: 64
     write: 63
     id: 22
-    bytes: 4
+    bytes: 1
+    type: float
 
   wheel-rpm-regulation-mode:
     read: 64
     write: 63
     id: 23
     bytes: 1
+    type: int
 
 # hpattern shifter
   hpattern-hid-mode:
@@ -710,12 +827,14 @@ commands:
     write: 82
     id: 1
     bytes: 2
+    type: int
 
   hpattern-output:
     read: 83
     write: -1
     id: 1
     bytes: 2
+    type: int
 
   # Even PitHouse is not sending anything
   # These options are dead
@@ -726,18 +845,21 @@ commands:
     write: -1
     id: -1
     bytes: 2
+    type: int
 
   hpattern-blip-output:
     read: -1
     write: -1
     id: -1
     bytes: 2
+    type: int
 
   hpattern-blip-duration:
     read: -1
     write: -1
     id: -1
     bytes: 2
+    type: int
 
 # estop
   estop-set-status:
@@ -745,12 +867,14 @@ commands:
     write: 70
     id: 0
     bytes: 1
+    type: int
 
   estop-get-status:
     read: 70
     write: -1
     id: 1
     bytes: 1
+    type: int
 
 # Sequential shifter
   sequential-hid-mode:
@@ -758,36 +882,42 @@ commands:
     write: 82
     id: 1
     bytes: 2
+    type: int
 
   sequential-apply-mode:
     read: 81
     write: 82
     id: 2
     bytes: 2
+    type: int
 
   sequential-brightness:
     read: 81
     write: 82
     id: 3
     bytes: 2
+    type: int
 
   sequential-colors:
     read: 81
     write: 82
     id: 4
     bytes: 2
+    type: array
 
   sequential-direction:
     read: 81
     write: 82
     id: 5
     bytes: 2
+    type: int
 
   sequential-paddle-sync:
     read: 81
     write: 82
     id: 6
     bytes: 2
+    type: int
 
 # Handbrake
   handbrake-direction:
@@ -795,72 +925,84 @@ commands:
     write: 92
     id: 1
     bytes: 2
+    type: int
 
   handbrake-range-start:
     read: 91
     write: 92
     id: 2
     bytes: 2
+    type: int
 
   handbrake-range-end:
     read: 91
     write: 92
     id: 3
     bytes: 2
+    type: int
 
   handbrake-hid-mode:
     read: 91
     write: 92
     id: 4
     bytes: 2
+    type: int
 
   handbrake-y1:
     read: 91
     write: 92
     id: 5
-    bytes: 4
+    bytes: 1
+    type: float
 
   handbrake-y2:
     read: 91
     write: 92
     id: 6
-    bytes: 4
+    bytes: 1
+    type: float
 
   handbrake-y3:
     read: 91
     write: 92
     id: 7
-    bytes: 4
+    bytes: 1
+    type: float
 
   handbrake-y4:
     read: 91
     write: 92
     id: 8
-    bytes: 4
+    bytes: 1
+    type: float
 
   handbrake-y5:
     read: 91
     write: 92
     id: 9
-    bytes: 4
+    bytes: 1
+    type: float
 
   handbrake-button-threshold:
     read: 91
     write: 92
     id: 10
     bytes: 2
+    type: int
 
   handbrake-mode:
     read: 91
     write: 92
     id: 11
     bytes: 2
+    type: int
 
   handbrake-output:
     read: 93
     write: -1
     id: 1
     bytes: 2
+    type: int
 
 # Hub
   hub-port1:
@@ -868,95 +1010,111 @@ commands:
     write: -1
     id: 1
     bytes: 1
+    type: int
 
   hub-port2:
     read: 100
     write: -1
     id: 2
     bytes: 1
+    type: int
 
   hub-port3:
     read: 100
     write: -1
     id: 3
     bytes: 1
+    type: int
 
   hub-port4:
     read: 100
     write: -1
     id: 4
     bytes: 1
+    type: int
 
   hub-pedals:
     read: 100
     write: -1
     id: 5
     bytes: 1
+    type: int
 
 # calibration commands
-  # base calibration expects 1 as value
+  # calibration expects 1 as value
   base-calibration:
     read: -1
     write: 42
     id: 1
     bytes: 2
+    type: int
 
   pedals-throttle-start-calibration:
     read: -1
     write: 38
     id: 12
     bytes: 2
+    type: int
 
   pedals-brake-start-calibration:
     read: -1
     write: 38
     id: 13
     bytes: 2
+    type: int
 
   pedals-clutch-start-calibration:
     read: -1
     write: 38
     id: 14
     bytes: 2
+    type: int
 
   pedals-throttle-stop-calibration:
     read: -1
     write: 38
     id: 15
     bytes: 2
+    type: int
 
   pedals-brake-stop-calibration:
     read: -1
     write: 38
     id: 16
     bytes: 2
+    type: int
 
   pedals-clutch-stop-calibration:
     read: -1
     write: 38
     id: 17
     bytes: 2
+    type: int
 
   hpattern-start-calibration:
     read: -1
     write: 84
     id: 3
     bytes: 2
+    type: int
 
   hpattern-stop-calibration:
     read: -1
     write: 84
     id: 4
     bytes: 2
+    type: int
 
   handbrake-start-calibration:
     read: -1
     write: 94
     id: 3
     bytes: 2
+    type: int
 
   handbrake-stop-calibration:
     read: -1
     write: 94
     id: 4
     bytes: 2
+    type: int
