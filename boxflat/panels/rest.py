@@ -1,4 +1,5 @@
 from boxflat.panels.settings_panel import SettingsPanel
+from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 
 class OtherSettings(SettingsPanel):

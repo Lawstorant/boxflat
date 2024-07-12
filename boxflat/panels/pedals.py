@@ -46,10 +46,11 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-max", v))
         self._cm.subscribe("pedals-brake-max", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Pressure point", suffix="%", subtitle="This seems to work backwards?"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-max-force", v))
-        self._cm.subscribe("pedals-brake-max-force", self._current_row.set_value)
+        # TODO: fix brake pressure point
+        # self._add_row(BoxflatSliderRow("Pressure point", suffix="%", subtitle="This seems to work backwards?"))
+        # self._current_row.add_marks(25, 50, 75)
+        # self._current_row.subscribe(lambda v: self._cm.set_float_setting("pedals-brake-max-force", v))
+        # self._cm.subscribe("pedals-brake-max-force", self._current_row.set_value)
 
         # self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
         # self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-brake-{v}-calibration", 1))

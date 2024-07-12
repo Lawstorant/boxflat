@@ -24,6 +24,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
 
             if self._group == None:
                 self._group = button
+                button.set_active(True)
             else:
                 button.set_group(self._group)
 
@@ -32,9 +33,8 @@ class BoxflatToggleButtonRow(BoxflatRow):
         if value != None:
             if value < 0:
                 value = 0
-            elif value > len(self._buttons):
-                value = len(self._buttons)
-            print(value)
+            elif value >= len(self._buttons):
+                value = len(self._buttons)-1
             self._buttons[value].set_active(True)
 
         for i in range(len(self._buttons)):

@@ -58,10 +58,10 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-spring", int(v)*10))
         self._cm.subscribe("base-spring", lambda v: self._current_row.set_value(round(v/10)))
 
-        self._add_row(BoxflatSliderRow("Wheel Spring", suffix="%"))
-        self._current_row.add_marks(10, 25, 50)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-damper", int(v)*10))
-        self._cm.subscribe("base-damper", lambda v: self._current_row.set_value(round(v/10)))
+        # self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
+        # self._current_row.add_marks(10, 25, 50)
+        # self._current_row.subscribe(lambda v: self._cm.set_setting("base-damper", int(v)*10))
+        # self._cm.subscribe("base-damper", lambda v: self._current_row.set_value(round(v/10)))
 
         # Advenced settings
         self.add_preferences_group("Advenced Settings")

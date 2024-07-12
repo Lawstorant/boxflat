@@ -3,15 +3,11 @@ import os.path
 from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
-import time
 from threading import Thread
+import struct
+import time
 
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import GLib, Gtk, GObject
-
-
-CM_RETRY_COUNT=1
+CM_RETRY_COUNT=2
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
@@ -139,7 +135,7 @@ class MozaConnectionManager():
         for b in message:
             msg += f"{hex(b)} "
         print(f"\nDevice: {serial_path}")
-        print(f"Sending: {msg}")
+        print(f"Sending:  {msg}")
 
         if self._dry_run:
             return bytes(1)
@@ -151,17 +147,40 @@ class MozaConnectionManager():
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
             serial.reset_output_buffer()
             serial.reset_input_buffer()
-            leng = len(message)-1
-            serial.write(message)
+            for i in range(CM_RETRY_COUNT):
+                serial.write(message)
 
-            response = bytes(1)
+            rest = bytes()
+            length = None
             cmp = bytes([self._message_start])
-            while response != cmp:
-                response = serial.read(1)
+            start = bytes(1)
 
-            message = bytearray(response)
-            message.extend(serial.read(leng))
+            time.sleep(0.05)
+
+            while True:
+                while start != cmp:
+                    start = serial.read(1)
+
+                length = int.from_bytes(serial.read(1))
+                if length != message[1]:
+                    continue
+
+                group = int.from_bytes(serial.read(1))
+                if group != message[2] + 128:
+                    continue
+
+                # length + 3 because we need to read
+                # device id and checksum at the end
+                rest = serial.read(length+2)
+                break
+
             serial.close()
+
+        message = bytearray()
+        message.extend(cmp)
+        message.append(length)
+        message.append(group)
+        message.extend(rest)
 
         msg = ""
         for b in message:
@@ -198,11 +217,19 @@ class MozaConnectionManager():
         device_path = self._get_device_path(command.device_type)
         message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
+        # WE get a response without the checksum
         response = self.send_serial_message(device_path, message)
         if response == bytes(1):
             return response
 
-        return response[(-1-command.length):-1]
+        # check if length is 2 or lower because we need the
+        # device id in the response, not just the value
+        # length = response[1]
+        # if length <= command.length+1:
+        #     return bytes(1)
+        length = command.length
+        print(response[-1-length:-1])
+        return response[-1-length:-1]
 
     # Set a setting value on a device
     # If value should be float, provide bytes
