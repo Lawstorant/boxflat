@@ -17,8 +17,10 @@ class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
         self._serial_data = None
         self._dry_run = dry_run
-        self._serial_devices = {}
         self._shutdown = False
+
+        self._serial_devices = {}
+        self._devices_lock = Lock()
 
         with open(serial_data_path) as stream:
             try:
@@ -62,6 +64,9 @@ class MozaConnectionManager():
             print("No devices found!")
             return
 
+        while not self._devices_lock.acquire(True):
+            time.sleep(0.1)
+
         devices = []
         self._serial_devices = {}
         for device in os.listdir(path):
@@ -98,6 +103,7 @@ class MozaConnectionManager():
                 self._serial_devices["estop"] = device
                 print("E-Stop found")
 
+        self._devices_lock.release()
         print("Device discovery end\n")
 
 
@@ -186,11 +192,17 @@ class MozaConnectionManager():
 
     def _get_device_path(self, device_type: str) -> str:
         device_path = None
+
+        while not self._devices_lock.acquire(True):
+            time.sleep(0.005)
+
         if device_type in self._serial_devices:
             device_path = self._serial_devices[device_type]
 
         elif "base" in self._serial_devices and device_type != "hub":
             device_path = self._serial_devices["base"]
+
+        self._devices_lock.release()
 
         return device_path
 
@@ -240,7 +252,7 @@ class MozaConnectionManager():
                 break
 
             serial.close()
-        self._serial_lock.release_lock()
+        self._serial_lock.release()
 
         if read_response == False:
             return bytes(1)
