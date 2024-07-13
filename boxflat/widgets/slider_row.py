@@ -14,6 +14,8 @@ class BoxflatSliderRow(BoxflatRow):
         self._slider = slider
         self._suffix = suffix
         self._increment = increment
+        self._range_start = range_start
+        self._range_end = range_end
 
         slider.set_range(range_start, range_end)
         slider.set_increments(increment, 0)
@@ -25,7 +27,8 @@ class BoxflatSliderRow(BoxflatRow):
         slider.set_valign(Gtk.Align.CENTER)
         self.add_marks(range_start, range_end)
 
-        slider.connect('value-changed', lambda scale: self._slider_increment_handler())
+        slider.connect('value-changed',
+            lambda scale: self._slider_increment_handler())
 
 
     def _slider_increment_handler(self) -> None:
@@ -39,7 +42,8 @@ class BoxflatSliderRow(BoxflatRow):
 
     def add_marks(self, *marks: int) -> None:
         for mark in marks:
-            self._slider.add_mark(mark, Gtk.PositionType.BOTTOM, f"{mark}{self._suffix}")
+            self._slider.add_mark(
+                mark, Gtk.PositionType.BOTTOM,f"{mark}{self._suffix}")
 
 
     def set_width(self, width: int) -> None:
@@ -47,8 +51,12 @@ class BoxflatSliderRow(BoxflatRow):
 
 
     def get_value(self) -> int:
-        return int(self._slider.get_value())
+        return int(eval("self._slider.get_value()" + self._expression))
 
 
-    def set_value(self, value: int) -> None:
-        self._slider.set_value(value)
+    def _set_value(self, value: int) -> None:
+        val = eval("value"+self._reverse_expression)
+        if val < self._range_start:
+            val = self._range_start
+
+        self._slider.set_value(round(val))

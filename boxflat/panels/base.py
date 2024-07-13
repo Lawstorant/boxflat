@@ -28,16 +28,18 @@ class BaseSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("", range_start=90, range_end=2700, increment=2))
         self._current_row.set_width(550)
         self._current_row.add_marks(360, 540, 720, 900, 1080, 1440, 1800, 2160)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-maximum-angle", round(v/2)))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-limit", round(v/2)))
+        self._current_row.set_expression("/2")
+        self._current_row.set_reverse_expression("*2")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-maximum-angle", v))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-limit", v))
         self._cm.subscribe("base-maximum-angle", self._current_row.set_value)
-
-        self._current_row.set_value_discreet(270)
 
         self._add_row(BoxflatSliderRow("FFB Strength", suffix="%"))
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-ffb-strength", v*10))
-        self._cm.subscribe("base-ffb-strength", lambda v: self._current_row.set_value(round(v/10)))
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-ffb-strength", v))
+        self._cm.subscribe("base-ffb-strength", self._current_row.set_value)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-calibration", 1))
@@ -46,24 +48,31 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_group("Basic settings")
         self._add_row(BoxflatSliderRow("Road Sensitivity", range_end=10))
         self._current_row.add_marks(2, 4, 6, 8)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-road-sensitivity", v*4 + 10))
-        self._cm.subscribe("base-road-sensitivity",
-                           lambda v: self._current_row.set_value(round((v-10)/4)))
+        self._current_row.set_expression("*4 + 10")
+        self._current_row.set_reverse_expression("/4 - 2.5")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-road-sensitivity", v))
+        self._cm.subscribe("base-road-sensitivity", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Maximum Wheel Speed", suffix="%", range_end=200))
         self._current_row.add_marks(50, 100, 150)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-speed", int(v)*10))
         self._cm.subscribe("base-speed", lambda v: self._current_row.set_value(round(v/10)))
 
         self._add_row(BoxflatSliderRow("Wheel Spring", suffix="%"))
         self._current_row.add_marks(50)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-spring", int(v)*10))
-        self._cm.subscribe("base-spring", lambda v: self._current_row.set_value(round(v/10)))
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-spring", v))
+        self._cm.subscribe("base-spring", self._current_row.set_value)
 
         # self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
         # self._current_row.add_marks(10, 25, 50)
-        # self._current_row.subscribe(lambda v: self._cm.set_setting("base-damper", int(v)*10))
-        # self._cm.subscribe("base-damper", lambda v: self._current_row.set_value(round(v/10)))
+        # self._current_row.set_expression("*10")
+        # self._current_row.set_reverse_expression("/10")
+        # self._current_row.subscribe(lambda v: self._cm.set_setting("base-damper", v))
+        # self._cm.subscribe("base-damper", self._current_row.set_value)
 
         # Advenced settings
         self.add_preferences_group("Advenced Settings")
@@ -92,8 +101,10 @@ class BaseSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Wheel Friction", suffix="%"))
         self._current_row.add_marks(10, 30)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-friction", v*10))
-        self._cm.subscribe("base-friction", lambda v: self._current_row.set_value(round(v/10)))
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-friction", v))
+        self._cm.subscribe("base-friction", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Speed-depended Damping", suffix="%"))
         self._current_row.add_marks(50)
@@ -121,17 +132,18 @@ class BaseSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Soft Limit Stiffness", range_start=1, range_end=10))
         self._current_row.add_marks(4, 6, 8)
-        self._current_row.subscribe(
-            lambda v: self._cm.set_setting("base-soft-limit-stiffness", round((400/9) * (v-1) + 100)))
-        self._cm.subscribe("base-soft-limit-stiffness",
-            lambda v: self._current_row.set_value(round((v-100) / (400/9) + 1)))
+        self._current_row.set_expression("*(400/9)-(400/9)+100")
+        self._current_row.set_expression("/(400/9) - 2.25 + 1")
+        self._current_row.set_reverse_expression("")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-soft-limit-stiffness", v))
+        self._cm.subscribe("base-soft-limit-stiffness",lambda v: self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Soft Limit Strength"))
         self._current_row.add_buttons("Soft", "Middle", "Hard")
-        self._current_row.subscribe(
-            lambda v: self._cm.set_setting("base-soft-limit-strength", v*22 + 56))
-        self._cm.subscribe("base-soft-limit-strength",
-            lambda v: self._current_row.set_value(round((v-56) / 22)))
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-soft-limit-strength", v))
+        self._cm.subscribe("base-soft-limit-strength", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Soft Limit Game Force Strength"))
         self._current_row.subtitle = "I have no idea"

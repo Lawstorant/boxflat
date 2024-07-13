@@ -34,6 +34,9 @@ class MozaConnectionManager():
         self._serial_path = "/dev/serial/by-id"
         self._device_discovery()
 
+    def __del__(self):
+        self._refresh_thread.stop()
+
 # TODO: add start-stop watching get commands in threads
     def _device_discovery(self) -> None:
         path = self._serial_path

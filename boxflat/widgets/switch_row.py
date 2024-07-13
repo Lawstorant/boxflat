@@ -17,8 +17,13 @@ class BoxflatSwitchRow(BoxflatRow):
 
 
     def get_value(self) -> int:
-        return int(self._switch.get_active())
+        return int(eval(
+            "int(self._switch.get_active())" + self._expression
+        ))
 
 
-    def set_value(self, value: int) -> None:
-        self._switch.set_active(bool(value))
+    def _set_value(self, value: int) -> None:
+        val = eval("value"+self._reverse_expression)
+        if val < 0:
+            val = 0
+        self._switch.set_active(bool(val))

@@ -13,4 +13,4 @@ class OtherSettings(SettingsPanel):
 
     def prepare_ui(self) -> None:
         self._add_row(BoxflatRow("Other settings"))
-        self._current_row.subtitle = "Work in progress"
+        self._current_row.set_subtitle("Work in progress")

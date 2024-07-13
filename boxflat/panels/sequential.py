@@ -3,10 +3,9 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 
 class SequentialSettings(SettingsPanel):
-    _S1 = None
-    _S2 = None
-
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+        self._S1 = None
+        self._S2 = None
         super().__init__("Sequential Shifter", button_callback, connection_manager)
 
     def prepare_ui(self) -> None:
@@ -16,7 +15,9 @@ class SequentialSettings(SettingsPanel):
         self._cm.subscribe("sequential-direction", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Why would you do that?"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-paddle-sync", v+1))
+        self._current_row.set_expression("+1")
+        self._current_row.set_reverse_expression("-1")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-paddle-sync", v))
         self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
@@ -24,14 +25,17 @@ class SequentialSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-brightness", v))
         self._cm.subscribe("sequential-brightness", self._current_row.set_value)
 
-        self.S1 = BoxflatColorPickerRow("S1 Color")
-        self._add_row(self.S1)
+        self._S1 = BoxflatColorPickerRow("S1 Color")
+        self._add_row(self._S1)
 
-        self.S2 = BoxflatColorPickerRow("S2 Color")
-        self._add_row(self.S2)
+        self._S2 = BoxflatColorPickerRow("S2 Color")
+        self._add_row(self._S2)
 
-        self.S1.subscribe(lambda v: self._cm.set_setting("sequential-colors", byte_value=bytes([self.S1.value, self.S2.value])))
-        self.S2.subscribe(lambda v: self._cm.set_setting("sequential-colors", byte_value=bytes([self.S1.value, self.S2.value])))
+        self._S1.set_reverse_expression("/256")
+        self._S2.set_reverse_expression("%256")
 
-        self._cm.subscribe("sequential-colors", lambda v: self.S1.set_value(round(v / 256)))
-        self._cm.subscribe("sequential-colors", lambda v: self.S2.set_value(v % 256))
+        self._S1.subscribe(lambda v: self._cm.set_setting("sequential-colors", byte_value=bytes([self._S1.get_value(), self._S2.get_value()])))
+        self._S2.subscribe(lambda v: self._cm.set_setting("sequential-colors", byte_value=bytes([self._S1.get_value(), self._S2.get_value()])))
+
+        self._cm.subscribe("sequential-colors", self._S1.set_value)
+        self._cm.subscribe("sequential-colors", self._S2.set_value)

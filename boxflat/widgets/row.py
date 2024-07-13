@@ -11,35 +11,46 @@ class BoxflatRow(Adw.ActionRow):
         self.set_sensitive(True)
         self.set_title(title)
         self.set_subtitle(subtitle)
+        self._expression = "*1"
+        self._reverse_expression = "*1"
+
 
     def get_active(self) -> bool:
         return self.get_sensitive()
 
+
     def set_active(self, value: bool) -> None:
         self.set_sensitive(bool(value))
+
 
     def mute(self) -> None:
         self._mute = True
 
+
     def unmute(self) -> None:
         self._mute = False
+
 
     def get_value(self) -> int:
         return 0
 
+
     def set_value(self, value) -> None:
+        self.mute()
+        self._set_value(value)
+        self.unmute()
+
+    def _set_value(self, value) -> None:
         pass
 
-    def set_value_discreet(self, value) -> None:
-        self.mute()
-        self.set_value(value)
-        self.unmute()
 
     def _set_widget(self, widget: Gtk.Widget) -> None:
         self.add_suffix(widget)
 
+
     def subscribe(self, callback: callable) -> None:
         self._subscribers.append(callback)
+
 
     def _notify(self) -> None:
         if self._mute:
@@ -47,3 +58,16 @@ class BoxflatRow(Adw.ActionRow):
 
         for callback in self._subscribers:
             callback(self.get_value())
+
+    def set_expression(self, expr: str) -> None:
+        """
+        Modify the value when invoking get_value()
+        """
+        self._expression = expr
+
+    def set_reverse_expression(self, expr: str) -> None:
+        """
+        Modify the value when invoking set_value()
+        """
+        self._reverse_expression = expr
+
