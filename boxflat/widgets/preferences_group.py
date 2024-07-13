@@ -23,7 +23,6 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
 
 
     def set_bar_level(self, level: int):
-        print(level)
         if level > self._bar.get_max_value():
             self._bar.set_max_value(level)
 

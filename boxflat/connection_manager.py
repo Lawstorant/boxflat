@@ -137,7 +137,7 @@ class MozaConnectionManager():
                 time.sleep(1)
                 continue
 
-            time.sleep(1/100) # ^0 Hz refresh rate
+            time.sleep(1/30) # 30 Hz refresh rate
             for com in self._cont_subscribtions.keys():
                 response = self.get_setting_int(com)
                 for subscriber in self._cont_subscribtions[com]:
@@ -209,26 +209,22 @@ class MozaConnectionManager():
             print("No compatible device found!")
             return bytes(1)
 
-        while not self._serial_lock.acquire(True, 1):
-            time.sleep(0.01)
+        rest = bytes()
+        length = 0
+        cmp = bytes([self._message_start])
+        start = bytes(1)
+
+        while not self._serial_lock.acquire(True):
+            time.sleep(0.1)
 
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
-            time.sleep(0.01)
+            time.sleep(0.005)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
-            serial.read_all()
             for i in range(CM_RETRY_COUNT):
                 serial.write(message)
 
-            if read_response == False:
-                return bytes(1)
-
-            rest = bytes()
-            length = None
-            cmp = bytes([self._message_start])
-            start = bytes(1)
-
-            while True:
+            while read_response:
                 while start != cmp:
                     start = serial.read(1)
 
@@ -244,8 +240,10 @@ class MozaConnectionManager():
                 break
 
             serial.close()
+        self._serial_lock.release_lock()
 
-        self._serial_lock.release()
+        if read_response == False:
+            return bytes(1)
 
         message = bytearray()
         message.extend(cmp)

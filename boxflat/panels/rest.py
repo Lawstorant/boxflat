@@ -12,7 +12,7 @@ class OtherSettings(SettingsPanel):
         # self._add_row(BoxflatSwitchRow("Monitor Wheel Position"))
         # self._add_row(BoxflatSwitchRow("Monitor Pedals Output"))
         # self._add_row(BoxflatSwitchRow("Monitor Handbrake Output"))
-        self._add_row(BoxflatSwitchRow("Monitor Pedals/Handbrake Output"))
+        self._add_row(BoxflatSwitchRow("Monitor Pedals/Handbrake Output", "Still Buggy"))
         self._current_row.subscribe(self._cm.set_cont_active)
 
         self._add_row(BoxflatButtonRow("Load settings from devices", "Refresh"))
