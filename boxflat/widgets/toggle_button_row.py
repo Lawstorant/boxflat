@@ -39,6 +39,11 @@ class BoxflatToggleButtonRow(BoxflatRow):
 
 
     def _set_value(self, value: int) -> None:
+        if value == -1:
+            for button in self._buttons:
+                button.set_active(False)
+            return
+
         value = round(eval("value"+self._reverse_expression))
 
         if value < 0:

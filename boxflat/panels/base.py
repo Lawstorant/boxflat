@@ -125,7 +125,7 @@ class BaseSettings(SettingsPanel):
         self._add_row(BoxflatSwitchRow("Base Status Indicator"))
         self._current_row.set_subtitle("Does nothing if your base doesn't have it")
         self._current_row.set_expression("-1")
-        self._current_row.set_expression("+1")
+        self._current_row.set_reverse_expression("+1")
         self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-led-status", v))
         self._cm.subscribe("main-get-led-status", self._current_row.set_value)
 
