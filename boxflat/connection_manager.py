@@ -7,6 +7,10 @@ from threading import Lock
 import struct
 import time
 
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import GLib
+
 CM_RETRY_COUNT=1
 
 class MozaConnectionManager():
@@ -23,8 +27,17 @@ class MozaConnectionManager():
                 print(exc)
                 quit(1)
 
+        self._serial_lock = Lock()
+
+        self._refresh = False
         self._subscribtions = {}
         self._refresh_thread = Thread(target=self._notify)
+        self._refresh_thread.start()
+
+        self._cont_active = False
+        self._cont_subscribtions = {}
+        self._cont_thread = Thread(target=self._notify_cont)
+        self._cont_thread.start()
 
         self._write_command_buffer = {}
         self._read_command_buffer = {}
@@ -32,23 +45,21 @@ class MozaConnectionManager():
         self._read_mutex = Lock()
         self._rw_thread = Thread(target=self._rw_handler)
 
-        # self._cont_subscribtions = {}
-        # self._cont_thread = Thread(target=self._notify_cont)
-        # self._cont_enabled = False
-
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
-        self._device_discovery()
+        self.device_discovery()
 
 
     def shutdown(self) -> None:
         self._shutdown = True
 
-# TODO: add start-stop watching get commands in threads
-    def _device_discovery(self) -> None:
+
+    def device_discovery(self, *args) -> None:
+        print("\nDevice discovery...")
         path = self._serial_path
         if not os.path.exists(path):
+            print("No devices found!")
             return
 
         devices = []
@@ -60,22 +71,34 @@ class MozaConnectionManager():
         for device in devices:
             if device.lower().find("base") != -1:
                 self._serial_devices["base"] = device
+                print("Base found")
 
             elif device.lower().find("hbp") != -1:
                 self._serial_devices["handbrake"] = device
+                print("Handbrake found")
 
             elif device.lower().find("hgp") != -1:
                 self._serial_devices["hpattern"] = device
+                print("H-Pattern shifter found")
 
             elif device.lower().find("sgp") != -1:
                 self._serial_devices["sequential"] = device
+                print("Sequential shifter found")
 
             elif device.lower().find("pedals") != -1:
                 self._serial_devices["pedals"] = device
+                print("Pedals found")
 
             # TODO: Check this info somehow
+            elif device.lower().find("hub") != -1:
+                self._serial_devices["hub"] = device
+                print("Hub found")
+
             elif device.lower().find("stop") != -1:
                 self._serial_devices["estop"] = device
+                print("E-Stop found")
+
+        print("Device discovery end\n")
 
 
     def subscribe(self, command: str, callback: callable) -> None:
@@ -84,19 +107,45 @@ class MozaConnectionManager():
         self._subscribtions[command].append(callback)
 
 
-    def refresh(self) -> None:
-        while self._refresh_thread.is_alive():
-            pass
-        self._refresh_thread.start()
+    def subscribe_cont(self, command: str, callback: callable) -> None:
+        if not command in self._cont_subscribtions:
+            self._cont_subscribtions[command] = []
+        self._cont_subscribtions[command].append(callback)
+
+
+    def refresh(self, *args) -> None:
+        self._refresh = True
 
 
     def _notify(self) -> None:
-        for com in self._subscribtions.keys():
-            if self._shutdown:
-                break
-            response = self.get_setting_int(com)
-            for subscriber in self._subscribtions[com]:
-                subscriber(response)
+        while not self._shutdown:
+            if not self._refresh:
+                time.sleep(1)
+                continue
+
+            self._refresh = False
+
+            for com in self._subscribtions.keys():
+                response = self.get_setting_int(com)
+                for subscriber in self._subscribtions[com]:
+                    subscriber(response)
+
+
+    def _notify_cont(self) -> None:
+        while not self._shutdown:
+            if not self._cont_active:
+                time.sleep(1)
+                continue
+
+            time.sleep(1/100) # ^0 Hz refresh rate
+            for com in self._cont_subscribtions.keys():
+                response = self.get_setting_int(com)
+                for subscriber in self._cont_subscribtions[com]:
+                    GLib.idle_add(subscriber, response)
+
+
+    def set_cont_active(self, active: bool) -> None:
+        self._cont_active = active
 
 
     def set_rw_active(self, active: bool) -> None:
@@ -109,8 +158,9 @@ class MozaConnectionManager():
     def _rw_handler(self) -> None:
         while not self._shutdown:
             time.sleep(0.5)
-            if not self._write_mutex.acquire(True, 0.1):
-                continue
+
+            while not self._write_mutex.acquire(True, 0.1):
+                time.sleep(0.05)
 
             write_buffer = self._write_command_buffer
             self._write_command_buffer = {}
@@ -159,8 +209,11 @@ class MozaConnectionManager():
             print("No compatible device found!")
             return bytes(1)
 
+        while not self._serial_lock.acquire(True, 1):
+            time.sleep(0.01)
+
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
-            time.sleep(0.02)
+            time.sleep(0.01)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
             serial.read_all()
@@ -191,6 +244,8 @@ class MozaConnectionManager():
                 break
 
             serial.close()
+
+        self._serial_lock.release()
 
         message = bytearray()
         message.extend(cmp)

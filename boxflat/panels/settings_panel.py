@@ -1,11 +1,9 @@
-import time
-from threading import Thread
 from boxflat.widgets import *
 
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Gio, Adw
+from gi.repository import Gtk, Adw
 
 from boxflat.connection_manager import MozaConnectionManager
 

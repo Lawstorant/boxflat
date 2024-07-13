@@ -14,7 +14,7 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
         bar.set_mode(Gtk.LevelBarMode.CONTINUOUS)
         bar.set_valign(Gtk.Align.CENTER)
         bar.set_min_value(0)
-        bar.set_max_value(66000)
+        bar.set_max_value(1000)
         bar.set_value(0)
         self._bar = bar
 
@@ -36,5 +36,10 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
     def get_bar_level(self) -> int:
         return int(self._bar.get_level())
 
+
     def set_bar_width(self, width: int) -> None:
         self._bar.set_size_request(width, 0)
+
+
+    def set_bar_max(self, max: int) -> None:
+        self._bar.set_max_value(max)
