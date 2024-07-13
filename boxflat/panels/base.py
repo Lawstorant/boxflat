@@ -51,8 +51,8 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(50, 100, 150)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-speed", int(v)*10))
-        self._cm.subscribe("base-speed", lambda v: self._current_row.set_value(round(v/10)))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-speed", v))
+        self._cm.subscribe("base-speed", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Wheel Spring", suffix="%"))
         self._current_row.add_marks(50)
@@ -79,18 +79,21 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-torque", v))
         self._cm.subscribe("base-torque", self._current_row.set_value)
 
+        slider = BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000)
         self._add_row(BoxflatSwitchRow("Hands-Off Protection"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-natural-inertia-enable", v))
+        self._current_row.subscribe(slider.set_active)
         self._cm.subscribe("base-natural-inertia-enable", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000))
+        self._add_row(slider)
         self._current_row.add_marks(900, 1550, 2800, 3500)
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-natural-inertia", v))
         self._cm.subscribe("base-natural-inertia", self._current_row.set_value)
+        self._cm.subscribe("base-natural-inertia-enable", self._current_row.set_active)
 
         self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500))
         self._current_row.add_marks(150, 300)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-inertia", v*10))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-inertia", v))
         self._cm.subscribe("base-inertia", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Wheel Friction", suffix="%"))
@@ -131,7 +134,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.set_expression("*(400/9)-(400/9)+100")
         self._current_row.set_reverse_expression("/(400/9) - 2.25 + 1")
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-soft-limit-stiffness", v))
-        self._cm.subscribe("base-soft-limit-stiffness",lambda v: self._current_row.set_value)
+        self._cm.subscribe("base-soft-limit-stiffness", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Soft Limit Strength"))
         self._current_row.add_buttons("Soft", "Middle", "Hard")

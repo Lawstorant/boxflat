@@ -41,8 +41,10 @@ class WheelSettings(SettingsPanel):
 
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
         self._current_row.add_buttons("Mode 1", "Mode 2")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-display-mode", v+1))
-        # self._cm.subscribe("wheel-display-mode", lambda v: self._current_row.set_value(abs(v-1)))
+        self._current_row.set_expression("+1")
+        self._current_row.set_reverse_expression("-1")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-display-mode", v))
+        # self._cm.subscribe("wheel-display-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Timing"))
         self._current_row.add_buttons("Early", "Normal", "Late")

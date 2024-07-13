@@ -1,6 +1,5 @@
 import yaml
 import os.path
-from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
 from threading import Thread
@@ -249,6 +248,7 @@ class MozaConnectionManager():
     # If value should be float, provide bytes
     def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
         while not self._write_mutex.acquire(1):
+            time.sleep(0.001)
             pass
         self._write_command_buffer[command_name] = (value, byte_value)
         self._write_mutex.release()
