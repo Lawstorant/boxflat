@@ -14,4 +14,4 @@ class BoxflatButtonRow(BoxflatRow):
         self._button = button
 
     def get_value(self) -> int:
-        return eval("1" + self._expression)
+        return round(eval("1" + self._expression))

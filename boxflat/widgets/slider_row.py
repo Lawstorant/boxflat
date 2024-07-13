@@ -27,11 +27,10 @@ class BoxflatSliderRow(BoxflatRow):
         slider.set_valign(Gtk.Align.CENTER)
         self.add_marks(range_start, range_end)
 
-        slider.connect('value-changed',
-            lambda scale: self._slider_increment_handler())
+        slider.connect('value-changed', self._slider_increment_handler)
 
 
-    def _slider_increment_handler(self) -> None:
+    def _slider_increment_handler(self, scale) -> None:
         modulo = self.get_value() % self._increment
 
         if modulo != 0:
@@ -51,12 +50,13 @@ class BoxflatSliderRow(BoxflatRow):
 
 
     def get_value(self) -> int:
-        return int(eval("self._slider.get_value()" + self._expression))
+        return round(eval("self._slider.get_value()" + self._expression))
 
 
     def _set_value(self, value: int) -> None:
-        val = eval("value"+self._reverse_expression)
+        val = value
+        val = round(eval("val"+self._reverse_expression))
         if val < self._range_start:
             val = self._range_start
 
-        self._slider.set_value(round(val))
+        self._slider.set_value(val)

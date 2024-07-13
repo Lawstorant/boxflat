@@ -89,10 +89,11 @@ class MainWindow(Adw.ApplicationWindow):
         # TODO: Add Dash,Hub and other settings pcm._device_discovery()
 
         if self._dry_run:
+            print("Dry run")
             return
 
-        self._cm._device_discovery()
         self._cm.refresh()
+        self._cm.set_rw_active(True)
 
     def _activate_default(self) -> SettingsPanel:
         for panel in self._panels.values():

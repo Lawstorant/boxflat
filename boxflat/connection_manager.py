@@ -4,10 +4,11 @@ from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
 from threading import Thread
+from threading import Lock
 import struct
 import time
 
-CM_RETRY_COUNT=2
+CM_RETRY_COUNT=1
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
@@ -24,6 +25,12 @@ class MozaConnectionManager():
 
         self._subscribtions = {}
         self._refresh_thread = Thread(target=self._notify)
+
+        self._write_command_buffer = {}
+        self._read_command_buffer = {}
+        self._write_mutex = Lock()
+        self._read_mutex = Lock()
+        self._rw_thread = Thread(target=self._rw_handler)
 
         # self._cont_subscribtions = {}
         # self._cont_thread = Thread(target=self._notify_cont)
@@ -76,10 +83,9 @@ class MozaConnectionManager():
         self._subscribtions[command].append(callback)
 
 
-    def subscribe_cont(self, command: str, callback: callable) -> None:
-        if not command in self._cont_subscribtions:
-            self._cont_subscribtions[command] = []
-        self._cont_subscribtions[command].append(callback)
+    def refresh(self) -> None:
+        if not self._refresh_thread.is_alive():
+            self._refresh_thread.start()
 
 
     def _notify(self) -> None:
@@ -89,26 +95,26 @@ class MozaConnectionManager():
                 subscriber(response)
 
 
-    def _notify_cont(self) -> None:
-        # while True:
-        #     for com in self._cont_subscribtions.keys():
-        #         response = self.get_setting_int(com)
-        #         for subscriber in self._cont_subscribtions[com]:
-        #             GLib.idle_add(subscriber, response)
-        #     time.sleep(1)
-        pass
+    def set_rw_active(self, active: bool) -> None:
+        if active and not self._rw_thread.is_alive():
+            self._rw_thread.start()
+        elif not active and self._rw_thread.is_alive():
+            self._rw_thread.stop()
 
-    def refresh(self) -> None:
-        self._refresh_thread.start()
 
-    def refresh_cont_start(self) -> None:
-        # self._cont_enabled = True
-        # self._cont_thread.start()
-        pass
+    def _rw_handler(self) -> None:
+        while True:
+            time.sleep(0.5)
+            if not self._write_mutex.acquire(True, 0.1):
+                continue
 
-    def refresh_cont_stop(self) -> None:
-        # self._cont_enabled = False
-        pass
+            write_buffer = self._write_command_buffer
+            self._write_command_buffer = {}
+            self._write_mutex.release()
+
+            for com in write_buffer.keys():
+                self._handle_command(com, mc.MOZA_COMMAND_WRITE, write_buffer[com][0], write_buffer[com][1])
+
 
     def _calculate_checksum(self, data: bytes) -> int:
         value = self._magic_value
@@ -135,7 +141,7 @@ class MozaConnectionManager():
         return device_path
 
 
-    def send_serial_message(self, serial_path: str, message: bytes) -> bytes:
+    def send_serial_message(self, serial_path: str, message: bytes, read_response=False) -> bytes:
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
@@ -150,17 +156,20 @@ class MozaConnectionManager():
             return bytes(1)
 
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
+            time.sleep(0.02)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
+            serial.read_all()
             for i in range(CM_RETRY_COUNT):
                 serial.write(message)
+
+            if read_response == False:
+                return bytes(1)
 
             rest = bytes()
             length = None
             cmp = bytes([self._message_start])
             start = bytes(1)
-
-            time.sleep(0.01)
 
             while True:
                 while start != cmp:
@@ -170,13 +179,11 @@ class MozaConnectionManager():
                 if length != message[1]:
                     continue
 
-                group = int.from_bytes(serial.read(1))
-                if group != message[2] + 128:
-                    continue
-
                 # length + 3 because we need to read
                 # device id and checksum at the end
-                rest = serial.read(length+2)
+                rest = serial.read(length+3)
+                if rest[2] != message[4]:
+                    continue
                 break
 
             serial.close()
@@ -184,7 +191,6 @@ class MozaConnectionManager():
         message = bytearray()
         message.extend(cmp)
         message.append(length)
-        message.append(group)
         message.extend(rest)
 
         msg = ""
@@ -221,7 +227,8 @@ class MozaConnectionManager():
         message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
         # WE get a response without the checksum
-        response = self.send_serial_message(device_path, message)
+        read = rw == mc.MOZA_COMMAND_READ
+        response = self.send_serial_message(device_path, message, read)
         if response == bytes(1):
             return response
 
@@ -231,13 +238,15 @@ class MozaConnectionManager():
         # if length <= command.length+1:
         #     return bytes(1)
         length = command.length
-        print(response[-1-length:-1])
         return response[-1-length:-1]
 
     # Set a setting value on a device
     # If value should be float, provide bytes
     def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
-        self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
+        while not self._write_mutex.acquire(1):
+            pass
+        self._write_command_buffer[command_name] = (value, byte_value)
+        self._write_mutex.release()
 
     def set_setting_float(self, command_name: str, value: float) -> None:
         self.set_setting(command_name, byte_value=bytearray(struct.pack("f", value)))
@@ -250,8 +259,6 @@ class MozaConnectionManager():
         return self._handle_command(command_name, mc.MOZA_COMMAND_READ)
 
     def get_setting_int(self, command_name: str) -> int:
-        # if not "output" in command_name:
-        #     return 0
         return int.from_bytes(self.get_setting(command_name))
 
     def get_setting_list(self, command_name: str) -> list:

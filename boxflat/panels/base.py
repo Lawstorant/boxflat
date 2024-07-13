@@ -2,21 +2,16 @@ from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 
 from boxflat.widgets import *
+import time
 
 class BaseSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
-        self._protection_slider = None
         super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
         # self._settings = self._cm.get_base_settings()
 
-    def _set_soft_limit_strength(self, value) -> None:
-        if value == "Soft":
-            self._cm.set_setting("base-soft-limit-strength", 56)
-        elif value == "Middle":
-            self._cm.set_setting("base-soft-limit-strength", 78)
-        elif value == "Hard":
-            self._cm.set_setting("base-soft-limit-strength", 100)
-
+    def _set_rotation(self, value: int) -> None:
+        self._cm.set_setting("base-limit", value)
+        self._cm.set_setting("base-maximum-angle", value)
 
     def prepare_ui(self) -> None:
         self.add_view_stack()
@@ -30,9 +25,8 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(360, 540, 720, 900, 1080, 1440, 1800, 2160)
         self._current_row.set_expression("/2")
         self._current_row.set_reverse_expression("*2")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-maximum-angle", v))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("base-limit", v))
-        self._cm.subscribe("base-maximum-angle", self._current_row.set_value)
+        self._current_row.subscribe(self._set_rotation)
+        self._cm.subscribe("base-limit", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("FFB Strength", suffix="%"))
         self._current_row.add_marks(25, 50, 75)
@@ -126,32 +120,33 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_group("Misc Settings")
 
         self._add_row(BoxflatSwitchRow("Base Status Indicator"))
-        self._current_row.subtitle = "Does nothing if your base doesn't have it"
+        self._current_row.set_subtitle("Does nothing if your base doesn't have it")
+        self._current_row.set_expression("-1")
+        self._current_row.set_expression("+1")
         self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-led-status", v))
         self._cm.subscribe("main-get-led-status", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Soft Limit Stiffness", range_start=1, range_end=10))
         self._current_row.add_marks(4, 6, 8)
         self._current_row.set_expression("*(400/9)-(400/9)+100")
-        self._current_row.set_expression("/(400/9) - 2.25 + 1")
-        self._current_row.set_reverse_expression("")
+        self._current_row.set_reverse_expression("/(400/9) - 2.25 + 1")
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-soft-limit-stiffness", v))
         self._cm.subscribe("base-soft-limit-stiffness",lambda v: self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Soft Limit Strength"))
         self._current_row.add_buttons("Soft", "Middle", "Hard")
-        self._current_row.set_expression("*10")
-        self._current_row.set_reverse_expression("/10")
+        self._current_row.set_expression("*22+56")
+        self._current_row.set_reverse_expression("/22 - 2.5454")
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-soft-limit-strength", v))
         self._cm.subscribe("base-soft-limit-strength", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Soft Limit Game Force Strength"))
-        self._current_row.subtitle = "I have no idea"
+        self._current_row.set_subtitle("I have no idea")
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-soft-limit-retain", v))
         self._cm.subscribe("base-soft-limit-retain", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Temperature Control Strategy",))
-        self._current_row.subtitle = "Conservative = 50°C, Radical = 60°C"
+        self._current_row.set_subtitle("Conservative = 50°C, Radical = 60°C")
         self._current_row.add_buttons("Conservative", "Radical")
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-temp-strategy", v))
         self._cm.subscribe("base-temp-strategy", self._current_row.set_value)
