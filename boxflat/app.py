@@ -8,7 +8,10 @@ from boxflat.connection_manager import *
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self._cm = MozaConnectionManager(f"{data_path}/serial.yml", dry_run)
+        self.connect('close-request', lambda w: self._cm.shutdown())
+
         self._panels = {}
         self._dry_run = dry_run
 

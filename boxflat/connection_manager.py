@@ -15,6 +15,7 @@ class MozaConnectionManager():
         self._serial_data = None
         self._dry_run = dry_run
         self._serial_devices = {}
+        self._shutdown = False
 
         with open(serial_data_path) as stream:
             try:
@@ -41,8 +42,9 @@ class MozaConnectionManager():
         self._serial_path = "/dev/serial/by-id"
         self._device_discovery()
 
-    def __del__(self):
-        self._refresh_thread.stop()
+
+    def shutdown(self) -> None:
+        self._shutdown = True
 
 # TODO: add start-stop watching get commands in threads
     def _device_discovery(self) -> None:
@@ -84,12 +86,15 @@ class MozaConnectionManager():
 
 
     def refresh(self) -> None:
-        if not self._refresh_thread.is_alive():
-            self._refresh_thread.start()
+        while self._refresh_thread.is_alive():
+            pass
+        self._refresh_thread.start()
 
 
     def _notify(self) -> None:
         for com in self._subscribtions.keys():
+            if self._shutdown:
+                break
             response = self.get_setting_int(com)
             for subscriber in self._subscribtions[com]:
                 subscriber(response)
@@ -103,7 +108,7 @@ class MozaConnectionManager():
 
 
     def _rw_handler(self) -> None:
-        while True:
+        while not self._shutdown:
             time.sleep(0.5)
             if not self._write_mutex.acquire(True, 0.1):
                 continue
