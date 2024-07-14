@@ -1,6 +1,6 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
-import time
+from boxflat.widgets import *
 
 class HandbrakeSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
@@ -8,70 +8,41 @@ class HandbrakeSettings(SettingsPanel):
         self._calibration_button = None
         super(HandbrakeSettings, self).__init__("Handbrake", button_callback, connection_manager)
 
+
     def prepare_ui(self) -> None:
-        self.add_preferences_page()
-        self.add_preferences_group("Handbrake settings")
-        self.add_switch_row("Reverse Direction", callback=self._set_direction)
-        self.add_toggle_button_row("Handbrake Mode", ["Axis", "Button"], callback=self._set_mode)
-        self._threshold_active = self.add_slider_row(
-            "Button threshold",
-            0,
-            100,
-            50,
-            marks=[25, 50, 75],
-            mark_suffix=" %",
-            callback=self._set_button_threshold,
-            subtitle="Doesn't work for some reason"
-        )
-        self.add_slider_row(
-            "Handbrake Range Start",
-            0,
-            100,
-            0,
-            marks=[25, 50, 75],
-            mark_suffix=" %",
-            callback=lambda value: self._set_range("start", value)
-        )
-        self.add_slider_row(
-            "Handbrake Range End",
-            0,
-            100,
-            100,
-            marks=[25, 50, 75],
-            mark_suffix=" %",
-            callback=lambda value: self._set_range("end", value)
-        )
+        self.add_preferences_group("Handbrake settings", level_bar=1)
+        self._current_group.set_bar_max(65535)
+        self._cm.subscribe_cont("handbrake-output", self._current_group.set_bar_level)
+
+        self._add_row(BoxflatSwitchRow("Reverse Direction"))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-direction", v))
+        self._cm.subscribe("handbrake-direction", self._current_row.set_value)
+
+        row = BoxflatSliderRow("Button threshold", suffix="%")
+
+        self._add_row(BoxflatToggleButtonRow("Handbrake Mode"))
+        self._current_row.add_buttons("Axis", "Button")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-mode", v))
+        self._current_row.subscribe(row.set_active)
+        self._cm.subscribe("handbrake-mode", self._current_row.set_value)
+
+        self._add_row(row)
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-button-threshold", v))
+        self._cm.subscribe("handbrake-mode", self._current_row.set_active)
+        self._cm.subscribe("handbrake-button-threshold", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Handbrake Range Start", suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-range-start", v))
+        self._cm.subscribe("handbrake-range-start", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Handbrake Range End", suffix="%", value=100))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-range-end", v))
+        self._cm.subscribe("handbrake-range-end", self._current_row.set_value)
 
         self.add_preferences_group("Calibration")
-        self.add_calibration_button_row("Device Calibration", "Calibrate",
-            callback1=self._set_calibration_start, callback2=self._set_calibration_stop)
+        self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Fix device range"))
+        self._current_row.subscribe(lambda v: self._cm.set_setting(f"handbrake-{v}-calibration", 1))
 
-
-    def _set_direction(self, value: int) -> None:
-        if value != None:
-            self._cm.set_setting("handbrake-direction", value)
-
-
-    def _set_mode(self, label: str) -> None:
-        if label == "Axis":
-            self._cm.set_setting("handbrake-mode", 0)
-            self._threshold_active(False)
-        elif label == "Button":
-            self._cm.set_setting("handbrake-mode", 1)
-            self._threshold_active(True)
-
-
-    def _set_button_threshold(self, value: int) -> None:
-        if value != None:
-            self._cm.set_setting("handbrake-button-threshold", value)
-
-
-    def _set_range(self, position: str, value: int) -> None:
-        self._cm.set_setting(f"handbrake-range-{position}", value)
-
-
-    def _set_calibration_start(self) -> None:
-        self._cm.set_setting(f"handbrake-start-calibration")
-
-    def _set_calibration_stop(self) -> None:
-        self._cm.set_setting(f"handbrake-stop-calibration")

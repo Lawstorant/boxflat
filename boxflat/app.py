@@ -2,11 +2,19 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gdk, Adw
-import boxflat.panels as panels
+from boxflat.panels import *
+from boxflat.connection_manager import *
 
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self._cm = MozaConnectionManager(f"{data_path}/serial.yml", dry_run)
+        self.connect('close-request', lambda w: self._cm.shutdown())
+
+        self._panels = {}
+        self._dry_run = dry_run
+
         self.set_default_size(850, 700)
         self.set_title("Boxflat")
 
@@ -45,12 +53,13 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_content(navigation)
         self.navigation = navigation
         self.settings_box = content_box2
-        panels.prepare_panels(self.switch_panel, data_path, dry_run)
 
-        for button in panels.buttons():
+        self._prepare_settings()
+
+        for button in self._panel_buttons():
             box2.append(button)
 
-        self.settings_box.append(panels.activate_default().content)
+        self.settings_box.append(self._activate_default().content)
         content.set_title("Home")
 
 
@@ -59,15 +68,49 @@ class MainWindow(Adw.ApplicationWindow):
         old_title = self.navigation.get_content().get_title()
         box = self.settings_box
 
-        panels.panels()[old_title].deactivate_button()
+        self._panels[old_title].deactivate_button()
         self.set_content_title(new_title)
 
         box.remove(Gtk.Widget.get_first_child(box))
-        box.append(panels.panels()[new_title].content)
+        box.append(self._panels[new_title].content)
 
 
     def set_content_title(self, title: str) -> None:
         self.navigation.get_content().set_title(title)
+
+
+    def _prepare_settings(self) -> None:
+        self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run)
+        self._panels["Base"] = BaseSettings(self.switch_panel, self._cm)
+        self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm)
+        self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm)
+        self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm)
+        self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
+        self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm)
+        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm)
+
+        # TODO: Add Dash,Hub and other settings pcm._device_discovery()
+
+        if self._dry_run:
+            print("Dry run")
+            return
+
+        self._cm.refresh()
+        self._cm.set_rw_active(True)
+
+    def _activate_default(self) -> SettingsPanel:
+        for panel in self._panels.values():
+            panel.button.set_active(False)
+
+        self._panels["Home"].button.set_active(True)
+        return self._panels["Home"]
+
+    def _panel_buttons(self) -> list:
+        buttons = []
+        for panel in self._panels.values():
+            buttons.append(panel.button)
+
+        return buttons
 
 
 class MyApp(Adw.Application):

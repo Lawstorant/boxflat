@@ -1,38 +1,77 @@
 import yaml
 import os.path
-from os import listdir
 import boxflat.moza_command as mc
 from serial import Serial
+from threading import Thread
+from threading import Lock
+import struct
 import time
 
-CM_RETRY_COUNT=2
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import GLib
+
+CM_RETRY_COUNT=1
 
 class MozaConnectionManager():
     def __init__(self, serial_data_path: str, dry_run=False):
         self._serial_data = None
         self._dry_run = dry_run
+        self._shutdown = False
+
         self._serial_devices = {}
+        self._devices_lock = Lock()
 
         with open(serial_data_path) as stream:
             try:
                 self._serial_data = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 print(exc)
+                self._shutdown = True
                 quit(1)
 
-        self._recipents = []
+        self._serial_lock = Lock()
+
+        self._refresh = False
+        self._subscribtions = {}
+        self._refresh_thread = Thread(target=self._notify)
+        self._refresh_thread.start()
+
+        self._cont_active = False
+        self._cont_subscribtions = {}
+        self._cont_thread = Thread(target=self._notify_cont)
+        self._cont_thread.start()
+
+        self._write_command_buffer = {}
+        self._read_command_buffer = {}
+        self._write_mutex = Lock()
+        self._read_mutex = Lock()
+        self._rw_thread = Thread(target=self._rw_handler)
+
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
+        self.device_discovery()
 
-# TODO: add notifications about parameters?
-# TODO: add start-stop watching get commands in threads
-    def _device_discovery(self, path: str) -> None:
+
+    def shutdown(self) -> None:
+        self._shutdown = True
+
+
+    def device_discovery(self, *args) -> None:
+        print("\nDevice discovery...")
+        path = self._serial_path
+
+        self._devices_lock.acquire()
+        self._serial_devices = {}
+
         if not os.path.exists(path):
+            print("No devices found!")
+            self._devices_lock.release()
             return
 
+
         devices = []
-        self._serial_devices = {}
         for device in os.listdir(path):
             if device.find("Gudsen_MOZA"):
                 devices.append(os.path.join(path, device))
@@ -40,34 +79,105 @@ class MozaConnectionManager():
         for device in devices:
             if device.lower().find("base") != -1:
                 self._serial_devices["base"] = device
+                print("Base found")
 
             elif device.lower().find("hbp") != -1:
                 self._serial_devices["handbrake"] = device
+                print("Handbrake found")
 
             elif device.lower().find("hgp") != -1:
                 self._serial_devices["hpattern"] = device
+                print("H-Pattern shifter found")
 
             elif device.lower().find("sgp") != -1:
                 self._serial_devices["sequential"] = device
+                print("Sequential shifter found")
 
             elif device.lower().find("pedals") != -1:
                 self._serial_devices["pedals"] = device
+                print("Pedals found")
 
             # TODO: Check this info somehow
+            elif device.lower().find("hub") != -1:
+                self._serial_devices["hub"] = device
+                print("Hub found")
+
             elif device.lower().find("stop") != -1:
                 self._serial_devices["estop"] = device
+                print("E-Stop found")
+
+        self._devices_lock.release()
+        print("Device discovery end\n")
 
 
-    def subscribe(self, callback: callable) -> None:
-        self._recipents.append(callback)
+    def subscribe(self, command: str, callback: callable) -> None:
+        if not command in self._subscribtions:
+            self._subscribtions[command] = []
+        self._subscribtions[command].append(callback)
 
 
-    def notify(self) -> None:
-        for recipent in self._recipents:
-            pass
+    def subscribe_cont(self, command: str, callback: callable) -> None:
+        if not command in self._cont_subscribtions:
+            self._cont_subscribtions[command] = []
+        self._cont_subscribtions[command].append(callback)
 
 
-    def _calculate_security_byte(self, data: bytes) -> int:
+    def refresh(self, *args) -> None:
+        self._refresh = True
+
+
+    def _notify(self) -> None:
+        while not self._shutdown:
+            if not self._refresh:
+                time.sleep(1)
+                continue
+
+            self._refresh = False
+
+            for com in self._subscribtions.keys():
+                response = self.get_setting_int(com)
+                for subscriber in self._subscribtions[com]:
+                    subscriber(response)
+
+
+    def _notify_cont(self) -> None:
+        while not self._shutdown:
+            if not self._cont_active:
+                time.sleep(1)
+                continue
+
+            time.sleep(1/30) # 30 Hz refresh rate
+            for com in self._cont_subscribtions.keys():
+                response = self.get_setting_int(com)
+                for subscriber in self._cont_subscribtions[com]:
+                    GLib.idle_add(subscriber, response)
+
+
+    def set_cont_active(self, active: bool) -> None:
+        self._cont_active = active
+
+
+    def set_rw_active(self, active: bool) -> None:
+        if active and not self._rw_thread.is_alive():
+            self._rw_thread.start()
+        elif not active and self._rw_thread.is_alive():
+            self._rw_thread.stop()
+
+
+    def _rw_handler(self) -> None:
+        while not self._shutdown:
+            time.sleep(0.5)
+
+            self._write_mutex.acquire()
+            write_buffer = self._write_command_buffer
+            self._write_command_buffer = {}
+            self._write_mutex.release()
+
+            for com in write_buffer.keys():
+                self._handle_command(com, mc.MOZA_COMMAND_WRITE, write_buffer[com][0], write_buffer[com][1])
+
+
+    def _calculate_checksum(self, data: bytes) -> int:
         value = self._magic_value
         for d in data:
             value += int(d)
@@ -76,42 +186,90 @@ class MozaConnectionManager():
 
     def _get_device_id(self, device_type: str) -> int:
         id = int(self._serial_data["device-ids"][device_type])
-        if device_type in self._serial_devices:
+        if device_type != "base" and device_type in self._serial_devices:
             id = int(self._serial_data["device-ids"]["main"])
         return id
 
 
     def _get_device_path(self, device_type: str) -> str:
         device_path = None
+
+        self._devices_lock.acquire()
+
         if device_type in self._serial_devices:
             device_path = self._serial_devices[device_type]
 
         elif "base" in self._serial_devices and device_type != "hub":
             device_path = self._serial_devices["base"]
 
+        self._devices_lock.release()
+
         return device_path
 
 
-    def send_serial_message(self, serial_path: str, message: bytes) -> bytes:
+    def send_serial_message(self, serial_path: str, message: bytes, read_response=False) -> bytes:
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
         print(f"\nDevice: {serial_path}")
-        print(f"Sending: {msg}")
+        print(f"Sending:  {msg}")
 
         if self._dry_run:
-            return
+            return bytes(1)
 
         if serial_path == None:
             print("No compatible device found!")
-            return
+            return bytes(1)
 
-        with Serial(serial_path, baudrate=115200, timeout=1) as serial:
-            serial.reset_output_buffer()
-            serial.reset_input_buffer()
+        rest = bytes()
+        length = 0
+        cmp = bytes([self._message_start])
+        start = bytes(1)
+
+        self._serial_lock.acquire()
+        try:
+            serial = Serial(serial_path, baudrate=115200, timeout=0.2)
+        except TypeError as error:
+            print("Error opening device!")
+            return bytes(0)
+
+        time.sleep(0.005)
+        serial.reset_output_buffer()
+        serial.reset_input_buffer()
+        for i in range(CM_RETRY_COUNT):
             serial.write(message)
-            message = serial.read(len(message))
-            serial.close()
+
+        start_time = time.time()
+        while read_response:
+            if time.time() - start_time > 0.4:
+                read_response = False
+                break
+
+            start = serial.read(1)
+            if start != cmp:
+                continue
+
+            length = int.from_bytes(serial.read(1))
+            if length != message[1]:
+                continue
+
+            # length + 3 because we need to read
+            # device id and checksum at the end
+            rest = serial.read(length+3)
+            if rest[2] != message[4]:
+                continue
+            break
+
+        serial.close()
+        self._serial_lock.release()
+
+        if read_response == False:
+            return bytes(1)
+
+        message = bytearray()
+        message.extend(cmp)
+        message.append(length)
+        message.extend(rest)
 
         msg = ""
         for b in message:
@@ -127,37 +285,45 @@ class MozaConnectionManager():
 
         if command.length == -1 or command.id == -1:
             print("Command undiscovered")
-            return
+            return bytes(1)
 
         if rw == mc.MOZA_COMMAND_READ and command.read_group == -1:
             print("Command doesn't support READ access")
-            return
+            return bytes(1)
 
         if rw == mc.MOZA_COMMAND_WRITE and command.write_group == -1:
             print("Command doesn't support WRITE access")
-            return
+            return bytes(1)
 
         if byte_value != None:
             command.set_payload_bytes(byte_value)
         else:
             command.payload = value
 
-        self._device_discovery(self._serial_path)
-
         device_id = self._get_device_id(command.device_type)
         device_path = self._get_device_path(command.device_type)
+        message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
-        response = self.send_serial_message(device_path,
-            command.prepare_message(self._message_start, device_id, rw, self._calculate_security_byte))
+        # WE get a response without the checksum
+        read = rw == mc.MOZA_COMMAND_READ
+        response = self.send_serial_message(device_path, message, read)
+        if response == bytes(1):
+            return response
 
-        return response[(-1-command.length):-1]
+        # check if length is 2 or lower because we need the
+        # device id in the response, not just the value
+        # length = response[1]
+        # if length <= command.length+1:
+        #     return bytes(1)
+        length = command.length
+        return response[-1-length:-1]
 
     # Set a setting value on a device
     # If value should be float, provide bytes
-    def set_setting(self, command_name: str, value=0, byte_value=None) -> None:
-        if value == None:
-            return
-        self._handle_command(command_name, mc.MOZA_COMMAND_WRITE, value, byte_value)
+    def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
+        self._write_mutex.acquire()
+        self._write_command_buffer[command_name] = (value, byte_value)
+        self._write_mutex.release()
 
     def set_setting_float(self, command_name: str, value: float) -> None:
         self.set_setting(command_name, byte_value=bytearray(struct.pack("f", value)))

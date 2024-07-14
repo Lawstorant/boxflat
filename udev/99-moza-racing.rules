@@ -1,0 +1,4 @@
+# Add uaccess tag to every Moza (Gudsen) ttyACM device so a user can easily access it
+# without being added to the uucp group. This in turn will make it so EVERY user
+# can access these devices
+SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{idVendor}=="346e", ACTION=="add", MODE="0666"
