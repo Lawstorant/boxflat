@@ -22,9 +22,7 @@ Now with more read/write action!
 | Other settings | 0%          | Bluetooth switch, FH5 compat mode |
 
 ### WiP
-- udev rules for serial ports
 - Brake calibration warning dialog
-- Showing base/pedal/handbrake output
 - Showing only settings that are relevant to connected hardware
 
 ### Firmware upgrades

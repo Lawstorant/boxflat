@@ -38,7 +38,20 @@ Checksum is the reminder of sum of the bytes divided by 0x100 (mod 256)
 ChecksumByte8mod256
 
 This sum includes the USB device serial endpoint (always 0x02), type (URB_BULK -> 0x03) and probably
-the whole message lenght (typically 0x08). I still need to do some more tests with longer payloads
+the whole message lenght (typically 0x08), although this could be a bug in Moza Firmware, as even with longer messages, changing this last part of the "magic value" causes devies to not respond.
+
+**Magic value = 13 (0x0d)**
+
+### Responses
+From what I gather, Moza devices always respond to a read/write request in a manner that mirrors said request. Start is the same, lenght is the same.
+
+**Reqeust group** in response has `0x80` added, so when reading a reqest group `0x21` we should expect a response group of `0xa1`.
+
+**Device id** has it's byte halves swapped. When reading/writing to device `0x13 (base)`, response will contain device `0x31` and so on.
+
+The rest of the response contains the same data as WRITE request OR currently stored values in case of READ request.
+
+Checksum calculation is the same, and we still need to
 
 ### Devices and commands
 The list of device ids and command data can be found in the [serial.yml](./data/serial.yml) file.

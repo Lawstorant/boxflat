@@ -57,6 +57,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-display-mode", v))
         # self._cm.subscribe("wheel-display-mode", self._current_row.set_value)
+        # This doesn't seem to work when reading from R9v2 and RSv2
 
         index = -1
         # timings = self._cm.get_setting_list("wheel-indicator-timings")
