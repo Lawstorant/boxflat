@@ -60,15 +60,17 @@ class MozaConnectionManager():
     def device_discovery(self, *args) -> None:
         print("\nDevice discovery...")
         path = self._serial_path
+
+        self._devices_lock.acquire()
+        self._serial_devices = {}
+
         if not os.path.exists(path):
             print("No devices found!")
+            self._devices_lock.release()
             return
 
-        while not self._devices_lock.acquire(True):
-            time.sleep(0.1)
 
         devices = []
-        self._serial_devices = {}
         for device in os.listdir(path):
             if device.find("Gudsen_MOZA"):
                 devices.append(os.path.join(path, device))
@@ -165,9 +167,7 @@ class MozaConnectionManager():
         while not self._shutdown:
             time.sleep(0.5)
 
-            while not self._write_mutex.acquire(True, 0.1):
-                time.sleep(0.05)
-
+            self._write_mutex.acquire()
             write_buffer = self._write_command_buffer
             self._write_command_buffer = {}
             self._write_mutex.release()
@@ -185,7 +185,7 @@ class MozaConnectionManager():
 
     def _get_device_id(self, device_type: str) -> int:
         id = int(self._serial_data["device-ids"][device_type])
-        if device_type in self._serial_devices:
+        if device_type != "base" and device_type in self._serial_devices:
             id = int(self._serial_data["device-ids"]["main"])
         return id
 
@@ -193,8 +193,7 @@ class MozaConnectionManager():
     def _get_device_path(self, device_type: str) -> str:
         device_path = None
 
-        while not self._devices_lock.acquire(True):
-            time.sleep(0.005)
+        self._devices_lock.acquire()
 
         if device_type in self._serial_devices:
             device_path = self._serial_devices[device_type]
@@ -226,9 +225,7 @@ class MozaConnectionManager():
         cmp = bytes([self._message_start])
         start = bytes(1)
 
-        while not self._serial_lock.acquire(True):
-            time.sleep(0.1)
-
+        self._serial_lock.acquire()
         with Serial(serial_path, baudrate=115200, timeout=1) as serial:
             time.sleep(0.005)
             serial.reset_output_buffer()
@@ -250,8 +247,8 @@ class MozaConnectionManager():
                 if rest[2] != message[4]:
                     continue
                 break
-
             serial.close()
+
         self._serial_lock.release()
 
         if read_response == False:
@@ -312,9 +309,7 @@ class MozaConnectionManager():
     # Set a setting value on a device
     # If value should be float, provide bytes
     def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
-        while not self._write_mutex.acquire(1):
-            time.sleep(0.001)
-            pass
+        self._write_mutex.acquire()
         self._write_command_buffer[command_name] = (value, byte_value)
         self._write_mutex.release()
 
