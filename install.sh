@@ -19,7 +19,7 @@ cp entrypoint.py "/usr/share/boxflat/"
 
 cp --preserve=mode "boxflat.sh" "/usr/bin/boxflat"
 cp boxflat.desktop "/usr/share/applications/"
-cp 99-moza-racing.rules "/etc/udev/rules.d/"
+cp udev/99-moza-racing.rules "/etc/udev/rules.d/"
 
 # refresh udev so the rules take effect immadietely
 udevadm control --reload
