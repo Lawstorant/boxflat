@@ -51,7 +51,7 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-indicator-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
-        self._current_row.set_subtitle("Not read from the wheel")
+        self._current_row.set_subtitle("Not read currently")
         self._current_row.add_buttons("Mode 1", "Mode 2")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
@@ -66,6 +66,7 @@ class WheelSettings(SettingsPanel):
 
         self._timing_row = BoxflatToggleButtonRow("RPM Indicator Timing")
         self._add_row(self._timing_row)
+        self._current_row.set_subtitle("Not read currently")
         self._current_row.add_buttons("Early", "Normal", "Late")
         self._current_row.set_value(index)
         self._current_row.subscribe(self._set_indicator_timings)
