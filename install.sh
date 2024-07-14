@@ -1,25 +1,28 @@
 #! /usr/bin/env bash
 
 PREFIX=""
+if [[ $1 == "add-prefix" ]]; then
+    PREFIX="$2"
+fi
 
 # uninstall boxflat
-if [[ $1 == "remove" ]]; then
-    rm "/usr/share/applications/boxflat.desktop"
-    rm "/usr/bin/boxflat"
-    rm -rf "/usr/share/boxflat"
-    rm /etc/udev/rules.d/99-moza-racing.rules
+if [[ $1 == "remove" || $3 == "remove" ]]; then
+    rm "$PREFIX/usr/share/applications/boxflat.desktop"
+    rm "$PREFIX/usr/bin/boxflat"
+    rm -rf "$PREFIX/usr/share/boxflat"
+    rm "$PREFIX/etc/udev/rules.d/99-moza-racing.rules"
     exit 0
 fi
 
-mkdir -p "/usr/share/boxflat"
-cp -r ./boxflat "/usr/share/boxflat/"
-cp -r ./data "/usr/share/boxflat/"
-cp -r ./udev "/usr/share/boxflat/"
-cp entrypoint.py "/usr/share/boxflat/"
+mkdir -p "$PREFIX/usr/share/boxflat"
+cp -r ./boxflat "$PREFIX/usr/share/boxflat/"
+cp -r ./data "$PREFIX/usr/share/boxflat/"
+cp -r ./udev "$PREFIX/usr/share/boxflat/"
+cp entrypoint.py "$PREFIX/usr/share/boxflat/"
 
-cp --preserve=mode "boxflat.sh" "/usr/bin/boxflat"
-cp boxflat.desktop "/usr/share/applications/"
-cp udev/99-moza-racing.rules "/etc/udev/rules.d/"
+cp --preserve=mode "boxflat.sh" "$PREFIX/usr/bin/boxflat"
+cp boxflat.desktop "$PREFIX/usr/share/applications/"
+cp udev/99-moza-racing.rules "$PREFIX/etc/udev/rules.d/"
 
 # refresh udev so the rules take effect immadietely
 udevadm control --reload
