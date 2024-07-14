@@ -23,4 +23,4 @@ cp udev/99-moza-racing.rules "/etc/udev/rules.d/"
 
 # refresh udev so the rules take effect immadietely
 udevadm control --reload
-udevadm trigger --match-attr=subsystem=tty
+udevadm trigger --attr-match=subsystem=tty
