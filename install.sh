@@ -25,5 +25,9 @@ cp boxflat.desktop "$PREFIX/usr/share/applications/"
 cp udev/99-moza-racing.rules "$PREFIX/etc/udev/rules.d/"
 
 # refresh udev so the rules take effect immadietely
+if [[ $1 == "no-udev" || $3 == "no-udev" ]]; then
+    exit 0
+fi
+
 udevadm control --reload
 udevadm trigger --attr-match=subsystem=tty
