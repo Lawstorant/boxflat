@@ -4,18 +4,19 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gdk, Adw
 from boxflat.panels import *
 from boxflat.connection_manager import *
+import os
 
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._cm = MozaConnectionManager(f"{data_path}/serial.yml", dry_run)
+        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self.connect('close-request', lambda w: self._cm.shutdown())
 
         self._panels = {}
         self._dry_run = dry_run
 
-        self.set_default_size(850, 700)
+        self.set_default_size(850, 800)
         self.set_title("Boxflat")
 
         left_header = Adw.HeaderBar()
@@ -89,6 +90,10 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm)
         self._panels["Other"] = OtherSettings(self.switch_panel, self._cm)
 
+        self._panels["Other"].subscribe_brake_calibration(
+            self._panels["Pedals"].set_brake_calibration_active
+        )
+
         # TODO: Add Dash,Hub and other settings pcm._device_discovery()
 
         if self._dry_run:
@@ -114,11 +119,12 @@ class MainWindow(Adw.ApplicationWindow):
 
 
 class MyApp(Adw.Application):
-    def __init__(self, data_path: str, dry_run: bool, **kwargs):
+    def __init__(self, data_path: str, dry_run: bool, resizable: bool, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
         self._data_path = data_path
         self._dry_run = dry_run
+        self._resizable = resizable
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -126,4 +132,5 @@ class MyApp(Adw.Application):
 
     def on_activate(self, app):
         self.win = MainWindow(self._data_path, self._dry_run, application=app)
+        self.win.set_resizable(self._resizable)
         self.win.present()

@@ -6,4 +6,4 @@ from .pedals import *
 from .h_pattern import *
 from .sequential import *
 from .handbrake import *
-from .rest import *
+from .others import *

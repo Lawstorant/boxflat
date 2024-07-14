@@ -7,7 +7,6 @@ import time
 class BaseSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
-        # self._settings = self._cm.get_base_settings()
 
     def _set_rotation(self, value: int) -> None:
         self._cm.set_setting("base-limit", value)
@@ -35,6 +34,10 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-ffb-strength", v))
         self._cm.subscribe("base-ffb-strength", self._current_row.set_value)
 
+        # self._add_row(BoxflatSwitchRow("Force Feedback Enabled"))
+        # self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-ffb-status", v))
+        # self._cm.subscribe("main-get-ffb-status", self._current_row.set_value)
+
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-calibration", 1))
 
@@ -61,12 +64,12 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-spring", v))
         self._cm.subscribe("base-spring", self._current_row.set_value)
 
-        # self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
-        # self._current_row.add_marks(10, 25, 50)
-        # self._current_row.set_expression("*10")
-        # self._current_row.set_reverse_expression("/10")
-        # self._current_row.subscribe(lambda v: self._cm.set_setting("base-damper", v))
-        # self._cm.subscribe("base-damper", self._current_row.set_value)
+        self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
+        self._current_row.add_marks(10, 25, 50)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("base-damper", v))
+        self._cm.subscribe("base-damper", self._current_row.set_value)
 
         # Advenced settings
         self.add_preferences_group("Advenced Settings")
@@ -122,12 +125,10 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_page("Misc", "preferences-other-symbolic")
         self.add_preferences_group("Misc Settings")
 
-        self._add_row(BoxflatSwitchRow("Base Status Indicator"))
-        self._current_row.set_subtitle("Does nothing if your base doesn't have it")
-        self._current_row.set_expression("-1")
-        self._current_row.set_reverse_expression("+1")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-led-status", v))
-        self._cm.subscribe("main-get-led-status", self._current_row.set_value)
+        # self._add_row(BoxflatSwitchRow("Base Status Indicator"))
+        # self._current_row.set_subtitle("Does nothing if your base doesn't have it")
+        # self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-led-status", v))
+        # self._cm.subscribe("main-get-led-status", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Soft Limit Stiffness", range_start=1, range_end=10))
         self._current_row.add_marks(4, 6, 8)

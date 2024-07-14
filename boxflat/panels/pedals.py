@@ -4,7 +4,13 @@ from boxflat.widgets import *
 
 class PedalsSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+        self._brake_calibration_row = None
         super(PedalsSettings, self).__init__("Pedals", button_callback, connection_manager)
+
+
+    def set_brake_calibration_active(self, active: bool):
+        self._brake_calibration_row.set_active(active)
+
 
     def prepare_ui(self) -> None:
         # Throttle
@@ -54,8 +60,10 @@ class PedalsSettings(SettingsPanel):
         # self._current_row.subscribe(lambda v: self._cm.set_float_setting("pedals-brake-max-force", v))
         # self._cm.subscribe("pedals-brake-max-force", self._current_row.set_value)
 
-        # self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
-        # self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-brake-{v}-calibration", 1))
+        self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Set range")
+        self._add_row(self._brake_calibration_row)
+        self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-brake-{v}-calibration", 1))
+        self._current_row.set_active(False)
 
         # Clutch
         self.add_preferences_group("Clutch settings", level_bar=1)

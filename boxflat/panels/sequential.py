@@ -14,7 +14,7 @@ class SequentialSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-direction", v))
         self._cm.subscribe("sequential-direction", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Why would you do that?"))
+        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization"))
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-paddle-sync", v))

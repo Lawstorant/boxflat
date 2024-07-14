@@ -1,6 +1,7 @@
 # boxflat
-Boxflat for Moza Racing. Control your Moza wheelbase settings!
-Now with more read/write action!
+Boxflat for Moza Racing. Control your Moza gear settings!
+
+Now with more **read/write** action!
 ![Base panel](./screens/base.png)
 
 #### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by [@JacKeTUs](https://github.com/JacKeTUs)
@@ -10,7 +11,7 @@ Now with more read/write action!
 
 | Device         | Completness | WIP |
 | :------------: | :--:        | :-  |
-| Home page      | 0%          | Base and pedals output, Quick settings |
+| Home page      | 0%          | Quick settings |
 | Base           | 80%         | Equalizer, FFB Curve |
 | Wheel          | 50%         | RPM colors, anything not present on RSv2 |
 | Pedals         | 90%         | Output curves |
@@ -22,7 +23,7 @@ Now with more read/write action!
 | Other settings | 0%          | Bluetooth switch, FH5 compat mode |
 
 ### WiP
-- Brake calibration warning dialog
+- Rotation output
 - Showing only settings that are relevant to connected hardware
 
 ### Firmware upgrades

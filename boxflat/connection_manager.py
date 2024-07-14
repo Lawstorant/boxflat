@@ -79,6 +79,7 @@ class MozaConnectionManager():
         for device in devices:
             if device.lower().find("base") != -1:
                 self._serial_devices["base"] = device
+                self._serial_devices["main"] = device
                 print("Base found")
 
             elif device.lower().find("hbp") != -1:
@@ -228,20 +229,21 @@ class MozaConnectionManager():
 
         self._serial_lock.acquire()
         try:
-            serial = Serial(serial_path, baudrate=115200, timeout=0.2)
+            serial = Serial(serial_path, baudrate=115200, timeout=0.3)
         except TypeError as error:
             print("Error opening device!")
             return bytes(0)
 
-        time.sleep(0.005)
+        time.sleep(1/200)
         serial.reset_output_buffer()
         serial.reset_input_buffer()
         for i in range(CM_RETRY_COUNT):
             serial.write(message)
 
+        # read_response = True # For teesting writes
         start_time = time.time()
         while read_response:
-            if time.time() - start_time > 0.4:
+            if time.time() - start_time > 0.5:
                 read_response = False
                 break
 
