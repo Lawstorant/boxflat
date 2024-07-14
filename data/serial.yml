@@ -672,10 +672,17 @@ commands:
     bytes: 2
     type: int
 
-  wheel-display-mode:
-    read: 64
+  wheel-set-display-mode:
+    read: -1
     write: 63
     id: 7
+    bytes: 1
+    type: int
+
+  wheel-get-display-mode:
+    read: 64
+    write: -1
+    id: 8
     bytes: 1
     type: int
 

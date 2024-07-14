@@ -9,6 +9,7 @@ class MozaCommand():
         self.length = int(commands_data[name]["bytes"])
         self._payload = bytes(self.length)
         self._device_type = name.split("-")[0]
+        self._type = commands_data[name]["type"]
 
     @property
     def payload(self) -> bytes:

@@ -24,8 +24,8 @@ class BoxflatRow(Adw.ActionRow):
         self.set_sensitive(bool(value))
 
 
-    def mute(self) -> None:
-        self._mute = True
+    def mute(self, value: bool=True) -> None:
+        self._mute = value
 
 
     def unmute(self) -> None:
@@ -36,8 +36,8 @@ class BoxflatRow(Adw.ActionRow):
         return 0
 
 
-    def set_value(self, value) -> None:
-        self.mute()
+    def set_value(self, value, mute: bool=True) -> None:
+        self.mute(mute)
         self._set_value(value)
         self.unmute()
 

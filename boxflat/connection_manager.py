@@ -1,6 +1,6 @@
 import yaml
 import os.path
-import boxflat.moza_command as mc
+from .moza_command import *
 from serial import Serial
 from threading import Thread
 from threading import Lock
@@ -33,6 +33,7 @@ class MozaConnectionManager():
         self._serial_lock = Lock()
 
         self._refresh = False
+        self._refresh_cont = False
         self._subscribtions = {}
         self._refresh_thread = Thread(target=self._notify)
         self._refresh_thread.start()
@@ -127,18 +128,32 @@ class MozaConnectionManager():
         self._refresh = True
 
 
+    def refresh_cont(self, active: bool) -> None:
+        self._refresh_cont = active
+        self._refresh = active
+
+
     def _notify(self) -> None:
+        response = 0
         while not self._shutdown:
             if not self._refresh:
                 time.sleep(1)
                 continue
 
-            self._refresh = False
+            if not self._refresh_cont:
+                self._refresh = False
 
             for com in self._subscribtions.keys():
-                response = self.get_setting_int(com)
+                if self._serial_data["commands"][com]["type"] == "array":
+                    response = self.get_setting_list(com)
+                else:
+                    response = self.get_setting_int(com)
+
                 for subscriber in self._subscribtions[com]:
                     subscriber(response)
+
+            if self._refresh_cont:
+                time.sleep(5)
 
 
     def _notify_cont(self) -> None:
@@ -175,7 +190,7 @@ class MozaConnectionManager():
             self._write_mutex.release()
 
             for com in write_buffer.keys():
-                self._handle_command(com, mc.MOZA_COMMAND_WRITE, write_buffer[com][0], write_buffer[com][1])
+                self._handle_command(com, MOZA_COMMAND_WRITE, write_buffer[com][0], write_buffer[com][1])
 
 
     def _calculate_checksum(self, data: bytes) -> int:
@@ -283,17 +298,17 @@ class MozaConnectionManager():
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=1, byte_value: bytes=None) -> bytes:
-        command = mc.MozaCommand(command_name, self._serial_data["commands"])
+        command = MozaCommand(command_name, self._serial_data["commands"])
 
         if command.length == -1 or command.id == -1:
             print("Command undiscovered")
             return bytes(1)
 
-        if rw == mc.MOZA_COMMAND_READ and command.read_group == -1:
+        if rw == MOZA_COMMAND_READ and command.read_group == -1:
             print("Command doesn't support READ access")
             return bytes(1)
 
-        if rw == mc.MOZA_COMMAND_WRITE and command.write_group == -1:
+        if rw == MOZA_COMMAND_WRITE and command.write_group == -1:
             print("Command doesn't support WRITE access")
             return bytes(1)
 
@@ -307,7 +322,7 @@ class MozaConnectionManager():
         message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
         # WE get a response without the checksum
-        read = rw == mc.MOZA_COMMAND_READ
+        read = rw == MOZA_COMMAND_READ
         response = self.send_serial_message(device_path, message, read)
         if response == bytes(1):
             return response
@@ -335,7 +350,7 @@ class MozaConnectionManager():
 
     # Get a setting value from a device
     def get_setting(self, command_name: str) -> bytes:
-        return self._handle_command(command_name, mc.MOZA_COMMAND_READ)
+        return self._handle_command(command_name, MOZA_COMMAND_READ)
 
     def get_setting_int(self, command_name: str) -> int:
         return int.from_bytes(self.get_setting(command_name))

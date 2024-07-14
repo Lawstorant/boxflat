@@ -15,6 +15,7 @@ class OtherSettings(SettingsPanel):
     def prepare_ui(self) -> None:
         self.add_preferences_group("Other settings")
         self._add_row(BoxflatSwitchRow("Base Bluetooth", "For the mobile app"))
+        self._current_row.reverse_values()
         self._current_row.set_expression("*85")
         self._current_row.set_reverse_expression("/85")
         self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-ble-mode", v))
@@ -31,8 +32,14 @@ class OtherSettings(SettingsPanel):
         self._brake_calibration = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
         self._add_row(self._brake_calibration)
 
-        self._add_row(BoxflatButtonRow("Load settings from devices", "Refresh"))
+        self._add_row(BoxflatButtonRow("Read settings from devices", "Refresh"))
         self._current_row.subscribe(self._cm.refresh)
+
+        self._add_row(BoxflatSwitchRow("Read settings every 5 seconds"))
+        self._current_row.subscribe(self._cm.refresh_cont)
+        self._current_row.set_value(1, mute=False)
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh"))
         self._current_row.subscribe(self._cm.device_discovery)
+
+        # TODO: add row with custom command get/set and responses
