@@ -59,9 +59,9 @@ class WheelSettings(SettingsPanel):
         # self._cm.subscribe("wheel-display-mode", self._current_row.set_value)
 
         index = -1
-        timings = self._cm.get_setting_list("wheel-indicator-timings")
-        if timings in self._timings:
-            index = self._timings.index(timings)
+        # timings = self._cm.get_setting_list("wheel-indicator-timings")
+        # if timings in self._timings:
+        #     index = self._timings.index(timings)
 
         self._timing_row = BoxflatToggleButtonRow("RPM Indicator Timing")
         self._add_row(self._timing_row)
