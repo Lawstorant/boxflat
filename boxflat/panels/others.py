@@ -35,11 +35,9 @@ class OtherSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Read settings from devices", "Refresh"))
         self._current_row.subscribe(self._cm.refresh)
 
-        self._add_row(BoxflatSwitchRow("Read settings every 5 seconds"))
+        self._add_row(BoxflatSwitchRow("Read settings continuously"))
         self._current_row.subscribe(self._cm.refresh_cont)
         self._current_row.set_value(1, mute=False)
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh"))
         self._current_row.subscribe(self._cm.device_discovery)
-
-        # TODO: add row with custom command get/set and responses

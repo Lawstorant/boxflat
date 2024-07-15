@@ -39,6 +39,10 @@ class MozaCommand():
     def device_type(self) -> str:
         return self._device_type
 
+    @property
+    def type(self) -> str:
+        return self._type
+
     def set_payload_bytes(self, value: bytes) -> None:
         self._payload = value
 

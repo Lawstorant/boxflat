@@ -100,8 +100,8 @@ class MainWindow(Adw.ApplicationWindow):
             print("Dry run")
             return
 
-        self._cm.refresh()
         self._cm.set_rw_active(True)
+
 
     def _activate_default(self) -> SettingsPanel:
         for panel in self._panels.values():
@@ -109,6 +109,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._panels["Home"].button.set_active(True)
         return self._panels["Home"]
+
 
     def _panel_buttons(self) -> list:
         buttons = []

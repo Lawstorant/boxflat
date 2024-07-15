@@ -52,7 +52,6 @@ class MozaConnectionManager():
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
-        self.device_discovery()
 
 
     def shutdown(self) -> None:
@@ -70,7 +69,6 @@ class MozaConnectionManager():
             print("No devices found!")
             self._devices_lock.release()
             return
-
 
         devices = []
         for device in os.listdir(path):
@@ -143,6 +141,8 @@ class MozaConnectionManager():
             if not self._refresh_cont:
                 self._refresh = False
 
+            self.device_discovery()
+
             for com in self._subscribtions.keys():
                 if self._serial_data["commands"][com]["type"] == "array":
                     response = self.get_setting_list(com)
@@ -153,7 +153,7 @@ class MozaConnectionManager():
                     subscriber(response)
 
             if self._refresh_cont:
-                time.sleep(5)
+                time.sleep(4)
 
 
     def _notify_cont(self) -> None:
@@ -244,7 +244,7 @@ class MozaConnectionManager():
 
         self._serial_lock.acquire()
         try:
-            serial = Serial(serial_path, baudrate=115200, timeout=0.3)
+            serial = Serial(serial_path, baudrate=115200, timeout=0.2)
             time.sleep(1/200)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
@@ -254,7 +254,7 @@ class MozaConnectionManager():
             # read_response = True # For teesting writes
             start_time = time.time()
             while read_response:
-                if time.time() - start_time > 0.5:
+                if time.time() - start_time > 0.3:
                     read_response = False
                     break
 
@@ -274,7 +274,7 @@ class MozaConnectionManager():
                 break
 
             serial.close()
-        except TypeError as error:
+        except Exception as error:
             print("Error opening device!")
             read_response = False
 
@@ -325,7 +325,7 @@ class MozaConnectionManager():
         read = rw == MOZA_COMMAND_READ
         response = self.send_serial_message(device_path, message, read)
         if response == bytes(1):
-            return response
+            return bytes(command.length)
 
         # check if length is 2 or lower because we need the
         # device id in the response, not just the value
@@ -356,11 +356,7 @@ class MozaConnectionManager():
         return int.from_bytes(self.get_setting(command_name))
 
     def get_setting_list(self, command_name: str) -> list:
-        response = self.get_setting(command_name)
-        res = []
-        for value in response:
-            res.append(value)
-        return res
+        return list(self.get_setting(command_name))
 
     def get_setting_float(self, command_name: str) -> float:
         return float.from_bytes(self.get_setting(command_name))
