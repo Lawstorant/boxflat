@@ -44,7 +44,7 @@ class SettingsPanel(object):
         return content
 
 
-    def _prepare_banner(self, title="Title", label="Hide") -> Adw.Banner:
+    def _prepare_banner(self, title="Banner title", label="") -> Adw.Banner:
         banner = Adw.Banner()
         banner.set_title(title)
         banner.set_button_label(label)
@@ -71,6 +71,9 @@ class SettingsPanel(object):
     def set_banner_title(self, new_title: str) -> None:
         self._banner.set_title(new_title)
 
+    def set_banner_label(self, new_label: str) -> None:
+        self._banner.set_button_label(new_label)
+
     def apply(self, *arg) -> None:
         # self.hide_banner()
         print(f"Applying {self.title} settings...")
@@ -94,9 +97,10 @@ class SettingsPanel(object):
 
     def active(self, value: bool) -> None:
         for row in self._rows:
-            row.set_active(value)
+            row.set_sensitive(value)
 
-        self.set_banner_title("Device not detected")
+        self.set_banner_title("Device disconnected")
+        self.set_banner_label("")
         self.show_banner(not value)
 
 

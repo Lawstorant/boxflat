@@ -34,9 +34,10 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-ffb-strength", v))
         self._cm.subscribe("base-ffb-strength", self._current_row.set_value)
 
-        # self._add_row(BoxflatSwitchRow("Force Feedback Enabled"))
-        # self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-ffb-status", v))
-        # self._cm.subscribe("main-get-ffb-status", self._current_row.set_value)
+        self._add_row(BoxflatSwitchRow("Force Feedback Enabled"))
+        self._current_row.reverse_values()
+        self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-ffb-status", v))
+        self._cm.subscribe("main-get-ffb-status", self._current_row.set_value)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("base-calibration", 1))

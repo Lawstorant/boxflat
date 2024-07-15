@@ -54,9 +54,9 @@ class BoxflatSliderRow(BoxflatRow):
 
 
     def _set_value(self, value: int) -> None:
-        val = value
-        val = round(eval("val"+self._reverse_expression))
-        if val < self._range_start:
-            val = self._range_start
+        value = round(eval("value"+self._reverse_expression))
+        if value < self._range_start:
+            value = self._range_start
 
-        self._slider.set_value(val)
+        self._slider.set_value(value)
+

@@ -11,12 +11,13 @@ class MainWindow(Adw.ApplicationWindow):
         super().__init__(*args, **kwargs)
 
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
+        self._cm.device_discovery()
         self.connect('close-request', lambda w: self._cm.shutdown())
 
         self._panels = {}
         self._dry_run = dry_run
 
-        self.set_default_size(850, 800)
+        self.set_default_size(920, 750)
         self.set_title("Boxflat")
 
         left_header = Adw.HeaderBar()

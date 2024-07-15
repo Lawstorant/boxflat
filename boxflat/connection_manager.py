@@ -144,8 +144,11 @@ class MozaConnectionManager():
             self.device_discovery()
 
             for com in self._subscribtions.keys():
-                if self._serial_data["commands"][com]["type"] == "array":
+                com_type = self._serial_data["commands"][com]["type"]
+                if com_type == "array":
                     response = self.get_setting_list(com)
+                elif com_type == "float":
+                    response = self.get_setting_float(com)
                 else:
                     response = self.get_setting_int(com)
 
@@ -215,7 +218,7 @@ class MozaConnectionManager():
         if device_type in self._serial_devices:
             device_path = self._serial_devices[device_type]
 
-        elif "base" in self._serial_devices and device_type != "hub":
+        elif "base" in self._serial_devices:
             device_path = self._serial_devices["base"]
 
         self._devices_lock.release()
@@ -298,6 +301,8 @@ class MozaConnectionManager():
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=1, byte_value: bytes=None) -> bytes:
+        if not command_name in self._serial_data["commands"]:
+            return bytes(1)
         command = MozaCommand(command_name, self._serial_data["commands"])
 
         if command.length == -1 or command.id == -1:
@@ -318,6 +323,10 @@ class MozaConnectionManager():
             command.payload = value
 
         device_id = self._get_device_id(command.device_type)
+        if device_id == -1:
+            print("Device ID undiscovered yet")
+            return bytes(1)
+
         device_path = self._get_device_path(command.device_type)
         message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
@@ -343,7 +352,8 @@ class MozaConnectionManager():
         self._write_mutex.release()
 
     def set_setting_float(self, command_name: str, value: float) -> None:
-        self.set_setting(command_name, byte_value=bytearray(struct.pack("f", value)))
+        # Moza expects floats to have reverset bytes for some reason
+        self.set_setting(command_name, byte_value=struct.pack("f", value)[::-1])
 
     def set_setting_list(self, command_name: str, values: list) -> None:
         self.set_setting(command_name, byte_value=bytes(values))
@@ -359,4 +369,4 @@ class MozaConnectionManager():
         return list(self.get_setting(command_name))
 
     def get_setting_float(self, command_name: str) -> float:
-        return float.from_bytes(self.get_setting(command_name))
+        return struct.unpack("f", self.get_setting(command_name)[::-1])[0]

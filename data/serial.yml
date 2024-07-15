@@ -79,15 +79,15 @@ commands:
 
   main-set-ffb-status:
     read: -1
-    write: 33
-    id: 6
+    write: 31
+    id: 51
     bytes: 1
     type: int
 
   main-get-ffb-status:
-    read: 33
+    read: 31
     write: -1
-    id: 7
+    id: 52
     bytes: 1
     type: int
 
@@ -155,11 +155,11 @@ commands:
     bytes: 2
     type: int
 
-  pedals-hid-mode:
+  pedals-compat-mode:
     read: 35
     write: 36
     id: 13
-    bytes: 2
+    bytes: 1
     type: int
 
   pedals-throttle-y1:
@@ -250,7 +250,7 @@ commands:
     read: 35
     write: 36
     id: 26
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-throttle-y5:

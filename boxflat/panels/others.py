@@ -21,6 +21,14 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-ble-mode", v))
         self._cm.subscribe("main-get-ble-mode", self._current_row.set_value)
 
+        self._add_row(BoxflatSwitchRow("Base compatiility mode", "For Forza Horizon 5"))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-compat-mode", v))
+        self._cm.subscribe("main-get-compat-mode", self._current_row.set_value)
+
+        self._add_row(BoxflatSwitchRow("Pedals compatiility mode", "For Forza Horizon 5"))
+        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-compat-mode", v))
+        self._cm.subscribe("pedals-compat-mode", self._current_row.set_value)
+
 
         self.add_preferences_group("Application settings")
         # self._add_row(BoxflatSwitchRow("Monitor Wheel Position"))
@@ -41,3 +49,33 @@ class OtherSettings(SettingsPanel):
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh"))
         self._current_row.subscribe(self._cm.device_discovery)
+
+        self.add_preferences_group("Custom command")
+        self._command = Adw.EntryRow()
+        self._command.set_title("Command name")
+
+        self._value = Adw.EntryRow()
+        self._value.set_show_apply_button(True)
+        self._value.set_title("Value")
+
+        read = BoxflatButtonRow("Execute command", "Read")
+        write = BoxflatButtonRow("Execute command", "Write")
+
+        read.subscribe(self._read_custom)
+        write.subscribe(self._write_custom)
+
+        self._add_row(self._command)
+        self._add_row(self._value)
+        self._add_row(read)
+        self._add_row(write)
+
+
+    def _read_custom(self, *args) -> None:
+        out = self._cm.get_setting_int(self._command.get_text())
+        self._value.set_text(str(out))
+
+
+    def _write_custom(self, *args) -> None:
+        com = self._command.get_text()
+        val = int(self._value.get_text())
+        self._cm.set_setting(com, val)
