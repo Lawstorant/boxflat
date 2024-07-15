@@ -14,8 +14,13 @@ if [[ $1 == "remove" || $3 == "remove" ]]; then
     exit 0
 fi
 
+if [[ -n $PREFIX ]]; then
+    mkdir -p "$PREFIX/etc/udev/rules.d"
+    mkdir -p "$PREFIX/usr/bin"
+    mkdir -p "$PREFIX/usr/share/applications"
+fi
+
 mkdir -p "$PREFIX/usr/share/boxflat"
-mkdir -p "$PREFIX/etc/udev/rules.d"
 
 cp -r ./boxflat "$PREFIX/usr/share/boxflat/"
 cp -r ./data "$PREFIX/usr/share/boxflat/"
