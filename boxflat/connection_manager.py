@@ -245,39 +245,39 @@ class MozaConnectionManager():
         self._serial_lock.acquire()
         try:
             serial = Serial(serial_path, baudrate=115200, timeout=0.3)
-        except TypeError as error:
-            print("Error opening device!")
-            return bytes(0)
+            time.sleep(1/200)
+            serial.reset_output_buffer()
+            serial.reset_input_buffer()
+            for i in range(CM_RETRY_COUNT):
+                serial.write(message)
 
-        time.sleep(1/200)
-        serial.reset_output_buffer()
-        serial.reset_input_buffer()
-        for i in range(CM_RETRY_COUNT):
-            serial.write(message)
+            # read_response = True # For teesting writes
+            start_time = time.time()
+            while read_response:
+                if time.time() - start_time > 0.5:
+                    read_response = False
+                    break
 
-        # read_response = True # For teesting writes
-        start_time = time.time()
-        while read_response:
-            if time.time() - start_time > 0.5:
-                read_response = False
+                start = serial.read(1)
+                if start != cmp:
+                    continue
+
+                length = int.from_bytes(serial.read(1))
+                if length != message[1]:
+                    continue
+
+                # length + 3 because we need to read
+                # device id and checksum at the end
+                rest = serial.read(length+3)
+                if rest[2] != message[4]:
+                    continue
                 break
 
-            start = serial.read(1)
-            if start != cmp:
-                continue
+            serial.close()
+        except TypeError as error:
+            print("Error opening device!")
+            read_response = False
 
-            length = int.from_bytes(serial.read(1))
-            if length != message[1]:
-                continue
-
-            # length + 3 because we need to read
-            # device id and checksum at the end
-            rest = serial.read(length+3)
-            if rest[2] != message[4]:
-                continue
-            break
-
-        serial.close()
         self._serial_lock.release()
 
         if read_response == False:
