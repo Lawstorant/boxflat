@@ -159,7 +159,7 @@ commands:
     read: 35
     write: 36
     id: 13
-    bytes: 1
+    bytes: 2
     type: int
 
   pedals-throttle-y1:
