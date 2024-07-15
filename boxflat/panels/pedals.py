@@ -17,6 +17,8 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_group("Throttle settings", level_bar=1)
         self._current_group.set_bar_max(65535)
         self._cm.subscribe_cont("pedals-throttle-output", self._current_group.set_bar_level)
+        self._cm.subscribe("pedals-throttle-min", self._current_group.set_range_start)
+        self._cm.subscribe("pedals-throttle-max", self._current_group.set_range_end)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-throttle-dir", v))
@@ -39,6 +41,8 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_group("Brake settings", level_bar=1)
         self._current_group.set_bar_max(65535)
         self._cm.subscribe_cont("pedals-brake-output", self._current_group.set_bar_level)
+        self._cm.subscribe("pedals-brake-min", self._current_group.set_range_start)
+        self._cm.subscribe("pedals-brake-max", self._current_group.set_range_end)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-dir", v))
@@ -68,6 +72,8 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_group("Clutch settings", level_bar=1)
         self._current_group.set_bar_max(65535)
         self._cm.subscribe_cont("pedals-clutch-output", self._current_group.set_bar_level)
+        self._cm.subscribe("pedals-clutch-min", self._current_group.set_range_start)
+        self._cm.subscribe("pedals-clutch-max", self._current_group.set_range_end)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-clutch-dir", v))

@@ -13,6 +13,8 @@ class HandbrakeSettings(SettingsPanel):
         self.add_preferences_group("Handbrake settings", level_bar=1)
         self._current_group.set_bar_max(65535)
         self._cm.subscribe_cont("handbrake-output", self._current_group.set_bar_level)
+        self._cm.subscribe("handbrake-range-start", self._current_group.set_range_start)
+        self._cm.subscribe("handbrake-range-end", self._current_group.set_range_end)
 
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-direction", v))
@@ -35,11 +37,13 @@ class HandbrakeSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Handbrake Range Start", suffix="%"))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-range-start", v))
+        # self._current_row.subscribe(self._current_group.set_range_start)
         self._cm.subscribe("handbrake-range-start", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Handbrake Range End", suffix="%", value=100))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(lambda v: self._cm.set_setting("handbrake-range-end", v))
+        # self._current_row.subscribe(self._current_group.set_range_end)
         self._cm.subscribe("handbrake-range-end", self._current_row.set_value)
 
         self.add_preferences_group("Calibration")

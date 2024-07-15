@@ -125,7 +125,7 @@ class SettingsPanel(object):
             self.add_preferences_page()
 
         self._current_group = BoxflatPreferencesGroup(title, level_bar)
-        self._current_group.set_bar_width(270)
+        self._current_group.set_bar_width(290)
         self._current_page.add(self._current_group)
 
 
