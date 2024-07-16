@@ -43,6 +43,14 @@ levelbar {
     margin: 10px 0;
 }
 
+.eq-slider {
+    margin-top: 12px;
+}
+
+.eq-label {
+    margin-bottom: 12px;
+}
+
 .header > .header {
     margin-top: 10px;
 }

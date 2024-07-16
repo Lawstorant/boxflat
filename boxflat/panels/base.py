@@ -157,8 +157,14 @@ class BaseSettings(SettingsPanel):
 
     def __prepare_eq(self) -> None:
         self.add_preferences_page("Equalizer", "network-cellular-signal-excellent-symbolic")
+        self.add_preferences_group()
+        self._add_row(BoxflatRow("Page inactive", "UI Concept"))
+
         self.add_preferences_group("Equalizer")
-        self._add_row(BoxflatRow("FFB Effect Equalizer", "Work In Progress"))
+        self._add_row(BoxflatEqRow("FFB Equalizer", 6,
+            subtitle="Perfectly balanced, as all things should be", range_end=500, suffix="%"))
+        self._current_row.add_marks(50, 100, 200, 350)
+        self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")
 
 
     def __prepare_curve(self) -> None:
