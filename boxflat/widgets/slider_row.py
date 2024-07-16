@@ -6,11 +6,10 @@ from .row import BoxflatRow
 class BoxflatSliderRow(BoxflatRow):
     def __init__(self, title="", range_start=0,
                  range_end=100, value=0, increment=1,
-                 subtitle="", suffix="", draw_value=True):
+                 subtitle="", suffix="", draw_value=True, big=False):
         super().__init__(title, subtitle)
 
         slider = Gtk.Scale()
-        self._set_widget(slider)
         self._slider = slider
         self._suffix = suffix
         self._increment = increment
@@ -27,16 +26,36 @@ class BoxflatSliderRow(BoxflatRow):
         slider.set_valign(Gtk.Align.CENTER)
         self.add_marks(range_start, range_end)
 
-        slider.connect('value-changed', self._slider_increment_handler)
+        slider.connect('value-changed', self._notify)
 
-
-    def _slider_increment_handler(self, scale) -> None:
-        modulo = self.get_value() % self._increment
-
-        if modulo != 0:
-            self.set_value(self.get_value() + (self._increment - modulo))
+        if big:
+            label = Gtk.Label()
+            label.set_text(str(value))
+            slider.connect('value-changed', lambda b: label.set_text(str(int(b.get_value()))))
+            self.add_suffix(label)
+            child = self.get_child()
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            self.set_child(box)
+            box.append(child)
+            box.append(slider)
+            box.add_css_class("header")
+            slider.add_css_class("big-slider")
+            box.set_valign(Gtk.Align.CENTER)
         else:
-            self._notify()
+            self.add_suffix(slider)
+
+
+    # def _slider_increment_handler(self, scale) -> None:
+    #     modulo = self.get_value() % self._increment
+
+    #     if modulo != 0:
+    #         self.set_value(self.get_value() + (self._increment - modulo))
+    #     else:
+    #         self._notify()
+
+
+    def _notify(self, *args) -> None:
+        super()._notify()
 
 
     def add_marks(self, *marks: int) -> None:
@@ -59,4 +78,3 @@ class BoxflatSliderRow(BoxflatRow):
             value = self._range_start
 
         self._slider.set_value(value)
-

@@ -39,6 +39,14 @@ levelbar {
     margin: 14px 0;
 }
 
+.big-slider {
+    margin: 10px 0;
+}
+
+.header > .header {
+    margin-top: 10px;
+}
+
 .c0 {
     background-color: #cf2727;
     border-color: #cf2727;

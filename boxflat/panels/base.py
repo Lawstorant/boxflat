@@ -17,10 +17,8 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_page("Base")
         self.add_preferences_group("Important settings")
 
-        self._add_row(BoxflatRow("Wheel Rotation Angle", "Round and round"))
-
-        self._add_row(BoxflatSliderRow("", range_start=90, range_end=2700, increment=2))
-        self._current_row.set_width(550)
+        self._add_row(BoxflatSliderRow(
+            "Wheel Rotation Angle",subtitle="Round and round", range_start=90, range_end=2700, big=True, draw_value=False))
         self._current_row.add_marks(360, 540, 720, 900, 1080, 1440, 1800, 2160)
         self._current_row.set_expression("/2")
         self._current_row.set_reverse_expression("*2")

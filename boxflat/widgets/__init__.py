@@ -7,3 +7,4 @@ from .calibration_row import *
 from .color_picker_row import *
 from .toggle_button_row import *
 from .preferences_group import *
+from .equalizer_row import *

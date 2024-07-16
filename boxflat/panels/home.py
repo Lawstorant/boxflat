@@ -21,4 +21,3 @@ class HomeSettings(SettingsPanel):
 
         self.add_preferences_group()
         self._add_row(BoxflatRow(f"Test mode: {self._test_text}"))
-
