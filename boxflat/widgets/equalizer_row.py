@@ -34,7 +34,7 @@ class BoxflatEqRow(BoxflatRow):
             slider.set_round_digits(0)
             slider.set_digits(0)
             slider.set_value(value)
-            slider.set_size_request(0, 400)
+            slider.set_size_request(0, 300)
             slider.set_hexpand(True)
             slider.add_css_class("eq-slider")
 
@@ -64,3 +64,8 @@ class BoxflatEqRow(BoxflatRow):
     def add_labels(self, *labels: str) -> None:
         for i in range(len(labels)):
             self._slider_labels[i].set_text(labels[i])
+
+
+    def set_height(self, height: int) -> None:
+        for slider in self._sliders:
+            slider.set_size_request(0, height)

@@ -165,9 +165,24 @@ class BaseSettings(SettingsPanel):
             subtitle="Perfectly balanced, as all things should be", range_end=500, suffix="%"))
         self._current_row.add_marks(50, 100, 200, 350)
         self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")
+        self._current_row.set_height(400)
 
 
     def __prepare_curve(self) -> None:
         self.add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
-        self.add_preferences_group("Curve")
-        self._add_row(BoxflatRow("Base FFB Curve", "Work In Progress"))
+        self.add_preferences_group()
+        self._add_row(BoxflatRow("Page inactive", "UI Concept"))
+
+        self.add_preferences_group("Base FFB Curve")
+        self._add_row(BoxflatEqRow("FFB Curve", 5, subtitle="Game FFB to Output FFB ratio", suffix="%"))
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+
+        self._add_row(BoxflatSliderRow("FFB Range Start", suffix="%"))
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.set_width(380)
+
+        self._add_row(BoxflatSliderRow("FFB Range End", suffix="%"))
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.set_width(380)
+        self._current_row.set_value(100)
