@@ -17,7 +17,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels = {}
         self._dry_run = dry_run
 
-        self.set_default_size(920, 750)
+        self.set_default_size(920, 800)
         self.set_title("Boxflat")
 
         left_header = Adw.HeaderBar()

@@ -10,21 +10,21 @@ Now with more **read/write** action!
 ## Functionality
 
 | Device         | Completness | WIP |
-| :------------: | :--:        | :-  |
+| :------------: | :---------: | :-  |
 | Home page      | 0%          | Quick settings |
-| Base           | 80%         | Equalizer, FFB Curve |
+| Base           | 100%        | |
 | Wheel          | 50%         | RPM colors, anything not present on RSv2 |
-| Pedals         | 90%         | Output curves |
-| Dashboard      | 0%          | |
+| Pedals         | 100%        | |
+| Dashboard      | 0%          | Dashboard settings |
 | Hub            | 0%          | Rows with connection status |
 | H-Pattern      | 100%        | |
 | Sequential     | 100%        | |
-| Handbrake      | 80%         | Output curve |
-| Other settings | 0%          | Bluetooth switch, FH5 compat mode |
+| Handbrake      | 80%         | |
+| Other settings | 100%        | |
 
 ### WiP
 - Rotation output
-- Showing only settings that are relevant to connected hardware
+- Showing only settings that are relevant to the connected hardware
 
 ### Firmware upgrades
 There are some EEPROM functions available, but I need to do more testing to make sure I won't brick anything. For now, just use Pit House on Windows if you can, as FW upgrade support is not coming in the near future.
@@ -32,7 +32,7 @@ There are some EEPROM functions available, but I need to do more testing to make
 ## Compatibility
 Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc. Some Wheel settings are device-specific (FSR Wheel dashboard for example)
 
-## Installation/dependencies
+# Installation
 This package depends on:
 - python3
 - gtk4
