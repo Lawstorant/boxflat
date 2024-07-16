@@ -30,7 +30,7 @@ class BoxflatSliderRow(BoxflatRow):
 
         if big:
             label = Gtk.Label()
-            label.set_text(str(value))
+            label.set_text(str(range_start))
             slider.connect('value-changed', lambda b: label.set_text(str(int(b.get_value()))))
             self.add_suffix(label)
             child = self.get_child()

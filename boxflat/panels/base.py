@@ -165,7 +165,7 @@ class BaseSettings(SettingsPanel):
             subtitle="Perfectly balanced, as all things should be", range_end=500, suffix="%"))
         self._current_row.add_marks(50, 100, 200, 350)
         self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")
-        self._current_row.set_height(400)
+        self._current_row.set_height(450)
 
 
     def __prepare_curve(self) -> None:
@@ -185,4 +185,3 @@ class BaseSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("FFB Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.set_value(100)
