@@ -108,8 +108,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.unmute()
 
 
-    def set_slider_value(self, index: int, value: int) -> None:
-        self.mute(True)
+    def set_slider_value(self, index: int, value: int, mute=True) -> None:
+        self.mute(mute)
         self._sliders[index].set_value(value)
         self.unmute()
 

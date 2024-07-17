@@ -45,7 +45,7 @@ class OtherSettings(SettingsPanel):
 
         self._add_row(BoxflatSwitchRow("Read settings continuously"))
         self._current_row.subscribe(self._cm.refresh_cont)
-        # self._current_row.set_value(1, mute=False)
+        self._current_row.set_value(1, mute=False)
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh"))
         self._current_row.subscribe(self._cm.device_discovery)

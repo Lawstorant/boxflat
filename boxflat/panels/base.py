@@ -7,6 +7,7 @@ import time
 class BaseSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._curve_row = None
+        self._eq_row = None
         super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
 
     def _set_rotation(self, value: int) -> None:
@@ -158,15 +159,22 @@ class BaseSettings(SettingsPanel):
 
     def __prepare_eq(self) -> None:
         self.add_preferences_page("Equalizer", "network-cellular-signal-excellent-symbolic")
-        self.add_preferences_group()
-        self._add_row(BoxflatRow("Page inactive", "UI Concept"))
 
         self.add_preferences_group("Equalizer")
-        self._add_row(BoxflatEqRow("FFB Equalizer", 6,
-            subtitle="Perfectly balanced, as all things should be", range_end=500, suffix="%"))
-        self._current_row.add_marks(50, 100, 200, 350)
+        self._eq_row = BoxflatEqRow("FFB Equalizer", 6,
+            subtitle="Perfectly balanced, as all things should be", range_end=400, suffix="%")
+        self._add_row(self._eq_row)
+        self._current_row.add_marks(50, 100, 200, 300)
         self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")
         self._current_row.set_height(450)
+        for i in range(6):
+            self._eq_row.subscribe_slider(i, lambda i,v: self._cm.set_setting(f"base-equalizer{i+1}", v))
+        self._cm.subscribe(f"base-equalizer1", lambda v: self._eq_row.set_slider_value(0, v))
+        self._cm.subscribe(f"base-equalizer2", lambda v: self._eq_row.set_slider_value(1, v))
+        self._cm.subscribe(f"base-equalizer3", lambda v: self._eq_row.set_slider_value(2, v))
+        self._cm.subscribe(f"base-equalizer4", lambda v: self._eq_row.set_slider_value(3, v))
+        self._cm.subscribe(f"base-equalizer5", lambda v: self._eq_row.set_slider_value(4, v))
+        self._cm.subscribe(f"base-equalizer6", lambda v: self._eq_row.set_slider_value(5, v))
 
 
     def __prepare_curve(self) -> None:
