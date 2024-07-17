@@ -6,6 +6,7 @@ import time
 
 class BaseSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+        self._curve_row = None
         super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
 
     def _set_rotation(self, value: int) -> None:
@@ -124,10 +125,10 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_page("Misc", "preferences-other-symbolic")
         self.add_preferences_group("Misc Settings")
 
-        # self._add_row(BoxflatSwitchRow("Base Status Indicator"))
-        # self._current_row.set_subtitle("Does nothing if your base doesn't have it")
-        # self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-led-status", v))
-        # self._cm.subscribe("main-get-led-status", self._current_row.set_value)
+        self._add_row(BoxflatSwitchRow("Base Status Indicator"))
+        self._current_row.set_subtitle("Does nothing if your base doesn't have it")
+        self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-led-status", v))
+        self._cm.subscribe("main-get-led-status", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Soft Limit Stiffness", range_start=1, range_end=10))
         self._current_row.add_marks(4, 6, 8)
@@ -170,18 +171,65 @@ class BaseSettings(SettingsPanel):
 
     def __prepare_curve(self) -> None:
         self.add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
-        self.add_preferences_group()
-        self._add_row(BoxflatRow("Page inactive", "UI Concept"))
 
         self.add_preferences_group("Base FFB Curve")
-        self._add_row(BoxflatEqRow("FFB Curve", 5, subtitle="Game FFB to Output FFB ratio", suffix="%"))
+        self._curve_row = BoxflatEqRow("FFB Curve", 5, subtitle="Game FFB to Output FFB ratio", suffix="%")
+        self._add_row(self._curve_row)
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
 
-        self._add_row(BoxflatSliderRow("FFB Range Start", suffix="%"))
-        self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.add_buttons("Linear", "S Curve", "Inverted S", "Exponential", "Parabolic")
+        self._current_row.set_button_value(-1)
+        self._current_row.subscribe(self._set_curve_preset)
+        for i in range(5):
+            self._current_row.subscribe_slider(i, self._set_curve_point)
+        self._cm.subscribe(f"base-ffb-curve-y1", lambda v: self._get_curve(0, v))
+        self._cm.subscribe(f"base-ffb-curve-y2", lambda v: self._get_curve(1, v))
+        self._cm.subscribe(f"base-ffb-curve-y3", lambda v: self._get_curve(2, v))
+        self._cm.subscribe(f"base-ffb-curve-y4", lambda v: self._get_curve(3, v))
+        self._cm.subscribe(f"base-ffb-curve-y5", lambda v: self._get_curve(4, v))
 
-        self._add_row(BoxflatSliderRow("FFB Range End", suffix="%"))
-        self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+
+    def _set_curve_preset(self, value: int) -> None:
+        self._set_curve(self._curve_presets[value])
+
+
+    def _set_curve_point(self, index: int, value: int) -> None:
+        self._cm.set_setting(f"base-ffb-curve-y{index+1}", value)
+
+
+    def _set_curve(self, values: list) -> None:
+        curve = []
+        curve.extend(self._curve_x)
+        curve.extend(values)
+
+        for i in range(1,5):
+            self._cm.set_setting(f"base-ffb-curve-x{i}", curve[i-1])
+
+        for i in range(0,5):
+            self._cm.set_setting(f"base-ffb-curve-y{i+1}", curve[i+4])
+
+
+    def _get_curve(self, sindex: int, value: int) -> None:
+        index = -1
+        values = self._curve_row.get_sliders_value()
+        values[sindex] = value
+
+        if values in self._curve_presets:
+            index = self._curve_presets.index(values)
+
+        self._curve_row.set_button_value(index)
+        print(f"{sindex} {value}")
+        self._curve_row.set_slider_value(sindex, value)
+
+    #          [x1, x2, x3, x4]
+    _curve_x = [20, 40, 60, 80]
+    _curve_presets = [
+    #    y0 skipped as we can't change it's value
+    #   [y1, y2, y3, y4, y5]
+        [20, 40, 60, 80, 100], # Linear
+        [ 8, 24, 76, 92, 100], # S Curve
+        [35, 52, 60, 75, 100], # Inverted S
+        [ 6, 14, 28, 54, 100], # Exponential
+        [46, 72, 86, 94, 100]  # Parabolic
+    ]

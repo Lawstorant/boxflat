@@ -35,10 +35,12 @@ class HandbrakeSettings(SettingsPanel):
         self._cm.subscribe("handbrake-range-start", self._current_group.set_range_start)
         self._cm.subscribe("handbrake-range-end", self._current_group.set_range_end)
 
-        self._add_row(BoxflatEqRow("Output Curve", 5, suffix="%"))
-        self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
-        self._current_row.set_height(260)
+        # self._add_row(BoxflatEqRow("Output Curve", 5, suffix="%"))
+        # self._current_row.add_marks(20, 40, 60, 80)
+        # self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+        # self._current_row.set_height(260)
+        # self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
+        # self._current_row.set_button_value(-1)
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)

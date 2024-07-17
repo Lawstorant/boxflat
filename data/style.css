@@ -19,6 +19,7 @@
 
 .toggle-button {
     border-radius: 0;
+    border-right: 1px solid #000000;
 }
 
 .toggle-button:first-child {
@@ -27,6 +28,7 @@
 
 .toggle-button:last-child {
     border-radius: 0 5px 5px 0;
+    border: 0;
 }
 
 .color-button {
@@ -43,12 +45,20 @@ levelbar {
     margin: 10px 0;
 }
 
+.big-slider-label {
+    margin-right: 12px;
+}
+
 .eq-slider {
-    margin-top: 12px;
+    margin-top: 10px;
 }
 
 .eq-label {
     margin-bottom: 12px;
+}
+
+.eq-buttons {
+    margin-top: 8px;
 }
 
 .header > .header {

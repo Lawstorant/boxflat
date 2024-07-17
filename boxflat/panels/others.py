@@ -45,7 +45,7 @@ class OtherSettings(SettingsPanel):
 
         self._add_row(BoxflatSwitchRow("Read settings continuously"))
         self._current_row.subscribe(self._cm.refresh_cont)
-        self._current_row.set_value(1, mute=False)
+        # self._current_row.set_value(1, mute=False)
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh"))
         self._current_row.subscribe(self._cm.device_discovery)
@@ -55,7 +55,6 @@ class OtherSettings(SettingsPanel):
         self._command.set_title("Command name")
 
         self._value = Adw.EntryRow()
-        self._value.set_show_apply_button(True)
         self._value.set_title("Value")
 
         read = BoxflatButtonRow("Execute command", "Read")
@@ -71,7 +70,7 @@ class OtherSettings(SettingsPanel):
 
 
     def _read_custom(self, *args) -> None:
-        out = self._cm.get_setting_int(self._command.get_text())
+        out = self._cm.get_setting(self._command.get_text())
         self._value.set_text(str(out))
 
 

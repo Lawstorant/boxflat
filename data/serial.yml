@@ -495,72 +495,82 @@ commands:
     type: int
 
   base-ffb-curve-x1:
-    read: [40, 34]
-    write: [41, 34]
-    id: 1
+    read: 40
+    write: 41
+    id: 34
+    id2: 1
     bytes: 1
     type: int
 
   base-ffb-curve-x2:
-    read: [40, 34]
-    write: [41, 34]
-    id: 2
+    read: 40
+    write: 41
+    id: 34
+    id2: 2
     bytes: 1
     type: int
 
   base-ffb-curve-x3:
-    read: [40, 34]
-    write: [41, 34]
-    id: 3
+    read: 40
+    write: 41
+    id: 34
+    id2: 3
     bytes: 1
     type: int
 
   base-ffb-curve-x4:
-    read: [40, 34]
-    write: [41, 34]
-    id: 4
+    read: 40
+    write: 41
+    id: 34
+    id2: 4
     bytes: 1
     type: int
 
   base-ffb-curve-y1:
-    read: [40, 34]
-    write: [41, 34]
-    id: 5
+    read: 40
+    write: 41
+    id: 34
+    id2: 5
     bytes: 1
     type: int
 
   base-ffb-curve-y2:
-    read: [40, 34]
-    write: [41, 34]
-    id: 6
+    read: 40
+    write: 41
+    id: 34
+    id2: 6
     bytes: 1
     type: int
 
   base-ffb-curve-y3:
-    read: [40, 34]
-    write: [41, 34]
-    id: 7
+    read: 40
+    write: 41
+    id: 34
+    id2: 7
     bytes: 1
     type: int
 
   base-ffb-curve-y4:
-    read: [40, 34]
-    write: [41, 34]
-    id: 8
+    read: 40
+    write: 41
+    id: 34
+    id2: 8
     bytes: 1
     type: int
 
   base-ffb-curve-y5:
-    read: [40, 34]
-    write: [41, 34]
-    id: 9
+    read: 40
+    write: 41
+    id: 34
+    id2: 9
     bytes: 1
     type: int
 
   base-ffb-curve-y0:
-    read: [40, 34]
-    write: [41, 34]
-    id: 10
+    read: -1
+    write: -1
+    id: 34
+    id2: 10
     bytes: 1
     type: int
 

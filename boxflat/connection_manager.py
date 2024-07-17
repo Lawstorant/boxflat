@@ -156,7 +156,7 @@ class MozaConnectionManager():
                     subscriber(response)
 
             if self._refresh_cont:
-                time.sleep(4)
+                time.sleep(3)
 
 
     def _notify_cont(self) -> None:
@@ -165,7 +165,7 @@ class MozaConnectionManager():
                 time.sleep(1)
                 continue
 
-            time.sleep(1/30) # 30 Hz refresh rate
+            time.sleep(1/40) # 40 Hz refresh rate
             for com in self._cont_subscribtions.keys():
                 response = self.get_setting_int(com)
                 for subscriber in self._cont_subscribtions[com]:
@@ -341,7 +341,7 @@ class MozaConnectionManager():
         # length = response[1]
         # if length <= command.length+1:
         #     return bytes(1)
-        length = command.length
+        length = command.payload_length
         return response[-1-length:-1]
 
     # Set a setting value on a device
