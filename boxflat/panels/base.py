@@ -227,7 +227,6 @@ class BaseSettings(SettingsPanel):
             index = self._curve_presets.index(values)
 
         self._curve_row.set_button_value(index)
-        print(f"{sindex} {value}")
         self._curve_row.set_slider_value(sindex, value)
 
     #          [x1, x2, x3, x4]

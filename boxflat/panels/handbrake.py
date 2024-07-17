@@ -96,7 +96,6 @@ class HandbrakeSettings(SettingsPanel):
             index = self._presets.index(values)
 
         self._curve_row.set_button_value(index)
-        print(f"{sindex} {value}")
         self._curve_row.set_slider_value(sindex, value)
 
 

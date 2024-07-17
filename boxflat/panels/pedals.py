@@ -5,6 +5,7 @@ from boxflat.widgets import *
 class PedalsSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._brake_calibration_row = None
+        self._curve_rows = []
         super(PedalsSettings, self).__init__("Pedals", button_callback, connection_manager)
 
 
@@ -23,12 +24,21 @@ class PedalsSettings(SettingsPanel):
         self._cm.subscribe("pedals-throttle-min", self._current_group.set_range_start)
         self._cm.subscribe("pedals-throttle-max", self._current_group.set_range_end)
 
-        # self._add_row(BoxflatEqRow("Throttle Curve", 5, suffix="%"))
-        # self._current_row.add_marks(20, 40, 60, 80)
-        # self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
-        # self._current_row.set_height(260)
-        # self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        # self._current_row.set_button_value(-1)
+        self._curve_rows.append(BoxflatEqRow("Throttle Curve", 5, suffix="%"))
+        self._add_row(self._curve_rows[0])
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+        self._current_row.set_height(260)
+        self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
+        self._current_row.set_button_value(-1)
+        self._current_row.subscribe(lambda v: self._set_curve_preset(v, "throttle"))
+        for i in range(5):
+            self._curve_rows[0].subscribe_slider(i, lambda i, v: self._set_curve_point(i, v, "throttle"))
+        self._cm.subscribe(f"pedals-throttle-y1", lambda v: self._get_curve(0, v, "throttle"))
+        self._cm.subscribe(f"pedals-throttle-y2", lambda v: self._get_curve(1, v, "throttle"))
+        self._cm.subscribe(f"pedals-throttle-y3", lambda v: self._get_curve(2, v, "throttle"))
+        self._cm.subscribe(f"pedals-throttle-y4", lambda v: self._get_curve(3, v, "throttle"))
+        self._cm.subscribe(f"pedals-throttle-y5", lambda v: self._get_curve(4, v, "throttle"))
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
@@ -58,12 +68,21 @@ class PedalsSettings(SettingsPanel):
         self._cm.subscribe("pedals-brake-min", self._current_group.set_range_start)
         self._cm.subscribe("pedals-brake-max", self._current_group.set_range_end)
 
-        # self._add_row(BoxflatEqRow("Brake Curve", 5, suffix="%"))
-        # self._current_row.add_marks(20, 40, 60, 80)
-        # self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
-        # self._current_row.set_height(260)
-        # self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        # self._current_row.set_button_value(-1)
+        self._curve_rows.append(BoxflatEqRow("Brake Curve", 5, suffix="%"))
+        self._add_row(self._curve_rows[1])
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+        self._current_row.set_height(260)
+        self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
+        self._current_row.set_button_value(-1)
+        self._current_row.subscribe(lambda v: self._set_curve_preset(v, "brake"))
+        for i in range(5):
+            self._curve_rows[1].subscribe_slider(i, lambda i, v: self._set_curve_point(i, v, "brake"))
+        self._cm.subscribe(f"pedals-brake-y1", lambda v: self._get_curve(0, v, "brake"))
+        self._cm.subscribe(f"pedals-brake-y2", lambda v: self._get_curve(1, v, "brake"))
+        self._cm.subscribe(f"pedals-brake-y3", lambda v: self._get_curve(2, v, "brake"))
+        self._cm.subscribe(f"pedals-brake-y4", lambda v: self._get_curve(3, v, "brake"))
+        self._cm.subscribe(f"pedals-brake-y5", lambda v: self._get_curve(4, v, "brake"))
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
@@ -100,12 +119,21 @@ class PedalsSettings(SettingsPanel):
         self._cm.subscribe("pedals-clutch-min", self._current_group.set_range_start)
         self._cm.subscribe("pedals-clutch-max", self._current_group.set_range_end)
 
-        # self._add_row(BoxflatEqRow("Clutch Curve", 5, suffix="%"))
-        # self._current_row.add_marks(20, 40, 60, 80)
-        # self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
-        # self._current_row.set_height(260)
-        # self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        # self._current_row.set_button_value(-1)
+        self._curve_rows.append(BoxflatEqRow("Clutch Curve", 5, suffix="%"))
+        self._add_row(self._curve_rows[2])
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+        self._current_row.set_height(260)
+        self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
+        self._current_row.set_button_value(-1)
+        self._current_row.subscribe(lambda v: self._set_curve_preset(v, "clutch"))
+        for i in range(5):
+            self._curve_rows[2].subscribe_slider(i, lambda i, v: self._set_curve_point(i, v, "clutch"))
+        self._cm.subscribe(f"pedals-clutch-y1", lambda v: self._get_curve(0, v, "clutch"))
+        self._cm.subscribe(f"pedals-clutch-y2", lambda v: self._get_curve(1, v, "clutch"))
+        self._cm.subscribe(f"pedals-clutch-y3", lambda v: self._get_curve(2, v, "clutch"))
+        self._cm.subscribe(f"pedals-clutch-y4", lambda v: self._get_curve(3, v, "clutch"))
+        self._cm.subscribe(f"pedals-clutch-y5", lambda v: self._get_curve(4, v, "clutch"))
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
@@ -126,3 +154,46 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
         self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-clutch-{v}-calibration", 1))
+
+
+    def _set_curve_preset(self, value: int, pedal: str) -> None:
+        self._set_curve(self._presets[value], pedal)
+
+
+    def _set_curve_point(self, index: int, value: int, pedal: str) -> None:
+        self._cm.set_setting_float(f"pedals-{pedal}-y{index+1}", float(value))
+
+
+    def _set_curve(self, values: list, pedal: str) -> None:
+        curve = []
+        curve.extend(values)
+
+        for i in range(0,5):
+            self._cm.set_setting_float(f"pedals-{pedal}-y{i+1}", curve[i])
+
+
+    def _get_curve(self, sindex: int, value: int, pedal: str) -> None:
+        index = -1
+        pi = self._pedals.index(pedal)
+        values = self._curve_rows[pi].get_sliders_value()
+        values[sindex] = value
+
+        if values in self._presets:
+            index = self._presets.index(values)
+
+        self._curve_rows[pi].set_button_value(index)
+        self._curve_rows[pi].set_slider_value(sindex, value)
+
+
+    _presets = [
+        [20, 40, 60, 80, 100], # Linear
+        [ 8, 24, 76, 92, 100], # S Curve
+        [ 6, 14, 28, 54, 100], # Exponential
+        [46, 72, 86, 94, 100]  # Parabolic
+    ]
+
+    _pedals = [
+        "throttle",
+        "brake",
+        "clutch"
+    ]

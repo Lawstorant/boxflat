@@ -247,8 +247,8 @@ class MozaConnectionManager():
 
         self._serial_lock.acquire()
         try:
-            serial = Serial(serial_path, baudrate=115200, timeout=0.2)
-            time.sleep(1/200)
+            serial = Serial(serial_path, baudrate=115200, timeout=0.1)
+            time.sleep(1/500)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
             for i in range(CM_RETRY_COUNT):
@@ -257,7 +257,7 @@ class MozaConnectionManager():
             # read_response = True # For teesting writes
             start_time = time.time()
             while read_response:
-                if time.time() - start_time > 0.3:
+                if time.time() - start_time > 0.2:
                     read_response = False
                     break
 

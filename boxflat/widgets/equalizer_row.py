@@ -126,6 +126,10 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self._slider_subs[index].append(callback)
 
 
+    def set_slider_active(self, index: int, active=True) -> None:
+        self._sliders[index].set_sensitive(active)
+
+
     def _notify_slider(self, scale) -> None:
         if self._mute:
             return

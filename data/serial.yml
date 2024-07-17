@@ -166,84 +166,84 @@ commands:
     read: 35
     write: 36
     id: 14
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-throttle-y2:
     read: 35
     write: 36
     id: 15
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-throttle-y3:
     read: 35
     write: 36
     id: 16
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-throttle-y4:
     read: 35
     write: 36
     id: 17
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-brake-y1:
     read: 35
     write: 36
     id: 18
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-brake-y2:
     read: 35
     write: 36
     id: 19
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-brake-y3:
     read: 35
     write: 36
     id: 20
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-brake-y4:
     read: 35
     write: 36
     id: 21
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-clutch-y1:
     read: 35
     write: 36
     id: 22
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-clutch-y2:
     read: 35
     write: 36
     id: 23
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-clutch-y3:
     read: 35
     write: 36
     id: 24
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-clutch-y4:
     read: 35
     write: 36
     id: 25
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-brake-max-force:
@@ -257,21 +257,21 @@ commands:
     read: 35
     write: 36
     id: 27
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-brake-y5:
     read: 35
     write: 36
     id: 28
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-clutch-y5:
     read: 35
     write: 36
     id: 29
-    bytes: 1
+    bytes: 4
     type: float
 
   pedals-throttle-hid-source:
@@ -615,28 +615,28 @@ commands:
     write: 50
     id: 0
     bytes: 1
-    type: float
+    type: int
 
   dash-ui-index:
     read: 51
     write: 50
     id: 1
     bytes: 1
-    type: float
+    type: int
 
   dash-speed-unit:
     read: 51
     write: 50
     id: 2
     bytes: 1
-    type: float
+    type: int
 
   dash-temp-unit:
     read: 51
     write: 50
     id: 3
     bytes: 1
-    type: float
+    type: int
 
 # Steering wheel
   # TODO: check if this works
@@ -799,26 +799,29 @@ commands:
     write: 63
     id: 19
     bytes: 1
-    type: float
+    type: int
 
   wheel-indicator-group-brightness:
-    read: [64, 20]
-    write: [63, 20]
-    id: 0
+    read: 64
+    write: 63
+    id: 20
+    id2: 0
     bytes: 1
     type: int
 
   wheel-buttons-group-brightness:
-    read: [64, 20]
-    write: [63, 20]
-    id: 2
+    read: 64
+    write: 63
+    id: 20
+    id2: 2
     bytes: 1
     type: int
 
   wheel-flags-group-brightness:
-    read: [64, 20]
-    write: [63, 20]
-    id: 3
+    read: 64
+    write: 63
+    id: 20
+    id2: 3
     bytes: 1
     type: int
 
@@ -828,8 +831,8 @@ commands:
     read: 64
     write: 63
     id: 22
-    bytes: 1
-    type: float
+    bytes: 2
+    type: int
 
   wheel-rpm-regulation-mode:
     read: 64
