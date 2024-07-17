@@ -4,7 +4,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 Now with more **read/write** action!
 ![Base panel](./screens/base.png)
 
-#### For moza ffb driver, check out [moza-ff](https://github.com/JacKeTUs/moza-ff) by [@JacKeTUs](https://github.com/JacKeTUs)
+#### For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
 #### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
 
 ## Functionality
