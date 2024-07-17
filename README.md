@@ -19,7 +19,7 @@ Now with more **read/write** action!
 | Hub            | 0%          | Rows with connection status |
 | H-Pattern      | 100%        | |
 | Sequential     | 100%        | |
-| Handbrake      | 80%         | |
+| Handbrake      | 100%        | |
 | Other settings | 100%        | |
 
 ### WiP

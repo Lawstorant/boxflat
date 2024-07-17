@@ -969,35 +969,35 @@ commands:
     read: 91
     write: 92
     id: 5
-    bytes: 1
+    bytes: 4
     type: float
 
   handbrake-y2:
     read: 91
     write: 92
     id: 6
-    bytes: 1
+    bytes: 4
     type: float
 
   handbrake-y3:
     read: 91
     write: 92
     id: 7
-    bytes: 1
+    bytes: 4
     type: float
 
   handbrake-y4:
     read: 91
     write: 92
     id: 8
-    bytes: 1
+    bytes: 4
     type: float
 
   handbrake-y5:
     read: 91
     write: 92
     id: 9
-    bytes: 1
+    bytes: 4
     type: float
 
   handbrake-button-threshold:

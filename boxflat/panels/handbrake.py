@@ -6,6 +6,7 @@ class HandbrakeSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._threshold_active = None
         self._calibration_button = None
+        self._curve_row = None
         super(HandbrakeSettings, self).__init__("Handbrake", button_callback, connection_manager)
 
 
@@ -35,12 +36,21 @@ class HandbrakeSettings(SettingsPanel):
         self._cm.subscribe("handbrake-range-start", self._current_group.set_range_start)
         self._cm.subscribe("handbrake-range-end", self._current_group.set_range_end)
 
-        # self._add_row(BoxflatEqRow("Output Curve", 5, suffix="%"))
-        # self._current_row.add_marks(20, 40, 60, 80)
-        # self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
-        # self._current_row.set_height(260)
-        # self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        # self._current_row.set_button_value(-1)
+        self._curve_row = BoxflatEqRow("Output Curve", 5, suffix="%")
+        self._add_row(self._curve_row)
+        self._current_row.add_marks(20, 40, 60, 80)
+        self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+        self._current_row.set_height(260)
+        self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
+        self._current_row.set_button_value(-1)
+        self._current_row.subscribe(self._set_curve_preset)
+        for i in range(5):
+            self._current_row.subscribe_slider(i, self._set_curve_point)
+        self._cm.subscribe(f"handbrake-y1", lambda v: self._get_curve(0, v))
+        self._cm.subscribe(f"handbrake-y2", lambda v: self._get_curve(1, v))
+        self._cm.subscribe(f"handbrake-y3", lambda v: self._get_curve(2, v))
+        self._cm.subscribe(f"handbrake-y4", lambda v: self._get_curve(3, v))
+        self._cm.subscribe(f"handbrake-y5", lambda v: self._get_curve(4, v))
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
@@ -60,3 +70,39 @@ class HandbrakeSettings(SettingsPanel):
         self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Fix device range"))
         self._current_row.subscribe(lambda v: self._cm.set_setting(f"handbrake-{v}-calibration", 1))
 
+
+    def _set_curve_preset(self, value: int) -> None:
+        self._set_curve(self._presets[value])
+
+
+    def _set_curve_point(self, index: int, value: int) -> None:
+        self._cm.set_setting_float(f"handbrake-y{index+1}", float(value))
+
+
+    def _set_curve(self, values: list) -> None:
+        curve = []
+        curve.extend(values)
+
+        for i in range(0,5):
+            self._cm.set_setting_float(f"handbrake-y{i+1}", curve[i])
+
+
+    def _get_curve(self, sindex: int, value: int) -> None:
+        index = -1
+        values = self._curve_row.get_sliders_value()
+        values[sindex] = value
+
+        if values in self._presets:
+            index = self._presets.index(values)
+
+        self._curve_row.set_button_value(index)
+        print(f"{sindex} {value}")
+        self._curve_row.set_slider_value(sindex, value)
+
+
+    _presets = [
+        [20, 40, 60, 80, 100], # Linear
+        [ 8, 24, 76, 92, 100], # S Curve
+        [ 6, 14, 28, 54, 100], # Exponential
+        [46, 72, 86, 94, 100]  # Parabolic
+    ]
