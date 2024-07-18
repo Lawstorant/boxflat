@@ -182,12 +182,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.set_height(450)
         for i in range(6):
             self._eq_row.subscribe_slider(i, self._cm.set_setting_int, f"base-equalizer{i+1}")
-        self._append_sub(f"base-equalizer1", self._eq_row.set_slider_value, 0)
-        self._append_sub(f"base-equalizer2", self._eq_row.set_slider_value, 1)
-        self._append_sub(f"base-equalizer3", self._eq_row.set_slider_value, 2)
-        self._append_sub(f"base-equalizer4", self._eq_row.set_slider_value, 3)
-        self._append_sub(f"base-equalizer5", self._eq_row.set_slider_value, 4)
-        self._append_sub(f"base-equalizer6", self._eq_row.set_slider_value, 5)
+            self._append_sub(f"base-equalizer{i+1}", self._eq_row.set_slider_value, i)
 
 
     def __prepare_curve(self) -> None:
@@ -204,11 +199,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset)
         for i in range(5):
             self._current_row.subscribe_slider(i, self._set_curve_point, i)
-        self._append_sub(f"base-ffb-curve-y1", self._get_curve, 0)
-        self._append_sub(f"base-ffb-curve-y2", self._get_curve, 1)
-        self._append_sub(f"base-ffb-curve-y3", self._get_curve, 2)
-        self._append_sub(f"base-ffb-curve-y4", self._get_curve, 3)
-        self._append_sub(f"base-ffb-curve-y5", self._get_curve, 4)
+            self._append_sub(f"base-ffb-curve-y{i+1}", self._get_curve, i)
 
 
     def _set_curve_preset(self, value: int) -> None:
@@ -240,4 +231,4 @@ class BaseSettings(SettingsPanel):
             index = self._curve_presets.index(values)
 
         self._curve_row.set_button_value(index)
-        self._curve_row.set_slider_value(sindex, value)
+        self._curve_row.set_slider_value(value, sindex)

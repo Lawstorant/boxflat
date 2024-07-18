@@ -48,11 +48,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, "throttle")
         for i in range(5):
             self._curve_rows[0].subscribe_slider(i, self._set_curve_point, i, "throttle")
-        self._append_sub(f"pedals-throttle-y1", self._get_curve, 0, "throttle")
-        self._append_sub(f"pedals-throttle-y2", self._get_curve, 1, "throttle")
-        self._append_sub(f"pedals-throttle-y3", self._get_curve, 2, "throttle")
-        self._append_sub(f"pedals-throttle-y4", self._get_curve, 3, "throttle")
-        self._append_sub(f"pedals-throttle-y5", self._get_curve, 4, "throttle")
+            self._append_sub(f"pedals-throttle-y{i+1}", self._get_curve, i, "throttle")
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
@@ -92,11 +88,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, "brake")
         for i in range(5):
             self._curve_rows[1].subscribe_slider(i, self._set_curve_point, i, "brake")
-        self._append_sub(f"pedals-brake-y1", self._get_curve, 0, "brake")
-        self._append_sub(f"pedals-brake-y2", self._get_curve, 1, "brake")
-        self._append_sub(f"pedals-brake-y3", self._get_curve, 2, "brake")
-        self._append_sub(f"pedals-brake-y4", self._get_curve, 3, "brake")
-        self._append_sub(f"pedals-brake-y5", self._get_curve, 4, "brake")
+            self._append_sub(f"pedals-brake-y{i+1}", self._get_curve, i, "brake")
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
@@ -143,11 +135,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, "clutch")
         for i in range(5):
             self._curve_rows[2].subscribe_slider(i, self._set_curve_point, i, "clutch")
-        self._append_sub(f"pedals-clutch-y1", self._get_curve, 0, "clutch")
-        self._append_sub(f"pedals-clutch-y2", self._get_curve, 1, "clutch")
-        self._append_sub(f"pedals-clutch-y3", self._get_curve, 2, "clutch")
-        self._append_sub(f"pedals-clutch-y4", self._get_curve, 3, "clutch")
-        self._append_sub(f"pedals-clutch-y5", self._get_curve, 4, "clutch")
+            self._append_sub(f"pedals-clutch-y{i+1}", self._get_curve, i, "clutch")
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)

@@ -57,11 +57,6 @@ class HandbrakeSettings(SettingsPanel):
             self._curve_row.subscribe_slider(i, self._set_curve_point, i)
             self._append_sub(f"handbrake-y{i+1}", self._curve_row.set_slider_value, i)
 
-        # self._append_sub(f"handbrake-y1", self._get_curve, 0)
-        # self._append_sub(f"handbrake-y2", self._get_curve, 1)
-        # self._append_sub(f"handbrake-y3", self._get_curve, 2)
-        # self._append_sub(f"handbrake-y4", self._get_curve, 3)
-        # self._append_sub(f"handbrake-y5", self._get_curve, 4)
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
