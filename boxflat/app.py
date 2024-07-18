@@ -132,12 +132,11 @@ class MainWindow(Adw.ApplicationWindow):
 
 
 class MyApp(Adw.Application):
-    def __init__(self, data_path: str, dry_run: bool, resizable: bool, **kwargs):
+    def __init__(self, data_path: str, dry_run: bool, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
         self._data_path = data_path
         self._dry_run = dry_run
-        self._resizable = resizable
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -145,5 +144,4 @@ class MyApp(Adw.Application):
 
     def on_activate(self, app):
         self.win = MainWindow(self._data_path, self._dry_run, application=app)
-        self.win.set_resizable(not self._resizable)
         self.win.present()
