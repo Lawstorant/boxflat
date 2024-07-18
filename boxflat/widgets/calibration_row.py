@@ -1,20 +1,21 @@
 import gi
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 from .button_row import BoxflatButtonRow
 from threading import Thread
+from threading import Event
 from time import sleep
 
 class BoxflatCalibrationRow(BoxflatButtonRow):
     def __init__(self, title: str, subtitle=""):
         super().__init__(title, "Calibrate", subtitle)
-        self._in_progress = False
+        self._calibration_event = Event()
         self._thread = Thread(target=self._calibration)
         self._thread.start()
 
 
     def _notify(self) -> None:
-        self._in_progress = True
+        self._calibration_event.set()
 
 
     def _notify_calibration(self) -> None:
@@ -26,29 +27,29 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
 
     def get_value(self) -> str:
-        if self._in_progress:
+        if self._calibration_event.is_set():
             return "stop"
         return "start"
 
 
     def _calibration(self) -> None:
         while not self._shutdown:
-            if not self._in_progress:
-                sleep(0.5)
+            if not self._calibration_event.wait(timeout=1):
                 continue
 
-            self.set_active(False)
+            GLib.idle_add(self.set_active, False)
             tmp = self.get_subtitle()
             text = "Calibration in progress..."
             print("Calibration start")
             self._notify_calibration()
 
             for i in reversed(range(10)):
-                self.set_subtitle(f"{text} {i+1}s")
+                GLib.idle_add(self.set_subtitle, f"{text} {i+1}s")
                 sleep(1)
 
-            self._in_progress = False
-            print("Calibration stop")
             self._notify_calibration()
-            self.set_subtitle(tmp)
-            self.set_active(True)
+            print("Calibration stop")
+
+            self._calibration_event.clear()
+            GLib.idle_add(self.set_subtitle, tmp)
+            GLib.idle_add(self.set_active, True)
