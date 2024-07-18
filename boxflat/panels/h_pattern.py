@@ -6,7 +6,7 @@ class HPatternSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._slider1 = None
         self._slider2 = None
-        super(HPatternSettings, self).__init__("H-Pattern Shifter", button_callback, connection_manager)
+        super().__init__("H-Pattern Shifter", button_callback, connection_manager)
 
 
     def prepare_ui(self) -> None:

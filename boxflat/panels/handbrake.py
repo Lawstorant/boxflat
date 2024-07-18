@@ -15,7 +15,7 @@ class HandbrakeSettings(SettingsPanel):
             [46, 72, 86, 94, 100]  # Parabolic
         ]
 
-        super(HandbrakeSettings, self).__init__("Handbrake", button_callback, connection_manager)
+        super().__init__("Handbrake", button_callback, connection_manager)
 
 
     def prepare_ui(self) -> None:

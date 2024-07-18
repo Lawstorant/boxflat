@@ -20,7 +20,7 @@ class PedalsSettings(SettingsPanel):
             "clutch"
         ]
 
-        super(PedalsSettings, self).__init__("Pedals", button_callback, connection_manager)
+        super().__init__("Pedals", button_callback, connection_manager)
 
 
     def set_brake_calibration_active(self, active: bool):

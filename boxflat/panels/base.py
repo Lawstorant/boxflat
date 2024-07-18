@@ -21,7 +21,7 @@ class BaseSettings(SettingsPanel):
             [46, 72, 86, 94, 100]  # Parabolic
         ]
 
-        super(BaseSettings, self).__init__("Base", button_callback, connection_manager)
+        super().__init__("Base", button_callback, connection_manager)
 
     def _set_rotation(self, value: int) -> None:
         self._cm.set_setting_int(value, "base-limit")

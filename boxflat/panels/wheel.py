@@ -11,7 +11,7 @@ class WheelSettings(SettingsPanel):
         self._timings.append([65, 69, 72, 75, 78, 80, 83, 85, 88, 91]) # Early
         self._timings.append([75, 79, 82, 85, 87, 88, 89, 90, 92, 94]) # Normal
         self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Late
-        super(WheelSettings, self).__init__("Wheel", button_callback, connection_manager)
+        super().__init__("Wheel", button_callback, connection_manager)
 
 
     def prepare_ui(self) -> None:
