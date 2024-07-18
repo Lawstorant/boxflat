@@ -17,7 +17,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels = {}
         self._dry_run = dry_run
 
-        self.set_default_size(920, 800)
+        self.set_default_size(0, 800)
         self.set_title("Boxflat")
 
         left_header = Adw.HeaderBar()
@@ -32,8 +32,8 @@ class MainWindow(Adw.ApplicationWindow):
         # left_header.pack_start(self.search_btn)
 
         navigation = Adw.NavigationSplitView()
-        navigation.set_max_sidebar_width(150)
-        navigation.set_min_sidebar_width(150)
+        navigation.set_max_sidebar_width(178)
+        navigation.set_min_sidebar_width(178)
 
         sidebar = Adw.NavigationPage()
         sidebar.set_title("Boxflat")
@@ -43,6 +43,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         content = Adw.NavigationPage()
         content.set_title("Whatever")
+        content.set_size_request(720, 0)
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         content_box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
@@ -144,5 +145,5 @@ class MyApp(Adw.Application):
 
     def on_activate(self, app):
         self.win = MainWindow(self._data_path, self._dry_run, application=app)
-        self.win.set_resizable(self._resizable)
+        self.win.set_resizable(not self._resizable)
         self.win.present()
