@@ -11,19 +11,19 @@ class SequentialSettings(SettingsPanel):
     def prepare_ui(self) -> None:
         self.add_preferences_group("Shifter Settings")
         self._add_row(BoxflatSwitchRow("Reverse Shift Direction", subtitle="Why would you do that?"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-direction", v))
-        self._cm.subscribe("sequential-direction", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_int, "sequential-direction")
+        self._append_sub("sequential-direction", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization"))
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-paddle-sync", v))
-        self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_int, "sequential-paddle-sync")
+        self._append_sub("sequential-paddle-sync", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
         self._current_row.add_marks(5);
-        self._current_row.subscribe(lambda v: self._cm.set_setting("sequential-brightness", v))
-        self._cm.subscribe("sequential-brightness", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_int, "sequential-brightness")
+        self._append_sub("sequential-brightness", self._current_row.set_value)
 
         self._S1 = BoxflatColorPickerRow("S1 Color")
         self._add_row(self._S1)
@@ -31,8 +31,15 @@ class SequentialSettings(SettingsPanel):
         self._S2 = BoxflatColorPickerRow("S2 Color")
         self._add_row(self._S2)
 
-        self._S1.subscribe(lambda v: self._cm.set_setting_list("sequential-colors", [self._S1.get_value(), self._S2.get_value()]))
-        self._S2.subscribe(lambda v: self._cm.set_setting_list("sequential-colors", [self._S1.get_value(), self._S2.get_value()]))
+        self._S1.subscribe(self._set_colors)
+        self._S2.subscribe(self._set_colors)
+        self._append_sub("sequential-colors", self._get_colors)
 
-        self._cm.subscribe("sequential-colors", lambda v: self._S1.set_value(int(v[0])))
-        self._cm.subscribe("sequential-colors", lambda v: self._S2.set_value(int(v[1])))
+
+    def _set_colors(self, *args) -> None:
+        self._cm.set_setting_list([self._S1.get_value(), self._S2.get_value()], "sequential-colors")
+
+
+    def _get_colors(self, value: list) -> None:
+        self._S1.set_value(int(value[0]))
+        self._S2.set_value(int(value[1]))

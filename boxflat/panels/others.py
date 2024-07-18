@@ -18,16 +18,16 @@ class OtherSettings(SettingsPanel):
         self._current_row.reverse_values()
         self._current_row.set_expression("*85")
         self._current_row.set_reverse_expression("/85")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-ble-mode", v))
-        self._cm.subscribe("main-get-ble-mode", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_int, "main-set-ble-mode")
+        self._append_sub("main-get-ble-mode", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Base compatiility mode", "For Forza Horizon 5"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("main-set-compat-mode", v))
-        self._cm.subscribe("main-get-compat-mode", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_int, "main-set-compat-mode")
+        self._append_sub("main-get-compat-mode", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Pedals compatiility mode", "For Forza Horizon 5"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-compat-mode", v))
-        self._cm.subscribe("pedals-compat-mode", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_int, "pedals-compat-mode")
+        self._append_sub("pedals-compat-mode", self._current_row.set_value)
 
 
         self.add_preferences_group("Application settings")
@@ -36,6 +36,7 @@ class OtherSettings(SettingsPanel):
         # self._add_row(BoxflatSwitchRow("Monitor Handbrake Output"))
         self._add_row(BoxflatSwitchRow("Monitor Pedals/Handbrake Output", "Still Buggy"))
         self._current_row.subscribe(self._cm.set_cont_active)
+        self._current_row.set_value(1, mute=False)
 
         self._brake_calibration = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
         self._add_row(self._brake_calibration)
@@ -77,4 +78,4 @@ class OtherSettings(SettingsPanel):
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
         val = int(self._value.get_text())
-        self._cm.set_setting(com, val)
+        self._cm.set_setting_int(com, val)

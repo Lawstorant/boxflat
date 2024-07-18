@@ -1,5 +1,6 @@
 import yaml
 import os.path
+import sys
 from .moza_command import *
 from serial import Serial
 from threading import Thread
@@ -43,6 +44,11 @@ class MozaConnectionManager():
         self._cont_thread = Thread(target=self._notify_cont)
         self._cont_thread.start()
 
+        self._shutown_subscribtions = []
+
+        self._sub_lock = Lock()
+        self._cont_lock = Lock()
+
         self._write_command_buffer = {}
         self._read_command_buffer = {}
         self._write_mutex = Lock()
@@ -56,6 +62,8 @@ class MozaConnectionManager():
 
     def shutdown(self) -> None:
         self._shutdown = True
+        for sub in self._shutown_subscribtions:
+            sub[0](*sub[1])
 
 
     def device_discovery(self, *args) -> None:
@@ -110,16 +118,33 @@ class MozaConnectionManager():
         print("Device discovery end\n")
 
 
-    def subscribe(self, command: str, callback: callable) -> None:
+    def subscribe(self, command: str, callback: callable, *args) -> None:
         if not command in self._subscribtions:
             self._subscribtions[command] = []
-        self._subscribtions[command].append(callback)
+
+        self._subscribtions[command].append((callback, args))
 
 
-    def subscribe_cont(self, command: str, callback: callable) -> None:
+    def reset_subscriptions(self) -> None:
+        print("\nClearing subscriptions")
+        self._sub_lock.acquire()
+        self._subscribtions.clear()
+        self._sub_lock.release()
+
+        self._cont_lock.acquire()
+        self._cont_subscribtions.clear()
+        self._cont_lock.release()
+
+
+    def subscribe_cont(self, command: str, callback: callable, *args) -> None:
         if not command in self._cont_subscribtions:
             self._cont_subscribtions[command] = []
-        self._cont_subscribtions[command].append(callback)
+
+        self._cont_subscribtions[command].append((callback, args))
+
+
+    def subscribe_shutdown(self, callback, *args) -> None:
+        self._shutown_subscribtions.append((callback, args))
 
 
     def refresh(self, *args) -> None:
@@ -135,7 +160,7 @@ class MozaConnectionManager():
         response = 0
         while not self._shutdown:
             if not self._refresh:
-                time.sleep(1)
+                time.sleep(0.5)
                 continue
 
             if not self._refresh_cont:
@@ -143,7 +168,11 @@ class MozaConnectionManager():
 
             self.device_discovery()
 
-            for com in self._subscribtions.keys():
+            self._sub_lock.acquire()
+            subs = dict(self._subscribtions)
+            self._sub_lock.release()
+
+            for com in subs.keys():
                 com_type = self._serial_data["commands"][com]["type"]
                 if com_type == "array":
                     response = self.get_setting_list(com)
@@ -152,11 +181,11 @@ class MozaConnectionManager():
                 else:
                     response = self.get_setting_int(com)
 
-                for subscriber in self._subscribtions[com]:
-                    subscriber(response)
+                for subscriber in subs[com]:
+                    subscriber[0](response, *subscriber[1])
 
             if self._refresh_cont:
-                time.sleep(3)
+                time.sleep(1)
 
 
     def _notify_cont(self) -> None:
@@ -166,10 +195,15 @@ class MozaConnectionManager():
                 continue
 
             time.sleep(1/40) # 40 Hz refresh rate
-            for com in self._cont_subscribtions.keys():
+            self._cont_lock.acquire()
+            subs = dict(self._cont_subscribtions)
+            self._cont_lock.release()
+
+            for com in subs.keys():
                 response = self.get_setting_int(com)
-                for subscriber in self._cont_subscribtions[com]:
-                    GLib.idle_add(subscriber, response)
+                for subscriber in subs[com]:
+                    GLib.idle_add(subscriber[0], response, *subscriber[1])
+
 
 
     def set_cont_active(self, active: bool) -> None:
@@ -185,7 +219,7 @@ class MozaConnectionManager():
 
     def _rw_handler(self) -> None:
         while not self._shutdown:
-            time.sleep(0.5)
+            time.sleep(0.2)
 
             self._write_mutex.acquire()
             write_buffer = self._write_command_buffer
@@ -247,7 +281,7 @@ class MozaConnectionManager():
 
         self._serial_lock.acquire()
         try:
-            serial = Serial(serial_path, baudrate=115200, timeout=0.1)
+            serial = Serial(serial_path, baudrate=115200, timeout=0.05)
             time.sleep(1/500)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
@@ -257,7 +291,7 @@ class MozaConnectionManager():
             # read_response = True # For teesting writes
             start_time = time.time()
             while read_response:
-                if time.time() - start_time > 0.2:
+                if time.time() - start_time > 0.1:
                     read_response = False
                     break
 
@@ -346,17 +380,20 @@ class MozaConnectionManager():
 
     # Set a setting value on a device
     # If value should be float, provide bytes
-    def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
+    def _set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
         self._write_mutex.acquire()
         self._write_command_buffer[command_name] = (value, byte_value)
         self._write_mutex.release()
 
-    def set_setting_float(self, command_name: str, value: float) -> None:
-        # Moza expects floats to have reverset bytes for some reason
-        self.set_setting(command_name, byte_value=struct.pack("f", value)[::-1])
+    def set_setting_int(self, value: int, command_name: str) -> None:
+        self._set_setting(command_name, value)
 
-    def set_setting_list(self, command_name: str, values: list) -> None:
-        self.set_setting(command_name, byte_value=bytes(values))
+    def set_setting_float(self, value: float, command_name: str) -> None:
+        # Moza expects floats to have reverset bytes for some reason
+        self._set_setting(command_name, byte_value=struct.pack("f", float(value))[::-1])
+
+    def set_setting_list(self, values: list, command_name: str) -> None:
+        self._set_setting(command_name, byte_value=bytes(values))
 
     # Get a setting value from a device
     def get_setting(self, command_name: str) -> bytes:

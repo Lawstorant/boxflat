@@ -1,3 +1,5 @@
+from sys import byteorder
+
 MOZA_COMMAND_READ=0
 MOZA_COMMAND_WRITE=1
 

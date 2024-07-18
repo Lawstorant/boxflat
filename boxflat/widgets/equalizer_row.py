@@ -108,7 +108,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.unmute()
 
 
-    def set_slider_value(self, index: int, value: int, mute=True) -> None:
+    def set_slider_value(self, value: int, index: int, mute=True) -> None:
         self.mute(mute)
         self._sliders[index].set_value(value)
         self.unmute()
@@ -122,11 +122,11 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         super().set_value(value, mute)
 
 
-    def subscribe_slider(self, index: int, callback: callable) -> None:
-        self._slider_subs[index].append(callback)
+    def subscribe_slider(self, index: int, callback: callable, *args) -> None:
+        self._slider_subs[index].append((callback, args))
 
 
-    def set_slider_active(self, index: int, active=True) -> None:
+    def set_slider_active(self, active: bool, index: int) -> None:
         self._sliders[index].set_sensitive(active)
 
 
@@ -137,5 +137,5 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         index = self._sliders.index(scale)
 
         self.set_button_value(-1)
-        for callback in self._slider_subs[index]:
-            callback(index, self.get_slider_value(index))
+        for sub in self._slider_subs[index]:
+            sub[0](self.get_slider_value(index), *sub[1])
