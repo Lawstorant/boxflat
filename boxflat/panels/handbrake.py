@@ -95,7 +95,7 @@ class HandbrakeSettings(SettingsPanel):
         curve.extend(values)
 
         for i in range(0,5):
-            self._cm.set_setting_float(float(curve[i]), f"handbrake-y{i+1}")
+            self._cm.set_setting_float(curve[i], f"handbrake-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int) -> None:

@@ -23,7 +23,7 @@ class MozaCommand():
 
     @payload.setter
     def payload(self, value: int) -> None:
-        self._payload = value.to_bytes(self._length, byteorder)
+        self._payload = value.to_bytes(self._length)
 
     @property
     def id_byte(self) -> bytes:

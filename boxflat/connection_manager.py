@@ -365,7 +365,7 @@ class MozaConnectionManager():
 
     def set_setting_float(self, value: float, command_name: str) -> None:
         # Moza expects floats to have reverset bytes for some reason
-        self._set_setting(command_name, byte_value=struct.pack("f", value)[::-1])
+        self._set_setting(command_name, byte_value=struct.pack("f", float(value))[::-1])
 
     def set_setting_list(self, values: list, command_name: str) -> None:
         self._set_setting(command_name, byte_value=bytes(values))
