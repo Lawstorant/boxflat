@@ -87,7 +87,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _prepare_settings(self) -> None:
         self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run)
-        # self._panels["Base"] = BaseSettings(self.switch_panel, self._cm)
+        self._panels["Base"] = BaseSettings(self.switch_panel, self._cm)
         self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm)
         self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm)
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm)

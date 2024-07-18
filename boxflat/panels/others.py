@@ -19,15 +19,15 @@ class OtherSettings(SettingsPanel):
         self._current_row.set_expression("*85")
         self._current_row.set_reverse_expression("/85")
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-ble-mode")
-        self._cm.subscribe("main-get-ble-mode", self._current_row.set_value)
+        self._append_sub("main-get-ble-mode", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Base compatiility mode", "For Forza Horizon 5"))
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-compat-mode")
-        self._cm.subscribe("main-get-compat-mode", self._current_row.set_value)
+        self._append_sub("main-get-compat-mode", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Pedals compatiility mode", "For Forza Horizon 5"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-compat-mode")
-        self._cm.subscribe("pedals-compat-mode", self._current_row.set_value)
+        self._append_sub("pedals-compat-mode", self._current_row.set_value)
 
 
         self.add_preferences_group("Application settings")

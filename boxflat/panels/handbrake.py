@@ -54,8 +54,8 @@ class HandbrakeSettings(SettingsPanel):
         self._current_row.set_button_value(-1)
         self._current_row.subscribe(self._set_curve_preset)
         for i in range(5):
-            self._current_row.subscribe_slider(i, self._set_curve_point, i)
-            self._append_sub(f"handbrake-y{i+1}", self._get_curve, i)
+            self._curve_row.subscribe_slider(i, self._set_curve_point, i)
+            self._append_sub(f"handbrake-y{i+1}", self._curve_row.set_slider_value, i)
 
         # self._append_sub(f"handbrake-y1", self._get_curve, 0)
         # self._append_sub(f"handbrake-y2", self._get_curve, 1)
@@ -107,4 +107,4 @@ class HandbrakeSettings(SettingsPanel):
             index = self._presets.index(values)
 
         self._curve_row.set_button_value(index)
-        self._curve_row.set_slider_value(sindex, value)
+        self._curve_row.set_slider_value(value, sindex)
