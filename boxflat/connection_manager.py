@@ -1,5 +1,6 @@
 import yaml
 import os.path
+import sys
 from .moza_command import *
 from serial import Serial
 from threading import Thread
@@ -110,16 +111,24 @@ class MozaConnectionManager():
         print("Device discovery end\n")
 
 
-    def subscribe(self, command: str, callback: callable) -> None:
+    def subscribe(self, command: str, callback: callable, *args) -> None:
         if not command in self._subscribtions:
             self._subscribtions[command] = []
-        self._subscribtions[command].append(callback)
+
+        self._subscribtions[command].append((callback, args))
 
 
-    def subscribe_cont(self, command: str, callback: callable) -> None:
+    def reset_subscriptions(self) -> None:
+        print("\nClearing subscriptions")
+        self._subscribtions.clear()
+        self._cont_subscribtions.clear()
+
+
+    def subscribe_cont(self, command: str, callback: callable, *args) -> None:
         if not command in self._cont_subscribtions:
             self._cont_subscribtions[command] = []
-        self._cont_subscribtions[command].append(callback)
+
+        self._cont_subscribtions[command].append((callback, args))
 
 
     def refresh(self, *args) -> None:
@@ -153,7 +162,7 @@ class MozaConnectionManager():
                     response = self.get_setting_int(com)
 
                 for subscriber in self._subscribtions[com]:
-                    subscriber(response)
+                    subscriber[0](response, *subscriber[1])
 
             if self._refresh_cont:
                 time.sleep(3)
@@ -169,7 +178,7 @@ class MozaConnectionManager():
             for com in self._cont_subscribtions.keys():
                 response = self.get_setting_int(com)
                 for subscriber in self._cont_subscribtions[com]:
-                    GLib.idle_add(subscriber, response)
+                    GLib.idle_add(subscriber[0], response, *subscriber[1])
 
 
     def set_cont_active(self, active: bool) -> None:
@@ -346,17 +355,20 @@ class MozaConnectionManager():
 
     # Set a setting value on a device
     # If value should be float, provide bytes
-    def set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
+    def _set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
         self._write_mutex.acquire()
         self._write_command_buffer[command_name] = (value, byte_value)
         self._write_mutex.release()
 
-    def set_setting_float(self, command_name: str, value: float) -> None:
-        # Moza expects floats to have reverset bytes for some reason
-        self.set_setting(command_name, byte_value=struct.pack("f", value)[::-1])
+    def set_setting_int(self, value: int, command_name: str) -> None:
+        self._set_setting(command_name, value)
 
-    def set_setting_list(self, command_name: str, values: list) -> None:
-        self.set_setting(command_name, byte_value=bytes(values))
+    def set_setting_float(self, value: float, command_name: str) -> None:
+        # Moza expects floats to have reverset bytes for some reason
+        self._set_setting(command_name, byte_value=struct.pack("f", value)[::-1])
+
+    def set_setting_list(self, values: list, command_name: str) -> None:
+        self._set_setting(command_name, byte_value=bytes(values))
 
     # Get a setting value from a device
     def get_setting(self, command_name: str) -> bytes:

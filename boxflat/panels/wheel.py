@@ -23,14 +23,14 @@ class WheelSettings(SettingsPanel):
 
         slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
         self._current_row.subscribe(lambda v: slider.set_active(v == 2))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-paddles-mode", v))
+        self._current_row.subscribe(self._cm.set_setting_int, "wheel-paddles-mode")
         self._cm.subscribe("wheel-paddles-mode", self._current_row.set_value)
 
         self._add_row(slider)
         self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-clutch-point", v))
+        self._current_row.subscribe(self._cm.set_setting_int, "wheel-clutch-point")
         self._cm.subscribe("wheel-clutch-point", self._current_row.set_value)
         self._cm.subscribe("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
 
@@ -38,7 +38,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("Buttons", "D-Pad")
         self._current_row.set_expression("*256")
         self._current_row.set_reverse_expression("/256")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-stick-mode", v))
+        self._current_row.subscribe(self._cm.set_setting_int, "wheel-stick-mode")
         self._cm.subscribe("wheel-stick-mode", self._current_row.set_value)
 
         # RPM Lights
@@ -47,12 +47,12 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("RPM", "Off", "On")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-indicator-mode", v))
+        self._current_row.subscribe(self._cm.set_setting_int, "wheel-indicator-mode")
         self._cm.subscribe("wheel-indicator-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
         self._current_row.add_buttons("Mode 1", "Mode 2")
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-set-display-mode", v))
+        self._current_row.subscribe(self._cm.set_setting_int, "wheel-set-display-mode")
         self._cm.subscribe("wheel-get-display-mode", self._current_row.set_value)
 
         self._timing_row = BoxflatToggleButtonRow("RPM Indicator Timing")
@@ -66,12 +66,12 @@ class WheelSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Brightness", suffix="%"))
         self._current_row.subtitle = "RPM and buttons"
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("wheel-brightness", v))
+        self._current_row.subscribe(self._cm.set_setting_int, "wheel-brightness")
         self._cm.subscribe("wheel-brightness", self._current_row.set_value)
 
 
     def _set_indicator_timings(self, value: int) -> None:
-        self._cm.set_setting_list("wheel-indicator-timings", self._timings[value])
+        self._cm.set_setting_list(self._timings[value], "wheel-indicator-timings")
 
 
     def _get_indicator_timings(self, timings: list) -> None:

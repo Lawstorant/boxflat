@@ -1,3 +1,5 @@
+from sys import byteorder
+
 MOZA_COMMAND_READ=0
 MOZA_COMMAND_WRITE=1
 
@@ -21,7 +23,7 @@ class MozaCommand():
 
     @payload.setter
     def payload(self, value: int) -> None:
-        self._payload = value.to_bytes(self._length)
+        self._payload = value.to_bytes(self._length, byteorder)
 
     @property
     def id_byte(self) -> bytes:

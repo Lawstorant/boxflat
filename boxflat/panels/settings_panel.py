@@ -8,15 +8,18 @@ from gi.repository import Gtk, Adw
 from boxflat.connection_manager import MozaConnectionManager
 
 class SettingsPanel(object):
-    _current_page = None
-    _current_group: BoxflatPreferencesGroup=None
-    _current_stack = None
-    _current_row: BoxflatRow=None
-    _header = None
-    _rows = []
-
     def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager=None) -> None:
         self._cm = connection_manager
+
+        self._current_page = None
+        self._current_group: BoxflatPreferencesGroup=None
+        self._current_stack = None
+        self._current_row: BoxflatRow=None
+        self._header = None
+        self._rows = []
+        self._cm_subs = []
+        self._cm_subs_cont = []
+
         self._content = self._prepare_content()
         self._button = self._prepare_button(title, button_callback)
         self._banner = self._prepare_banner()
@@ -146,3 +149,21 @@ class SettingsPanel(object):
         self._current_row = row
         self._current_group.add(row)
         self._rows.append(row)
+
+
+    def _append_sub(self, *args):
+        self._cm_subs.append(args)
+
+
+    def _append_sub_cont(self, *args):
+        self._cm_subs_cont.append(args)
+
+
+    def activate_subs(self) -> list:
+        print(self.title)
+        for sub in self._cm_subs:
+            self._cm.subscribe(*sub)
+
+        for sub in self._cm_subs_cont:
+            self._cm.subscribe_cont(*sub)
+

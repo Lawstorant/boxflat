@@ -50,16 +50,16 @@ class BoxflatRow(Adw.ActionRow):
         self.add_suffix(widget)
 
 
-    def subscribe(self, callback: callable) -> None:
-        self._subscribers.append(callback)
+    def subscribe(self, callback: callable, *args) -> None:
+        self._subscribers.append((callback, args))
 
 
     def _notify(self) -> None:
         if self._mute:
             return
 
-        for callback in self._subscribers:
-            callback(self.get_value())
+        for sub in self._subscribers:
+            sub[0](self.get_value(), *sub[1])
 
     def set_expression(self, expr: str) -> None:
         """

@@ -6,6 +6,20 @@ class PedalsSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
         self._brake_calibration_row = None
         self._curve_rows = []
+
+        self._presets = [
+            [20, 40, 60, 80, 100], # Linear
+            [ 8, 24, 76, 92, 100], # S Curve
+            [ 6, 14, 28, 54, 100], # Exponential
+            [46, 72, 86, 94, 100]  # Parabolic
+        ]
+
+        self._pedals = [
+            "throttle",
+            "brake",
+            "clutch"
+        ]
+
         super(PedalsSettings, self).__init__("Pedals", button_callback, connection_manager)
 
 
@@ -43,22 +57,22 @@ class PedalsSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-throttle-min", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-throttle-min", v))
         self._cm.subscribe("pedals-throttle-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-throttle-max", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-throttle-max", v))
         self._cm.subscribe("pedals-throttle-max", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-throttle-dir", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-throttle-dir", v))
         self._cm.subscribe("pedals-throttle-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-throttle-{v}-calibration", 1))
+        self._current_row.subscribe(lambda v: self._cm._set_setting(f"pedals-throttle-{v}-calibration", 1))
 
         # Brake
         self.add_preferences_page("Brake")
@@ -87,13 +101,13 @@ class PedalsSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-min", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-brake-min", v))
         self._cm.subscribe("pedals-brake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-max", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-brake-max", v))
         self._cm.subscribe("pedals-brake-max", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Pressure Point Setting", suffix="%", subtitle="Higher = less range"))
@@ -103,12 +117,12 @@ class PedalsSettings(SettingsPanel):
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-brake-dir", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-brake-dir", v))
         self._cm.subscribe("pedals-brake-dir", self._current_row.set_value)
 
         self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Set range")
         self._add_row(self._brake_calibration_row)
-        self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-brake-{v}-calibration", 1))
+        self._current_row.subscribe(lambda v: self._cm._set_setting(f"pedals-brake-{v}-calibration", 1))
         self._current_row.set_active(False)
 
         # Clutch
@@ -138,22 +152,22 @@ class PedalsSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-clutch-min", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-clutch-min", v))
         self._cm.subscribe("pedals-clutch-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_width(380)
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-clutch-max", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-clutch-max", v))
         self._cm.subscribe("pedals-clutch-max", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting("pedals-clutch-dir", v))
+        self._current_row.subscribe(lambda v: self._cm._set_setting("pedals-clutch-dir", v))
         self._cm.subscribe("pedals-clutch-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
-        self._current_row.subscribe(lambda v: self._cm.set_setting(f"pedals-clutch-{v}-calibration", 1))
+        self._current_row.subscribe(lambda v: self._cm._set_setting(f"pedals-clutch-{v}-calibration", 1))
 
 
     def _set_curve_preset(self, value: int, pedal: str) -> None:
@@ -183,17 +197,3 @@ class PedalsSettings(SettingsPanel):
 
         self._curve_rows[pi].set_button_value(index)
         self._curve_rows[pi].set_slider_value(sindex, value)
-
-
-    _presets = [
-        [20, 40, 60, 80, 100], # Linear
-        [ 8, 24, 76, 92, 100], # S Curve
-        [ 6, 14, 28, 54, 100], # Exponential
-        [46, 72, 86, 94, 100]  # Parabolic
-    ]
-
-    _pedals = [
-        "throttle",
-        "brake",
-        "clutch"
-    ]
