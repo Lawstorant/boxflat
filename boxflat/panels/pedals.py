@@ -69,6 +69,7 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-throttle")
+        self._cm.subscribe_shutdown(self._current_row.shutdown)
 
         # Brake
         self.add_preferences_page("Brake")
@@ -116,6 +117,7 @@ class PedalsSettings(SettingsPanel):
         self._add_row(self._brake_calibration_row)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake")
         self._current_row.set_active(False)
+        self._cm.subscribe_shutdown(self._current_row.shutdown)
 
         # Clutch
         self.add_preferences_page("Clutch")
@@ -156,6 +158,7 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-clutch")
+        self._cm.subscribe_shutdown(self._current_row.shutdown)
 
 
     def _set_curve_preset(self, value: int, pedal: str) -> None:

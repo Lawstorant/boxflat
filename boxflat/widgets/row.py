@@ -9,6 +9,7 @@ class BoxflatRow(Adw.ActionRow):
         super().__init__()
         self._subscribers = []
         self._mute = False
+        self._shutdown = False
         self.set_sensitive(True)
         self.set_title(title)
         self.set_subtitle(subtitle)
@@ -73,3 +74,6 @@ class BoxflatRow(Adw.ActionRow):
         """
         self._reverse_expression = expr
 
+
+    def shutdown(self) -> None:
+        self._shutdown = True

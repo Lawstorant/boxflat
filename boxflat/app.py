@@ -99,6 +99,11 @@ class MainWindow(Adw.ApplicationWindow):
             self._panels["Pedals"].set_brake_calibration_active
         )
 
+        for panel in self._panels.values():
+            panel.activate_subs()
+
+        self._cm.refresh()
+
         # TODO: Add Dash,Hub and other settings pcm._device_discovery()
 
         if self._dry_run:
@@ -106,7 +111,7 @@ class MainWindow(Adw.ApplicationWindow):
             return
 
         self._cm.set_rw_active(True)
-        self._cm.reset_subscriptions()
+        #self._cm.reset_subscriptions()
 
 
     def _activate_default(self) -> SettingsPanel:

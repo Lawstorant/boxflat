@@ -10,7 +10,7 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
         super().__init__(title, "Calibrate", subtitle)
         self._in_progress = False
         self._thread = Thread(target=self._calibration)
-        # self._thread.start()
+        self._thread.start()
 
 
     def _notify(self) -> None:
@@ -32,7 +32,7 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
 
     def _calibration(self) -> None:
-        while True:
+        while not self._shutdown:
             if not self._in_progress:
                 sleep(0.5)
                 continue

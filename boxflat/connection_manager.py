@@ -44,6 +44,8 @@ class MozaConnectionManager():
         self._cont_thread = Thread(target=self._notify_cont)
         self._cont_thread.start()
 
+        self._shutown_subscribtions = []
+
         self._sub_lock = Lock()
         self._cont_lock = Lock()
 
@@ -60,6 +62,8 @@ class MozaConnectionManager():
 
     def shutdown(self) -> None:
         self._shutdown = True
+        for sub in self._shutown_subscribtions:
+            sub[0](*sub[1])
 
 
     def device_discovery(self, *args) -> None:
@@ -139,6 +143,10 @@ class MozaConnectionManager():
         self._cont_subscribtions[command].append((callback, args))
 
 
+    def subscribe_shutdown(self, callback, *args) -> None:
+        self._shutown_subscribtions.append((callback, args))
+
+
     def refresh(self, *args) -> None:
         self._refresh = True
 
@@ -161,7 +169,10 @@ class MozaConnectionManager():
             self.device_discovery()
 
             self._sub_lock.acquire()
-            for com in self._subscribtions.keys():
+            subs = dict(self._subscribtions)
+            self._sub_lock.release()
+
+            for com in subs.keys():
                 com_type = self._serial_data["commands"][com]["type"]
                 if com_type == "array":
                     response = self.get_setting_list(com)
@@ -170,12 +181,11 @@ class MozaConnectionManager():
                 else:
                     response = self.get_setting_int(com)
 
-                for subscriber in self._subscribtions[com]:
+                for subscriber in subs[com]:
                     subscriber[0](response, *subscriber[1])
-            self._sub_lock.release()
 
             if self._refresh_cont:
-                time.sleep(2)
+                time.sleep(1)
 
 
     def _notify_cont(self) -> None:
@@ -186,12 +196,14 @@ class MozaConnectionManager():
 
             time.sleep(1/40) # 40 Hz refresh rate
             self._cont_lock.acquire()
-            for com in self._cont_subscribtions.keys():
+            subs = dict(self._cont_subscribtions)
+            self._cont_lock.release()
+
+            for com in subs.keys():
                 response = self.get_setting_int(com)
-                for subscriber in self._cont_subscribtions[com]:
+                for subscriber in subs[com]:
                     GLib.idle_add(subscriber[0], response, *subscriber[1])
 
-            self._cont_lock.release()
 
 
     def set_cont_active(self, active: bool) -> None:
@@ -269,7 +281,7 @@ class MozaConnectionManager():
 
         self._serial_lock.acquire()
         try:
-            serial = Serial(serial_path, baudrate=115200, timeout=0.1)
+            serial = Serial(serial_path, baudrate=115200, timeout=0.05)
             time.sleep(1/500)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
@@ -279,7 +291,7 @@ class MozaConnectionManager():
             # read_response = True # For teesting writes
             start_time = time.time()
             while read_response:
-                if time.time() - start_time > 0.2:
+                if time.time() - start_time > 0.1:
                     read_response = False
                     break
 
