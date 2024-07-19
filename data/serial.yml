@@ -849,6 +849,18 @@ commands:
     bytes: 2
     type: int
 
+  # not a real command
+  # we're cheching this so we can discern between
+  # sequential shifter and h-pattern shifter
+  # command has a rang of {1,2} so if we get 0
+  # in response, hpattern is connected
+  hpattern-paddle-sync:
+    read: 81
+    write: 82
+    id: 6
+    bytes: 2
+    type: int
+
   hpattern-output:
     read: 83
     write: -1

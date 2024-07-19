@@ -12,6 +12,7 @@ class WheelSettings(SettingsPanel):
         self._timings.append([75, 79, 82, 85, 87, 88, 89, 90, 92, 94]) # Normal
         self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Late
         super().__init__("Wheel", button_callback, connection_manager)
+        self._append_sub_connected("wheel-paddles-mode", self.active)
 
 
     def prepare_ui(self) -> None:

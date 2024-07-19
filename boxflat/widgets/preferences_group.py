@@ -1,7 +1,7 @@
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, GLib
 
 class BoxflatPreferencesGroup(Adw.PreferencesGroup):
     def __init__(self, title="", level_bar=False):
@@ -35,7 +35,7 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
         if level < self._bar.get_min_value():
             level = self._bar.get_min_value()
 
-        self._bar.set_value(level)
+        GLib.idle_add(self._bar.set_value, level)
 
 
     def get_bar_level(self) -> int:

@@ -7,6 +7,12 @@ class HPatternSettings(SettingsPanel):
         self._slider1 = None
         self._slider2 = None
         super().__init__("H-Pattern Shifter", button_callback, connection_manager)
+        self._append_sub_connected("hpattern-paddle-sync", self.active)
+
+
+    def active(self, value: int) -> None:
+        value = -1 if value != 0 else value
+        super().active(value)
 
 
     def prepare_ui(self) -> None:

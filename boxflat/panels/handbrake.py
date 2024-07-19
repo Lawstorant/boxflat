@@ -16,6 +16,7 @@ class HandbrakeSettings(SettingsPanel):
         ]
 
         super().__init__("Handbrake", button_callback, connection_manager)
+        self._append_sub_connected("handbrake-direction", self.active)
 
 
     def prepare_ui(self) -> None:
@@ -55,7 +56,7 @@ class HandbrakeSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset)
         for i in range(5):
             self._curve_row.subscribe_slider(i, self._set_curve_point, i)
-            self._append_sub(f"handbrake-y{i+1}", self._curve_row.set_slider_value, i)
+            self._append_sub(f"handbrake-y{i+1}", self._get_curve, i)
 
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))

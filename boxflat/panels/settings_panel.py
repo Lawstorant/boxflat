@@ -16,9 +16,11 @@ class SettingsPanel(object):
         self._current_stack = None
         self._current_row: BoxflatRow=None
         self._header = None
-        self._rows = []
+        self._groups = []
         self._cm_subs = []
         self._cm_subs_cont = []
+        self._cm_subs_connected = []
+        self._active = True
 
         self._content = self._prepare_content()
         self._button = self._prepare_button(title, button_callback)
@@ -52,6 +54,7 @@ class SettingsPanel(object):
         banner.set_title(title)
         banner.set_button_label(label)
         banner.set_revealed(False)
+        banner.add_css_class("banner-disconnected")
         banner.connect("button-clicked", lambda b: self.hide_banner())
         self._content.append(banner)
         return banner
@@ -98,13 +101,18 @@ class SettingsPanel(object):
         self._button.set_active(False)
 
 
-    def active(self, value: bool) -> None:
-        for row in self._rows:
-            row.set_sensitive(value)
+    def active(self, value: int) -> None:
+        value = (value != -1)
+        if value == self._active:
+            return
 
+        self._active = value
         self.set_banner_title("Device disconnected")
         self.set_banner_label("")
         self.show_banner(not value)
+
+        for group in self._groups:
+            group.set_sensitive(value)
 
 
     def open_url(self, url: str) -> None:
@@ -130,6 +138,7 @@ class SettingsPanel(object):
         self._current_group = BoxflatPreferencesGroup(title, level_bar)
         self._current_group.set_bar_width(290)
         self._current_page.add(self._current_group)
+        self._groups.append(self._current_group)
 
 
     def add_view_stack(self) -> None:
@@ -148,7 +157,6 @@ class SettingsPanel(object):
             self.add_preferences_group()
         self._current_row = row
         self._current_group.add(row)
-        self._rows.append(row)
 
 
     def _append_sub(self, *args):
@@ -159,6 +167,10 @@ class SettingsPanel(object):
         self._cm_subs_cont.append(args)
 
 
+    def _append_sub_connected(self, *args):
+        self._cm_subs_connected.append(args)
+
+
     def activate_subs(self) -> list:
         print(self.title)
         for sub in self._cm_subs:
@@ -166,4 +178,7 @@ class SettingsPanel(object):
 
         for sub in self._cm_subs_cont:
             self._cm.subscribe_cont(*sub)
+
+        for sub in self._cm_subs_connected:
+            self._cm.subscribe_connected(*sub)
 
