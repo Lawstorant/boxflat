@@ -33,6 +33,13 @@ device-ids:
 # ===========================================
 commands:
 # Main commands(?)
+  main-output:
+    read: 30
+    write: -1
+    id: 57
+    bytes: 7
+    type: int
+
   main-set-compat-mode:
     read: -1
     write: 31
@@ -574,17 +581,24 @@ commands:
     bytes: 1
     type: int
 
-  base-output:
+  base-state:
     read: 43
     write: -1
     id: 1
     bytes: 2
     type: int
 
-  base-output-err:
+  base-state-err:
     read: 43
     write: -1
     id: 2
+    bytes: 2
+    type: int
+
+  base-something:
+    read: 43
+    write: -1
+    id: 3
     bytes: 2
     type: int
 
