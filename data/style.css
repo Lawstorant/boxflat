@@ -30,6 +30,10 @@
     border-radius: 0 5px 5px 0;
 }
 
+.toggle-button:last-child:not(.cs){
+    border-right: 0;
+}
+
 .color-button {
     padding: 5px 10px;
     margin: 16px 0;
