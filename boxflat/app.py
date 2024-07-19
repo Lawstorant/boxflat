@@ -144,4 +144,5 @@ class MyApp(Adw.Application):
 
     def on_activate(self, app):
         self.win = MainWindow(self._data_path, self._dry_run, application=app)
+        self.win.set_icon_name("com.lawstorant.boxflat")
         self.win.present()
