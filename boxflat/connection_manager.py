@@ -43,7 +43,7 @@ class MozaConnectionManager():
         self._cont_active = Event()
         self._cont_subscribtions = {}
         self._cont_thread = Thread(target=self._notify_cont)
-        # self._cont_thread.start()
+        self._cont_thread.start()
 
         self._shutown_subscribtions = []
 
@@ -204,12 +204,13 @@ class MozaConnectionManager():
                 continue
 
             time.sleep(1/40) # 40 Hz refresh rate
-            self._cont_lock.acquire()
-            subs = dict(self._cont_subscribtions)
-            self._cont_lock.release()
+            with self._cont_lock:
+                subs = dict(self._cont_subscribtions)
 
             for com in subs.keys():
                 response = self.get_setting_int(com)
+                if response == -1:
+                    break
                 for subscriber in subs[com]:
                     GLib.idle_add(subscriber[0], response, *subscriber[1])
 

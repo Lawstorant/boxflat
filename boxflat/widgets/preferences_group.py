@@ -35,7 +35,7 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
         if level < self._bar.get_min_value():
             level = self._bar.get_min_value()
 
-        Glib.idle_add(self._bar.set_value, level)
+        GLib.idle_add(self._bar.set_value, level)
 
 
     def get_bar_level(self) -> int:

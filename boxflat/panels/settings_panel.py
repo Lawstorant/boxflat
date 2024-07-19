@@ -16,7 +16,7 @@ class SettingsPanel(object):
         self._current_stack = None
         self._current_row: BoxflatRow=None
         self._header = None
-        self._rows = []
+        self._groups = []
         self._cm_subs = []
         self._cm_subs_cont = []
         self._cm_subs_connected = []
@@ -103,15 +103,16 @@ class SettingsPanel(object):
 
     def active(self, value: int) -> None:
         value = (value != -1)
-        if value != self._active:
-            self.set_banner_title("Device disconnected")
-            self.set_banner_label("")
-            self.show_banner(not value)
+        if value == self._active:
+            return
 
         self._active = value
+        self.set_banner_title("Device disconnected")
+        self.set_banner_label("")
+        self.show_banner(not value)
 
-        for row in self._rows:
-            row.set_sensitive(value)
+        for group in self._groups:
+            group.set_sensitive(value)
 
 
     def open_url(self, url: str) -> None:
@@ -137,6 +138,7 @@ class SettingsPanel(object):
         self._current_group = BoxflatPreferencesGroup(title, level_bar)
         self._current_group.set_bar_width(290)
         self._current_page.add(self._current_group)
+        self._groups.append(self._current_group)
 
 
     def add_view_stack(self) -> None:
@@ -155,7 +157,6 @@ class SettingsPanel(object):
             self.add_preferences_group()
         self._current_row = row
         self._current_group.add(row)
-        self._rows.append(row)
 
 
     def _append_sub(self, *args):
