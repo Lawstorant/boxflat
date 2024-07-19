@@ -22,6 +22,7 @@ class BaseSettings(SettingsPanel):
         ]
 
         super().__init__("Base", button_callback, connection_manager)
+        self._append_sub_connected("base-ffb-strength", self.active)
 
     def _set_rotation(self, value: int) -> None:
         self._cm.set_setting_int(value, "base-limit")

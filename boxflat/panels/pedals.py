@@ -21,6 +21,7 @@ class PedalsSettings(SettingsPanel):
         ]
 
         super().__init__("Pedals", button_callback, connection_manager)
+        self._append_sub_connected("pedals-throttle-dir", self.active)
 
 
     def set_brake_calibration_active(self, active: bool):

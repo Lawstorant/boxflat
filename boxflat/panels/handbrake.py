@@ -16,6 +16,7 @@ class HandbrakeSettings(SettingsPanel):
         ]
 
         super().__init__("Handbrake", button_callback, connection_manager)
+        self._append_sub_connected("handbrake-direction", self.active)
 
 
     def prepare_ui(self) -> None:

@@ -7,6 +7,7 @@ class SequentialSettings(SettingsPanel):
         self._S1 = None
         self._S2 = None
         super().__init__("Sequential Shifter", button_callback, connection_manager)
+        self._append_sub_connected("sequential-direction", self.active)
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Shifter Settings")

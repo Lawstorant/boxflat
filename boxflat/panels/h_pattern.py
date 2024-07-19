@@ -7,7 +7,7 @@ class HPatternSettings(SettingsPanel):
         self._slider1 = None
         self._slider2 = None
         super().__init__("H-Pattern Shifter", button_callback, connection_manager)
-
+        self._append_sub_connected("hpattern-output", self.active)
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Warning")

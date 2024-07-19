@@ -105,7 +105,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._cm.refresh()
 
-        # TODO: Add Dash,Hub and other settings pcm._device_discovery()
+        # TODO: Add Dash,Hub and other settings
 
         if self._dry_run:
             print("Dry run")

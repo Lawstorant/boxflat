@@ -43,7 +43,7 @@ class MozaConnectionManager():
         self._cont_active = Event()
         self._cont_subscribtions = {}
         self._cont_thread = Thread(target=self._notify_cont)
-        self._cont_thread.start()
+        # self._cont_thread.start()
 
         self._shutown_subscribtions = []
 
@@ -123,7 +123,14 @@ class MozaConnectionManager():
         if not command in self._subscribtions:
             self._subscribtions[command] = []
 
-        self._subscribtions[command].append((callback, args))
+        self._subscribtions[command].append((callback, args, False))
+
+
+    def subscribe_connected(self, command: str, callback: callable, *args) -> None:
+        if not command in self._subscribtions:
+            self._subscribtions[command] = []
+
+        self._subscribtions[command].append((callback, args, True))
 
 
     def reset_subscriptions(self) -> None:
@@ -183,6 +190,8 @@ class MozaConnectionManager():
                     response = self.get_setting_int(com)
 
                 for subscriber in subs[com]:
+                    if response == -1 and not subscriber[2]:
+                        continue
                     subscriber[0](response, *subscriber[1])
 
             if self._refresh_cont.is_set():
@@ -269,7 +278,7 @@ class MozaConnectionManager():
 
         if serial_path == None:
             print("No compatible device found!")
-            return bytes(1)
+            return None
 
         rest = bytes()
         length = 0
@@ -290,6 +299,7 @@ class MozaConnectionManager():
             while read_response:
                 if time.time() - start_time > 0.1:
                     read_response = False
+                    message = None
                     break
 
                 start = serial.read(1)
@@ -315,7 +325,7 @@ class MozaConnectionManager():
         self._serial_lock.release()
 
         if read_response == False:
-            return bytes(1)
+            return message
 
         message = bytearray()
         message.extend(cmp)
@@ -362,10 +372,10 @@ class MozaConnectionManager():
         message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
         # WE get a response without the checksum
-        read = rw == MOZA_COMMAND_READ
+        read = (rw == MOZA_COMMAND_READ)
         response = self.send_serial_message(device_path, message, read)
-        if response == bytes(1):
-            return bytes(command.length)
+        if response == None:
+            return None
 
         # check if length is 2 or lower because we need the
         # device id in the response, not just the value
@@ -402,12 +412,21 @@ class MozaConnectionManager():
 
 
     def get_setting_int(self, command_name: str) -> int:
-        return int.from_bytes(self._get_setting(command_name))
+        response = self._get_setting(command_name)
+        if response == None:
+            return -1
+        return int.from_bytes(response)
 
 
     def get_setting_list(self, command_name: str) -> list:
-        return list(self._get_setting(command_name))
+        response = self._get_setting(command_name)
+        if response == None:
+            return -1
+        return list(response)
 
 
     def get_setting_float(self, command_name: str) -> float:
-        return struct.unpack("f", self._get_setting(command_name)[::-1])[0]
+        response = self._get_setting(command_name)
+        if response == None:
+            return -1
+        return struct.unpack("f", response[::-1])[0]
