@@ -33,19 +33,21 @@
 
 If a command id is an array of integers, you must provide them sequentially in the same order
 
+Float values are sent/received in reverse byte order.
+
 ### Checksum calculation
 Checksum is the reminder of sum of the bytes divided by 0x100 (mod 256)
 ChecksumByte8mod256
 
 This sum includes the USB device serial endpoint (always 0x02), type (URB_BULK -> 0x03) and probably
-the whole message lenght (typically 0x08), although this could be a bug in Moza Firmware, as even with longer messages, changing this last part of the "magic value" causes devies to not respond.
+the whole message lenght (typically 0x08), although this could be a bug in Moza Firmware, as even with longer messages, changing this last part of the "magic value" causes devices to not respond.
 
 **Magic value = 13 (0x0d)**
 
 ### Responses
 From what I gather, Moza devices always respond to a read/write request in a manner that mirrors said request. Start is the same, lenght is the same.
 
-**Reqeust group** in response has `0x80` added, so when reading a reqest group `0x21` we should expect a response group of `0xa1`.
+**Reqeust group** in response has `0x80` added, so when reading a reqest group `0x21` we should expect a response group of `0xa1`. Seems like the MSG bit indicates response.
 
 **Device id** has it's byte halves swapped. When reading/writing to device `0x13 (base)`, response will contain device `0x31` and so on.
 
@@ -57,5 +59,4 @@ Checksum calculation is the same, and we still need to
 The list of device ids and command data can be found in the [serial.yml](./data/serial.yml) file.
 
 ### Command chaining
-This is something that I didn't figure out yet, but you can chain messages and only calculate
-one error checking byte at the end.
+You can send multiple commands at once. In repsonse, device will send out all the responses at once.
