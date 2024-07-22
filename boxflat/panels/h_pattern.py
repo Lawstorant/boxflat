@@ -17,7 +17,7 @@ class HPatternSettings(SettingsPanel):
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Warning")
-        self._add_row(BoxflatRow("These options are disabled in FW", "Moza decided that they did't work properly. Only calibrations is operational"))
+        self._add_row(BoxflatRow("These options are disabled in FW", "Moza decided that they did't work properly. Only calibration is operational"))
 
         self.add_preferences_group("Shifter Settings")
 

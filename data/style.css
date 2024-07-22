@@ -68,13 +68,13 @@ levelbar {
     margin-top: 10px;
 }
 
-.banner-disconnected > revealer > widget  {
+/* .banner-disconnected > revealer > widget  {
 	background-color: rgba(255, 60, 60, 0.4);
 }
 
 .banner-disconnected > revealer > widget:backdrop  {
 	background-color: rgba(255, 60, 60, 0.2);
-}
+} */
 
 .c0 {
     background-color: #cf2727;

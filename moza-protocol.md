@@ -33,7 +33,7 @@
 
 If a command id is an array of integers, you must provide them sequentially in the same order
 
-Float values are sent/received in reverse byte order.
+Values are transmitted in big-endian.
 
 ### Checksum calculation
 Checksum is the reminder of sum of the bytes divided by 0x100 (mod 256)
