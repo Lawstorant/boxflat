@@ -23,7 +23,7 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
             return
 
         for sub in self._subscribers:
-            sub[0](0, f"{sub[1][0]}-{self.get_value()}-calibration")
+            sub[0](1, f"{sub[1][0]}-{self.get_value()}-calibration")
 
 
     def get_value(self) -> str:
