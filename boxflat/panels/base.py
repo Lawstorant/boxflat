@@ -21,6 +21,14 @@ class BaseSettings(SettingsPanel):
             [46, 72, 86, 94, 100]  # Parabolic
         ]
 
+        # presets based on Road Sensitivity EQ settings
+        self._eq_presets = [
+            [100, 0, 0, 0, 0, 0],
+            [100, 100, 100, 80, 80, 0],
+            [100, 100, 100, 100, 100, 0],
+            [100, 100, 100, 100, 100, 100]
+        ]
+
         super().__init__("Base", button_callback, connection_manager)
         self._append_sub_connected("base-limit", self.active)
 

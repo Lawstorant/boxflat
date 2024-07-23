@@ -16,6 +16,9 @@ class WheelSettings(SettingsPanel):
 
 
     def prepare_ui(self) -> None:
+        self.add_view_stack()
+        self.add_preferences_page("Wheel")
+
         self.add_preferences_group("Input settings")
         self._add_row(BoxflatToggleButtonRow("Dual Clutch Paddles Mode"))
         self._current_row.add_buttons("Buttons", "Combined", "Split")
@@ -69,6 +72,13 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-brightness")
         self._append_sub("wheel-brightness", self._current_row.set_value)
+
+
+        self.add_preferences_page("RPM")
+        self.add_preferences_group("RPM colors")
+
+        for i in range(10):
+            self._add_row(BoxflatColorPickerRow(f"Indicator {i+1} Color", alt_colors=True))
 
 
     def _set_indicator_timings(self, value: int) -> None:
