@@ -23,13 +23,13 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
             return
 
         for sub in self._subscribers:
-            sub[0](1, f"{sub[1]}-{self.get_value()}-calibration")
+            sub[0](0, f"{sub[1][0]}-{self.get_value()}-calibration")
 
 
     def get_value(self) -> str:
         if self._calibration_event.is_set():
-            return "stop"
-        return "start"
+            return "start"
+        return "stop"
 
 
     def _calibration(self) -> None:
@@ -47,9 +47,9 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
                 GLib.idle_add(self.set_subtitle, f"{text} {i+1}s")
                 sleep(1)
 
+            self._calibration_event.clear()
             self._notify_calibration()
             print("Calibration stop")
 
-            self._calibration_event.clear()
             GLib.idle_add(self.set_subtitle, tmp)
             GLib.idle_add(self.set_active, True)
