@@ -70,6 +70,11 @@ $ sudo ./install.sh remove
 
 # Some more early screenshots
 ![Wheel panel](./screens/wheel.png)
+
 ![Pedals panel](./screens/pedals.png)
+
+![H-Pattern shifter panel](./screens/hpattern.png)
+
 ![Sequential shifter panel](./screens/sequential.png)
+
 ![Handbrake panel](./screens/handbrake.png)
