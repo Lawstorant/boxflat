@@ -2,7 +2,8 @@
 Boxflat for Moza Racing. Control your Moza gear settings!
 
 Now with more **read/write** action!
-![Base panel](./screens/base.png)
+
+<img alt="Wheelbase panel" src="screens/base.png" width="922">
 
 #### For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
 #### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
@@ -69,12 +70,12 @@ $ sudo ./install.sh remove
 ```
 
 # Some more early screenshots
-![Wheel panel](./screens/wheel.png)
+<img alt="Wheel panel" src="screens/wheel.png" width="922">
 
-![Pedals panel](./screens/pedals.png)
+<img alt="Pedals panel" src="screens/pedals.png" width="922">
 
-![H-Pattern shifter panel](./screens/hpattern.png)
+<img alt="H-Pattern shifter panel" src="screens/hpattern.png" width="922">
 
-![Sequential shifter panel](./screens/sequential.png)
+<img alt="Sequential shifter panel" src="screens/sequential.png" width="922">
 
-![Handbrake panel](./screens/handbrake.png)
+<img alt="Handbrake panel" src="screens/handbrake.png" width="922">
