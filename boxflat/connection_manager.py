@@ -186,6 +186,8 @@ class MozaConnectionManager():
                     response = self.get_setting_list(com)
                 elif com_type == "float":
                     response = self.get_setting_float(com)
+                elif com_type == "hex":
+                    response = self.get_setting_hex(com)
                 else:
                     response = self.get_setting_int(com)
 
@@ -399,12 +401,15 @@ class MozaConnectionManager():
 
 
     def set_setting_float(self, value: float, command_name: str) -> None:
-        # Moza expects floats to have reverset bytes for some reason
         self._set_setting(command_name, byte_value=struct.pack(">f", float(value)))
 
 
     def set_setting_list(self, values: list, command_name: str) -> None:
         self._set_setting(command_name, byte_value=bytes(values))
+
+
+    def set_setting_hex(self, value: str, command_name: str) -> None:
+        self._set_setting(command_name, byte_value=value.encode())
 
 
     # Get a setting value from a device
@@ -431,3 +436,10 @@ class MozaConnectionManager():
         if response == None:
             return -1
         return struct.unpack(">f", response)[0]
+
+
+    def get_setting_hex(self, command_name: str) -> str:
+        response = self._get_setting(command_name)
+        if response == None:
+            return -1
+        return response.decode()
