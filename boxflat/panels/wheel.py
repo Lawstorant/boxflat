@@ -81,15 +81,6 @@ class WheelSettings(SettingsPanel):
 
 
         self.add_preferences_page("RPM")
-        self.add_preferences_group("RPM colors")
-
-        for i in range(10):
-            self._add_row(BoxflatColorPickerRow(f"RPM {i+1} Color", alt_colors=True))
-            self._rpm_rows.append(self._current_row)
-            self._current_row.subscribe(self._set_rpm_colors)
-
-        self._append_sub(f"wheel-colors", self._get_rpm_colors)
-
         self.add_preferences_group("Timings")
 
         self._timing_preset_row = BoxflatToggleButtonRow("RPM Indicator Timing")
@@ -107,6 +98,15 @@ class WheelSettings(SettingsPanel):
             self._current_row.add_labels(f"RPM{i+1}", index=i)
 
         self._append_sub("wheel-indicator-timings", self._get_indicator_timings)
+
+        self.add_preferences_group("RPM colors")
+
+        for i in range(10):
+            self._add_row(BoxflatColorPickerRow(f"RPM {i+1} Color", alt_colors=True))
+            self._rpm_rows.append(self._current_row)
+            self._current_row.subscribe(self._set_rpm_colors)
+
+        self._append_sub(f"wheel-colors", self._get_rpm_colors)
 
 
     def _set_indicator_timings(self, timings: list) -> None:
