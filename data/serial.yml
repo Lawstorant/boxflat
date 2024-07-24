@@ -659,7 +659,7 @@ commands:
     write: 63
     id: 0
     bytes: 15
-    type: byte
+    type: hex
 
   wheel-brightness:
     read: 64

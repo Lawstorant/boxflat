@@ -17,4 +17,4 @@ class BoxflatColorPickerRow(BoxflatToggleButtonRow):
             else:
                 self._buttons[i].add_css_class(f"c{i}")
 
-        # self._buttons[0].add_css_class("cs")
+        self._buttons[0].add_css_class("cs")

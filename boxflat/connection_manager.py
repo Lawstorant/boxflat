@@ -1,6 +1,6 @@
 import yaml
 import os.path
-import sys
+from binascii import hexlify
 from .moza_command import *
 from serial import Serial
 from threading import Thread
@@ -409,7 +409,7 @@ class MozaConnectionManager():
 
 
     def set_setting_hex(self, value: str, command_name: str) -> None:
-        self._set_setting(command_name, byte_value=value.encode())
+        self._set_setting(command_name, byte_value=bytes.fromhex(value))
 
 
     # Get a setting value from a device
@@ -442,4 +442,4 @@ class MozaConnectionManager():
         response = self._get_setting(command_name)
         if response == None:
             return -1
-        return response.decode()
+        return hexlify(response).decode("utf-8")
