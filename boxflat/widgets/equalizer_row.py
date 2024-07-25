@@ -47,6 +47,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             slider.add_css_class("eq-slider")
 
             slider.connect('value-changed', self._notify_slider)
+            slider.connect('value-changed', self._notify_sliders)
 
             label = Gtk.Label()
             label.add_css_class("eq-label")

@@ -14,16 +14,7 @@ class WheelSettings(SettingsPanel):
         self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Late
 
         self._rpm_rows = []
-        self._rpm_colors = [
-            "3c3",
-            "f0f",
-            "00f",
-            "0f0",
-            "ee0",
-            "e70",
-            "f00",
-            "0ff"
-        ]
+        self._rpm_colors = ["3c3", "f0f", "00f", "0f0", "ee0", "e70", "f00", "0ff"]
 
         super().__init__("Wheel", button_callback, connection_manager)
         self._append_sub_connected("wheel-clutch-point", self.active)
