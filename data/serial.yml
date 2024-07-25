@@ -373,6 +373,7 @@ commands:
     bytes: 2
     type: int
 
+  # hands-off protection
   base-protection:
     read: 40
     write: 41
