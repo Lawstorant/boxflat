@@ -21,6 +21,21 @@ class BaseSettings(SettingsPanel):
             [46, 72, 86, 94, 100]  # Parabolic
         ]
 
+        # presets based on Road Sensitivity EQ settings
+        self._eq_presets = [
+            [100,  30,  10,   0,   0,   0],
+            [100,  60,  20,   0,   0,   0],
+            [100,  70,  40,  10,   0,   0],
+            [100,  80,  50,  20,  10,   0],
+            [100,  90,  60,  30,  20,   0],
+            [100, 100,  70,  40,  30,   0],
+            [100, 100,  90,  50,  40,   0],
+            [100, 100, 100,  60,  60,   0],
+            [100, 100, 100,  80,  80,   0],
+            [100, 100, 100, 100, 100,   0],
+            [100, 100, 100, 100, 100, 100]
+        ]
+
         super().__init__("Base", button_callback, connection_manager)
         self._append_sub_connected("base-limit", self.active)
 
@@ -63,6 +78,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.set_expression("*4 + 10")
         self._current_row.set_reverse_expression("/4 - 2.5")
         self._current_row.subscribe(self._cm.set_setting_int, "base-road-sensitivity")
+        self._current_row.subscribe(self._set_eq_preset, raw=True)
         self._append_sub("base-road-sensitivity", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Maximum Wheel Speed", suffix="%", range_end=200))
@@ -99,18 +115,20 @@ class BaseSettings(SettingsPanel):
 
         slider = BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000)
         self._add_row(BoxflatSwitchRow("Hands-Off Protection"))
-        self._current_row.subscribe(self._cm.set_setting_int, "base-natural-inertia-enable")
+        self._current_row.subscribe(self._cm.set_setting_int, "base-protection")
         self._current_row.subscribe(slider.set_active)
-        self._append_sub("base-natural-inertia-enable", self._current_row.set_value)
+        self._append_sub("base-protection", self._current_row.set_value)
 
         self._add_row(slider)
         self._current_row.add_marks(900, 1550, 2800, 3500)
         self._current_row.subscribe(self._cm.set_setting_int, "base-natural-inertia")
         self._append_sub("base-natural-inertia", self._current_row.set_value)
-        self._append_sub("base-natural-inertia-enable", self._current_row.set_active)
+        self._append_sub("base-protection", self._current_row.set_active)
 
-        self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500))
+        self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500, increment=50))
         self._current_row.add_marks(150, 300)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
         self._current_row.subscribe(self._cm.set_setting_int, "base-inertia")
         self._append_sub("base-inertia", self._current_row.set_value)
 
@@ -176,7 +194,7 @@ class BaseSettings(SettingsPanel):
 
         self.add_preferences_group("Equalizer")
         self._eq_row = BoxflatEqRow("FFB Equalizer", 6,
-            subtitle="Perfectly balanced, as all things should be", range_end=400, suffix="%")
+            subtitle="Perfectly balanced, as all things should be", range_end=400, suffix="%", button_row=False)
         self._add_row(self._eq_row)
         self._current_row.add_marks(50, 100, 200, 300)
         self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")
@@ -233,3 +251,9 @@ class BaseSettings(SettingsPanel):
 
         self._curve_row.set_button_value(index)
         self._curve_row.set_slider_value(value, sindex)
+
+
+    def _set_eq_preset(self, index: int) -> None:
+        print(index)
+        for i in range(6):
+            self._cm.set_setting_int(self._eq_presets[index][i], f"base-equalizer{i+1}")

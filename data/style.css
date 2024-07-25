@@ -30,7 +30,7 @@
     border-radius: 0 5px 5px 0;
 }
 
-.toggle-button:last-child:not(.cs){
+.toggle-button:last-child:not(.cs) {
     border-right: 0;
 }
 
@@ -53,7 +53,7 @@ levelbar {
 }
 
 .eq-slider {
-    margin-top: 10px;
+    margin-bottom: 4px;
 }
 
 .eq-label {
@@ -64,7 +64,7 @@ levelbar {
     margin-top: 8px;
 }
 
-.header > .header {
+.header>.header {
     margin-top: 10px;
 }
 
@@ -76,45 +76,102 @@ levelbar {
 	background-color: rgba(255, 60, 60, 0.2);
 } */
 
+/* Button colors */
 .c0 {
     background-color: #cf2727;
     border-color: #cf2727;
     color: #cf2727;
 }
+
 .c1 {
     background-color: #dfa500;
     border-color: #dfa500;
     color: #dfa500;
 }
+
 .c2 {
     background-color: #dfdf3a;
     border-color: #dfdf3a;
     color: #dfdf3a;
 }
+
 .c3 {
     background-color: #3a903a;
     border-color: #3a903a;
     color: #3a903a;
 }
+
 .c4 {
     background-color: #00d0d0;
     border-color: #00d0d0;
     color: #00d0d0;
 }
+
 .c5 {
     background-color: #3a3aff;
     border-color: #3a3aff;
     color: #3a3aff;
 }
+
 .c6 {
     background-color: #802080;
     border-color: #802080;
     color: #802080;
 }
+
 .c7 {
     background-color: #dddddd;
     border-color: #dddddd;
     color: #dddddd;
+}
+
+/* RPM colors */
+.c0-rpm {
+    background-color: #6affb5;
+    border-color: #6affb5;
+    color: #6affb5;
+}
+
+.c1-rpm {
+    background-color: #ff3cff;
+    border-color: #ff3cff;
+    color: #ff3cff;
+}
+
+.c2-rpm {
+    background-color: #3737ff;
+    border-color: #3737ff;
+    color: #3737ff;
+}
+
+.c3-rpm {
+    background-color: #00ce00;
+    border-color: #00ce00;
+    color: #00ce00;
+}
+
+.c4-rpm {
+    background-color: #f0f000;
+    border-color: #f0f000;
+    color: #f0f000;
+}
+
+.c5-rpm {
+    background-color: #ff9c39;
+    border-color: #ff9c39;
+    color: #ff9c39;
+}
+
+.c6-rpm {
+    background-color: #ff0606;
+    border-color: #ff0606;
+    color: #ff0606;
+}
+
+.c7-rpm {
+    background-color: #00ffff;
+    border-color: #00ffff;
+    color: #00ffff;
 }
 
 /* Color Selected */

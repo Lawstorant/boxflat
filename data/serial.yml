@@ -373,6 +373,7 @@ commands:
     bytes: 2
     type: int
 
+  # hands-off protection
   base-protection:
     read: 40
     write: 41
@@ -658,8 +659,8 @@ commands:
     read: 64
     write: 63
     id: 0
-    bytes: 9
-    type: byte
+    bytes: 15
+    type: hex
 
   wheel-brightness:
     read: 64
@@ -738,75 +739,85 @@ commands:
     bytes: 1
     type: int
 
-  wheel-rmp-value1:
+  wheel-rpm-color1:
     read: 64
     write: 63
-    id: [15, 0]
+    id: 15
+    id2: 0
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value2:
+  wheel-rpm-color2:
     read: 64
     write: 63
-    id: [15, 1]
+    id: 15
+    id2: 1
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value3:
+  wheel-rpm-color3:
     read: 64
     write: 63
-    id: [15, 2]
+    id: 15
+    id2: 2
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value4:
+  wheel-rpm-color4:
     read: 64
     write: 63
-    id: [15, 3]
+    id: 15
+    id2: 3
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value5:
+  wheel-rpm-color5:
     read: 64
     write: 63
-    id: [15, 4]
+    id: 15
+    id2: 4
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value6:
+  wheel-rpm-color6:
     read: 64
     write: 63
-    id: [15, 5]
+    id: 15
+    id2: 5
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value7:
+  wheel-rpm-color7:
     read: 64
     write: 63
-    id: [15, 6]
+    id: 15
+    id2: 6
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value8:
+  wheel-rpm-color8:
     read: 64
     write: 63
-    id: [15, 7]
+    id: 15
+    id2: 7
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value9:
+  wheel-rpm-color9:
     read: 64
     write: 63
-    id: [15, 8]
+    id: 15
+    id2: 8
     bytes: 3
-    type: byte
+    type: hex
 
-  wheel-rmp-value10:
+  wheel-rpm-color10:
     read: 64
     write: 63
-    id: [15, 9]
+    id: 15
+    id2: 9
     bytes: 3
-    type: byte
+    type: hex
 
   wheel-key-combination:
     read: 64
@@ -840,7 +851,6 @@ commands:
     type: int
 
   # TODO: wheel indicator, button, flag colors
-
   wheel-indicator-interval:
     read: 64
     write: 63
@@ -864,9 +874,9 @@ commands:
     type: int
 
   # not a real command
-  # we're cheching this so we can discern between
+  # we're checking this so we can discern between
   # sequential shifter and h-pattern shifter
-  # command has a rang of {1,2} so if we get 0
+  # command has a range of {1,2} so if we get 0
   # in response, hpattern is connected
   hpattern-paddle-sync:
     read: 81
