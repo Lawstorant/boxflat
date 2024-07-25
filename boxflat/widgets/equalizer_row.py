@@ -7,12 +7,13 @@ from .toggle_button_row import BoxflatToggleButtonRow
 class BoxflatEqRow(BoxflatToggleButtonRow):
     def __init__(self, title: str, sliders_number: int,
                  subtitle="", draw_values=True, range_start=0,
-                 range_end=100, value=0, increment=1, suffix=""):
+                 range_end=100, value=0, increment=1, suffix="", button_row=True):
         super().__init__(title, subtitle)
 
         self._suffix = suffix
         self._slider_subs = []
         self._sliders_subs = []
+        self._button_row = button_row
 
         child = self.get_child()
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -56,9 +57,10 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             sliders_box.append(box)
             self._slider_labels.append(label)
 
-        self._box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        self._box.add_css_class("eq-buttons")
-        main_box.append(self._box)
+        if button_row:
+            self._box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            self._box.add_css_class("eq-buttons")
+            main_box.append(self._box)
 
         main_box.append(sliders_box)
         self.add_marks(range_start, range_end)
@@ -83,7 +85,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
     def add_buttons(self, *buttons) -> None:
         super().add_buttons(*buttons)
         for button in self._buttons:
-            button.set_hexpand(True)
+            button.set_hexpand(self._button_row)
 
 
     def set_height(self, height: int) -> None:
@@ -131,7 +133,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self._slider_subs[index].append((callback, args))
 
 
-    def subscribe_slider(self, index: int, callback: callable, *args) -> None:
+    def subscribe_sliders(self, callback: callable, *args) -> None:
         self._sliders_subs.append((callback, args))
 
 

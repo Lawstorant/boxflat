@@ -83,21 +83,18 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("RPM")
         self.add_preferences_group("Timings")
 
-        self._timing_preset_row = BoxflatToggleButtonRow("RPM Indicator Timing")
-        self._timing_preset_row.set_subtitle("Custom if not active")
-        self._timing_preset_row.add_buttons("Early", "Normal", "Late")
-        self._timing_preset_row.set_value(-1)
-        self._timing_preset_row.subscribe(self._set_indicator_timings_preset)
-        self._append_sub("wheel-indicator-timings", self._get_indicator_timings_preset)
-        self._add_row(self._timing_preset_row)
-
-        self._add_row(BoxflatEqRow("RPM timings", 10, "Is it my turn now?", suffix="%"))
-        self._timing_row = self._current_row
-        self._current_row.add_marks(50, 80)
+        self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?", suffix="%", button_row=False)
+        self._add_row(self._timing_row)
+        self._timing_row.add_marks(50, 80)
+        self._timing_row.add_buttons("Early", "Normal", "Late")
+        self._timing_row.set_button_value(-1)
+        self._timing_row.subscribe(self._set_indicator_timings_preset)
+        self._timing_row.subscribe_sliders(self._set_indicator_timings)
         for i in range(10):
-            self._current_row.add_labels(f"RPM{i+1}", index=i)
+            self._timing_row.add_labels(f"RPM{i+1}", index=i)
 
         self._append_sub("wheel-indicator-timings", self._get_indicator_timings)
+        self._append_sub("wheel-indicator-timings", self._get_indicator_timings_preset)
 
         self.add_preferences_group("RPM colors")
 
@@ -105,7 +102,6 @@ class WheelSettings(SettingsPanel):
             self._add_row(BoxflatColorPickerRow(f"RPM {i+1} Color", alt_colors=True))
             self._rpm_rows.append(self._current_row)
             self._current_row.subscribe(self._set_rpm_colors)
-
         self._append_sub(f"wheel-colors", self._get_rpm_colors)
 
 
@@ -126,7 +122,7 @@ class WheelSettings(SettingsPanel):
         if list(timings) in self._timings:
             index = self._timings.index(list(timings))
 
-        self._timing_preset_row.set_value(index)
+        self._timing_row.set_button_value(index)
 
 
     def _set_rpm_colors(self, *args) -> None:
