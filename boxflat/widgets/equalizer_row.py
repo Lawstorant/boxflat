@@ -7,13 +7,15 @@ from .toggle_button_row import BoxflatToggleButtonRow
 class BoxflatEqRow(BoxflatToggleButtonRow):
     def __init__(self, title: str, sliders_number: int,
                  subtitle="", draw_values=True, range_start=0,
-                 range_end=100, value=0, increment=1, suffix="", button_row=True):
+                 range_end=100, value=0, increment=1, suffix="",
+                 button_row=True, draw_marks=True):
         super().__init__(title, subtitle)
 
         self._suffix = suffix
         self._slider_subs = []
         self._sliders_subs = []
         self._button_row = button_row
+        self._draw_marks = draw_marks
 
         child = self.get_child()
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -36,7 +38,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
             slider.set_increments(increment, 0)
             slider.set_draw_value(draw_values)
-            slider.set_value_pos(Gtk.PositionType.BOTTOM)
+            slider.set_value_pos(Gtk.PositionType.TOP)
             slider.set_round_digits(0)
             slider.set_digits(0)
             slider.set_value(value)
@@ -67,6 +69,9 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def add_marks(self, *marks: int) -> None:
+        if not self._draw_marks:
+            return
+
         for mark in marks:
             for slider in self._sliders:
                 slider.add_mark(mark,

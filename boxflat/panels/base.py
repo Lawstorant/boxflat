@@ -184,7 +184,7 @@ class BaseSettings(SettingsPanel):
 
         self.add_preferences_group("Equalizer")
         self._eq_row = BoxflatEqRow("FFB Equalizer", 6,
-            subtitle="Perfectly balanced, as all things should be", range_end=400, suffix="%")
+            subtitle="Perfectly balanced, as all things should be", range_end=400, suffix="%", button_row=False)
         self._add_row(self._eq_row)
         self._current_row.add_marks(50, 100, 200, 300)
         self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")

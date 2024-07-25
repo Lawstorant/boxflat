@@ -83,7 +83,7 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("RPM")
         self.add_preferences_group("Timings")
 
-        self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?", suffix="%", button_row=False)
+        self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?", suffix="%", button_row=False, draw_marks=False)
         self._add_row(self._timing_row)
         self._timing_row.add_marks(50, 80)
         self._timing_row.add_buttons("Early", "Normal", "Late")
