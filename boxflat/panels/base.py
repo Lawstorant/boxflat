@@ -23,9 +23,16 @@ class BaseSettings(SettingsPanel):
 
         # presets based on Road Sensitivity EQ settings
         self._eq_presets = [
-            [100, 0, 0, 0, 0, 0],
-            [100, 100, 100, 80, 80, 0],
-            [100, 100, 100, 100, 100, 0],
+            [100,  30,  10,   0,   0,   0],
+            [100,  60,  20,   0,   0,   0],
+            [100,  70,  40,  10,   0,   0],
+            [100,  80,  50,  20,  10,   0],
+            [100,  90,  60,  30,  20,   0],
+            [100, 100,  70,  40,  30,   0],
+            [100, 100,  90,  50,  40,   0],
+            [100, 100, 100,  60,  60,   0],
+            [100, 100, 100,  80,  80,   0],
+            [100, 100, 100, 100, 100,   0],
             [100, 100, 100, 100, 100, 100]
         ]
 
@@ -71,6 +78,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.set_expression("*4 + 10")
         self._current_row.set_reverse_expression("/4 - 2.5")
         self._current_row.subscribe(self._cm.set_setting_int, "base-road-sensitivity")
+        self._current_row.subscribe(self._set_eq_preset, raw=True)
         self._append_sub("base-road-sensitivity", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Maximum Wheel Speed", suffix="%", range_end=200))
@@ -241,3 +249,9 @@ class BaseSettings(SettingsPanel):
 
         self._curve_row.set_button_value(index)
         self._curve_row.set_slider_value(value, sindex)
+
+
+    def _set_eq_preset(self, index: int) -> None:
+        print(index)
+        for i in range(6):
+            self._cm.set_setting_int(self._eq_presets[index][i], f"base-equalizer{i+1}")

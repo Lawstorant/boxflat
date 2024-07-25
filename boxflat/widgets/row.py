@@ -38,10 +38,15 @@ class BoxflatRow(Adw.ActionRow):
         return 0
 
 
+    def get_raw_value(self) -> int:
+        return self.get_value()
+
+
     def set_value(self, value, mute: bool=True) -> None:
         self.mute(mute)
         self._set_value(value)
         self.unmute()
+
 
     def _set_value(self, value) -> None:
         pass
@@ -51,8 +56,8 @@ class BoxflatRow(Adw.ActionRow):
         self.add_suffix(widget)
 
 
-    def subscribe(self, callback: callable, *args) -> None:
-        self._subscribers.append((callback, args))
+    def subscribe(self, callback: callable, *args, raw=False) -> None:
+        self._subscribers.append((callback, raw, args))
 
 
     def _notify(self) -> None:
@@ -60,13 +65,16 @@ class BoxflatRow(Adw.ActionRow):
             return
 
         for sub in self._subscribers:
-            sub[0](self.get_value(), *sub[1])
+            value = self.get_raw_value() if sub[1] else self.get_value()
+            sub[0](value, *sub[2])
+
 
     def set_expression(self, expr: str) -> None:
         """
         Modify the value when invoking get_value()
         """
         self._expression = expr
+
 
     def set_reverse_expression(self, expr: str) -> None:
         """

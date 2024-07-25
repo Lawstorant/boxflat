@@ -73,6 +73,10 @@ class BoxflatSliderRow(BoxflatRow):
         return round(eval("self._slider.get_value()" + self._expression))
 
 
+    def get_raw_value(self) -> int:
+        return int(self._slider.get_value())
+
+
     def _set_value(self, value: int) -> None:
         value = round(eval("value"+self._reverse_expression))
         if value < self._range_start:
