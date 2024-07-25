@@ -125,8 +125,10 @@ class BaseSettings(SettingsPanel):
         self._append_sub("base-natural-inertia", self._current_row.set_value)
         self._append_sub("base-protection", self._current_row.set_active)
 
-        self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500))
+        self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500, increment=50))
         self._current_row.add_marks(150, 300)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
         self._current_row.subscribe(self._cm.set_setting_int, "base-inertia")
         self._append_sub("base-inertia", self._current_row.set_value)
 
