@@ -14,7 +14,7 @@ Now with more **read/write** action!
 | :------------: | :---------: | :-  |
 | Home page      | 0%          | Quick settings |
 | Base           | 100%        | |
-| Wheel          | 70%         | RPM colors, anything not present on RSv2 |
+| Wheel          | 80%         | anything not present on RSv2 |
 | Pedals         | 100%        | |
 | Dashboard      | 0%          | Dashboard settings |
 | Hub            | 0%          | Rows with connection status |
