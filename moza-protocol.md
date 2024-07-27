@@ -6,7 +6,7 @@
 <tr>
 <th colspan=4>Header</th>
 <th colspan=2>Payload</th>
-<th></th>
+<th rowspan=2>Checksum</th>
 </tr>
 <tr>
 <th>Start</th>
@@ -15,7 +15,6 @@
 <th>Device id</th>
 <th>Command id</th>
 <th>Value(s)</th>
-<th>Checksum</th>
 </tr>
 </thead>
 <tbody>
