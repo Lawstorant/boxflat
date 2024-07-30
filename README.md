@@ -1,4 +1,4 @@
-# boxflat
+# Boxflat
 Boxflat for Moza Racing. Control your Moza gear settings!
 
 Now with more **read/write** action!
@@ -25,7 +25,7 @@ Now with more **read/write** action!
 
 ### WiP
 - Rotation output
-- Showing only settings that are relevant to the connected hardware
+- Showing only settings that are relevant to the connected hardware (differing wheel settings)
 
 ### Firmware upgrades
 There are some EEPROM functions available, but I need to do more testing to make sure I won't brick anything. For now, just use Pit House on Windows if you can, as FW upgrade support is not coming in the near future.
@@ -34,6 +34,20 @@ There are some EEPROM functions available, but I need to do more testing to make
 Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc. Some Wheel settings are device-specific (FSR Wheel dashboard for example)
 
 # Installation
+## Flatpak
+Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.Lawstorant.boxflat)** \[WIP\]
+
+### Udev rule installation for flatpak
+Copy this into terminal and execute with root permissions
+```bash
+$ sudo tee /etc/udev/rules.d/99-boxflat.rules <<< 'SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{idVendor}=="346e", ACTION=="add", MODE="0666", TAG+="uaccess"'
+```
+Unplug and plug in your deivce to trigger this new rules. Alternatively, you can reboot your system.
+
+## Arch Linux:
+https://aur.archlinux.org/packages/boxflat-git
+
+## Manual:
 This package depends on:
 - python3
 - gtk4
@@ -43,10 +57,6 @@ This package depends on:
 - pycairo ~>1.26.1
 - PyGObject ~>3.48.2
 
-### Arch Linux:
-https://aur.archlinux.org/packages/boxflat-git
-
-### Manual:
 ```bash
 # Just run:
 $ ./entrypoint.py --local
