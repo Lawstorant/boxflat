@@ -7,7 +7,7 @@ from boxflat.connection_manager import *
 import os
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, data_path: str, dry_run: bool, udev_warn: bool, *args, **kwargs):
+    def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
@@ -68,25 +68,25 @@ class MainWindow(Adw.ApplicationWindow):
         self.settings_box.append(self._activate_default().content)
         content.set_title("Home")
 
-        if udev_warn:
-            udev_alert_body = "alert"
 
-            with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
-                udev_alert_body = "\n" + file.read().strip()
+        udev_alert_body = "alert"
 
-            self._alert = Adw.AlertDialog()
-            self._alert.set_body(udev_alert_body)
-            self._alert.add_response("guide", "Guide")
-            self._alert.add_response("close", "Close")
+        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
+            udev_alert_body = "\n" + file.read().strip()
 
-            self._alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
-            self._alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
-            self._alert.set_close_response("close")
-            self._alert.set_heading("No udev rules detected!")
-            self._alert.set_body_use_markup(True)
-            self._alert.connect("response", self._handle_udev_dialog)
+        self._alert = Adw.AlertDialog()
+        self._alert.set_body(udev_alert_body)
+        self._alert.add_response("guide", "Guide")
+        self._alert.add_response("close", "Close")
 
-            self._alert.choose()
+        self._alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
+        self._alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
+        self._alert.set_close_response("close")
+        self._alert.set_heading("No udev rules detected!")
+        self._alert.set_body_use_markup(True)
+        self._alert.connect("response", self._handle_udev_dialog)
+
+        self._cm.subscribe_no_access(self.show_udev_dialog)
 
 
     def switch_panel(self, button) -> None:
@@ -107,6 +107,10 @@ class MainWindow(Adw.ApplicationWindow):
 
     def set_content_title(self, title: str) -> None:
         self.navigation.get_content().set_title(title)
+
+
+    def show_udev_dialog(self) -> None:
+        self._alert.choose()
 
 
     def _handle_udev_dialog(self, dialog, response):
@@ -166,18 +170,17 @@ class MainWindow(Adw.ApplicationWindow):
 
 
 class MyApp(Adw.Application):
-    def __init__(self, data_path: str, dry_run: bool, udev_warn: bool, **kwargs):
+    def __init__(self, data_path: str, dry_run: bool, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
         self._data_path = data_path
         self._dry_run = dry_run
-        self._udev_warn = udev_warn
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 
     def on_activate(self, app):
-        self.win = MainWindow(self._data_path, self._dry_run, self._udev_warn, application=app)
+        self.win = MainWindow(self._data_path, self._dry_run, application=app)
         self.win.set_icon_name("io.github.lawstorant.boxflat")
         self.win.present()

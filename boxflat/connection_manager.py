@@ -46,6 +46,7 @@ class MozaConnectionManager():
         self._cont_thread.start()
 
         self._shutown_subscribtions = []
+        self._no_access_subs = []
 
         self._sub_lock = Lock()
         self._cont_lock = Lock()
@@ -153,6 +154,10 @@ class MozaConnectionManager():
         self._shutown_subscribtions.append((callback, args))
 
 
+    def subscribe_no_access(self, callback, *args) -> None:
+        self._no_access_subs.append((callback, args))
+
+
     def refresh(self, *args) -> None:
         self._refresh.set()
 
@@ -215,6 +220,13 @@ class MozaConnectionManager():
                     break
                 for subscriber in subs[com]:
                     GLib.idle_add(subscriber[0], response, *subscriber[1])
+
+
+    def _notify_no_access(self) -> None:
+        for i in range(len(self._no_access_subs)):
+            subscriber = self._no_access_subs[i]
+            GLib.idle_add(subscriber[0], *subscriber[1])
+            self._no_access_subs.pop(i)
 
 
 
@@ -324,6 +336,7 @@ class MozaConnectionManager():
         except Exception as error:
             print("Error opening device!")
             read_response = False
+            self._notify_no_access()
 
         self._serial_lock.release()
 
