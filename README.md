@@ -40,7 +40,7 @@ Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.lawstoran
 ### Udev rule installation for flatpak
 Copy this into terminal and execute with root permissions
 ```bash
-$ sudo tee /etc/udev/rules.d/99-boxflat.rules <<< 'SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{idVendor}=="346e", ACTION=="add", MODE="0666", TAG+="uaccess"'
+sudo tee /etc/udev/rules.d/99-boxflat.rules <<< 'SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{idVendor}=="346e", ACTION=="add", MODE="0666", TAG+="uaccess"'
 ```
 Unplug and plug in your deivce to trigger this new rules. Alternatively, you can reboot your system.
 
