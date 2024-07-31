@@ -3,7 +3,11 @@
   <id>io.github.lawstorant.boxflat</id>
 
   <name>Boxflat</name>
-  <summary>Boxflat for Moza Racing. Control your Moza gear settings!</summary>
+  <summary>Moza Racing configurator</summary>
+
+  <developer id="io.github.lawstorant">
+    <name>Tomasz Pakuła</name>
+  </developer>
 
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -40,12 +44,15 @@
   <launchable type="desktop-id">io.github.lawstorant.boxflat.desktop</launchable>
   <screenshots>
     <screenshot type="default">
+      <caption>Base settings</caption>
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/base.png</image>
     </screenshot>
     <screenshot>
+      <caption>Pedals settings</caption>
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/pedals.png</image>
     </screenshot>
     <screenshot>
+      <caption>Sequential settings</caption>
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/sequential.png</image>
     </screenshot>
   </screenshots>
