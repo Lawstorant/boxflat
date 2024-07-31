@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.lawstorant.boxflat</id>
+
+  <name>boxflat</name>
+  <summary>boxflat for Moza Racing. Control your Moza gear settings! </summary>
+
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <recommends>
+    <display_length compare="ge">600</display_length>
+  </recommends>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+
+  <description>
+    <p>
+      Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc. Some Wheel settings are device-specific (FSR Wheel dashboard for example)
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.lawstorant.boxflat.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/base.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/pedals.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/sequential.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://github.com/Lawstorant/boxflat</url>
+  <url type="bugtracker">https://github.com/Lawstorant/boxflat/issues</url>
+  <content_rating type="oars-1.0"/>
+  <update_contact>forest10pl@gmail.com</update_contact>
+</component>
