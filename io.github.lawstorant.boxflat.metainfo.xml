@@ -2,8 +2,8 @@
 <component type="desktop-application">
   <id>io.github.lawstorant.boxflat</id>
 
-  <name>boxflat</name>
-  <summary>boxflat for Moza Racing. Control your Moza gear settings! </summary>
+  <name>Boxflat</name>
+  <summary>Boxflat for Moza Racing. Control your Moza gear settings!</summary>
 
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -19,7 +19,21 @@
 
   <description>
     <p>
-      Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc. Some Wheel settings are device-specific (FSR Wheel dashboard for example)
+      This application enables you to change you Moza Racing hardware settings.
+    </p>
+    <p>
+      The table of supported settings compared to Pit House can be found on the project website.
+      It supports most of the device types including:
+    </p>
+    <ul>
+      <li>Wheelbases</li>
+      <li>Wheels</li>
+      <li>Pedals</li>
+      <li>Handbrakes</li>
+      <li>Sequential/H-Pattern shifters</li>
+    </ul>
+    <p>
+      Note: The udev rules found in the GitHub repository need to be installed for the application to work properly.
     </p>
   </description>
 
