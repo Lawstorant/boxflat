@@ -35,7 +35,7 @@ Moza commands and their protocol is hardware agnostic, so any implemented featur
 
 # Installation
 ## Flatpak
-Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.Lawstorant.boxflat)**
+Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.lawstorant.boxflat)**
 
 ### Udev rule installation for flatpak
 Copy this into terminal and execute with root permissions
