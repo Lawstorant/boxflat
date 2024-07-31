@@ -35,6 +35,13 @@
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/sequential.png</image>
     </screenshot>
   </screenshots>
+  <releases>
+    <release version="v1.10.1" date="2024-07-31">
+      <description>
+        <p>Initial flatpak version</p>
+      </description>
+    </release>
+  </releases>
   <url type="homepage">https://github.com/Lawstorant/boxflat</url>
   <url type="bugtracker">https://github.com/Lawstorant/boxflat/issues</url>
   <content_rating type="oars-1.0"/>
