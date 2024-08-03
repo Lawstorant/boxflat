@@ -3,7 +3,7 @@
   <id>io.github.lawstorant.boxflat</id>
 
   <name>Boxflat</name>
-  <summary>Moza Racing configurator</summary>
+  <summary>Configure Moza Racing hardware</summary>
 
   <developer id="io.github.lawstorant">
     <name>Tomasz Pakuła</name>
@@ -13,58 +13,96 @@
   <project_license>GPL-3.0-only</project_license>
 
   <recommends>
-    <display_length compare="ge">600</display_length>
+    <display_length compare="ge">800</display_length>
   </recommends>
+
+  <provides>
+    <binary>boxflat</binary>
+  </provides>
+
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
     <control>touch</control>
   </supports>
 
+  <branding>
+    <color type="primary" scheme_preference="light">#bf56cf</color>
+    <color type="primary" scheme_preference="dark">#852895</color>
+  </branding>
+
   <description>
     <p>
-      This application enables you to change you Moza Racing hardware settings.
+      Boxflat enables you to change your Moza Racing hardware settings with ease.
     </p>
     <p>
-      The table of supported settings compared to Pit House can be found on the project website.
-      It supports most of the device types including:
+      Settings and their values are a 1:1 match with Pit House. This makes it possible to use presets shared by the community.
+      The table of supported settings compared to Pit House can be found on the project website. This project has no official ties to Moza
+      and/or their software, it's 100% independent work based largely on hours of reverse engineering the protocol.
     </p>
-    <ul>
-      <li>Wheelbases</li>
-      <li>Wheels</li>
-      <li>Pedals</li>
-      <li>Handbrakes</li>
-      <li>Sequential/H-Pattern shifters</li>
-    </ul>
+    <p>
+      Supported devices:
+      <ul>
+        <li>Wheelbases</li>
+        <li>Wheels</li>
+        <li>Pedals</li>
+        <li>Handbrakes</li>
+        <li>Sequential/H-Pattern shifters</li>
+      </ul>
+    </p>
     <p>
       Note: The udev rules found in the GitHub repository need to be installed for the application to work properly.
+      Boxflat will remind you of this in case of no rw access to the serial devices.
     </p>
   </description>
 
   <launchable type="desktop-id">io.github.lawstorant.boxflat.desktop</launchable>
+
   <screenshots>
     <screenshot type="default">
       <caption>Base settings</caption>
-      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/base.png</image>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/base.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Wheel settings</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/wheel.png</image>
     </screenshot>
     <screenshot>
       <caption>Pedals settings</caption>
-      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/pedals.png</image>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/pedals.png</image>
     </screenshot>
     <screenshot>
-      <caption>Sequential settings</caption>
-      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/sequential.png</image>
+      <caption>Sequential shifter settings</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/sequential.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>FFB Equalizer settings</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/ffb-eq.png</image>
     </screenshot>
   </screenshots>
+
   <releases>
+    <release version="v1.10.4" date="2024-08-03">
+      <description>
+        <p>Updated info and metadata per Flathub guidelines</p>
+      </description>
+    </release>
+    <release version="v1.10.3" date="2024-07-31">
+      <description>
+        <p>Improve missing udev rules detection</p>
+      </description>
+    </release>
     <release version="v1.10.1" date="2024-07-31">
       <description>
         <p>Initial flatpak version</p>
       </description>
     </release>
   </releases>
+
   <url type="homepage">https://github.com/Lawstorant/boxflat</url>
+  <url type="vcs-browser">https://github.com/Lawstorant/boxflat</url>
   <url type="bugtracker">https://github.com/Lawstorant/boxflat/issues</url>
-  <content_rating type="oars-1.0"/>
+
+  <content_rating type="oars-1.1"/>
   <update_contact>forest10pl@gmail.com</update_contact>
 </component>
