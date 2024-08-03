@@ -1,9 +1,11 @@
 # Boxflat
 Boxflat for Moza Racing. Control your Moza gear settings!
 
-Now with more **read/write** action!
+<img alt="Wheelbase panel" src="screens/base.png" width="750">
 
-<img alt="Wheelbase panel" src="screens/base.png" width="922">
+<a href="https://flathub.org/apps/io.github.lawstorant.boxflat">
+    <img width="200" alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
+</a>
 
 #### For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
 #### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
@@ -35,9 +37,7 @@ Moza commands and their protocol is hardware agnostic, so any implemented featur
 
 # Installation
 ## Flatpak
-~~Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.lawstorant.boxflat)**~~
-
-Currently waiting merge and publishing
+Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.lawstorant.boxflat)**
 
 ### Udev rule installation for flatpak
 Copy this into terminal and execute with root permissions
@@ -82,12 +82,12 @@ $ sudo ./install.sh remove
 ```
 
 # Some more early screenshots
-<img alt="Wheel panel" src="screens/wheel.png" width="922">
+<img alt="Wheel panel" src="screens/wheel.png" width="750">
 
-<img alt="Pedals panel" src="screens/pedals.png" width="922">
+<img alt="Pedals panel" src="screens/pedals.png" width="750">
 
-<img alt="H-Pattern shifter panel" src="screens/hpattern.png" width="922">
+<img alt="H-Pattern shifter panel" src="screens/hpattern.png" width="750">
 
-<img alt="Sequential shifter panel" src="screens/sequential.png" width="922">
+<img alt="Sequential shifter panel" src="screens/sequential.png" width="750">
 
-<img alt="Handbrake panel" src="screens/handbrake.png" width="922">
+<img alt="Handbrake panel" src="screens/handbrake.png" width="750">
