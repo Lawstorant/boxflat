@@ -42,14 +42,14 @@
     </p>
     <p>
       Supported devices:
-      <ul>
-        <li>Wheelbases</li>
-        <li>Wheels</li>
-        <li>Pedals</li>
-        <li>Handbrakes</li>
-        <li>Sequential/H-Pattern shifters</li>
-      </ul>
     </p>
+    <ul>
+      <li>Wheelbases</li>
+      <li>Wheels</li>
+      <li>Pedals</li>
+      <li>Handbrakes</li>
+      <li>Sequential/H-Pattern shifters</li>
+    </ul>
     <p>
       Note: The udev rules found in the GitHub repository need to be installed for the application to work properly.
       Boxflat will remind you of this in case of no rw access to the serial devices.
@@ -82,6 +82,11 @@
   </screenshots>
 
   <releases>
+    <release version="v1.10.5" date="2024-08-03">
+      <description>
+        <p>Added scalable icon</p>
+      </description>
+    </release>
     <release version="v1.10.4" date="2024-08-03">
       <description>
         <p>Updated info and metadata per Flathub guidelines</p>
