@@ -5,17 +5,13 @@ MOZA_COMMAND_WRITE=1
 
 class MozaCommand():
     def __init__(self, name:str, commands_data: object):
-        self.id = int(commands_data[name]["id"])
-        self._id2 = -1
+        self.id = list(commands_data[name]["id"])
         self.read_group = int(commands_data[name]["read"])
         self.write_group = int(commands_data[name]["write"])
         self._length = int(commands_data[name]["bytes"])
         self._payload = bytes(self.length)
         self._device_type = name.split("-")[0]
         self._type = commands_data[name]["type"]
-
-        if "id2" in commands_data[name].keys():
-            self._id2 = commands_data[name]["id2"]
 
     @property
     def payload(self) -> bytes:
@@ -26,12 +22,12 @@ class MozaCommand():
         self._payload = value.to_bytes(self._length)
 
     @property
-    def id_byte(self) -> bytes:
-        return self.id.to_bytes(1)
+    def id_bytes(self) -> bytes:
+        return bytes(self.id)
 
     @property
     def length(self) -> int:
-        return self._length + int(self._id2 != -1)
+        return self._length + len(self.id)
 
     @property
     def payload_length(self) -> int:
@@ -66,7 +62,7 @@ class MozaCommand():
 
         ret = bytearray()
         ret.append(start_value)
-        ret.append(self.length + 1)
+        ret.append(self.length)
 
         if rw == MOZA_COMMAND_READ:
             ret.extend(self.read_group_byte)
@@ -74,11 +70,7 @@ class MozaCommand():
             ret.extend(self.write_group_byte)
 
         ret.append(device_id)
-        ret.extend(self.id_byte)
-
-        if self._id2 != -1:
-            ret.append(self._id2)
-
+        ret.extend(self.id_bytes)
         ret.extend(self._payload)
 
         if check_function != None:

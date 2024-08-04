@@ -229,7 +229,6 @@ class MozaConnectionManager():
             self._no_access_subs.pop(i)
 
 
-
     def set_cont_active(self, active: bool) -> None:
         if active:
             self._cont_active.set()

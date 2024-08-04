@@ -114,6 +114,8 @@ class SettingsPanel(object):
         for group in self._groups:
             group.set_sensitive(value)
 
+        # self._button.set_visible(value)
+
 
     def open_url(self, url: str) -> None:
         launcher = Gtk.UriLauncher()

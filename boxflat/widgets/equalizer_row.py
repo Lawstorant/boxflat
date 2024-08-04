@@ -8,7 +8,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
     def __init__(self, title: str, sliders_number: int,
                  subtitle="", draw_values=True, range_start=0,
                  range_end=100, value=0, increment=1, suffix="",
-                 button_row=True, draw_marks=True):
+                 button_row=True, draw_marks=True, ignore_index=-1):
         super().__init__(title, subtitle)
 
         self._suffix = suffix
@@ -22,6 +22,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.set_child(main_box)
 
         sliders_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        sliders_box.set_hexpand(True)
+        sliders_box.set_halign(Gtk.Align.FILL)
         # something_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         main_box.append(child)
         main_box.add_css_class("header")
@@ -43,11 +45,12 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             slider.set_digits(0)
             slider.set_value(value)
             slider.set_size_request(0, 300)
-            slider.set_hexpand(True)
             slider.add_css_class("eq-slider")
 
             slider.connect('value-changed', self._notify_slider)
-            slider.connect('value-changed', self._notify_sliders)
+
+            if i != ignore_index:
+                slider.connect('value-changed', self._notify_sliders)
 
             label = Gtk.Label()
             label.add_css_class("eq-label")
@@ -113,10 +116,10 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
     def set_sliders_value(self, values: list) -> None:
         self.mute(True)
-        if len(self._sliders) != len(values):
+        if len(values) > len(self._sliders):
             return
 
-        for i in range(len(self._sliders)):
+        for i in range(len(values)):
             self._sliders[i].set_value(values[i])
         self.unmute()
 

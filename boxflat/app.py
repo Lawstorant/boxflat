@@ -62,7 +62,10 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._prepare_settings()
 
-        for button in self._panel_buttons():
+        buttons = self._panel_buttons()
+        for button in buttons:
+            if button is not buttons[0]:
+                button.set_group(buttons[0])
             box2.append(button)
 
         self.settings_box.append(self._activate_default().content)
@@ -93,10 +96,10 @@ class MainWindow(Adw.ApplicationWindow):
         self._cm.reset_subscriptions()
 
         new_title = button.get_child().get_label()
-        old_title = self.navigation.get_content().get_title()
+        # old_title = self.navigation.get_content().get_title()
         box = self.settings_box
 
-        self._panels[old_title].deactivate_button()
+        #self._panels[old_title].deactivate_button()
         self.set_content_title(new_title)
 
         box.remove(Gtk.Widget.get_first_child(box))
@@ -141,7 +144,6 @@ class MainWindow(Adw.ApplicationWindow):
         for panel in self._panels.values():
             panel.activate_subs()
 
-        self._cm.refresh()
 
         # TODO: Add Dash,Hub and other settings
 
@@ -154,8 +156,8 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _activate_default(self) -> SettingsPanel:
-        for panel in self._panels.values():
-            panel.button.set_active(False)
+        # for panel in self._panels.values():
+        #     panel.button.set_active(False)
 
         self._panels["Home"].button.set_active(True)
         return self._panels["Home"]
