@@ -65,6 +65,10 @@ class BoxflatRow(Adw.ActionRow):
         self._subscribers.append((callback, raw, args))
 
 
+    def clear_subscribtions(self) -> None:
+        self._subscribers = []
+
+
     def _notify(self) -> None:
         if self._mute:
             return

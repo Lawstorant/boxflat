@@ -168,3 +168,10 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.set_button_value(-1)
         for sub in self._sliders_subs:
             sub[0](self.get_sliders_value(), *sub[1])
+
+
+    def reconfigure(self, range_start=0, range_end=100, clear_marks=True) -> None:
+        for slider in self._sliders:
+            slider.set_range(range_start, range_end)
+            if clear_marks:
+                slider.clear_marks()

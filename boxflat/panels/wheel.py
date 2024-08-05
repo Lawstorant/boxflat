@@ -113,7 +113,6 @@ class WheelSettings(SettingsPanel):
             button_row=False, draw_marks=False)
 
         self._add_row(self._timing_row)
-        self._timing_row.add_marks(50, 80)
         self._timing_row.add_buttons("Early", "Normal", "Late")
         self._timing_row.set_button_value(-1)
         self._timing_row.subscribe(self._set_rpm_timings_preset)
@@ -121,8 +120,20 @@ class WheelSettings(SettingsPanel):
         for i in range(MOZA_RPM_LEDS):
             self._timing_row.add_labels(f"RPM{i+1}", index=i)
 
+
+        self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
+            range_end=2000, button_row=False, draw_marks=False)
+
+        self._add_row(self._timing_row2)
+        # self._timing_row2.add_buttons("Early", "Normal", "Late")
+        self._timing_row2.set_button_value(-1)
+        for i in range(MOZA_RPM_LEDS):
+            self._timing_row2.add_labels(f"RPM{i+1}", index=i)
+
+
         self._append_sub("wheel-rpm-timings", self._get_rpm_timings)
         self._append_sub("wheel-rpm-timings", self._get_rpm_timings_preset)
+        self._append_sub("wheel-rpm-mode", self._reconfigure_timings)
 
 
         self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds"))
@@ -157,7 +168,7 @@ class WheelSettings(SettingsPanel):
 
 
     def _set_rpm_timings(self, timings: list) -> None:
-        self._cm.set_setting_list(timings[:-1], "wheel-rpm-timings")
+        self._cm.set_setting_list(timings, "wheel-rpm-timings")
 
 
     def _set_rpm_timings_preset(self, value: int) -> None:
@@ -174,3 +185,18 @@ class WheelSettings(SettingsPanel):
             index = self._timings.index(list(timings))
 
         self._timing_row.set_button_value(index)
+
+
+    def _reconfigure_timings(self, value: int) -> None:
+        pass
+        # if value != 0:
+        #     self._timing_row.reconfigure(0, 20000)
+        #     self._timing_row.clear_subscribtions()
+        #     self._timing_row.subscribe(self._set_rpm_timings_preset)
+        #     self._timing_row.subscribe_sliders(self._set_rpm_timings, "rpm")
+
+        # else:
+        #     self._timing_row.reconfigure(0, 100)
+        #     self._timing_row.clear_subscribtions()
+        #     self._timing_row.subscribe(self._set_rpm_timings_preset)
+        #     self._timing_row.subscribe_sliders(self._set_rpm_timings, "percent")
