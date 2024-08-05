@@ -54,6 +54,8 @@ levelbar {
 
 .eq-slider {
     margin-bottom: 4px;
+    padding-left: 7px;
+    padding-right: 7px;
 }
 
 .eq-label {
@@ -64,7 +66,7 @@ levelbar {
     margin-top: 8px;
 }
 
-.header>.header {
+.header > .header {
     margin-top: 10px;
 }
 

@@ -106,6 +106,7 @@ class WheelSettings(SettingsPanel):
         self._add_row(BoxflatToggleButtonRow("RPM Mode"))
         self._current_row.add_buttons("Percent", "RPM")
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-mode")
+        self._current_row.subscribe(self._reconfigure_timings)
         self._append_sub("wheel-rpm-mode", self._current_row.set_value)
 
         self.add_preferences_group("Timings")
@@ -122,13 +123,15 @@ class WheelSettings(SettingsPanel):
 
 
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
-            range_end=2000, button_row=False, draw_marks=False)
+            range_end=20000, button_row=False, draw_marks=False)
 
         self._add_row(self._timing_row2)
         # self._timing_row2.add_buttons("Early", "Normal", "Late")
         self._timing_row2.set_button_value(-1)
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_labels(f"RPM{i+1}", index=i)
+            self._timing_row2.subscribe_slider(i, self._cm.set_setting_int, f"wheel-rpm-value{i+1}")
+            self._append_sub(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
 
 
         self._append_sub("wheel-rpm-timings", self._get_rpm_timings)
@@ -160,11 +163,11 @@ class WheelSettings(SettingsPanel):
         # for i in range(MOZA_RPM_LEDS):
         #     self._append_sub(f"wheel-rpm-blink-color{i+1}", self._current_row.set_led_value, i)
 
-        self.add_preferences_group("Telemetry flag")
-        self._add_row(BoxflatNewColorPickerRow(""))
-        self._current_row.subscribe(self._cm.set_setting_list, "wheel-flag-color")
-        for i in range(MOZA_RPM_LEDS):
-            self._append_sub(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
+        # self.add_preferences_group("Telemetry flag")
+        # self._add_row(BoxflatNewColorPickerRow(""))
+        # self._current_row.subscribe(self._cm.set_setting_list, "wheel-flag-color")
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._append_sub(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
 
 
     def _set_rpm_timings(self, timings: list) -> None:
@@ -188,15 +191,5 @@ class WheelSettings(SettingsPanel):
 
 
     def _reconfigure_timings(self, value: int) -> None:
-        pass
-        # if value != 0:
-        #     self._timing_row.reconfigure(0, 20000)
-        #     self._timing_row.clear_subscribtions()
-        #     self._timing_row.subscribe(self._set_rpm_timings_preset)
-        #     self._timing_row.subscribe_sliders(self._set_rpm_timings, "rpm")
-
-        # else:
-        #     self._timing_row.reconfigure(0, 100)
-        #     self._timing_row.clear_subscribtions()
-        #     self._timing_row.subscribe(self._set_rpm_timings_preset)
-        #     self._timing_row.subscribe_sliders(self._set_rpm_timings, "percent")
+        self._timing_row.set_present(value < 1)
+        self._timing_row2.set_present(value >= 1)

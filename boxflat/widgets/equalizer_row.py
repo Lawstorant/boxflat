@@ -37,6 +37,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             self._slider_subs.append([])
             slider.set_range(range_start, range_end)
             slider.set_inverted(True)
+            slider.set_halign(Gtk.Align.FILL)
 
             slider.set_increments(increment, 0)
             slider.set_draw_value(draw_values)
