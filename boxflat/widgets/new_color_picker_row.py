@@ -20,7 +20,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         self.set_child(main_box)
 
         colors_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, halign=Gtk.Align.CENTER)
-        colors_box.set_size_request(0, 62)
+        colors_box.set_size_request(0, 61)
 
         main_box.append(child)
         main_box.add_css_class("header")
