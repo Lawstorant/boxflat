@@ -12,18 +12,18 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 
 ## Functionality
 
-| Device         | Completness | WIP |
-| :------------: | :---------: | :-  |
-| Home page      | 0%          | Quick settings |
-| Base           | 100%        | |
-| Wheel          | 80%         | anything not present on RSv2 |
-| Pedals         | 100%        | |
-| Dashboard      | 0%          | Dashboard settings |
-| Hub            | 0%          | Rows with connection status |
-| H-Pattern      | 100%        | |
-| Sequential     | 100%        | |
-| Handbrake      | 100%        | |
-| Other settings | 100%        | |
+| Device         | Completeness | WIP |
+| :------------: | :----------: | :-- |
+| Home page      | 0%           | Quick settings |
+| Base           | 100%         | |
+| Wheel          | 100%         | |
+| Pedals         | 100%         | |
+| Dashboard      | 0%           | Dashboard settings |
+| Hub            | 0%           | Rows with connection status |
+| H-Pattern      | 100%         | |
+| Sequential     | 100%         | |
+| Handbrake      | 100%         | |
+| Other settings | 100%         | |
 
 ### WiP
 - Rotation output

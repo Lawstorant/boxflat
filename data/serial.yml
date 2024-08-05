@@ -644,7 +644,6 @@ commands:
     type: int
 
 # Steering wheel
-  # TODO: check if this works
   wheel-colors:
     read: 64
     write: 63
@@ -1037,7 +1036,6 @@ commands:
     bytes: 1
     type: int
 
-  # TODO: wheel rpm, button, flag colors
   wheel-rpm-interval:
     read: 64
     write: 63
