@@ -59,7 +59,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("Buttons", "  Knob ")
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-knob-mode")
         self._append_sub("wheel-knob-mode", self._current_row.set_value)
-        self._append_sub_connected("wheel-knob-mode", self._current_row.set_active)
+        self._append_sub_connected("wheel-knob-mode", self._current_row.set_present)
 
         self._add_row(BoxflatToggleButtonRow("Left Stick Mode"))
         self._current_row.add_buttons("Buttons", "D-Pad")

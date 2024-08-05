@@ -36,7 +36,7 @@ class OtherSettings(SettingsPanel):
         # self._add_row(BoxflatSwitchRow("Monitor Handbrake Output"))
         self._add_row(BoxflatSwitchRow("Monitor Pedals/Handbrake Output"))
         self._current_row.subscribe(self._cm.set_cont_active)
-        self._current_row.set_value(1, mute=False)
+        # self._current_row.set_value(1, mute=False)
 
         self._brake_calibration = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
         self._add_row(self._brake_calibration)

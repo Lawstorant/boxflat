@@ -26,7 +26,8 @@ class BoxflatRow(Adw.ActionRow):
         self.set_sensitive(int(value) == 1)
 
 
-    def set_visible(self, value) -> None:
+    def set_present(self, value) -> None:
+        print(value)
         self.set_visible(int(value) == 1)
 
 
