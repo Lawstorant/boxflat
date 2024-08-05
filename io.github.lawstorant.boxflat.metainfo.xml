@@ -64,6 +64,10 @@
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/base.png</image>
     </screenshot>
     <screenshot>
+      <caption>FFB Equalizer settings</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/ffb-eq.png</image>
+    </screenshot>
+    <screenshot>
       <caption>Wheel settings</caption>
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/wheel.png</image>
     </screenshot>
@@ -76,12 +80,17 @@
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/sequential.png</image>
     </screenshot>
     <screenshot>
-      <caption>FFB Equalizer settings</caption>
-      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/ffb-eq.png</image>
+      <caption>Handbrake settings</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/handbrake.png</image>
     </screenshot>
   </screenshots>
 
   <releases>
+    <release version="v1.11.0" date="2024-08-05">
+      <description>
+        <p>Support wheel firmware 1.2.2.7</p>
+      </description>
+    </release>
     <release version="v1.10.5" date="2024-08-03">
       <description>
         <p>Added scalable icon</p>
