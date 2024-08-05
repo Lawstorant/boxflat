@@ -21,11 +21,11 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-ble-mode")
         self._append_sub("main-get-ble-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Base compatiility mode", "For Forza Horizon 5"))
+        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Breaks Forza Horizon 5 on linux"))
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-compat-mode")
         self._append_sub("main-get-compat-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Pedals compatiility mode", "For Forza Horizon 5"))
+        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Breaks Forza Horizon 5 on linux"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-compat-mode")
         self._append_sub("pedals-compat-mode", self._current_row.set_value)
 
@@ -34,7 +34,7 @@ class OtherSettings(SettingsPanel):
         # self._add_row(BoxflatSwitchRow("Monitor Wheel Position"))
         # self._add_row(BoxflatSwitchRow("Monitor Pedals Output"))
         # self._add_row(BoxflatSwitchRow("Monitor Handbrake Output"))
-        self._add_row(BoxflatSwitchRow("Monitor Pedals/Handbrake Output", "Still Buggy"))
+        self._add_row(BoxflatSwitchRow("Monitor Pedals/Handbrake Output"))
         self._current_row.subscribe(self._cm.set_cont_active)
         self._current_row.set_value(1, mute=False)
 
@@ -48,7 +48,7 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.refresh_cont)
         self._current_row.set_value(1, mute=False)
 
-        self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh"))
+        self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
 
         self.add_preferences_group("Custom command")

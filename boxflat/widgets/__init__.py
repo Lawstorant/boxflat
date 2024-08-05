@@ -8,3 +8,4 @@ from .color_picker_row import *
 from .toggle_button_row import *
 from .preferences_group import *
 from .equalizer_row import *
+from .new_color_picker_row import *

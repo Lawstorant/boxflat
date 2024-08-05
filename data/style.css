@@ -54,6 +54,8 @@ levelbar {
 
 .eq-slider {
     margin-bottom: 4px;
+    padding-left: 7px;
+    padding-right: 7px;
 }
 
 .eq-label {
@@ -64,7 +66,7 @@ levelbar {
     margin-top: 8px;
 }
 
-.header>.header {
+.header > .header {
     margin-top: 10px;
 }
 
@@ -125,57 +127,24 @@ levelbar {
     color: #dddddd;
 }
 
-/* RPM colors */
-.c0-rpm {
-    background-color: #6affb5;
-    border-color: #6affb5;
-    color: #6affb5;
-}
-
-.c1-rpm {
-    background-color: #ff3cff;
-    border-color: #ff3cff;
-    color: #ff3cff;
-}
-
-.c2-rpm {
-    background-color: #3737ff;
-    border-color: #3737ff;
-    color: #3737ff;
-}
-
-.c3-rpm {
-    background-color: #00ce00;
-    border-color: #00ce00;
-    color: #00ce00;
-}
-
-.c4-rpm {
-    background-color: #f0f000;
-    border-color: #f0f000;
-    color: #f0f000;
-}
-
-.c5-rpm {
-    background-color: #ff9c39;
-    border-color: #ff9c39;
-    color: #ff9c39;
-}
-
-.c6-rpm {
-    background-color: #ff0606;
-    border-color: #ff0606;
-    color: #ff0606;
-}
-
-.c7-rpm {
-    background-color: #00ffff;
-    border-color: #00ffff;
-    color: #00ffff;
-}
-
 /* Color Selected */
 .cs {
     padding: 0 5px;
     border: 5px solid #0c0c0c;
+}
+
+colorbutton {
+    margin: 0 13px 16px 0;
+}
+
+colorbutton:last-child {
+    margin-right: 0;
+}
+
+colorbutton > button {
+    border-radius: 100px;
+}
+
+colorbutton > button > colorswatch {
+    border-radius: 100px;
 }
