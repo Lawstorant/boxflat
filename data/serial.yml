@@ -1360,6 +1360,20 @@ commands:
     bytes: 2
     type: int
 
+  wheel-paddles-calibration:
+    read: -1
+    write: 63
+    id: [8]
+    bytes: 1
+    type: int
+
+  wheel-paddles-calibration2:
+    read: -1
+    write: 63
+    id: [8]
+    bytes: 1
+    type: int
+
   pedals-throttle-start-calibration:
     read: -1
     write: 38

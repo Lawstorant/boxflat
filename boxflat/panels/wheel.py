@@ -85,9 +85,13 @@ class WheelSettings(SettingsPanel):
         self._append_sub("wheel-flags-brightness", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
-        self._add_row(BoxflatButtonRow("Reset Parameters", "WIP"))
-        self._add_row(BoxflatButtonRow("Calibrate Paddles", "WIP"))
+        # self._add_row(BoxflatButtonRow("Reset Parameters", "WIP"))
+        self._add_row(BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True))
+        self._current_row.subscribe(self._calibrate_paddles)
+        self._cm.subscribe_shutdown(self._current_row.shutdown)
 
+
+        # RPM
         self.add_preferences_page("RPM")
         self.add_preferences_group("Indicator settings")
 
@@ -140,7 +144,7 @@ class WheelSettings(SettingsPanel):
 
 
         self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds"))
-        self._current_row.add_marks(200, 400, 600, 800)
+        self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-interval")
         self._append_sub("wheel-rpm-interval", self._current_row.set_value)
 
@@ -158,10 +162,9 @@ class WheelSettings(SettingsPanel):
         for i in range(MOZA_RPM_LEDS):
             self._append_sub(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
-        # self._add_row(BoxflatNewColorPickerRow("RPM Blinking"))
-        # self._current_row.subscribe(self._cm.set_setting_list, "wheel-rpm-blink-color")
-        # for i in range(MOZA_RPM_LEDS):
-        #     self._append_sub(f"wheel-rpm-blink-color{i+1}", self._current_row.set_led_value, i)
+        self.add_preferences_group("RPM Blinking")
+        self._add_row(BoxflatNewColorPickerRow(""))
+        self._current_row.subscribe(self._cm.set_setting_list, "wheel-rpm-blink-color")
 
         # self.add_preferences_group("Telemetry flag")
         # self._add_row(BoxflatNewColorPickerRow(""))
@@ -193,3 +196,12 @@ class WheelSettings(SettingsPanel):
     def _reconfigure_timings(self, value: int) -> None:
         self._timing_row.set_present(value < 1)
         self._timing_row2.set_present(value >= 1)
+
+
+    def _calibrate_paddles(self, value: int) -> None:
+        if value == 0:
+            self._cm.set_setting_int(5, "wheel-paddles-calibration")
+
+        else:
+            self._cm.set_setting_int(1, "wheel-paddles-calibration")
+            self._cm.set_setting_int(2, "wheel-paddles-calibration2")

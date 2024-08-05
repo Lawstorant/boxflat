@@ -25,9 +25,11 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | Handbrake      | 100%         | |
 | Other settings | 100%         | |
 
+Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
+
 ### WiP
 - Rotation output
-- Showing only settings that are relevant to the connected hardware (differing wheel settings)
+- Wheel paddles output
 
 ### Firmware upgrades
 There are some EEPROM functions available, but I need to do more testing to make sure I won't brick anything. For now, just use Pit House on Windows if you can, as FW upgrade support is not coming in the near future.
@@ -81,7 +83,7 @@ Removal:
 $ sudo ./install.sh remove
 ```
 
-# Some more early screenshots
+# Some more screenshots
 <img alt="Wheel panel" src="screens/wheel.png" width="750">
 
 <img alt="Pedals panel" src="screens/pedals.png" width="750">
