@@ -29,7 +29,7 @@ class WheelSettings(SettingsPanel):
         # self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Central
 
         super().__init__("Wheel", button_callback, connection_manager)
-        self._append_sub_connected("wheel-clutch-point", self.active)
+        # self._append_sub_connected("wheel-clutch-point", self.active)
 
 
     def prepare_ui(self) -> None:
@@ -85,7 +85,11 @@ class WheelSettings(SettingsPanel):
         self._append_sub("wheel-flags-brightness", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
-        # self._add_row(BoxflatButtonRow("Reset Parameters", "WIP"))
+        # self._add_row(BoxflatDialogRow("Key Combination Settings"))
+        # self._current_row.add_switches("Left Stick Mode", "Wheelbase Setting", "Set angle to 360°",
+        #                                "Set angle to 540°", "Set angle to 720°", "Set angle to 900°",
+        #                                "Switch Dash Display", "Center Wheel")
+
         self._add_row(BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True))
         self._current_row.subscribe(self._calibrate_paddles)
         self._cm.subscribe_shutdown(self._current_row.shutdown)
@@ -127,7 +131,7 @@ class WheelSettings(SettingsPanel):
 
 
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
-            range_end=20000, button_row=False, draw_marks=False)
+            range_start=1000, range_end=20000, button_row=False, draw_marks=False)
 
         self._add_row(self._timing_row2)
         # self._timing_row2.add_buttons("Early", "Normal", "Late")

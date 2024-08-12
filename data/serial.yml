@@ -802,8 +802,8 @@ commands:
     read: 64
     write: 63
     id: [19]
-    bytes: 1
-    type: int
+    bytes: 4
+    type: array
 
   wheel-rpm-color1:
     read: 64

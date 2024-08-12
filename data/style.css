@@ -148,3 +148,8 @@ colorbutton > button {
 colorbutton > button > colorswatch {
     border-radius: 100px;
 }
+
+.wheel-dialog-setting {
+    margin-left: 20px;
+    margin-right: 20px;
+}

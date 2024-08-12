@@ -23,6 +23,8 @@ class SettingsPanel(object):
         self._active = True
 
         self._content = self._prepare_content()
+        self._page = Adw.NavigationPage(title=title, child=self._content)
+        self._page.set_size_request(720,0)
         self._button = self._prepare_button(title, button_callback)
         self._banner = self._prepare_banner()
         self.prepare_ui()
@@ -41,11 +43,11 @@ class SettingsPanel(object):
         return button
 
 
-    def _prepare_content(self) -> Gtk.Box:
-        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        content.set_css_classes(['settings-pane'])
+    def _prepare_content(self) -> Adw.ToolbarView:
+        content = Adw.ToolbarView()
         self._header = Adw.HeaderBar()
-        content.append(self._header)
+        content.add_top_bar(self._header)
+        content.set_css_classes(['settings-pane'])
         return content
 
 
@@ -56,8 +58,9 @@ class SettingsPanel(object):
         banner.set_revealed(False)
         banner.add_css_class("banner-disconnected")
         banner.connect("button-clicked", lambda b: self.hide_banner())
-        self._content.append(banner)
+        self._content.add_top_bar(banner)
         return banner
+
 
     def prepare_ui(self) -> None:
         return
@@ -85,8 +88,8 @@ class SettingsPanel(object):
         print(f"Applying {self.title} settings...")
 
     @property
-    def content(self) -> Gtk.Box:
-        return self._content
+    def content(self) -> Adw.ToolbarView:
+        return self._page
 
     @property
     def button(self) -> Gtk.ToggleButton:
@@ -128,7 +131,7 @@ class SettingsPanel(object):
         self._current_page = page
 
         if self._current_stack == None:
-            self._content.append(page)
+            self._content.set_content(page)
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
@@ -145,7 +148,7 @@ class SettingsPanel(object):
 
     def add_view_stack(self) -> None:
         stack = Adw.ViewStack()
-        self._content.append(stack)
+        self._content.set_content(stack)
         self._current_stack = stack
 
         switcher = Adw.ViewSwitcher()

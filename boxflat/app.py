@@ -23,9 +23,6 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_default_size(0, 800)
         self.set_title("Boxflat")
 
-        left_header = Adw.HeaderBar()
-        left_header.set_show_end_title_buttons(False)
-
         # self.search_btn = Gtk.ToggleButton()  # Search Button
         # self.search_btn.set_icon_name("edit-find-symbolic")
         # self.search_btn.bind_property("active", self.searchbar, "search-mode-enabled",
@@ -38,27 +35,21 @@ class MainWindow(Adw.ApplicationWindow):
         navigation.set_max_sidebar_width(178)
         navigation.set_min_sidebar_width(178)
 
+        box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        left = Adw.ToolbarView()
+        left.add_top_bar(Adw.HeaderBar())
+        left.set_content(box2)
+
         sidebar = Adw.NavigationPage()
         sidebar.set_title("Boxflat")
-        box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box2.append(left_header)
-        sidebar.set_child(box2)
-
-        content = Adw.NavigationPage()
-        content.set_title("Whatever")
-        content.set_size_request(720, 0)
-        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        content_box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-
-        content_box.append(content_box2)
-        content.set_child(content_box)
+        sidebar.set_child(left)
 
         navigation.set_sidebar(sidebar)
-        navigation.set_content(content)
+        navigation.set_content(Adw.NavigationPage(title="whatever"))
 
         self.set_content(navigation)
         self.navigation = navigation
-        self.settings_box = content_box2
 
         self._prepare_settings()
 
@@ -68,9 +59,7 @@ class MainWindow(Adw.ApplicationWindow):
                 button.set_group(buttons[0])
             box2.append(button)
 
-        self.settings_box.append(self._activate_default().content)
-        content.set_title("Home")
-
+        navigation.set_content(self._activate_default().content)
 
         udev_alert_body = "alert"
 
@@ -94,17 +83,9 @@ class MainWindow(Adw.ApplicationWindow):
 
     def switch_panel(self, button) -> None:
         self._cm.reset_subscriptions()
-
         new_title = button.get_child().get_label()
-        # old_title = self.navigation.get_content().get_title()
-        box = self.settings_box
 
-        #self._panels[old_title].deactivate_button()
-        self.set_content_title(new_title)
-
-        box.remove(Gtk.Widget.get_first_child(box))
-        box.append(self._panels[new_title].content)
-
+        self.navigation.set_content(self._panels[new_title].content)
         self._panels[new_title].activate_subs()
 
 
@@ -184,5 +165,4 @@ class MyApp(Adw.Application):
 
     def on_activate(self, app):
         self.win = MainWindow(self._data_path, self._dry_run, application=app)
-        self.win.set_icon_name("io.github.lawstorant.boxflat")
         self.win.present()

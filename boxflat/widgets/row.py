@@ -28,7 +28,7 @@ class BoxflatRow(Adw.ActionRow):
 
     def set_present(self, value) -> None:
         print(value)
-        self.set_visible(int(value) == 1)
+        self.set_visible(int(value) != -1)
 
 
     def mute(self, value: bool=True) -> None:
@@ -94,3 +94,7 @@ class BoxflatRow(Adw.ActionRow):
 
     def shutdown(self) -> None:
         self._shutdown = True
+
+
+    def set_width(self, width: int) -> None:
+        self.set_size_request(width, 0)
