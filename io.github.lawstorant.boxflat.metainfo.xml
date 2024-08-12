@@ -86,6 +86,16 @@
   </screenshots>
 
   <releases>
+    <release version="v1.12.0" date="2024-08-05">
+      <description>
+        <p>Add Key Combination settings to the Wheel page</p>
+      </description>
+    </release>
+    <release version="v1.11.1" date="2024-08-12">
+      <description>
+        <p>Overhaul the header apperance</p>
+      </description>
+    </release>
     <release version="v1.11.0" date="2024-08-05">
       <description>
         <p>Support wheel firmware 1.2.2.7</p>

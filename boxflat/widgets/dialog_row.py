@@ -14,26 +14,54 @@ class BoxflatDialogRow(BoxflatRow):
         # icon.set_pixel_size(32)
 
         self.set_activatable(True)
+        self._title = title
         self._set_widget(icon)
         self._icon = icon
-
+        self._switches = []
 
         self._group = Adw.PreferencesGroup()
         self._group.add_css_class("wheel-dialog-setting")
-        page = Adw.PreferencesPage()
-        page.add(self._group)
+        self._page = Adw.PreferencesPage()
+        self._page.add(self._group)
 
-        self._dialog = Adw.Dialog(title=title)
-        self._dialog.set_child(Adw.ToolbarView())
-        self._dialog.get_child().add_top_bar(Adw.HeaderBar())
-        self._dialog.get_child().set_content(page)
+        self.connect("activated", self.show_dialog)
 
 
-        self.connect("activated", lambda w: self._dialog.present())
+    def show_dialog(self, whatever) -> None:
+        dialog = Adw.Dialog(title=self._title)
+        dialog.set_child(Adw.ToolbarView())
+        dialog.get_child().add_top_bar(Adw.HeaderBar())
+        dialog.get_child().set_content(self._page)
+        dialog.present()
 
 
     def add_switches(self, *switches) -> None:
         for switch in switches:
-            row = BoxflatSwitchRow(switch)
-            row.set_width(400)
-            self._group.add(row)
+            self.add_switch(switch)
+
+
+    def add_switch(self, title: str, subtitle="") -> None:
+        row = BoxflatSwitchRow(title, subtitle=subtitle)
+        row.set_width(400)
+        self._group.add(row)
+        self._switches.append(row)
+        row.subscribe(lambda v: self._notify())
+
+
+    def get_value(self) -> list:
+        values = []
+        for switch in self._switches:
+            values.append(switch.get_value())
+
+        return values
+
+
+    def get_count(self) -> int:
+        return len(self._switches)
+
+
+    def set_value(self, values) -> None:
+        for i in range(self.get_count()):
+            self._switches[i].set_value(bool(values[i]))
+
+        return values

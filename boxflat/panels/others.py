@@ -71,7 +71,7 @@ class OtherSettings(SettingsPanel):
 
 
     def _read_custom(self, *args) -> None:
-        out = self._cm._get_setting(self._command.get_text())
+        out = self._cm.get_setting_list(self._command.get_text())
         self._value.set_text(str(out))
 
 

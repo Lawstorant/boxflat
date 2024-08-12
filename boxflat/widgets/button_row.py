@@ -13,5 +13,6 @@ class BoxflatButtonRow(BoxflatRow):
         self._set_widget(button)
         self._button = button
 
+
     def get_value(self) -> int:
         return round(eval("1" + self._expression))

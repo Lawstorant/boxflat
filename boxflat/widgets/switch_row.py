@@ -21,9 +21,8 @@ class BoxflatSwitchRow(BoxflatRow):
         val = self._switch.get_active()
         if self._reverse:
             val = not val
-        return round(eval(
-            "int(val)" + self._expression
-        ))
+
+        return round(eval("int(val)" + self._expression))
 
 
     def reverse_values(self) -> None:

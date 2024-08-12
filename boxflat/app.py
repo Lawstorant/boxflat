@@ -82,10 +82,14 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def switch_panel(self, button) -> None:
-        self._cm.reset_subscriptions()
         new_title = button.get_child().get_label()
+        new_content = self._panels[new_title].content
 
-        self.navigation.set_content(self._panels[new_title].content)
+        if self.navigation.get_content() == new_content:
+            return
+
+        self._cm.reset_subscriptions()
+        self.navigation.set_content(new_content)
         self._panels[new_title].activate_subs()
 
 

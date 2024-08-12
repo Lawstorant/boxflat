@@ -1,6 +1,6 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
-
+from boxflat.bitwise import *
 from boxflat.widgets import *
 
 MOZA_TELEMETRY_FLAGS = [
@@ -27,9 +27,10 @@ class WheelSettings(SettingsPanel):
         self._timings.append([75, 79, 82, 85, 87, 88, 89, 90, 92, 94]) # Normal
         self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Late
         # self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Central
+        self._wheel_combination_data = []
 
         super().__init__("Wheel", button_callback, connection_manager)
-        # self._append_sub_connected("wheel-clutch-point", self.active)
+        self._append_sub_connected("wheel-clutch-point", self.active)
 
 
     def prepare_ui(self) -> None:
@@ -59,7 +60,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("Buttons", "  Knob ")
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-knob-mode")
         self._append_sub("wheel-knob-mode", self._current_row.set_value)
-        self._append_sub_connected("wheel-knob-mode", self._current_row.set_present)
+        self._append_sub_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
         self._add_row(BoxflatToggleButtonRow("Left Stick Mode"))
         self._current_row.add_buttons("Buttons", "D-Pad")
@@ -85,10 +86,18 @@ class WheelSettings(SettingsPanel):
         self._append_sub("wheel-flags-brightness", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
-        # self._add_row(BoxflatDialogRow("Key Combination Settings"))
-        # self._current_row.add_switches("Left Stick Mode", "Wheelbase Setting", "Set angle to 360°",
-        #                                "Set angle to 540°", "Set angle to 720°", "Set angle to 900°",
-        #                                "Switch Dash Display", "Center Wheel")
+        self._combination_row = BoxflatDialogRow("Key Combination Settings")
+        self._add_row(self._combination_row)
+        self._current_row.add_switch("Left Stick Mode", "Press and hold both sticks")
+        self._current_row.add_switch("Wheelbase Setting", "Button 34 + Up/Down/Left/Right")
+        self._current_row.add_switch("Set angle to 360°", "Button 33 + Up")
+        self._current_row.add_switch("Set angle to 540°", "Button 33 + Right")
+        self._current_row.add_switch("Set angle to 720°", "Button 33 + Down")
+        self._current_row.add_switch("Set angle to 900°", "Button 33 + Left")
+        self._current_row.add_switch("Switch Dash Display", "Button 32 + Left/Right")
+        self._current_row.add_switch("Center Wheel", "Press both paddles and Button 1")
+        self._current_row.subscribe(self._set_combination_settings)
+        self._append_sub("wheel-key-combination", self._get_combination_settings)
 
         self._add_row(BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True))
         self._current_row.subscribe(self._calibrate_paddles)
@@ -209,3 +218,43 @@ class WheelSettings(SettingsPanel):
         else:
             self._cm.set_setting_int(1, "wheel-paddles-calibration")
             self._cm.set_setting_int(2, "wheel-paddles-calibration2")
+
+
+    def _set_combination_settings(self, values) -> None:
+        output = self._wheel_combination_data.copy()
+
+        if len(output) != 4:
+            return
+
+        output[3] = modify_bit(output[3], 0, values[0])
+        output[3] = modify_bit(output[3], 3, values[1])
+        output[1] = modify_bit(output[1], 0, values[2])
+        output[1] = modify_bit(output[1], 1, values[3])
+        output[1] = modify_bit(output[1], 2, values[4])
+        output[1] = modify_bit(output[1], 3, values[5])
+        output[3] = modify_bit(output[3], 1, values[6])
+        output[3] = modify_bit(output[3], 5, values[7])
+
+        self._cm.set_setting_list(output, "wheel-key-combination")
+
+
+    def _get_combination_settings(self, values) -> None:
+        self._wheel_combination_data = values
+        byte1 = values[1]
+        byte2 = values[3]
+
+        switch_values = []
+
+        switch_values.append(test_bit(byte2, 0))
+        switch_values.append(test_bit(byte2, 3))
+
+        # angle settings
+        switch_values.append(test_bit(byte1, 0))
+        switch_values.append(test_bit(byte1, 1))
+        switch_values.append(test_bit(byte1, 2))
+        switch_values.append(test_bit(byte1, 3))
+
+        switch_values.append(test_bit(byte2, 1))
+        switch_values.append(test_bit(byte2, 5))
+
+        self._combination_row.set_value(switch_values)
