@@ -131,3 +131,4 @@ class OtherSettings(SettingsPanel):
             time.sleep(0.5)
             val = modify_bit(0,15)
             self._cm.set_setting_int(val, "wheel-send-telemetry")
+            time.sleep(1)
