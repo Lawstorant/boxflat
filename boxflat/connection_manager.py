@@ -243,7 +243,7 @@ class MozaConnectionManager():
 
     def _rw_handler(self) -> None:
         while not self._shutdown:
-            time.sleep(0.2)
+            time.sleep(0.1)
 
             with self._write_mutex:
                 write_buffer = self._write_command_buffer

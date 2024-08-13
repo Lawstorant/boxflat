@@ -1443,3 +1443,11 @@ commands:
     id: [4]
     bytes: 2
     type: int
+
+# telemetry stuff
+  wheel-send-telemetry:
+    read: -1
+    write: 65
+    id: [253, 222]
+    bytes: 4
+    type: array
