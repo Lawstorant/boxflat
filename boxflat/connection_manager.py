@@ -302,7 +302,7 @@ class MozaConnectionManager():
         self._serial_lock.acquire()
         try:
             serial = Serial(serial_path, baudrate=115200, timeout=0.05)
-            time.sleep(1/500)
+            # time.sleep(1/500)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
             for i in range(CM_RETRY_COUNT):

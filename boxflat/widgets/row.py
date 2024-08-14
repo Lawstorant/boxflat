@@ -16,6 +16,7 @@ class BoxflatRow(Adw.ActionRow):
         self._expression = "*1"
         self._reverse_expression = "*1"
         self.set_size_request(620, 0)
+        self._cooldown = 0
 
 
     def get_active(self) -> bool:
@@ -47,6 +48,10 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def set_value(self, value, mute: bool=True) -> None:
+        if self.cooldown():
+            print("Still cooling down")
+            return
+
         self.mute(mute)
         self._set_value(value)
         self.unmute()
@@ -69,6 +74,8 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def _notify(self) -> None:
+        self._cooldown = 1
+
         if self._mute:
             return
 
@@ -97,3 +104,11 @@ class BoxflatRow(Adw.ActionRow):
 
     def set_width(self, width: int) -> None:
         self.set_size_request(width, 0)
+
+
+    def cooldown(self) -> bool:
+        if self._cooldown > 0:
+            self._cooldown -= 1
+            return True
+
+        return False

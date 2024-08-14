@@ -20,6 +20,8 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
 
     def _notify_calibration(self) -> None:
+        self._cooldown = 1
+
         if self._mute:
             return
 
