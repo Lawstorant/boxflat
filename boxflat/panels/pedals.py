@@ -45,7 +45,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
         self._current_row.set_height(260)
         self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        self._current_row.set_button_value(-1)
+        # self._current_row.set_button_value(-1)
         self._current_row.subscribe(self._set_curve_preset, "throttle")
         for i in range(5):
             self._curve_rows[0].subscribe_slider(i, self._set_curve_point, i, "throttle")
@@ -86,7 +86,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
         self._current_row.set_height(260)
         self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        self._current_row.set_button_value(-1)
+        # self._current_row.set_button_value(-1)
         self._current_row.subscribe(self._set_curve_preset, "brake")
         for i in range(5):
             self._curve_rows[1].subscribe_slider(i, self._set_curve_point, i, "brake")
@@ -134,7 +134,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
         self._current_row.set_height(260)
         self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
-        self._current_row.set_button_value(-1)
+        # self._current_row.set_button_value(-1)
         self._current_row.subscribe(self._set_curve_preset, "clutch")
         for i in range(5):
             self._curve_rows[2].subscribe_slider(i, self._set_curve_point, i, "clutch")

@@ -156,7 +156,7 @@ class WheelSettings(SettingsPanel):
         self._append_sub("wheel-rpm-mode", self._reconfigure_timings)
 
 
-        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds"))
+        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
         self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-interval")
         self._append_sub("wheel-rpm-interval", self._current_row.set_value)

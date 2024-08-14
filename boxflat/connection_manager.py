@@ -243,7 +243,7 @@ class MozaConnectionManager():
 
     def _rw_handler(self) -> None:
         while not self._shutdown:
-            time.sleep(0.2)
+            time.sleep(0.1)
 
             with self._write_mutex:
                 write_buffer = self._write_command_buffer
@@ -302,7 +302,7 @@ class MozaConnectionManager():
         self._serial_lock.acquire()
         try:
             serial = Serial(serial_path, baudrate=115200, timeout=0.05)
-            time.sleep(1/500)
+            # time.sleep(1/500)
             serial.reset_output_buffer()
             serial.reset_input_buffer()
             for i in range(CM_RETRY_COUNT):

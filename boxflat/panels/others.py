@@ -1,11 +1,18 @@
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
+from boxflat.bitwise import *
+from threading import Thread, Event
 
 class OtherSettings(SettingsPanel):
     def __init__(self, button_callback: callable, cm: MozaConnectionManager):
         self._brake_calibration = None
+        self._test_thread = Thread(target=self._wheel_rpm_test)
+        self._test_event = Event()
+        self._shutdown = False
+        self._test_thread.start()
         super().__init__("Other", button_callback, connection_manager=cm)
+        self._cm.subscribe_shutdown(self.shutdown)
 
 
     def subscribe_brake_calibration(self, callback: callable):
@@ -51,23 +58,29 @@ class OtherSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
 
-        self.add_preferences_group("Custom command")
-        self._command = Adw.EntryRow()
-        self._command.set_title("Command name")
+        self.add_preferences_group("Testing")
+        self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
+        self._current_row.subscribe(self.start_test)
 
-        self._value = Adw.EntryRow()
-        self._value.set_title("Value")
+        # self.add_preferences_group("Custom command")
+        # self._command = Adw.EntryRow()
+        # self._command.set_title("Command name")
+        # self._command.set_text("wheel-set-telemetry")
 
-        read = BoxflatButtonRow("Execute command", "Read")
-        write = BoxflatButtonRow("Execute command", "Write")
+        # self._value = Adw.EntryRow()
+        # self._value.set_title("Value")
+        # self._value.set_text("ffff83ff")
 
-        read.subscribe(self._read_custom)
-        write.subscribe(self._write_custom)
+        # read = BoxflatButtonRow("Execute command", "Read")
+        # write = BoxflatButtonRow("Execute command", "Write")
 
-        self._add_row(self._command)
-        self._add_row(self._value)
-        self._add_row(read)
-        self._add_row(write)
+        # read.subscribe(self._read_custom)
+        # write.subscribe(self._write_custom)
+
+        # self._add_row(self._command)
+        # self._add_row(self._value)
+        # self._add_row(read)
+        # self._add_row(write)
 
 
     def _read_custom(self, *args) -> None:
@@ -77,5 +90,45 @@ class OtherSettings(SettingsPanel):
 
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
-        val = int(self._value.get_text())
-        self._cm.set_setting_int(com, val)
+        val = self._value.get_text()
+        self._cm.set_setting_hex(val, com)
+
+
+    def shutdown(self, *args) -> None:
+        self._shutdown = True
+
+
+    def start_test(self, *args) -> None:
+        self._test_event.set()
+
+
+    def _wheel_rpm_test(self, *args) -> None:
+        while not self._shutdown:
+            if not self._test_event.wait(timeout=1):
+                continue
+
+            self._test_event.clear()
+
+            t = 0.3
+            for i in range(10):
+                val = modify_bit(0, i)
+                self._cm.set_setting_int(val, "wheel-send-telemetry")
+                time.sleep(t)
+
+            for i in reversed(range(9)):
+                val = modify_bit(0, i)
+                self._cm.set_setting_int(val, "wheel-send-telemetry")
+                time.sleep(t)
+
+            val = 0
+            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            time.sleep(t)
+            for i in range(10):
+                val = modify_bit(val, i)
+                self._cm.set_setting_int(val, "wheel-send-telemetry")
+                time.sleep(t)
+
+            time.sleep(0.5)
+            val = modify_bit(0,15)
+            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            time.sleep(1)

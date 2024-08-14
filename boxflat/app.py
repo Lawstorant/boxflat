@@ -126,8 +126,10 @@ class MainWindow(Adw.ApplicationWindow):
             self._panels["Pedals"].set_brake_calibration_active
         )
 
-        for panel in self._panels.values():
-            panel.activate_subs()
+        self._panels["Base"].activate_subs()
+
+        # for panel in self._panels.values():
+        #     panel.activate_subs()
 
 
         # TODO: Add Dash,Hub and other settings

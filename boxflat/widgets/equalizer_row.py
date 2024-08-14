@@ -152,6 +152,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def _notify_slider(self, scale) -> None:
+        self._cooldown = 1
+
         if self._mute:
             return
 
@@ -163,6 +165,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def _notify_sliders(self, scale) -> None:
+        self._cooldown = 1
+
         if self._mute:
             return
 
