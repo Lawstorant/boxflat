@@ -90,8 +90,8 @@ class OtherSettings(SettingsPanel):
 
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
-        val = int(self._value.get_text())
-        self._cm.set_setting_int(com, val)
+        val = self._value.get_text()
+        self._cm.set_setting_hex(val, com)
 
 
     def shutdown(self, *args) -> None:
