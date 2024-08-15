@@ -253,7 +253,7 @@ commands:
     bytes: 4
     type: float
 
-  pedals-brake-max-force:
+  pedals-brake-angle-ratio:
     read: 35
     write: 36
     id: [26]

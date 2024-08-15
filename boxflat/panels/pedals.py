@@ -104,10 +104,10 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake-max")
         self._append_sub("pedals-brake-max", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Pressure Point Setting", suffix="%", subtitle="Higher = less range"))
+        self._add_row(BoxflatSliderRow("Angle sensor ratio", suffix="%", subtitle="0% = Only Load Cell\n100% = Only Angle Sensor"))
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_float, "pedals-brake-max-force")
-        self._append_sub("pedals-brake-max-force", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting_float, "pedals-brake-angle-ratio")
+        self._append_sub("pedals-brake-angle-ratio", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
