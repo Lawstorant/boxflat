@@ -86,6 +86,12 @@
   </screenshots>
 
   <releases>
+    <release version="v1.13.2" date="2024-08-15">
+      <description>
+        <p>Fix possible RPM color mangling</p>
+        <p>Improve description of brake sensor ratio setting</p>
+      </description>
+    </release>
     <release version="v1.13.0" date="2024-08-14">
       <description>
         <p>New functionality:</p>
