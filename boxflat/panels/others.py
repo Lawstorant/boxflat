@@ -109,6 +109,9 @@ class OtherSettings(SettingsPanel):
 
             self._test_event.clear()
 
+            initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
+            self._cm.set_setting_int(1, "wheel-indicator-mode")
+
             t = 0.3
             for i in range(10):
                 val = modify_bit(0, i)
@@ -132,3 +135,5 @@ class OtherSettings(SettingsPanel):
             val = modify_bit(0,15)
             self._cm.set_setting_int(val, "wheel-send-telemetry")
             time.sleep(1)
+
+            self._cm.set_setting_int(initial_mode, "wheel-indicator-mode")

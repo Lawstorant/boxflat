@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-import sys
 import boxflat.app as app
 import argparse
-import os
-import shutil
 
 parser = argparse.ArgumentParser("boxflat")
 parser.add_argument("--local", help="Run boxflat from repository folder", action="store_true", required=False)
