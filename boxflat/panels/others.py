@@ -62,36 +62,34 @@ class OtherSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
         self._current_row.subscribe(self.start_test)
 
-        # self.add_preferences_group("Custom command")
-        # self._command = Adw.EntryRow()
-        # self._command.set_title("Command name")
-        # self._command.set_text("wheel-set-telemetry")
+        self.add_preferences_group("Custom command")
+        self._command = Adw.EntryRow()
+        self._command.set_title("Command name")
 
-        # self._value = Adw.EntryRow()
-        # self._value.set_title("Value")
-        # self._value.set_text("ffff83ff")
+        self._value = Adw.EntryRow()
+        self._value.set_title("Value")
 
-        # read = BoxflatButtonRow("Execute command", "Read")
-        # write = BoxflatButtonRow("Execute command", "Write")
+        read = BoxflatButtonRow("Execute command", "Read")
+        write = BoxflatButtonRow("Execute command", "Write")
 
-        # read.subscribe(self._read_custom)
-        # write.subscribe(self._write_custom)
+        read.subscribe(self._read_custom)
+        write.subscribe(self._write_custom)
 
-        # self._add_row(self._command)
-        # self._add_row(self._value)
-        # self._add_row(read)
-        # self._add_row(write)
+        self._add_row(self._command)
+        self._add_row(self._value)
+        self._add_row(read)
+        self._add_row(write)
 
 
     def _read_custom(self, *args) -> None:
-        out = self._cm.get_setting_list(self._command.get_text())
+        out = self._cm.get_setting_int(self._command.get_text())
         self._value.set_text(str(out))
 
 
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
         val = self._value.get_text()
-        self._cm.set_setting_hex(val, com)
+        self._cm.set_setting_int(val, com)
 
 
     def shutdown(self, *args) -> None:

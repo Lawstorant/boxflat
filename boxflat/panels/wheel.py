@@ -30,7 +30,7 @@ class WheelSettings(SettingsPanel):
         self._wheel_combination_data = []
 
         super().__init__("Wheel", button_callback, connection_manager)
-        self._append_sub_connected("wheel-clutch-point", self.active)
+        self._append_sub_connected("wheel-stick-mode", self.active)
 
 
     def prepare_ui(self) -> None:
