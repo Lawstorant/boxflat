@@ -254,6 +254,5 @@ class BaseSettings(SettingsPanel):
 
 
     def _set_eq_preset(self, index: int) -> None:
-        print(index)
         for i in range(6):
             self._cm.set_setting_int(self._eq_presets[index][i], f"base-equalizer{i+1}")

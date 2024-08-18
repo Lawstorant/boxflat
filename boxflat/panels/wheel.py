@@ -29,6 +29,12 @@ class WheelSettings(SettingsPanel):
         # self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Central
         self._wheel_combination_data = []
 
+        self._timings2 = [
+            [5400, 5700, 6000, 6300, 6500, 6700, 6900, 7100, 7300, 7600],
+            [6300, 6600, 6800, 7100, 7300, 7300, 7400, 7500, 7700, 7800],
+            [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
+        ]
+
         super().__init__("Wheel", button_callback, connection_manager)
         self._append_sub_connected("wheel-stick-mode", self.active)
         self._cm.subscribe_shutdown(self.shutdown)
@@ -146,7 +152,6 @@ class WheelSettings(SettingsPanel):
 
         self._add_row(self._timing_row)
         self._timing_row.add_buttons("Early", "Normal", "Late")
-        self._timing_row.set_button_value(-1)
         self._timing_row.subscribe(self._set_rpm_timings_preset)
         self._timing_row.subscribe_sliders(self._set_rpm_timings)
         for i in range(MOZA_RPM_LEDS):
@@ -154,15 +159,17 @@ class WheelSettings(SettingsPanel):
 
 
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
-            range_start=1000, range_end=20000, button_row=False, draw_marks=False)
+            range_start=2000, range_end=18000, button_row=False, draw_marks=False, increment=100)
 
         self._add_row(self._timing_row2)
-        # self._timing_row2.add_buttons("Early", "Normal", "Late")
-        self._timing_row2.set_button_value(-1)
+        self._timing_row2.add_buttons("Early", "Normal", "Late")
+        self._timing_row2.subscribe(self._set_rpm_timings2_preset)
+
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_labels(f"RPM{i+1}", index=i)
             self._timing_row2.subscribe_slider(i, self._cm.set_setting_int, f"wheel-rpm-value{i+1}")
             self._append_sub(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
+        self._append_sub(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
 
         self._append_sub("wheel-rpm-timings", self._get_rpm_timings)
@@ -218,6 +225,21 @@ class WheelSettings(SettingsPanel):
             index = self._timings.index(list(timings))
 
         self._timing_row.set_button_value(index)
+
+
+    def _set_rpm_timings2_preset(self, index) -> None:
+        for i in range(10):
+            self._cm.set_setting_int(self._timings2[index][i], f"wheel-rpm-value{i+1}")
+
+
+    def _get_rpm_timings2_preset(self, *args) -> None:
+        index = -1
+        timings = self._timing_row2.get_sliders_value()
+
+        if timings in self._timings2:
+            index = self._timings2.index(timings)
+
+        self._timing_row2.set_button_value(index)
 
 
     def _reconfigure_timings(self, value: int) -> None:
