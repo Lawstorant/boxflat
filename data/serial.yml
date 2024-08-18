@@ -3,15 +3,15 @@ magic-value: 13    # For security byte
 message-start: 126 #"7e"
 
 device-ids:
-  hub: -1
   main: 18 # base id for devices connected through usb
   base: 19
-  wheel: 23
-  dash: 24
+  wheel: 23 # this ID can vary but most wheels are available at ID 23 now.
   pedals: 25
   hpattern: 26
   sequential: 26
   handbrake: 27
+  hub: -1
+  dash: -1
   estop: -1
 
 # TODO: EEPROM commands

@@ -21,6 +21,7 @@ class SettingsPanel(object):
         self._cm_subs_cont = []
         self._cm_subs_connected = []
         self._active = True
+        self._shutdown = False
 
         self._content = self._prepare_content()
         self._page = Adw.NavigationPage(title=title, child=self._content)
@@ -40,6 +41,7 @@ class SettingsPanel(object):
         label.set_justify(Gtk.Justification.LEFT)
         label.set_xalign(0)
         button.set_child(label)
+        # button.set_visible(False)
         return button
 
 
@@ -176,7 +178,7 @@ class SettingsPanel(object):
         self._cm_subs_connected.append(args)
 
 
-    def activate_subs(self) -> list:
+    def activate_subs(self) -> None:
         print(self.title)
         for sub in self._cm_subs:
             self._cm.subscribe(*sub)
@@ -184,6 +186,11 @@ class SettingsPanel(object):
         for sub in self._cm_subs_cont:
             self._cm.subscribe_cont(*sub)
 
+
+    def activate_subs_connected(self) -> None:
         for sub in self._cm_subs_connected:
             self._cm.subscribe_connected(*sub)
 
+
+    def shutdown(self, *args) -> None:
+        self._shutdown = True

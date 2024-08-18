@@ -7,12 +7,7 @@ from threading import Thread, Event
 class OtherSettings(SettingsPanel):
     def __init__(self, button_callback: callable, cm: MozaConnectionManager):
         self._brake_calibration = None
-        self._test_thread = Thread(target=self._wheel_rpm_test)
-        self._test_event = Event()
-        self._shutdown = False
-        self._test_thread.start()
         super().__init__("Other", button_callback, connection_manager=cm)
-        self._cm.subscribe_shutdown(self.shutdown)
 
 
     def subscribe_brake_calibration(self, callback: callable):
@@ -28,13 +23,15 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-ble-mode")
         self._append_sub("main-get-ble-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Breaks Forza Horizon 5 on linux"))
+        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Changes USB product ID"))
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-compat-mode")
         self._append_sub("main-get-compat-mode", self._current_row.set_value)
+        self._append_sub_connected("main-get-compat-mode", self._current_row.set_present, +1)
 
-        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Breaks Forza Horizon 5 on linux"))
+        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Changes USB product ID"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-compat-mode")
         self._append_sub("pedals-compat-mode", self._current_row.set_value)
+        self._append_sub_connected("pedals-compat-mode", self._current_row.set_present, +1)
 
 
         self.add_preferences_group("Application settings")
@@ -57,10 +54,6 @@ class OtherSettings(SettingsPanel):
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
-
-        self.add_preferences_group("Testing")
-        self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
-        self._current_row.subscribe(self.start_test)
 
         self.add_preferences_group("Custom command")
         self._command = Adw.EntryRow()
@@ -90,48 +83,3 @@ class OtherSettings(SettingsPanel):
         com = self._command.get_text()
         val = self._value.get_text()
         self._cm.set_setting_int(val, com)
-
-
-    def shutdown(self, *args) -> None:
-        self._shutdown = True
-
-
-    def start_test(self, *args) -> None:
-        self._test_event.set()
-
-
-    def _wheel_rpm_test(self, *args) -> None:
-        while not self._shutdown:
-            if not self._test_event.wait(timeout=1):
-                continue
-
-            self._test_event.clear()
-
-            initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
-            self._cm.set_setting_int(1, "wheel-indicator-mode")
-
-            t = 0.3
-            for i in range(10):
-                val = modify_bit(0, i)
-                self._cm.set_setting_int(val, "wheel-send-telemetry")
-                time.sleep(t)
-
-            for i in reversed(range(9)):
-                val = modify_bit(0, i)
-                self._cm.set_setting_int(val, "wheel-send-telemetry")
-                time.sleep(t)
-
-            val = 0
-            self._cm.set_setting_int(val, "wheel-send-telemetry")
-            time.sleep(t)
-            for i in range(10):
-                val = modify_bit(val, i)
-                self._cm.set_setting_int(val, "wheel-send-telemetry")
-                time.sleep(t)
-
-            time.sleep(0.5)
-            val = modify_bit(0,15)
-            self._cm.set_setting_int(val, "wheel-send-telemetry")
-            time.sleep(1)
-
-            self._cm.set_setting_int(initial_mode, "wheel-indicator-mode")

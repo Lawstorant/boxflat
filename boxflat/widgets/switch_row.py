@@ -30,6 +30,9 @@ class BoxflatSwitchRow(BoxflatRow):
 
 
     def _set_value(self, value: int) -> None:
+        if value < 0:
+            return
+
         val = round(eval("value"+self._reverse_expression))
         if val < 0:
             val = 0

@@ -31,6 +31,17 @@ class WheelSettings(SettingsPanel):
 
         super().__init__("Wheel", button_callback, connection_manager)
         self._append_sub_connected("wheel-stick-mode", self.active)
+        self._cm.subscribe_shutdown(self.shutdown)
+        self._test_thread = Thread(target=self._wheel_rpm_test)
+        self._test_event = Event()
+        self._test_thread.start()
+
+
+    def active(self, value: int) -> None:
+        if value == -1:
+            self._cm.cycle_wheel_id()
+
+        super().active(value)
 
 
     def prepare_ui(self) -> None:
@@ -98,6 +109,9 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_switch("Center Wheel", "Press both paddles and Button 1")
         self._current_row.subscribe(self._set_combination_settings)
         self._append_sub("wheel-key-combination", self._get_combination_settings)
+
+        self._add_row(BoxflatButtonRow("Wheel RPM test", "     Test     "))
+        self._current_row.subscribe(self.start_test)
 
         self._add_row(BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True))
         self._current_row.subscribe(self._calibrate_paddles)
@@ -258,3 +272,44 @@ class WheelSettings(SettingsPanel):
         switch_values.append(test_bit(byte2, 5))
 
         self._combination_row.set_value(switch_values)
+
+
+    def start_test(self, *args) -> None:
+        self._test_event.set()
+
+
+    def _wheel_rpm_test(self, *args) -> None:
+        while not self._shutdown:
+            if not self._test_event.wait(timeout=1):
+                continue
+
+            self._test_event.clear()
+
+            initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
+            self._cm.set_setting_int(1, "wheel-indicator-mode")
+
+            t = 0.3
+            for i in range(10):
+                val = modify_bit(0, i)
+                self._cm.set_setting_int(val, "wheel-send-telemetry")
+                time.sleep(t)
+
+            for i in reversed(range(9)):
+                val = modify_bit(0, i)
+                self._cm.set_setting_int(val, "wheel-send-telemetry")
+                time.sleep(t)
+
+            val = 0
+            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            time.sleep(t)
+            for i in range(10):
+                val = modify_bit(val, i)
+                self._cm.set_setting_int(val, "wheel-send-telemetry")
+                time.sleep(t)
+
+            time.sleep(0.5)
+            val = modify_bit(0,15)
+            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            time.sleep(1)
+
+            self._cm.set_setting_int(initial_mode, "wheel-indicator-mode")

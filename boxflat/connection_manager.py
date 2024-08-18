@@ -40,6 +40,10 @@ class MozaConnectionManager():
         self._refresh_thread = Thread(target=self._notify)
         self._refresh_thread.start()
 
+        self._connected_subscribtions = {}
+        self._connected_thread = Thread(target=self._notify_connected)
+        self._connected_thread.start()
+
         self._cont_active = Event()
         self._cont_subscribtions = {}
         self._cont_thread = Thread(target=self._notify_cont)
@@ -49,6 +53,7 @@ class MozaConnectionManager():
         self._no_access_subs = []
 
         self._sub_lock = Lock()
+        self._connected_lock = Lock()
         self._cont_lock = Lock()
 
         self._write_command_buffer = {}
@@ -124,14 +129,14 @@ class MozaConnectionManager():
         if not command in self._subscribtions:
             self._subscribtions[command] = []
 
-        self._subscribtions[command].append((callback, args, False))
+        self._subscribtions[command].append((callback, args))
 
 
     def subscribe_connected(self, command: str, callback: callable, *args) -> None:
-        if not command in self._subscribtions:
-            self._subscribtions[command] = []
+        if not command in self._connected_subscribtions:
+            self._connected_subscribtions[command] = []
 
-        self._subscribtions[command].append((callback, args, True))
+        self._connected_subscribtions[command].append((callback, args))
 
 
     def reset_subscriptions(self) -> None:
@@ -180,8 +185,6 @@ class MozaConnectionManager():
             if not self._refresh_cont.is_set():
                 self._refresh.clear()
 
-            self.device_discovery()
-
             with self._sub_lock:
                 subs = dict(self._subscribtions)
 
@@ -196,9 +199,41 @@ class MozaConnectionManager():
                 else:
                     response = self.get_setting_int(com)
 
+                if response == -1:
+                    continue
+
                 for subscriber in subs[com]:
-                    if response == -1 and not subscriber[2]:
-                        continue
+                    subscriber[0](response, *subscriber[1])
+
+            if self._refresh_cont.is_set():
+                time.sleep(1)
+
+
+    def _notify_connected(self) -> None:
+        response = 0
+        while not self._shutdown:
+            if not self._refresh.wait(2):
+                continue
+
+            self.device_discovery()
+
+            with self._sub_lock:
+                subs = dict(self._connected_subscribtions)
+
+            for com in subs.keys():
+                com_type = self._serial_data["commands"][com]["type"]
+                if com_type == "array":
+                    response = self.get_setting_list(com)
+                elif com_type == "float":
+                    response = self.get_setting_float(com)
+                elif com_type == "hex":
+                    response = self.get_setting_hex(com)
+                else:
+                    response = self.get_setting_int(com)
+
+                self._no_access_subs = []
+
+                for subscriber in subs[com]:
                     subscriber[0](response, *subscriber[1])
 
             if self._refresh_cont.is_set():
@@ -311,7 +346,7 @@ class MozaConnectionManager():
             # read_response = True # For teesting writes
             start_time = time.time()
             while read_response:
-                if time.time() - start_time > 0.1:
+                if time.time() - start_time > 0.04:
                     read_response = False
                     message = None
                     break
@@ -455,3 +490,13 @@ class MozaConnectionManager():
         if response == None:
             return -1
         return hexlify(response).decode("utf-8")
+
+
+    def cycle_wheel_id(self) -> None:
+        self._serial_data["device-ids"]["wheel"] -= 1
+
+        if self._serial_data["device-ids"]["wheel"] == self._serial_data["device-ids"]["base"]:
+            self._serial_data["device-ids"]["wheel"] = self._serial_data["device-ids"]["pedals"] - 1
+
+        print("Cycling wheel id")
+        print(f"New id: {self._serial_data["device-ids"]["wheel"]}")

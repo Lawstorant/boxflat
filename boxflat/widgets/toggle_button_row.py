@@ -24,7 +24,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
 
             if self._group == None:
                 self._group = button
-                button.set_active(True)
+                # button.set_active(True)
             else:
                 button.set_group(self._group)
 

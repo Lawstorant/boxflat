@@ -128,8 +128,11 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._panels["Base"].activate_subs()
 
-        # for panel in self._panels.values():
-        #     panel.activate_subs()
+        self._panels["Home"].button.set_visible(True)
+        self._panels["Other"].button.set_visible(True)
+
+        for panel in self._panels.values():
+            panel.activate_subs_connected()
 
 
         # TODO: Add Dash,Hub and other settings

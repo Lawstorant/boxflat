@@ -17,7 +17,7 @@ class HomeSettings(SettingsPanel):
         self._add_row(BoxflatRow("Welcome to Boxflat", subtitle=f"Version: {self._version}"))
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Go to the project page", "GitHub", subtitle="Thanks"))
+        self._add_row(BoxflatButtonRow("Go to the project page", "GitHub", subtitle="Leave a star!"))
         self._current_row.subscribe(lambda value: self.open_url("https://github.com/Lawstorant/boxflat"))
 
         self._add_row(BoxflatButtonRow("Go to the universal-pidff driver page", "GitHub", subtitle="FFB Driver"))

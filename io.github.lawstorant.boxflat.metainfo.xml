@@ -86,6 +86,11 @@
   </screenshots>
 
   <releases>
+    <release version="v1.14.0" date="2024-08-18">
+      <description>
+        <p>Improve device detection. More steering wheels supported.</p>
+      </description>
+    </release>
     <release version="v1.13.4" date="2024-08-17">
       <description>
         <p>Change the wheel detection command</p>
