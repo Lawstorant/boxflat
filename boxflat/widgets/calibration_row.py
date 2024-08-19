@@ -27,7 +27,7 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
         for sub in self._subscribers:
             if not self._alternative:
-                sub[0](1, f"{sub[1][0]}-{self.get_value()}-calibration")
+                sub[0](1, f"{sub[2][0]}-{self.get_value()}-calibration")
 
             else:
                 sub[0](self.get_value(), *sub[2])
