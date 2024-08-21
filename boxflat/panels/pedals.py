@@ -68,7 +68,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-throttle-dir")
         self._append_sub("pedals-throttle-dir", self._current_row.set_value)
 
-        self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
+        self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress throttle once"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-throttle")
         self._cm.subscribe_shutdown(self._current_row.shutdown)
 
@@ -114,7 +114,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake-dir")
         self._append_sub("pedals-brake-dir", self._current_row.set_value)
 
-        self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Set range")
+        self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Fully depress brake once")
         self._add_row(self._brake_calibration_row)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake")
         self._current_row.set_active(False)
@@ -157,7 +157,7 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-clutch-dir")
         self._append_sub("pedals-clutch-dir", self._current_row.set_value)
 
-        self._add_row(BoxflatCalibrationRow("Calibration", "Set range"))
+        self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress clutch once"))
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-clutch")
         self._cm.subscribe_shutdown(self._current_row.shutdown)
 

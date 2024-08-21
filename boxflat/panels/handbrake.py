@@ -74,7 +74,7 @@ class HandbrakeSettings(SettingsPanel):
         self._append_sub("handbrake-range-end", self._current_row.set_value)
 
         self.add_preferences_group("Calibration")
-        self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Fix device range"))
+        self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Pull handbrake fully once"))
         self._current_row.subscribe(self._cm.set_setting_int, "handbrake")
         self._cm.subscribe_shutdown(self._current_row.shutdown)
 
