@@ -1,10 +1,10 @@
 # Boxflat
 Boxflat for Moza Racing. Control your Moza gear settings!
 
-<img alt="Wheelbase panel" src="screens/base.png" width="750">
+<img alt="Wheelbase panel" src="screens/base.png">
 
 <a href="https://flathub.org/apps/io.github.lawstorant.boxflat">
-    <img width="200" alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
+    <img alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
 </a>
 
 #### For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
@@ -84,12 +84,12 @@ $ sudo ./install.sh remove
 ```
 
 # Some more screenshots
-<img alt="Wheel panel" src="screens/wheel.png" width="750">
+<img alt="Wheel panel" src="screens/wheel.png">
 
-<img alt="Pedals panel" src="screens/pedals.png" width="750">
+<img alt="Pedals panel" src="screens/pedals.png">
 
-<img alt="H-Pattern shifter panel" src="screens/hpattern.png" width="750">
+<img alt="H-Pattern shifter panel" src="screens/hpattern.png">
 
-<img alt="Sequential shifter panel" src="screens/sequential.png" width="750">
+<img alt="Sequential shifter panel" src="screens/sequential.png">
 
-<img alt="Handbrake panel" src="screens/handbrake.png" width="750">
+<img alt="Handbrake panel" src="screens/handbrake.png">
