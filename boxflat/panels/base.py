@@ -104,26 +104,10 @@ class BaseSettings(SettingsPanel):
 
         # Advenced settings
         self.add_preferences_group("Advenced Settings")
-        self._add_row(BoxflatSwitchRow("Force Feedback Reversal"))
-        self._current_row.subscribe(self._cm.set_setting_int, "base-ffb-reverse")
-        self._append_sub("base-ffb-reverse", self._current_row.set_value)
-
         self._add_row(BoxflatSliderRow("Torque output", suffix="%"))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting_int, "base-torque")
         self._append_sub("base-torque", self._current_row.set_value)
-
-        slider = BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000)
-        self._add_row(BoxflatSwitchRow("Hands-Off Protection"))
-        self._current_row.subscribe(self._cm.set_setting_int, "base-protection")
-        self._current_row.subscribe(slider.set_active)
-        self._append_sub("base-protection", self._current_row.set_value)
-
-        self._add_row(slider)
-        self._current_row.add_marks(900, 1550, 2800, 3500)
-        self._current_row.subscribe(self._cm.set_setting_int, "base-natural-inertia")
-        self._append_sub("base-natural-inertia", self._current_row.set_value)
-        self._append_sub("base-protection", self._current_row.set_active)
 
         self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500, increment=50))
         self._current_row.add_marks(150, 300)
@@ -138,6 +122,31 @@ class BaseSettings(SettingsPanel):
         self._current_row.set_reverse_expression("/10")
         self._current_row.subscribe(self._cm.set_setting_int, "base-friction")
         self._append_sub("base-friction", self._current_row.set_value)
+
+
+        self.add_preferences_group("Protection")
+        slider = BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000, increment=50)
+        mode = BoxflatToggleButtonRow("Protection Mode")
+
+        self._add_row(BoxflatSwitchRow("Hands-Off Protection"))
+        self._current_row.subscribe(self._cm.set_setting_int, "base-protection")
+        self._current_row.subscribe(slider.set_active)
+        self._current_row.subscribe(mode.set_active)
+        self._append_sub("base-protection", self._current_row.set_value)
+
+        self._add_row(mode)
+        self._current_row.add_buttons("Mode 1", "Mode 2")
+        self._current_row.set_expression("+1")
+        self._current_row.set_reverse_expression("-1")
+        self._current_row.subscribe(self._cm.set_setting_int, "base-protection-mode")
+        self._append_sub("base-protection-mode", self._current_row.set_value)
+        self._append_sub("base-protection", self._current_row.set_active)
+
+        self._add_row(slider)
+        self._current_row.add_marks(900, 1550, 2800, 3500)
+        self._current_row.subscribe(self._cm.set_setting_int, "base-natural-inertia")
+        self._append_sub("base-natural-inertia", self._current_row.set_value)
+        self._append_sub("base-protection", self._current_row.set_active)
 
         self._add_row(BoxflatSliderRow("Speed-depended Damping", suffix="%"))
         self._current_row.add_marks(50)
@@ -156,12 +165,7 @@ class BaseSettings(SettingsPanel):
 
         # Even less important settings
         self.add_preferences_page("Misc", "preferences-other-symbolic")
-        self.add_preferences_group("Misc Settings")
-
-        self._add_row(BoxflatSwitchRow("Base Status Indicator"))
-        self._current_row.set_subtitle("Does nothing if your base doesn't have it")
-        self._current_row.subscribe(self._cm.set_setting_int, "main-set-led-status")
-        self._append_sub("main-get-led-status", self._current_row.set_value)
+        self.add_preferences_group("Soft limit")
 
         self._add_row(BoxflatSliderRow("Soft Limit Stiffness", range_start=1, range_end=10))
         self._current_row.add_marks(4, 6, 8)
@@ -177,16 +181,42 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "base-soft-limit-strength")
         self._append_sub("base-soft-limit-strength", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Soft Limit Game Force Strength"))
-        self._current_row.set_subtitle("I have no idea")
+        self._add_row(BoxflatSwitchRow("Soft Limit Retain Game FFB"))
         self._current_row.subscribe(self._cm.set_setting_int, "base-soft-limit-retain")
         self._append_sub("base-soft-limit-retain", self._current_row.set_value)
+
+        self.add_preferences_group("Misc")
+        self._add_row(BoxflatSwitchRow("Base Status Indicator"))
+        self._current_row.set_subtitle("Does nothing if your base doesn't have it")
+        self._current_row.subscribe(self._cm.set_setting_int, "main-set-led-status")
+        self._append_sub("main-get-led-status", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Temperature Control Strategy",))
         self._current_row.set_subtitle("Conservative = 50°C, Radical = 60°C")
         self._current_row.add_buttons("Conservative", "Radical")
         self._current_row.subscribe(self._cm.set_setting_int, "base-temp-strategy")
         self._append_sub("base-temp-strategy", self._current_row.set_value)
+
+        self._add_row(BoxflatSwitchRow("Default Force Feedback State"))
+        self._current_row.reverse_values()
+        self._current_row.subscribe(self._cm.set_setting_int, "main-set-default-ffb-status")
+        self._append_sub("main-get-default-ffb-status", self._current_row.set_value)
+
+        self.add_preferences_group("Temperatures")
+        self._add_row(BoxflatLabelRow("MCU Temperature"))
+        self._current_row.set_suffix("°C")
+        self._current_row.set_reverse_expression("/100")
+        self._append_sub("base-mcu-temp", self._current_row.set_value)
+
+        self._add_row(BoxflatLabelRow("MOSFET Temperature"))
+        self._current_row.set_suffix("°C")
+        self._current_row.set_reverse_expression("/100")
+        self._append_sub("base-mosfet-temp", self._current_row.set_value)
+
+        self._add_row(BoxflatLabelRow("Motor Temperature"))
+        self._current_row.set_suffix("°C")
+        self._current_row.set_reverse_expression("/100")
+        self._append_sub("base-motor-temp", self._current_row.set_value)
 
 
     def __prepare_eq(self) -> None:
@@ -219,6 +249,11 @@ class BaseSettings(SettingsPanel):
         for i in range(5):
             self._current_row.subscribe_slider(i, self._set_curve_point, i)
             self._append_sub(f"base-ffb-curve-y{i+1}", self._get_curve, i)
+
+        self.add_preferences_group("")
+        self._add_row(BoxflatSwitchRow("Force Feedback Reversal"))
+        self._current_row.subscribe(self._cm.set_setting_int, "base-ffb-reverse")
+        self._append_sub("base-ffb-reverse", self._current_row.set_value)
 
 
     def _set_curve_preset(self, value: int) -> None:

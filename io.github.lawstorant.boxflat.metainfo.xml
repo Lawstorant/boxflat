@@ -86,6 +86,13 @@
   </screenshots>
 
   <releases>
+    <release version="v1.15.0" date="2024-08-29">
+      <description>
+        <p>Support for FFB 3.0 FW settings</p>
+        <p>Show wheelbase temperatures</p>
+        <p>Reorder misc settings</p>
+      </description>
+    </release>
     <release version="v1.14.3" date="2024-08-21">
       <description>
         <p>Fix color picker row</p>

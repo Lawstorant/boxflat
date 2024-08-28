@@ -98,6 +98,20 @@ commands:
     bytes: 1
     type: int
 
+  main-set-default-ffb-status:
+    read: -1
+    write: 31
+    id: [53]
+    bytes: 1
+    type: int
+
+  main-get-default-ffb-status:
+    read: 31
+    write: -1
+    id: [54]
+    bytes: 1
+    type: int
+
 # Pedals
   pedals-throttle-dir:
     read: 35
@@ -381,6 +395,13 @@ commands:
     bytes: 2
     type: int
 
+  base-protection-mode:
+    read: 40
+    write: 41
+    id: [45]
+    bytes: 2
+    type: int
+
   base-equalizer1:
     read: 40
     write: 41
@@ -583,13 +604,6 @@ commands:
     read: 43
     write: -1
     id: [2]
-    bytes: 2
-    type: int
-
-  base-something:
-    read: 43
-    write: -1
-    id: [3]
     bytes: 2
     type: int
 

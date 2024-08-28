@@ -116,7 +116,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(self._set_combination_settings)
         self._append_sub("wheel-key-combination", self._get_combination_settings)
 
-        self._add_row(BoxflatButtonRow("Wheel RPM test", "     Test     "))
+        self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
         self._current_row.subscribe(self.start_test)
 
         self._add_row(BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True))
