@@ -85,6 +85,14 @@
     </screenshot>
   </screenshots>
 
+  <url type="homepage">https://github.com/Lawstorant/boxflat</url>
+  <url type="vcs-browser">https://github.com/Lawstorant/boxflat</url>
+  <url type="bugtracker">https://github.com/Lawstorant/boxflat/issues</url>
+  <url type="donation">https://github.com/sponsors/Lawstorant</url>
+
+  <content_rating type="oars-1.1"/>
+  <update_contact>forest10pl@gmail.com</update_contact>
+
   <releases>
     <release version="v1.15.0" date="2024-08-29">
       <description>
@@ -165,11 +173,4 @@
       </description>
     </release>
   </releases>
-
-  <url type="homepage">https://github.com/Lawstorant/boxflat</url>
-  <url type="vcs-browser">https://github.com/Lawstorant/boxflat</url>
-  <url type="bugtracker">https://github.com/Lawstorant/boxflat/issues</url>
-
-  <content_rating type="oars-1.1"/>
-  <update_contact>forest10pl@gmail.com</update_contact>
 </component>
