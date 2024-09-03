@@ -47,7 +47,7 @@ class MozaConnectionManager():
         self._cont_active = Event()
         self._cont_subscribtions = {}
         self._cont_thread = Thread(target=self._notify_cont)
-        self._cont_thread.start()
+        # self._cont_thread.start()
 
         self._shutown_subscribtions = []
         self._no_access_subs = []

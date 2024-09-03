@@ -1,6 +1,7 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
+from boxflat.hid_handler import MozaHidDevice, MozaAxis
 
 class HandbrakeSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
@@ -17,7 +18,7 @@ class HandbrakeSettings(SettingsPanel):
 
         super().__init__("Handbrake", button_callback, connection_manager)
         self._append_sub_connected("handbrake-direction", self.active)
-
+        self._device_pattern = MozaHidDevice.HANDBRAKE
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Handbrake settings")
@@ -42,9 +43,7 @@ class HandbrakeSettings(SettingsPanel):
 
         self.add_preferences_group("Range settings", level_bar=1)
         self._current_group.set_bar_max(65535)
-        self._append_sub_cont("handbrake-output", self._current_group.set_bar_level)
-        self._append_sub("handbrake-range-start", self._current_group.set_range_start)
-        self._append_sub("handbrake-range-end", self._current_group.set_range_end)
+        self._append_sub_hid(MozaAxis.HANDBRAKE, self._current_group.set_bar_level)
 
         self._curve_row = BoxflatEqRow("Output Curve", 5, suffix="%")
         self._add_row(self._curve_row)

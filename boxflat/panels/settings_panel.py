@@ -6,6 +6,7 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 
 from boxflat.connection_manager import MozaConnectionManager
+from boxflat.hid_handler import HidHandler
 
 class SettingsPanel(object):
     def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager=None) -> None:
@@ -16,10 +17,15 @@ class SettingsPanel(object):
         self._current_stack = None
         self._current_row: BoxflatRow=None
         self._header = None
+
         self._groups = []
         self._cm_subs = []
-        self._cm_subs_cont = []
         self._cm_subs_connected = []
+
+        self._hid_subs = []
+        self._hid_handler = None
+        self._device_pattern = None
+
         self._active = True
         self._shutdown = False
 
@@ -121,6 +127,11 @@ class SettingsPanel(object):
 
         # self._button.set_visible(value)
 
+        if value:
+            self.activate_hid_subs()
+        else:
+            self.deactivate_hid_subs()
+
 
     def open_url(self, url: str) -> None:
         launcher = Gtk.UriLauncher()
@@ -171,11 +182,15 @@ class SettingsPanel(object):
 
 
     def _append_sub_cont(self, *args):
-        self._cm_subs_cont.append(args)
+        pass
 
 
     def _append_sub_connected(self, *args):
         self._cm_subs_connected.append(args)
+
+
+    def _append_sub_hid(self, *args):
+        self._hid_subs.append(args)
 
 
     def activate_subs(self) -> None:
@@ -183,14 +198,29 @@ class SettingsPanel(object):
         for sub in self._cm_subs:
             self._cm.subscribe(*sub)
 
-        for sub in self._cm_subs_cont:
-            self._cm.subscribe_cont(*sub)
-
 
     def activate_subs_connected(self) -> None:
         for sub in self._cm_subs_connected:
             self._cm.subscribe_connected(*sub)
 
 
+    def activate_hid_subs(self) -> None:
+        if len(self._hid_subs) == 0 or self._device_pattern == None:
+            return
+
+        self._hid_handler = HidHandler(self._device_pattern)
+        for sub in self._hid_subs:
+            self._hid_handler.subscribe_axis(*sub)
+
+
+    def deactivate_hid_subs(self) -> None:
+        if not self._hid_handler:
+            return
+
+        self._hid_handler.shutdown()
+        self._hid_handler = None
+
+
     def shutdown(self, *args) -> None:
+        self.deactivate_hid_subs()
         self._shutdown = True

@@ -1,6 +1,7 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
+from boxflat.hid_handler import MozaHidDevice, MozaAxis
 
 class PedalsSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
@@ -21,7 +22,8 @@ class PedalsSettings(SettingsPanel):
         ]
 
         super().__init__("Pedals", button_callback, connection_manager)
-        self._append_sub_connected("pedals-throttle-y1", self.active)
+        self._append_sub_connected("pedals-throttle-dir", self.active)
+        self._device_pattern = MozaHidDevice.PEDALS
 
 
     def set_brake_calibration_active(self, active: bool):
@@ -35,9 +37,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Throttle")
         self.add_preferences_group("Throttle settings", level_bar=1)
         self._current_group.set_bar_max(65535)
-        self._append_sub_cont("pedals-throttle-output", self._current_group.set_bar_level)
-        self._append_sub("pedals-throttle-min", self._current_group.set_range_start)
-        self._append_sub("pedals-throttle-max", self._current_group.set_range_end)
+        self._append_sub_hid(MozaAxis.THROTTLE, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Throttle Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[0])
@@ -76,9 +76,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Brake")
         self.add_preferences_group("Brake settings", level_bar=1)
         self._current_group.set_bar_max(65535)
-        self._append_sub_cont("pedals-brake-output", self._current_group.set_bar_level)
-        self._append_sub("pedals-brake-min", self._current_group.set_range_start)
-        self._append_sub("pedals-brake-max", self._current_group.set_range_end)
+        self._append_sub_hid(MozaAxis.BRAKE, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Brake Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[1])
@@ -124,9 +122,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Clutch")
         self.add_preferences_group("Clutch settings", level_bar=1)
         self._current_group.set_bar_max(65535)
-        self._append_sub_cont("pedals-clutch-output", self._current_group.set_bar_level)
-        self._append_sub("pedals-clutch-min", self._current_group.set_range_start)
-        self._append_sub("pedals-clutch-max", self._current_group.set_range_end)
+        self._append_sub_hid(MozaAxis.CLUTCH, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Clutch Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[2])

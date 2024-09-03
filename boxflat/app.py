@@ -126,6 +126,12 @@ class MainWindow(Adw.ApplicationWindow):
             self._panels["Pedals"].set_brake_calibration_active
         )
 
+        for panel in self._panels.values():
+            panel.active(-1)
+
+        self._panels["Home"].active(1)
+        self._panels["Other"].active(1)
+
         self._panels["Base"].activate_subs()
 
         self._panels["Home"].button.set_visible(True)
