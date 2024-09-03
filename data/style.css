@@ -153,3 +153,13 @@ colorbutton > button > colorswatch {
     margin-left: 20px;
     margin-right: 20px;
 }
+
+.altbar1 > * > * {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.altbar2 > * > * {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}

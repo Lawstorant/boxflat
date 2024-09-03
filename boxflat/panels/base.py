@@ -1,6 +1,8 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 
+from boxflat.hid_handler import MozaAxis, MozaHidDevice
+
 from boxflat.widgets import *
 import time
 
@@ -38,15 +40,21 @@ class BaseSettings(SettingsPanel):
 
         super().__init__("Base", button_callback, connection_manager)
         self._append_sub_connected("base-limit", self.active)
+        self._device_pattern = MozaHidDevice.BASE
+
 
     def _set_rotation(self, value: int) -> None:
         self._cm.set_setting_int(value, "base-limit")
         self._cm.set_setting_int(value, "base-maximum-angle")
 
+
     def prepare_ui(self) -> None:
         self.add_view_stack()
         self.add_preferences_page("Base")
-        self.add_preferences_group("Important settings")
+        self.add_preferences_group("Important settings", alt_level_bar=True)
+        self._current_group.set_bar_max(32767)
+        self._current_group.set_offset(-32767)
+        self._append_sub_hid(MozaAxis.STEERING, self._current_group.set_alt_bar_level)
 
         self._add_row(BoxflatSliderRow(
             "Wheel Rotation Angle",subtitle="Round and round", range_start=90, range_end=2700, big=True, draw_value=False))

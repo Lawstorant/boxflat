@@ -42,7 +42,6 @@ class HidHandler():
         self._shutdown = False
         self._device = None
         self._base = None
-        self._axis_offset = 32767
 
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 
@@ -55,9 +54,6 @@ class HidHandler():
 
         if self._device == None:
             self._device = self._base
-
-        if re.search(MozaHidDevice.PEDALS, self._device.name):
-            self._axis_offset = 0
 
         self._read_thread = Thread(target=self._read_loop)
         self._read_thread.start()
@@ -94,11 +90,11 @@ class HidHandler():
 
     def _notify_axis(self, code: int, value: int) -> None:
         name = evdev.ecodes.ABS[code]
-        # print(f"axis {name}, value: {value}")
+        print(f"axis {name}, value: {value}")
 
         if name in self._axis_subs.keys():
             for sub in self._axis_subs[name]:
-                sub[0](value + self._axis_offset, *sub[1])
+                sub[0](value, *sub[1])
 
 
     def _notify_button(self, number: int, state: int) -> None:
