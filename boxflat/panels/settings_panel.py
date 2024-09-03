@@ -113,7 +113,7 @@ class SettingsPanel(object):
 
 
     def active(self, value: int) -> None:
-        value = (value != -1)
+        value = (value > -1)
         if value == self._active:
             return
 
@@ -194,7 +194,6 @@ class SettingsPanel(object):
 
 
     def activate_subs(self) -> None:
-        print(self.title)
         for sub in self._cm_subs:
             self._cm.subscribe(*sub)
 

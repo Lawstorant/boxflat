@@ -498,4 +498,5 @@ class MozaConnectionManager():
         if self._serial_data["device-ids"]["wheel"] == self._serial_data["device-ids"]["base"]:
             self._serial_data["device-ids"]["wheel"] = self._serial_data["device-ids"]["pedals"] - 1
 
-        print("Cycling wheel id")
+        new_id = self._serial_data["device-ids"]["wheel"]
+        print(f"Cycling wheel id. New id: {new_id}")

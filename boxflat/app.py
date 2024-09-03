@@ -127,7 +127,8 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
         for panel in self._panels.values():
-            panel.active(-1)
+            panel.active(-2)
+            self.connect('close-request', panel.shutdown)
 
         self._panels["Home"].active(1)
         self._panels["Other"].active(1)

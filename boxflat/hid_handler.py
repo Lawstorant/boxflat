@@ -115,12 +115,12 @@ class HidHandler():
 
 
     def _read_loop(self) -> None:
-        print(self._device)
         if not self._device:
             print("HID device not found!")
             return
 
         while not self._shutdown:
+            sleep(1/200)
             try:
                 event = self._device.read_one()
             except Exception as error:
@@ -128,7 +128,6 @@ class HidHandler():
                 continue
 
             if not event:
-                sleep(1/60)
                 continue
 
             if event.type == evdev.ecodes.EV_KEY:
@@ -137,6 +136,6 @@ class HidHandler():
             elif event.type == evdev.ecodes.EV_ABS:
                 self._notify_axis(event.code, event.value)
 
-            sleep(1/200)
+
 
 
