@@ -90,7 +90,7 @@ class HidHandler():
 
     def _notify_axis(self, code: int, value: int) -> None:
         name = evdev.ecodes.ABS[code]
-        print(f"axis {name}, value: {value}")
+        # print(f"axis {name}, value: {value}")
 
         if name in self._axis_subs.keys():
             for sub in self._axis_subs[name]:
@@ -116,7 +116,7 @@ class HidHandler():
             return
 
         while not self._shutdown:
-            sleep(1/200)
+
             try:
                 event = self._device.read_one()
             except Exception as error:
@@ -124,6 +124,7 @@ class HidHandler():
                 continue
 
             if not event:
+                sleep(1/200)
                 continue
 
             if event.type == evdev.ecodes.EV_KEY:
