@@ -1,6 +1,6 @@
 import gi
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 
 class BoxflatLabelRow(BoxflatRow):
@@ -16,7 +16,7 @@ class BoxflatLabelRow(BoxflatRow):
 
     def _set_value(self, value: str) -> None:
         value = round(eval("value"+self._reverse_expression), 1)
-        self._label.set_label(str(value) + self._suffix)
+        GLib.idle_add(self._label.set_label, str(value) + self._suffix)
 
 
     def set_suffix(self, suffix: str) -> None:
