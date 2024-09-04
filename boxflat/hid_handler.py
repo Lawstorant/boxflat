@@ -180,7 +180,7 @@ class HidHandler():
         else:
             number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
 
-        print(f"button {number}, state: {state}")
+        # print(f"button {number}, state: {state}")
 
         # if number in self._button_subs.keys():
         #     for sub in self._button_subs[number]:
