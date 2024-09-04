@@ -2,4 +2,4 @@ evdev==1.7.1
 pycairo==1.26.1
 PyGObject==3.48.2
 pyserial==3.5
-PyYAML==6.0.2
+PyYAML==6.0.1
