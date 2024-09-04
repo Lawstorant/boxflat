@@ -148,13 +148,14 @@ class MainWindow(Adw.ApplicationWindow):
             print("Dry run")
             return
 
+        self._panels["Base"].activate_subs()
         self._cm.set_rw_active(True)
         self._hid_handler.start()
 
 
     def _activate_default(self) -> SettingsPanel:
         self._panels["Home"].button.set_active(True)
-        self._panels["Base"].activate_subs()
+        self._panels["Home"].activate_subs()
         return self._panels["Home"]
 
 

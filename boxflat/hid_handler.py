@@ -1,7 +1,8 @@
 import evdev
 import re
 from time import sleep
-from enum import StrEnum, auto
+
+from evdev.ecodes import *
 
 from threading import Thread
 from threading import Lock
@@ -81,24 +82,25 @@ class HidHandler():
         self._devices = []
         self._base = None
 
-        self._read_thread = Thread(target=self._read_loop)
-
-
     def __del__(self):
         self.shutdown()
 
 
     def start(self):
-        self._read_thread.start()
+        for device in self._devices:
+            thread = Thread(target=self._read_loop, args=(device))
+            thread.start()
 
 
     def shutdown(self):
         self._shutdown = True
 
 
-    def _find_devices(self) -> None:
+    def find_devices(self) -> None:
         self._devices = []
         self._base = None
+
+        evdev.AbsInfo
 
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 
@@ -138,13 +140,15 @@ class HidHandler():
 
     def _notify_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
         code = evdev.ecodes.ABS[code]
-        # print(f"axis {code}, value: {value}")
         name = ""
 
         if device == self._base:
             name = MozaAxisBaseCodes[code]
         else:
             name = MozaAxisCodes[code]
+
+        if name == MozaAxis.STEERING.name:
+            print(f"axis {code}, value: {value}")
 
         if name in self._axis_subs:
             for sub in self._axis_subs[name]:
@@ -163,34 +167,15 @@ class HidHandler():
         #     for sub in self._button_subs[number]:
         #         sub[0](number, state*sub[1])
 
+    def _read_loop(self, device: evdev.InputDevice) -> None:
+        for event in device.read_loop():
+            if self._shutdown:
+                break
 
-    def _read_loop(self) -> None:
-        find = True
+            print(event.type)
 
-        while not self._shutdown:
-            sleep(1/500)
+            if event.type == EV_KEY:
+                self._notify_button(device, event.code, event.value)
 
-            if len(self._devices) == 0:
-                find = True
-
-            if find:
-                find = False
-                sleep(1)
-                self._find_devices()
-
-            for device in self._devices:
-                try:
-                    event = device.read_one()
-                except Exception as error:
-                    print("HID device not found")
-                    find = True
-                    continue
-
-                if not event:
-                    continue
-
-                if event.type == evdev.ecodes.EV_KEY:
-                    self._notify_button(device, event.code, event.value)
-
-                elif event.type == evdev.ecodes.EV_ABS:
-                    self._notify_axis(device, event.code, event.value)
+            elif event.type == EV_ABS:
+                self._notify_axis(device, event.code, event.value)
