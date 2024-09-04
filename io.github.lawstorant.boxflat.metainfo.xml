@@ -94,6 +94,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.16.0" date="2024-09-04">
+      <description>
+        <ul>
+          <li>Improved home page</li>
+          <li>Axis data from HID events</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.15.0" date="2024-08-29">
       <description>
         <p>Support for FFB 3.0 FW settings</p>
