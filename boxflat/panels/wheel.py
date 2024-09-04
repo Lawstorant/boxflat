@@ -62,19 +62,27 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
 
-        self._add_row(BoxflatLevelRow("Combined Paddles", max_value=65534))
-        self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
-
-        self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
-        self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
-
-        self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
-        self._append_sub_hid(MozaAxis.RIGHT_PADDLE, self._current_row.set_value)
-
         slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
         self._current_row.subscribe(lambda v: slider.set_active(v == 2))
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-paddles-mode")
         self._append_sub("wheel-paddles-mode", self._current_row.set_value)
+
+
+        self._add_row(BoxflatLevelRow("Combined Paddles", max_value=65534))
+        self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
+        self._current_row.set_present(False)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present, -1)
+
+        self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
+        self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
+        self._current_row.set_present(False)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present, -2)
+
+        self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
+        self._append_sub_hid(MozaAxis.RIGHT_PADDLE, self._current_row.set_value)
+        self._current_row.set_present(False)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present, -2)
+
 
         self._add_row(slider)
         self._current_row.set_active(False)

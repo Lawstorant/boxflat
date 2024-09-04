@@ -167,3 +167,7 @@ colorbutton > button > colorswatch {
 .level-dark > * > .empty {
     background-color: rgba(255, 255, 255, 0.2);
 }
+
+.level-dark {
+    margin-right: 12px;
+}

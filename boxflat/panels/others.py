@@ -50,28 +50,28 @@ class OtherSettings(SettingsPanel):
 
         self._add_row(BoxflatSwitchRow("Read settings continuously"))
         self._current_row.subscribe(self._cm.refresh_cont)
-        # self._current_row.set_value(1, mute=False)
+        self._current_row.set_value(1, mute=False)
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
 
-        self.add_preferences_group("Custom command")
-        self._command = Adw.EntryRow()
-        self._command.set_title("Command name")
+        # self.add_preferences_group("Custom command")
+        # self._command = Adw.EntryRow()
+        # self._command.set_title("Command name")
 
-        self._value = Adw.EntryRow()
-        self._value.set_title("Value")
+        # self._value = Adw.EntryRow()
+        # self._value.set_title("Value")
 
-        read = BoxflatButtonRow("Execute command", "Read")
-        write = BoxflatButtonRow("Execute command", "Write")
+        # read = BoxflatButtonRow("Execute command", "Read")
+        # write = BoxflatButtonRow("Execute command", "Write")
 
-        read.subscribe(self._read_custom)
-        write.subscribe(self._write_custom)
+        # read.subscribe(self._read_custom)
+        # write.subscribe(self._write_custom)
 
-        self._add_row(self._command)
-        self._add_row(self._value)
-        self._add_row(read)
-        self._add_row(write)
+        # self._add_row(self._command)
+        # self._add_row(self._value)
+        # self._add_row(read)
+        # self._add_row(write)
 
 
     def _read_custom(self, *args) -> None:

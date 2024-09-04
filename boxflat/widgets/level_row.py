@@ -20,7 +20,7 @@ class BoxflatLevelRow(BoxflatRow):
         self._set_widget(bar)
         self._bar = bar
 
-        self.set_bar_width(270)
+        self.set_bar_width(310)
 
 
     def _set_value(self, value: int) -> None:
