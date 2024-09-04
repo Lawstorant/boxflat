@@ -42,18 +42,9 @@ class HidHandler():
         self._shutdown = False
         self._device = None
         self._base = None
+        self._device_pattern = device_pattern
 
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-
-        for hid in devices:
-            if re.search(device_pattern, hid.name.lower()):
-                self._device = evdev.InputDevice(hid.path)
-
-            if re.search(MozaHidDevice.BASE, hid.name.lower()):
-                self._base = evdev.InputDevice(hid.path)
-
-        if self._device == None:
-            self._device = self._base
+        self._find_device()
 
         self._read_thread = Thread(target=self._read_loop)
         self._read_thread.start()
@@ -65,6 +56,23 @@ class HidHandler():
 
     def shutdown(self):
         self._shutdown = True
+
+
+    def _find_device(self) -> None:
+        self._device = None
+        self._base = None
+
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+
+        for hid in devices:
+            if re.search(self._device_pattern, hid.name.lower()):
+                self._device = evdev.InputDevice(hid.path)
+
+            if re.search(MozaHidDevice.BASE, hid.name.lower()):
+                self._base = evdev.InputDevice(hid.path)
+
+        if self._device == None:
+            self._device = self._base
 
 
     def subscribe_axis(self, axis: tuple, callback: callable, *args) -> None:
@@ -120,7 +128,9 @@ class HidHandler():
             try:
                 event = self._device.read_one()
             except Exception as error:
-                self.shutdown()
+                print("HID device not found")
+                sleep(1)
+                self._find_device()
                 continue
 
             if not event:

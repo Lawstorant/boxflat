@@ -23,8 +23,8 @@ class BoxflatRow(Adw.ActionRow):
         return self.get_sensitive()
 
 
-    def set_active(self, value) -> None:
-        self.set_sensitive(int(value) > 0)
+    def set_active(self, value, offset=1) -> None:
+        self.set_sensitive(int(value + offset) > 0)
 
 
     def set_present(self, value, additional=0) -> None:

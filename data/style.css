@@ -163,3 +163,7 @@ colorbutton > button > colorswatch {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
+
+.level-dark > * > .empty {
+    background-color: rgba(255, 255, 255, 0.2);
+}

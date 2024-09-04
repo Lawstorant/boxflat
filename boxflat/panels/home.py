@@ -19,18 +19,37 @@ class HomeSettings(SettingsPanel):
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Wheelbase")
+        self._append_sub_connected("base-limit", self._current_group.set_active)
 
         self._steer_row = BoxflatLabelRow("Steering position")
         self._add_row(self._steer_row)
         self._steer_row.set_suffix("°")
         self._append_sub_hid(MozaAxis.STEERING, self._set_steering)
-        self._append_sub_connected("base-limit", self._current_row.set_active)
+        self._steer_row.set_value(0)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(self._cm.set_setting_int, "base-calibration")
-        self._append_sub_connected("base-limit", self._current_row.set_active)
+
 
         self.add_preferences_group("Pedals")
+        self._append_sub_connected("pedals-throttle-dir", self._current_group.set_active, 1)
+
+        self._add_row(BoxflatLevelRow("Throttle input", max_value=65535))
+        self._current_row.set_reverse_expression("+32768")
+        self._append_sub_hid(MozaAxis.THROTTLE, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Brake input", max_value=65535))
+        self._current_row.set_reverse_expression("+32768")
+        self._append_sub_hid(MozaAxis.BRAKE, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Clutch input", max_value=65535))
+        self._current_row.set_reverse_expression("+32768")
+        self._append_sub_hid(MozaAxis.CLUTCH, self._current_row.set_value)
+
+        self.add_preferences_group("About")
+        self._add_row(BoxflatLabelRow("Version:", value=self._version))
+
+
         # old stuff
         # self.add_preferences_group()
         # self._add_row(BoxflatRow("Welcome to Boxflat", subtitle=f"Version: {self._version}"))
@@ -51,6 +70,6 @@ class HomeSettings(SettingsPanel):
 
 
     def _set_steering(self, value: int) -> None:
-        self._steer_row.set_value(round((value - 32768) / 32768 * self._rotation, 0))
+        self._steer_row.set_value(round((value - 32768) / 32768 * self._rotation))
 
 

@@ -4,11 +4,12 @@ from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 
 class BoxflatLabelRow(BoxflatRow):
-    def __init__(self, title: str, subtitle=""):
+    def __init__(self, title: str, subtitle="", value=""):
         super().__init__(title, subtitle)
 
         label = Gtk.Label()
         label.set_valign(Gtk.Align.CENTER)
+        label.set_label(value)
         self._set_widget(label)
         self._label = label
         self._suffix = ""
