@@ -11,7 +11,7 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
         super().__init__(title, "Calibrate", subtitle)
         self._alternative = alternative
         self._calibration_event = Event()
-        self._thread = Thread(target=self._calibration)
+        self._thread = Thread(daemon=True, target=self._calibration)
         self._thread.start()
 
 

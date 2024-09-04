@@ -34,16 +34,13 @@ class HomeSettings(SettingsPanel):
         self.add_preferences_group("Pedals")
         self._append_sub_connected("pedals-throttle-dir", self._current_group.set_active, 1)
 
-        self._add_row(BoxflatLevelRow("Throttle input", max_value=65535))
-        self._current_row.set_reverse_expression("+32768")
+        self._add_row(BoxflatLevelRow("Throttle input", max_value=65534))
         self._append_sub_hid(MozaAxis.THROTTLE, self._current_row.set_value)
 
-        self._add_row(BoxflatLevelRow("Brake input", max_value=65535))
-        self._current_row.set_reverse_expression("+32768")
+        self._add_row(BoxflatLevelRow("Brake input", max_value=65534))
         self._append_sub_hid(MozaAxis.BRAKE, self._current_row.set_value)
 
-        self._add_row(BoxflatLevelRow("Clutch input", max_value=65535))
-        self._current_row.set_reverse_expression("+32768")
+        self._add_row(BoxflatLevelRow("Clutch input", max_value=65534))
         self._append_sub_hid(MozaAxis.CLUTCH, self._current_row.set_value)
 
 

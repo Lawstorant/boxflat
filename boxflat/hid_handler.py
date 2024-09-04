@@ -20,12 +20,15 @@ class MozaHidDevice():
     HANDBRAKE = "hbp handbrake"
     HPATTERN = "hgp shifter"
     SEQUENTIAL = "sgp shifter"
-    STALK = "IDK yet"
+    ESTOP = "IDK"
+    STALK = "IDK"
+    HUB = "IDK"
 
 
 class AxisData():
     name: str
     device: str
+    base_offset: int
 
     def __init__(self, n, d):
         self.name = n
@@ -72,6 +75,16 @@ MozaAxisBaseCodes = {
     "ABS_RUDDER" : MozaAxis.HANDBRAKE.name
 }
 
+MozaAxisBaseOffsets = [
+    MozaAxis.THROTTLE.name,
+    MozaAxis.BRAKE.name,
+    MozaAxis.CLUTCH.name,
+    MozaAxis.COMBINED_PADDLES.name,
+    MozaAxis.LEFT_PADDLE.name,
+    MozaAxis.RIGHT_PADDLE.name,
+    MozaAxis.HANDBRAKE.name,
+]
+
 
 class HidHandler():
     def __init__(self):
@@ -87,43 +100,53 @@ class HidHandler():
 
 
     def start(self):
-        for device in self._devices:
-            thread = Thread(target=self._read_loop, args=(device))
-            thread.start()
+        return
+        self.find_devices()
 
 
-    def shutdown(self):
-        self._shutdown = True
-
-
-    def find_devices(self) -> None:
-        self._devices = []
-        self._base = None
-
-        evdev.AbsInfo
+    def add_device(self, pattern: MozaHidDevice) -> None:
+        if not pattern:
+            return
 
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 
+        device = None
+
         for hid in devices:
-            for pattern in self._device_patterns:
-                if re.search(pattern, hid.name.lower()):
-                    self._devices.append(evdev.InputDevice(hid.path))
+            if re.search(pattern, hid.name.lower()):
+                print("HID device found")
+                device = hid
 
-            if re.search(MozaHidDevice.BASE, hid.name.lower()):
-                self._base = evdev.InputDevice(hid.path)
+        if device != None:
+            if pattern == MozaHidDevice.BASE:
+                self._base = device
 
-        for device in self._devices:
-            if device == None:
-                device = self._base
+            thread = Thread(daemon=True, target=self._read_loop, args=[device])
+            thread.start()
+
+
+    def find_devices(self) -> None:
+        pass
+        # self._base = None
+        # devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+
+        # new_devices = []
+        # for hid in devices:
+        #     for pattern in self._device_patterns:
+        #         if re.search(pattern, hid.name.lower()):
+        #             print("HID device found")
+        #             new_devices.append(evdev.InputDevice(hid.path))
+
+        #     if re.search(MozaHidDevice.BASE, hid.name.lower()):
+        #         self._base = evdev.InputDevice(hid.path)
+
+        # for device in new_devices:
+        #     self._devices.append(device)
+        #     thread = Thread(daemon=True, target=self._read_loop, args=[device])
+        #     thread.start()
 
 
     def subscribe_axis(self, axis: AxisData, callback: callable, *args) -> None:
-        if axis.device not in self._device_patterns:
-            self._device_patterns.append(axis.device)
-
-        # self._find_devices()
-        # device = self._devices[self._device_patterns.index(axis.device)]
-
         if not axis.name in self._axis_subs:
             self._axis_subs[axis.name] = []
 
@@ -144,38 +167,46 @@ class HidHandler():
 
         if device == self._base:
             name = MozaAxisBaseCodes[code]
+            if name in MozaAxisBaseOffsets:
+                value += 32767
+
         else:
             name = MozaAxisCodes[code]
 
-        if name == MozaAxis.STEERING.name:
-            print(f"axis {code}, value: {value}")
+        # print(f"axis {code}, value: {value}")
 
         if name in self._axis_subs:
             for sub in self._axis_subs[name]:
                 sub[0](value, *sub[1])
 
 
-    def _notify_button(self, device: evdev.InputDevice, number: int, state: int) -> None:
+    def _notify_button(self, number: int, state: int) -> None:
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
-            number -= KEY_NEXT_FAVORITE + (BTN_DEAD - BTN_JOYSTICK)
+            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
 
-        print(f"button {number}, state: {state}")
+        # print(f"button {number}, state: {state}")
 
         # if number in self._button_subs.keys():
         #     for sub in self._button_subs[number]:
         #         sub[0](number, state*sub[1])
 
+
     def _read_loop(self, device: evdev.InputDevice) -> None:
-        for event in device.read_loop():
-            if self._shutdown:
-                break
+        sleep(1)
+        try:
+            for event in device.read_loop():
+                if event.type == EV_KEY:
+                    self._notify_button(event.code, event.value)
 
-            print(event.type)
+                elif event.type == EV_ABS:
+                    self._notify_axis(device, event.code, event.value)
 
-            if event.type == EV_KEY:
-                self._notify_button(device, event.code, event.value)
+        except Exception as e:
+            pass
 
-            elif event.type == EV_ABS:
-                self._notify_axis(device, event.code, event.value)
+        print("Hid loop broken")
+        if device == self._base:
+            self._base = None
+        device = None

@@ -11,12 +11,10 @@ class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
-        self._cm.device_discovery()
-        self.connect('close-request', lambda w: self._cm.shutdown())
-
         self._hid_handler = HidHandler()
-        self.connect('close-request', lambda w: self._hid_handler.shutdown())
+
+        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), self._hid_handler ,dry_run)
+        # self.connect('close-request', lambda w: self._cm.shutdown())
 
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
