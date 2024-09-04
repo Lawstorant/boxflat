@@ -20,11 +20,10 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
 
     def _notify_calibration(self) -> None:
-        self._cooldown = 1
-
         if self._mute:
             return
 
+        self._cooldown = 1
         for sub in self._subscribers:
             if not self._alternative:
                 sub[0](1, f"{sub[2][0]}-{self.get_value()}-calibration")

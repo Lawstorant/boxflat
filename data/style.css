@@ -164,10 +164,14 @@ colorbutton > button > colorswatch {
     border-bottom-left-radius: 0;
 }
 
-.level-dark > * > .empty {
+/* .level-dark > * > .empty {
     background-color: rgba(255, 255, 255, 0.2);
-}
+} */
 
 .level-dark {
     margin-right: 12px;
+}
+
+.level-offset {
+    background-color: #45af45;
 }

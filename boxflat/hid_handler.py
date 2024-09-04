@@ -49,15 +49,9 @@ class MozaAxis():
 
 
 MozaAxisCodes = {
-    "ABS_X" : MozaAxis.STEERING.name,
     "ABS_RX" : MozaAxis.THROTTLE.name,
-    "ABS_RZ" : MozaAxis.BRAKE.name,
-    "ABS_RY" : MozaAxis.CLUTCH.name,
-    "ABS_Y" : MozaAxis.COMBINED_PADDLES.name,
-    "ABS_RY" : MozaAxis.LEFT_PADDLE.name,
-    "ABS_RX" : MozaAxis.RIGHT_PADDLE.name,
-    "ABS_HAT0X" : MozaAxis.LEFT_STICK_X.name,
-    "ABS_HAT0Y" : MozaAxis.LEFT_STICK_Y.name,
+    "ABS_RY" : MozaAxis.BRAKE.name,
+    "ABS_RZ" : MozaAxis.CLUTCH.name,
     "ABS_RUDDER" : MozaAxis.HANDBRAKE.name
 }
 
@@ -173,7 +167,7 @@ class HidHandler():
         else:
             name = MozaAxisCodes[code]
 
-        # print(f"axis {code}, value: {value}")
+        # print(f"axis {name} ({code}), value: {value}")
 
         if name in self._axis_subs:
             for sub in self._axis_subs[name]:

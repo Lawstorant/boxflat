@@ -7,6 +7,7 @@ import time
 class BoxflatRow(Adw.ActionRow):
     def __init__(self, title="", subtitle=""):
         super().__init__()
+        self._cooldown = 0
         self._subscribers = []
         self._mute = False
         self._shutdown = False
@@ -16,7 +17,6 @@ class BoxflatRow(Adw.ActionRow):
         self._expression = "*1"
         self._reverse_expression = "*1"
         self.set_size_request(620, 0)
-        self._cooldown = 0
 
 
     def get_active(self) -> bool:
@@ -28,7 +28,7 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def set_present(self, value, additional=0) -> None:
-        self.set_visible(int(value) + additional == 1)
+        self.set_visible(int(value) + additional > 0)
 
 
     def mute(self, value: bool=True) -> None:
@@ -50,6 +50,7 @@ class BoxflatRow(Adw.ActionRow):
     def set_value(self, value, mute: bool=True) -> None:
         if self.cooldown():
             print("Still cooling down")
+            print(self.get_title())
             return
 
         self.mute(mute)
@@ -74,11 +75,10 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def _notify(self) -> None:
-        self._cooldown = 1
-
         if self._mute:
             return
 
+        self._cooldown = 1
         for sub in self._subscribers:
             value = self.get_raw_value() if sub[1] else self.get_value()
             sub[0](value, *sub[2])

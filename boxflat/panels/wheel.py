@@ -66,12 +66,16 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: slider.set_active(v == 2))
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-paddles-mode")
         self._append_sub("wheel-paddles-mode", self._current_row.set_value)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present)
+        self._current_row.set_present(False)
 
 
-        self._add_row(BoxflatLevelRow("Combined Paddles", max_value=65534))
+        level = BoxflatLevelRow("Combined Paddles", max_value=65534)
+        self._add_row(level)
         self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
         self._current_row.set_present(False)
-        self._append_sub("wheel-paddles-mode", self._current_row.set_present, -1)
+        self._append_sub("wheel-paddles-mode", lambda v: level.set_present(v == 2))
+        self._append_sub("wheel-clutch-point", self._current_row.set_offset)
 
         self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
         self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
@@ -89,8 +93,11 @@ class WheelSettings(SettingsPanel):
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-clutch-point")
+        self._current_row.subscribe(level.set_offset)
         self._append_sub("wheel-clutch-point", self._current_row.set_value)
+        self._append_sub("wheel-clutch-point", self._current_row.set_present)
         self._append_sub("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
+        self._current_row.set_present(False)
 
         self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
         self._current_row.add_buttons("Buttons", "  Knob ")
