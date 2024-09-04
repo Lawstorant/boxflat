@@ -1,19 +1,18 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.widgets import *
 
-from boxflat.hid_handler import MozaAxis, MozaHidDevice
+from boxflat.hid_handler import MozaAxis, HidHandler
 
 class HomeSettings(SettingsPanel):
-    def __init__(self, button_callback, dry_run: bool, version: str="", connection_manager=None) -> None:
+    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str="") -> None:
         self._test_text = "inactive"
         if dry_run:
             self._test_text = "active"
 
         self._version = version
-
-        super().__init__("Home", button_callback, connection_manager=connection_manager)
-        self._device_pattern = MozaHidDevice.BASE
         self._rotation = 180
+
+        super().__init__("Home", button_callback, connection_manager=connection_manager, hid_handler=hid_handler)
         self._append_sub("base-limit", self._get_rotation_limit)
 
 
@@ -24,6 +23,7 @@ class HomeSettings(SettingsPanel):
         self._steer_row = BoxflatLabelRow("Steering position")
         self._add_row(self._steer_row)
         self._steer_row.set_suffix("°")
+        self._steer_row.set_subtitle(f"Limit = {self._rotation*2}°")
         self._append_sub_hid(MozaAxis.STEERING, self._set_steering)
         self._steer_row.set_value(0)
 
@@ -46,6 +46,7 @@ class HomeSettings(SettingsPanel):
         self._current_row.set_reverse_expression("+32768")
         self._append_sub_hid(MozaAxis.CLUTCH, self._current_row.set_value)
 
+
         self.add_preferences_group("About")
         self._add_row(BoxflatLabelRow("Version:", value=self._version))
 
@@ -60,7 +61,11 @@ class HomeSettings(SettingsPanel):
 
 
     def _get_rotation_limit(self, value: int) -> None:
+        if value == self._rotation:
+            return
+
         self._rotation = value
+        self._steer_row.set_subtitle(f"Limit = {value*2}°")
 
 
     def _set_steering(self, value: int) -> None:

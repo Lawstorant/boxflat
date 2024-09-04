@@ -124,3 +124,7 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
         self.set_sensitive(int(value + offset) > 0)
 
 
+    def set_present(self, value, offset=0) -> None:
+        self.set_visible(int(value) + offset > 0)
+
+

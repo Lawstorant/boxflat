@@ -1,10 +1,10 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
-from boxflat.hid_handler import MozaHidDevice, MozaAxis
+from boxflat.hid_handler import MozaAxis
 
 class PedalsSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
         self._brake_calibration_row = None
         self._curve_rows = []
 
@@ -21,9 +21,8 @@ class PedalsSettings(SettingsPanel):
             "clutch"
         ]
 
-        super().__init__("Pedals", button_callback, connection_manager)
+        super().__init__("Pedals", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("pedals-throttle-dir", self.active)
-        self._device_pattern = MozaHidDevice.PEDALS
 
 
     def set_brake_calibration_active(self, active: bool):

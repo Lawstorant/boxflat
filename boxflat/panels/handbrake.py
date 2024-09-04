@@ -1,10 +1,10 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
-from boxflat.hid_handler import MozaHidDevice, MozaAxis
+from boxflat.hid_handler import MozaAxis
 
 class HandbrakeSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
         self._threshold_active = None
         self._calibration_button = None
         self._curve_row = None
@@ -16,9 +16,8 @@ class HandbrakeSettings(SettingsPanel):
             [46, 72, 86, 94, 100]  # Parabolic
         ]
 
-        super().__init__("Handbrake", button_callback, connection_manager)
+        super().__init__("Handbrake", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("handbrake-direction", self.active)
-        self._device_pattern = MozaHidDevice.HANDBRAKE
 
     def prepare_ui(self) -> None:
         self.add_preferences_group("Handbrake settings")

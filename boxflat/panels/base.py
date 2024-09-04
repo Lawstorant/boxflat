@@ -7,7 +7,7 @@ from boxflat.widgets import *
 import time
 
 class BaseSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
         self._curve_row = None
         self._eq_row = None
 
@@ -38,9 +38,8 @@ class BaseSettings(SettingsPanel):
             [100, 100, 100, 100, 100, 100]
         ]
 
-        super().__init__("Base", button_callback, connection_manager)
+        super().__init__("Base", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("base-limit", self.active)
-        self._device_pattern = MozaHidDevice.BASE
 
 
     def _set_rotation(self, value: int) -> None:

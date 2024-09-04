@@ -9,7 +9,9 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 
 class SettingsPanel(object):
-    def __init__(self, title: str, button_callback: callable, connection_manager: MozaConnectionManager=None) -> None:
+    def __init__(self, title: str, button_callback: callable,
+                 connection_manager: MozaConnectionManager=None,
+                 hid_handler: HidHandler=None) -> None:
         self._cm = connection_manager
 
         self._current_page = None
@@ -23,8 +25,7 @@ class SettingsPanel(object):
         self._cm_subs_connected = []
 
         self._hid_subs = []
-        self._hid_handler = None
-        self._device_pattern = None
+        self._hid_handler = hid_handler
 
         self._active = True
         self._shutdown = False
@@ -127,11 +128,6 @@ class SettingsPanel(object):
 
         # self._button.set_visible(value)
 
-        if value:
-            self.activate_hid_subs()
-        else:
-            self.deactivate_hid_subs()
-
 
     def open_url(self, url: str) -> None:
         launcher = Gtk.UriLauncher()
@@ -204,22 +200,17 @@ class SettingsPanel(object):
 
 
     def activate_hid_subs(self) -> None:
-        if len(self._hid_subs) == 0 or self._device_pattern == None:
-            return
-
-        self._hid_handler = HidHandler(self._device_pattern)
         for sub in self._hid_subs:
             self._hid_handler.subscribe_axis(*sub)
 
 
-    def deactivate_hid_subs(self) -> None:
-        if not self._hid_handler:
-            return
+    # def deactivate_hid_subs(self) -> None:
+    #     if not self._hid_handler:
+    #         return
 
-        self._hid_handler.shutdown()
-        self._hid_handler = None
+    #     self._hid_handler.shutdown()
+    #     self._hid_handler = None
 
 
     def shutdown(self, *args) -> None:
-        self.deactivate_hid_subs()
         self._shutdown = True
