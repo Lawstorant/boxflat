@@ -11,7 +11,7 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
         super().__init__(title, "Calibrate", subtitle)
         self._alternative = alternative
         self._calibration_event = Event()
-        self._thread = Thread(target=self._calibration)
+        self._thread = Thread(daemon=True, target=self._calibration)
         self._thread.start()
 
 
@@ -20,11 +20,10 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
 
 
     def _notify_calibration(self) -> None:
-        self._cooldown = 1
-
         if self._mute:
             return
 
+        self._cooldown = 1
         for sub in self._subscribers:
             if not self._alternative:
                 sub[0](1, f"{sub[2][0]}-{self.get_value()}-calibration")

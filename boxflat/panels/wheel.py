@@ -3,6 +3,8 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.bitwise import *
 from boxflat.widgets import *
 
+from boxflat.hid_handler import MozaAxis
+
 MOZA_TELEMETRY_FLAGS = [
     "Wheel Spin",
     "Pitlane",
@@ -18,7 +20,7 @@ MOZA_TELEMETRY_FLAGS = [
 ]
 
 class WheelSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
@@ -35,10 +37,10 @@ class WheelSettings(SettingsPanel):
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
         ]
 
-        super().__init__("Wheel", button_callback, connection_manager)
+        super().__init__("Wheel", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("wheel-stick-mode", self.active)
         self._cm.subscribe_shutdown(self.shutdown)
-        self._test_thread = Thread(target=self._wheel_rpm_test)
+        self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test)
         self._test_event = Event()
         self._test_thread.start()
 
@@ -64,14 +66,38 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: slider.set_active(v == 2))
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-paddles-mode")
         self._append_sub("wheel-paddles-mode", self._current_row.set_value)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present)
+        self._current_row.set_present(False)
+
+
+        level = BoxflatLevelRow("Combined Paddles", max_value=65534)
+        self._add_row(level)
+        self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
+        self._current_row.set_present(False)
+        self._append_sub("wheel-paddles-mode", lambda v: level.set_present(v == 2))
+        self._append_sub("wheel-clutch-point", self._current_row.set_offset)
+
+        self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
+        self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
+        self._current_row.set_present(False)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present, -2)
+
+        self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
+        self._append_sub_hid(MozaAxis.RIGHT_PADDLE, self._current_row.set_value)
+        self._current_row.set_present(False)
+        self._append_sub("wheel-paddles-mode", self._current_row.set_present, -2)
+
 
         self._add_row(slider)
         self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-clutch-point")
+        self._current_row.subscribe(level.set_offset)
         self._append_sub("wheel-clutch-point", self._current_row.set_value)
+        self._append_sub("wheel-clutch-point", self._current_row.set_present)
         self._append_sub("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
+        self._current_row.set_present(False)
 
         self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
         self._current_row.add_buttons("Buttons", "  Knob ")

@@ -17,3 +17,11 @@ def modify_bit(value, bit_number: int, set_bit=True) -> int:
         value &= ~bit
 
     return value
+
+
+def set_bit(value, bit_number: int) -> int:
+    return modify_bit(value, bit_number, set_bit=True)
+
+
+def unset_bit(value, bit_number: int) -> int:
+    return modify_bit(value, bit_number, set_bit=False)

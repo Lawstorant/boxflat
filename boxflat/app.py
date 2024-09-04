@@ -4,15 +4,17 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gdk, Adw
 from boxflat.panels import *
 from boxflat.connection_manager import *
+from boxflat.hid_handler import HidHandler
 import os
 
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
-        self._cm.device_discovery()
-        self.connect('close-request', lambda w: self._cm.shutdown())
+        self._hid_handler = HidHandler()
+
+        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), self._hid_handler ,dry_run)
+        # self.connect('close-request', lambda w: self._cm.shutdown())
 
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
@@ -113,43 +115,45 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _prepare_settings(self) -> None:
-        self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run, self._version)
-        self._panels["Base"] = BaseSettings(self.switch_panel, self._cm)
-        self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm)
-        self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm)
+        self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run, self._cm, self._hid_handler, self._version)
+        self._panels["Base"] = BaseSettings(self.switch_panel, self._cm, self._hid_handler)
+        self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm, self._hid_handler)
+        self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm)
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
-        self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm)
+        self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["Other"] = OtherSettings(self.switch_panel, self._cm)
 
         self._panels["Other"].subscribe_brake_calibration(
             self._panels["Pedals"].set_brake_calibration_active
         )
 
-        self._panels["Base"].activate_subs()
+        for panel in self._panels.values():
+            panel.active(-2)
+            self.connect('close-request', panel.shutdown)
+
+        self._panels["Home"].active(1)
+        self._panels["Other"].active(1)
 
         self._panels["Home"].button.set_visible(True)
         self._panels["Other"].button.set_visible(True)
 
         for panel in self._panels.values():
             panel.activate_subs_connected()
-
-
-        # TODO: Add Dash,Hub and other settings
+            panel.activate_hid_subs()
 
         if self._dry_run:
             print("Dry run")
             return
 
+        self._panels["Base"].activate_subs()
         self._cm.set_rw_active(True)
-        #self._cm.reset_subscriptions()
+        self._hid_handler.start()
 
 
     def _activate_default(self) -> SettingsPanel:
-        # for panel in self._panels.values():
-        #     panel.button.set_active(False)
-
         self._panels["Home"].button.set_active(True)
+        self._panels["Home"].activate_subs()
         return self._panels["Home"]
 
 

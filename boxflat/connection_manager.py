@@ -8,6 +8,7 @@ from threading import Lock
 from threading import Event
 import struct
 import time
+from .hid_handler import HidHandler, MozaHidDevice
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -15,11 +16,24 @@ from gi.repository import GLib
 
 CM_RETRY_COUNT=1
 
+HidDeviceMapping = {
+    "base" : MozaHidDevice.BASE,
+    "handbrake" : MozaHidDevice.HANDBRAKE,
+    "hpattern" : MozaHidDevice.HPATTERN,
+    "sequential" : MozaHidDevice.SEQUENTIAL,
+    "pedals" : MozaHidDevice.PEDALS,
+    "hub" : MozaHidDevice.HUB,
+    "estop" : MozaHidDevice.ESTOP,
+    "main" : None
+}
+
 class MozaConnectionManager():
-    def __init__(self, serial_data_path: str, dry_run=False):
+    def __init__(self, serial_data_path: str, hid_handler: HidHandler, dry_run=False):
         self._serial_data = None
         self._dry_run = dry_run
         self._shutdown = False
+
+        self._hid_handler = hid_handler
 
         self._serial_devices = {}
         self._devices_lock = Lock()
@@ -37,17 +51,17 @@ class MozaConnectionManager():
         self._refresh = Event()
         self._refresh_cont = Event()
         self._subscribtions = {}
-        self._refresh_thread = Thread(target=self._notify)
+        self._refresh_thread = Thread(daemon=True, target=self._notify)
         self._refresh_thread.start()
 
         self._connected_subscribtions = {}
-        self._connected_thread = Thread(target=self._notify_connected)
+        self._connected_thread = Thread(daemon=True, target=self._notify_connected)
         self._connected_thread.start()
 
         self._cont_active = Event()
         self._cont_subscribtions = {}
-        self._cont_thread = Thread(target=self._notify_cont)
-        self._cont_thread.start()
+        self._cont_thread = Thread(daemon=True, target=self._notify_cont)
+        # self._cont_thread.start()
 
         self._shutown_subscribtions = []
         self._no_access_subs = []
@@ -60,7 +74,7 @@ class MozaConnectionManager():
         self._read_command_buffer = {}
         self._write_mutex = Lock()
         self._read_mutex = Lock()
-        self._rw_thread = Thread(target=self._rw_handler)
+        self._rw_thread = Thread(daemon=True, target=self._rw_handler)
 
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
@@ -77,12 +91,9 @@ class MozaConnectionManager():
         print("\nDevice discovery...")
         path = self._serial_path
 
-        self._devices_lock.acquire()
-        self._serial_devices = {}
-
         if not os.path.exists(path):
             print("No devices found!")
-            self._devices_lock.release()
+            self._handle_devices({})
             return
 
         devices = []
@@ -90,39 +101,54 @@ class MozaConnectionManager():
             if device.find("Gudsen_MOZA"):
                 devices.append(os.path.join(path, device))
 
+        serial_devices = {}
         for device in devices:
             if device.lower().find("base") != -1:
-                self._serial_devices["base"] = device
-                self._serial_devices["main"] = device
+                serial_devices["base"] = device
+                serial_devices["main"] = device
                 print("Base found")
 
             elif device.lower().find("hbp") != -1:
-                self._serial_devices["handbrake"] = device
+                serial_devices["handbrake"] = device
                 print("Handbrake found")
 
             elif device.lower().find("hgp") != -1:
-                self._serial_devices["hpattern"] = device
+                serial_devices["hpattern"] = device
                 print("H-Pattern shifter found")
 
             elif device.lower().find("sgp") != -1:
-                self._serial_devices["sequential"] = device
+                serial_devices["sequential"] = device
                 print("Sequential shifter found")
 
             elif device.lower().find("pedals") != -1:
-                self._serial_devices["pedals"] = device
+                serial_devices["pedals"] = device
                 print("Pedals found")
 
             # TODO: Check this info somehow
             elif device.lower().find("hub") != -1:
-                self._serial_devices["hub"] = device
+                serial_devices["hub"] = device
                 print("Hub found")
 
             elif device.lower().find("stop") != -1:
-                self._serial_devices["estop"] = device
+                serial_devices["estop"] = device
                 print("E-Stop found")
 
-        self._devices_lock.release()
+        self._handle_devices(serial_devices)
+
         print("Device discovery end\n")
+
+
+    def _handle_devices(self, new_devices: dict) -> None:
+        old_devices = None
+
+        with self._devices_lock:
+            old_devices = self._serial_devices
+            self._serial_devices = new_devices
+
+        for device in new_devices:
+            if device not in old_devices:
+                self._hid_handler.add_device(HidDeviceMapping[device])
+
 
 
     def subscribe(self, command: str, callback: callable, *args) -> None:
@@ -498,4 +524,5 @@ class MozaConnectionManager():
         if self._serial_data["device-ids"]["wheel"] == self._serial_data["device-ids"]["base"]:
             self._serial_data["device-ids"]["wheel"] = self._serial_data["device-ids"]["pedals"] - 1
 
-        print("Cycling wheel id")
+        new_id = self._serial_data["device-ids"]["wheel"]
+        print(f"Cycling wheel id. New id: {new_id}")
