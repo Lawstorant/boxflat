@@ -3,6 +3,8 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.bitwise import *
 from boxflat.widgets import *
 
+from boxflat.hid_handler import MozaAxis
+
 MOZA_TELEMETRY_FLAGS = [
     "Wheel Spin",
     "Pitlane",
@@ -18,7 +20,7 @@ MOZA_TELEMETRY_FLAGS = [
 ]
 
 class WheelSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
@@ -35,7 +37,7 @@ class WheelSettings(SettingsPanel):
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
         ]
 
-        super().__init__("Wheel", button_callback, connection_manager)
+        super().__init__("Wheel", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("wheel-stick-mode", self.active)
         self._cm.subscribe_shutdown(self.shutdown)
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test)
@@ -59,6 +61,15 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("Buttons", "Combined", "Split")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
+
+        self._add_row(BoxflatLevelRow("Combined Paddles", max_value=65534))
+        self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
+        self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
+        self._append_sub_hid(MozaAxis.RIGHT_PADDLE, self._current_row.set_value)
 
         slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
         self._current_row.subscribe(lambda v: slider.set_active(v == 2))
