@@ -57,13 +57,13 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("Wheel")
 
         self.add_preferences_group("Input settings")
-        self._add_row(BoxflatToggleButtonRow("Dual Clutch Paddles Mode"))
+
+        paddle_mode = BoxflatToggleButtonRow("Dual Clutch Paddles Mode")
+        self._add_row(paddle_mode)
         self._current_row.add_buttons("Buttons", "Combined", "Split")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
 
-        slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
-        self._current_row.subscribe(lambda v: slider.set_active(v == 2))
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-paddles-mode")
         self._append_sub("wheel-paddles-mode", self._current_row.set_value)
         self._append_sub("wheel-paddles-mode", self._current_row.set_present)
@@ -73,27 +73,32 @@ class WheelSettings(SettingsPanel):
         level = BoxflatLevelRow("Combined Paddles", max_value=65534)
         self._add_row(level)
         self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
-        self._current_row.set_present(False)
         self._append_sub("wheel-paddles-mode", lambda v: level.set_present(v == 2))
         self._append_sub("wheel-clutch-point", self._current_row.set_offset)
+        paddle_mode.subscribe(lambda v: level.set_present(v == 2, skip_cooldown=True))
+        self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
         self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
         self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
-        self._current_row.set_present(False)
         self._append_sub("wheel-paddles-mode", self._current_row.set_present, -2)
+        paddle_mode.subscribe(self._current_row.set_present, -2, True)
+        self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
         self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
         self._append_sub_hid(MozaAxis.RIGHT_PADDLE, self._current_row.set_value)
-        self._current_row.set_present(False)
         self._append_sub("wheel-paddles-mode", self._current_row.set_present, -2)
+        paddle_mode.subscribe(self._current_row.set_present, -2, True)
+        self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
 
+        slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
         self._add_row(slider)
         self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-clutch-point")
         self._current_row.subscribe(level.set_offset)
+        paddle_mode.subscribe(lambda v: slider.set_active(v == 2))
         self._append_sub("wheel-clutch-point", self._current_row.set_value)
         self._append_sub("wheel-clutch-point", self._current_row.set_present)
         self._append_sub("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
@@ -123,10 +128,10 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-brightness")
         self._append_sub("wheel-rpm-brightness", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
-        self._current_row.add_marks(5, 10)
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-flags-brightness")
-        self._append_sub("wheel-flags-brightness", self._current_row.set_value)
+        # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
+        # self._current_row.add_marks(5, 10)
+        # self._current_row.subscribe(self._cm.set_setting_int, "wheel-flags-brightness")
+        # self._append_sub("wheel-flags-brightness", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._combination_row = BoxflatDialogRow("Key Combination Settings")

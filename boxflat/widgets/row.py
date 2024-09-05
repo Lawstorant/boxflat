@@ -1,7 +1,7 @@
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, GLib
 import time
 
 class BoxflatRow(Adw.ActionRow):
@@ -23,12 +23,14 @@ class BoxflatRow(Adw.ActionRow):
         return self.get_sensitive()
 
 
-    def set_active(self, value, offset=0) -> None:
-        self.set_sensitive(int(value) + offset > 0)
+    def set_active(self, value, offset=0) -> bool:
+        value = bool(int(value) + offset > 0)
+        self.set_sensitive(value)
+        return value
 
 
     def set_present(self, value, additional=0) -> None:
-        self.set_visible(int(value) + additional > 0)
+        GLib.idle_add(self.set_visible, int(value) + additional > 0)
 
 
     def mute(self, value: bool=True) -> None:

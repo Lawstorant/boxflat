@@ -26,6 +26,7 @@ class BoxflatLevelRow(BoxflatRow):
         self._bar = bar
 
         self.set_bar_width(310)
+        self._present_cooldown = True
 
 
     def _set_value(self, value: int) -> None:
@@ -52,3 +53,18 @@ class BoxflatLevelRow(BoxflatRow):
     def set_offset(self, value: int) -> None:
         value = ceil((value / 100) * self._max_value)
         self._bar.add_offset_value("level-offset", value)
+
+
+    def set_present(self, value, additional=0,
+                    skip_cooldown=False, trigger_cooldown=True) -> None:
+        if self._present_cooldown and not skip_cooldown:
+            self._present_cooldown = False
+
+        else:
+            self._present_cooldown = trigger_cooldown
+            super().set_present(value, additional)
+
+
+    def set_active(self, value, offset=0) -> None:
+        if not super().set_active(value, offset):
+            self.set_value(0)
