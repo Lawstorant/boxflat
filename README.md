@@ -14,7 +14,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 
 | Device         | Completeness | WIP |
 | :------------: | :----------: | :-- |
-| Home page      | 0%           | Quick settings |
+| Home page      | 70%          | Pedals min/max |
 | Base           | 100%         | |
 | Wheel          | 100%         | |
 | Pedals         | 100%         | |
@@ -28,8 +28,12 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
 
 ### WiP
-- Rotation output
-- Wheel paddles output
+- Presets
+- Automatic per-game preset selection
+- Telemetry ingestion through REST API/WebSockets
+- Cammus support
+- PXN Support
+- Simagic support
 
 ### Firmware upgrades
 There are some EEPROM functions available, but I need to do more testing to make sure I won't brick anything. For now, just use Pit House on Windows if you can, as FW upgrade support is not coming in the near future.
@@ -56,10 +60,12 @@ This package depends on:
 - python3
 - gtk4
 - libadwaita ~>1.3
-- pyyaml ~>6.0.1
-- pyserial ~>3.5
-- pycairo ~>1.26.1
-- PyGObject ~>3.48.2
+- pyyaml 6.0.1
+- pyserial 3.5
+- pycairo 1.26.1
+- PyGObject 3.48.2
+- evdev 1.7.1
+
 
 ```bash
 # Just run:
