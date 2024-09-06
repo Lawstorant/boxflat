@@ -117,7 +117,8 @@ class WheelSettings(SettingsPanel):
         self._append_sub("wheel-knob-mode", self._current_row.set_value)
         self._append_sub_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
-        self._add_row(BoxflatToggleButtonRow("Left Stick Mode"))
+        self._stick_row = BoxflatToggleButtonRow("Left Stick Mode")
+        self._add_row(self._stick_row)
         self._current_row.add_buttons("Buttons", "D-Pad")
         self._current_row.set_expression("*256")
         self._current_row.set_reverse_expression("/256")
