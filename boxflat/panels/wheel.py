@@ -116,12 +116,14 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_reverse_expression("/256")
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-stick-mode")
         self._append_sub("wheel-stick-mode", self._current_row.set_value)
+        self._append_sub_connected("wheel-stick-mode", self._current_row.set_active)
 
         self.add_preferences_group("Brightness")
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-buttons-brightness")
         self._append_sub("wheel-buttons-brightness", self._current_row.set_value)
+        self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
 
         self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
@@ -218,6 +220,7 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_group("Buttons")
         self._add_row(BoxflatNewColorPickerRow(""))
         self._current_row.subscribe(self._cm.set_setting_list, "wheel-button-color")
+        self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_active)
         for i in range(MOZA_RPM_LEDS):
             self._append_sub(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
