@@ -518,7 +518,7 @@ class MozaConnectionManager():
         return hexlify(response).decode("utf-8")
 
 
-    def cycle_wheel_id(self) -> None:
+    def cycle_wheel_id(self) -> int:
         self._serial_data["device-ids"]["wheel"] -= 1
 
         if self._serial_data["device-ids"]["wheel"] == self._serial_data["device-ids"]["base"]:
@@ -526,3 +526,4 @@ class MozaConnectionManager():
 
         new_id = self._serial_data["device-ids"]["wheel"]
         print(f"Cycling wheel id. New id: {new_id}")
+        return new_id

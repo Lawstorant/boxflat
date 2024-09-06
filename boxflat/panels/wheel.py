@@ -24,6 +24,7 @@ class WheelSettings(SettingsPanel):
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
+        self._stick_row = None
         self._timings = []
         self._timings.append([65, 69, 72, 75, 78, 80, 83, 85, 88, 91]) # Early
         self._timings.append([75, 79, 82, 85, 87, 88, 89, 90, 92, 94]) # Normal
@@ -46,8 +47,14 @@ class WheelSettings(SettingsPanel):
 
 
     def active(self, value: int) -> None:
+        new_id = None
         if value == -1:
-            self._cm.cycle_wheel_id()
+            new_id = self._cm.cycle_wheel_id()
+
+        if new_id == 21 and self._stick_row:
+            self._stick_row.set_active(0)
+        elif self._stick_row:
+            self._stick_row.set_active(1)
 
         super().active(value)
 
@@ -116,14 +123,13 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_reverse_expression("/256")
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-stick-mode")
         self._append_sub("wheel-stick-mode", self._current_row.set_value)
-        self._append_sub_connected("wheel-stick-mode", self._current_row.set_active)
 
         self.add_preferences_group("Brightness")
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-buttons-brightness")
         self._append_sub("wheel-buttons-brightness", self._current_row.set_value)
-        self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
+        self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_active)
 
         self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
