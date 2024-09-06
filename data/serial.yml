@@ -467,7 +467,7 @@ commands:
     bytes: 2
     type: int
 
-  base-maximum-angle:
+  base-max-angle:
     read: 40
     write: 41
     id: [23]

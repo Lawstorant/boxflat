@@ -5,9 +5,9 @@ from boxflat.bitwise import *
 from threading import Thread, Event
 
 class OtherSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, cm: MozaConnectionManager):
+    def __init__(self, button_callback: callable, cm: MozaConnectionManager, hid_handler):
         self._brake_calibration = None
-        super().__init__("Other", button_callback, connection_manager=cm)
+        super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
 
 
     def subscribe_brake_calibration(self, callback: callable):
@@ -46,6 +46,11 @@ class OtherSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
 
+        self._add_row(BoxflatSliderRow("HID Update Rate", suffix=" Hz", range_start=20, range_end=240, increment=10))
+        self._current_row.add_marks(120)
+        self._current_row.subscribe(self._hid_handler.set_update_rate)
+        self._current_row.set_value(self._hid_handler.get_update_rate())
+
         # self.add_preferences_group("Custom command")
         # self._command = Adw.EntryRow()
         # self._command.set_title("Command name")
@@ -72,5 +77,5 @@ class OtherSettings(SettingsPanel):
 
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
-        val = self._value.get_text()
+        val = int(self._value.get_text())
         self._cm.set_setting_int(val, com)

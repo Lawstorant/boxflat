@@ -36,38 +36,39 @@ class AxisData():
 
 
 class MozaAxis():
-    STEERING =         AxisData("steering", MozaHidDevice.BASE)
-    THROTTLE =         AxisData("throttle", MozaHidDevice.PEDALS)
-    BRAKE    =         AxisData("brake", MozaHidDevice.PEDALS)
-    CLUTCH   =         AxisData("clutch", MozaHidDevice.PEDALS)
+    STEERING         = AxisData("steering", MozaHidDevice.BASE)
+    THROTTLE         = AxisData("throttle", MozaHidDevice.PEDALS)
+    BRAKE            = AxisData("brake", MozaHidDevice.PEDALS)
+    CLUTCH           = AxisData("clutch", MozaHidDevice.PEDALS)
     COMBINED_PADDLES = AxisData("combined", MozaHidDevice.BASE)
-    LEFT_PADDLE  =     AxisData("left_paddle", MozaHidDevice.BASE)
-    RIGHT_PADDLE =     AxisData("right_paddle", MozaHidDevice.BASE)
-    LEFT_STICK_X =     AxisData("stick_x", MozaHidDevice.BASE)
-    LEFT_STICK_Y =     AxisData("stick_y", MozaHidDevice.BASE)
-    HANDBRAKE    =     AxisData("handbrake", MozaHidDevice.HANDBRAKE)
+    LEFT_PADDLE      = AxisData("left_paddle", MozaHidDevice.BASE)
+    RIGHT_PADDLE     = AxisData("right_paddle", MozaHidDevice.BASE)
+    LEFT_STICK_X     = AxisData("stick_x", MozaHidDevice.BASE)
+    LEFT_STICK_Y     = AxisData("stick_y", MozaHidDevice.BASE)
+    HANDBRAKE        = AxisData("handbrake", MozaHidDevice.HANDBRAKE)
 
 
 MozaAxisCodes = {
-    "ABS_RX" : MozaAxis.THROTTLE.name,
-    "ABS_RY" : MozaAxis.BRAKE.name,
-    "ABS_RZ" : MozaAxis.CLUTCH.name,
+    "ABS_RX"     : MozaAxis.THROTTLE.name,
+    "ABS_RY"     : MozaAxis.BRAKE.name,
+    "ABS_RZ"     : MozaAxis.CLUTCH.name,
     "ABS_RUDDER" : MozaAxis.HANDBRAKE.name
 }
 
 
 MozaAxisBaseCodes = {
-    "ABS_X" : MozaAxis.STEERING.name,
-    "ABS_Z" : MozaAxis.THROTTLE.name,
-    "ABS_RZ" : MozaAxis.BRAKE.name,
+    "ABS_X"        : MozaAxis.STEERING.name,
+    "ABS_Z"        : MozaAxis.THROTTLE.name,
+    "ABS_RZ"       : MozaAxis.BRAKE.name,
     "ABS_THROTTLE" : MozaAxis.CLUTCH.name,
-    "ABS_Y" : MozaAxis.COMBINED_PADDLES.name,
-    "ABS_RY" : MozaAxis.LEFT_PADDLE.name,
-    "ABS_RX" : MozaAxis.RIGHT_PADDLE.name,
-    "ABS_HAT0X" : MozaAxis.LEFT_STICK_X.name,
-    "ABS_HAT0Y" : MozaAxis.LEFT_STICK_Y.name,
-    "ABS_RUDDER" : MozaAxis.HANDBRAKE.name
+    "ABS_Y"        : MozaAxis.COMBINED_PADDLES.name,
+    "ABS_RY"       : MozaAxis.LEFT_PADDLE.name,
+    "ABS_RX"       : MozaAxis.RIGHT_PADDLE.name,
+    "ABS_HAT0X"    : MozaAxis.LEFT_STICK_X.name,
+    "ABS_HAT0Y"    : MozaAxis.LEFT_STICK_Y.name,
+    "ABS_RUDDER"   : MozaAxis.HANDBRAKE.name
 }
+
 
 MozaAxisBaseOffsets = [
     MozaAxis.THROTTLE.name,
@@ -83,19 +84,36 @@ MozaAxisBaseOffsets = [
 class HidHandler():
     def __init__(self):
         self._axis_subs = {}
+        self._axis_values = {}
         self._button_subs = {}
+
         self._shutdown = False
+        self._update_rate = 120
+
         self._device_patterns = []
         self._devices = []
         self._base = None
+
 
     def __del__(self):
         self.shutdown()
 
 
     def start(self):
-        return
-        self.find_devices()
+        notification_tread = Thread(target=self._notify_axis, daemon=True)
+        notification_tread.start()
+
+
+    def get_update_rate(self) -> int:
+        return self._update_rate
+
+
+    def set_update_rate(self, rate: int) -> bool:
+        if rate < 0:
+            return False
+
+        self._update_rate = rate
+        return True
 
 
     def add_device(self, pattern: MozaHidDevice) -> None:
@@ -119,30 +137,10 @@ class HidHandler():
             thread.start()
 
 
-    def find_devices(self) -> None:
-        pass
-        # self._base = None
-        # devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-
-        # new_devices = []
-        # for hid in devices:
-        #     for pattern in self._device_patterns:
-        #         if re.search(pattern, hid.name.lower()):
-        #             print("HID device found")
-        #             new_devices.append(evdev.InputDevice(hid.path))
-
-        #     if re.search(MozaHidDevice.BASE, hid.name.lower()):
-        #         self._base = evdev.InputDevice(hid.path)
-
-        # for device in new_devices:
-        #     self._devices.append(device)
-        #     thread = Thread(daemon=True, target=self._read_loop, args=[device])
-        #     thread.start()
-
-
     def subscribe_axis(self, axis: AxisData, callback: callable, *args) -> None:
         if not axis.name in self._axis_subs:
             self._axis_subs[axis.name] = []
+            self._axis_values[axis.name] = 0
 
         self._axis_subs[axis.name].append((callback, args))
 
@@ -155,7 +153,15 @@ class HidHandler():
         pass
 
 
-    def _notify_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
+    def _notify_axis(self) -> None:
+        while not self._shutdown:
+            sleep(1/self._update_rate)
+            for axis, value in self._axis_values.items():
+                for sub in self._axis_subs[axis]:
+                    sub[0](value, *sub[1])
+
+
+    def _update_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
         code = evdev.ecodes.ABS[code]
         name = ""
 
@@ -169,12 +175,11 @@ class HidHandler():
 
         # print(f"axis {name} ({code}), value: {value}")
 
-        if name in self._axis_subs:
-            for sub in self._axis_subs[name]:
-                sub[0](value, *sub[1])
+        if name in self._axis_values:
+            self._axis_values[name] = value
 
 
-    def _notify_button(self, number: int, state: int) -> None:
+    def _update_button(self, number: int, state: int) -> None:
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
@@ -192,10 +197,10 @@ class HidHandler():
         try:
             for event in device.read_loop():
                 if event.type == EV_KEY:
-                    self._notify_button(event.code, event.value)
+                    self._update_button(event.code, event.value)
 
                 elif event.type == EV_ABS:
-                    self._notify_axis(device, event.code, event.value)
+                    self._update_axis(device, event.code, event.value)
 
         except Exception as e:
             pass

@@ -44,7 +44,7 @@ class BaseSettings(SettingsPanel):
 
     def _set_rotation(self, value: int) -> None:
         self._cm.set_setting_int(value, "base-limit")
-        self._cm.set_setting_int(value, "base-maximum-angle")
+        self._cm.set_setting_int(value, "base-max-angle")
 
 
     def prepare_ui(self) -> None:

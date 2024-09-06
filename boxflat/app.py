@@ -122,7 +122,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm)
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
-        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm)
+        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler)
 
         self._panels["Other"].subscribe_brake_calibration(
             self._panels["Pedals"].set_brake_calibration_active
