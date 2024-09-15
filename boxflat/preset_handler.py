@@ -157,8 +157,6 @@ class MozaPresetHandler():
                 if value != -1:
                     preset_data[device][setting] = value
 
-                preset_data[device][setting] = value
-
         path = os.path.expanduser(self._path)
 
         if not os.path.exists(path):
