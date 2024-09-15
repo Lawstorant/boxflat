@@ -58,6 +58,9 @@ class WheelSettings(SettingsPanel):
 
         super().active(value)
 
+        if value == -1:
+            self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
+
 
     def prepare_ui(self) -> None:
         self.add_view_stack()
