@@ -123,6 +123,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler)
+        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm)
 
         self._panels["Other"].subscribe_brake_calibration(
             self._panels["Pedals"].set_brake_calibration_active
@@ -134,9 +135,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._panels["Home"].active(1)
         self._panels["Other"].active(1)
-
-        self._panels["Home"].button.set_visible(True)
-        self._panels["Other"].button.set_visible(True)
+        self._panels["Presets"].active(1)
 
         for panel in self._panels.values():
             panel.activate_subs_connected()
