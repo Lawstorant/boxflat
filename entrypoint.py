@@ -11,7 +11,7 @@ parser.add_argument("--flatpak", help="for flatpak usage", action="store_true", 
 args = parser.parse_args()
 
 data_path = "/usr/share/boxflat/data"
-config_path = "~/.config/boxflat/"
+config_path = "~/.boxflat/"
 
 if args.data_path:
     data_path = args.data_path
@@ -22,7 +22,7 @@ if args.local:
 
 if args.flatpak:
     data_path = "/app/share/boxflat/data"
-    config_path = "~/.var/app/io.github.lawstorant.boxflat/.config/boxflat/"
+    config_path = "~/.var/app/io.github.lawstorant.boxflat/.boxflat/"
 
 app = app.MyApp(data_path, config_path, args.dry_run, application_id="io.github.lawstorant.boxflat")
 app.run()
