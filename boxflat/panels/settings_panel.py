@@ -31,7 +31,9 @@ class SettingsPanel(object):
         self._shutdown = False
 
         self._content = self._prepare_content()
-        self._page = Adw.NavigationPage(title=title, child=self._content)
+        self._toast_overlay = Adw.ToastOverlay()
+        self._toast_overlay.set_child(self._content)
+        self._page = Adw.NavigationPage(title=title, child=self._toast_overlay)
         self._page.set_size_request(720,0)
         self._button = self._prepare_button(title, button_callback)
         self._banner = self._prepare_banner()
@@ -57,6 +59,7 @@ class SettingsPanel(object):
         self._header = Adw.HeaderBar()
         content.add_top_bar(self._header)
         content.set_css_classes(['settings-pane'])
+
         return content
 
 
@@ -91,6 +94,11 @@ class SettingsPanel(object):
 
     def set_banner_label(self, new_label: str) -> None:
         self._banner.set_button_label(new_label)
+
+    def show_toast(self, title: str) -> Adw.Toast:
+        toast = Adw.Toast(title=title)
+        self._toast_overlay.add_toast(toast)
+        return toast
 
     def apply(self, *arg) -> None:
         # self.hide_banner()

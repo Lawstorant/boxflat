@@ -51,6 +51,7 @@ class PresetSettings(SettingsPanel):
         self._save_row = BoxflatButtonRow("Save preset", "Save")
         self._add_row(self._save_row)
         self._current_row.subscribe(self._save_preset)
+        self._current_row.subscribe(lambda v: expander.set_expanded(False))
         self._current_row.set_active(False)
         self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_active(e.get_text_length()))
 
@@ -59,13 +60,13 @@ class PresetSettings(SettingsPanel):
 
 
     def _save_preset(self, *args):
-        self.set_banner_title(f"Saving preset \"{self._name_row.get_text()}\"")
-        self.show_banner()
+        toast = self.show_toast(f"Saving preset \"{self._name_row.get_text()}\"")
 
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
-        pm.set_callback(self.list_presets)
+        pm.add_callback(self.list_presets)
+        pm.add_callback(toast.dismiss)
 
         for key, method in self._includes.items():
             if method():
@@ -77,10 +78,11 @@ class PresetSettings(SettingsPanel):
     def _load_preset(self, preset_name: str, *args):
         print(f"Loading preset {preset_name}")
 
+        self._name_row.set_text(preset_name.removesuffix(".yml"))
+
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
-        pm.set_callback(self.list_presets)
         pm.load_preset()
 
 
@@ -98,8 +100,6 @@ class PresetSettings(SettingsPanel):
 
 
     def list_presets(self):
-        self.show_banner(False)
-
         if not self._presets_list_group:
             return
 

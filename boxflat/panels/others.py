@@ -22,6 +22,7 @@ class OtherSettings(SettingsPanel):
         self._current_row.set_reverse_expression("/85")
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-ble-mode")
         self._append_sub("main-get-ble-mode", self._current_row.set_value)
+        self._append_sub_connected("base-limit", self._current_row.set_active)
 
         self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Changes USB product ID"))
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-compat-mode")

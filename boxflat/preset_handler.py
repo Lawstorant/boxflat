@@ -137,7 +137,7 @@ class MozaPresetHandler():
         self._cm = connection_manager
         self._path = None
         self._name = None
-        self._callback = None
+        self._callbacks = []
 
 
     def set_path(self, preset_path: str):
@@ -148,8 +148,8 @@ class MozaPresetHandler():
         self._name = name
 
 
-    def set_callback(self, callback: callable):
-        self._callback = callback
+    def add_callback(self, callback: callable):
+        self._callbacks.append(callback)
 
 
     def append_setting(self, setting_name: str):
@@ -207,8 +207,8 @@ class MozaPresetHandler():
         with open(os.path.join(path, self._name + ".yml"), "w") as file:
             file.write(yaml.safe_dump(preset_data))
 
-        if self._callback:
-            self._callback()
+        for callback in self._callbacks:
+            callback()
 
 
     def _load_preset(self):
@@ -226,5 +226,5 @@ class MozaPresetHandler():
                     print(f"{key}-{setting}: {value}")
                     self._cm.set_setting_auto(value, f"{key}-{setting}")
 
-        if self._callback:
-            self._callback()
+        for callback in self._callbacks:
+            callback()
