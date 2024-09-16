@@ -15,6 +15,7 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
 
         self._max_value = 1000
         self._offset = 0
+        self._children = []
 
         if level_bar:
             bar = Gtk.LevelBar()
@@ -126,5 +127,17 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
 
     def set_present(self, value, offset=0) -> None:
         self.set_visible(int(value) + offset > 0)
+
+
+    def add(self, new_child: Gtk.Widget):
+        super().add(new_child)
+        self._children.append(new_child)
+
+
+    def clear_children(self):
+        for child in self._children:
+            self.remove(child)
+
+        self._children.clear()
 
 

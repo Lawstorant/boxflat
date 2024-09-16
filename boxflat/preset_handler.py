@@ -169,8 +169,7 @@ class MozaPresetHandler():
     def read_preset(self):
         preset_data = None
 
-        path = os.path.expanduser(self._path)
-        with open(os.path.join(path, self._name), "r") as file:
+        with open(os.path.join(self._path, self._name), "r") as file:
             preset_data = yaml.safe_load(file.read())
 
         for key, settings in preset_data.items():

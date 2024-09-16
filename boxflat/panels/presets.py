@@ -2,6 +2,7 @@ from .settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 from boxflat.preset_handler import MozaPresetHandler
+import os
 
 class PresetSettings(SettingsPanel):
     def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
@@ -9,7 +10,11 @@ class PresetSettings(SettingsPanel):
         self._name_row = Adw.EntryRow()
         self._name_row.set_title("Preset Name")
         self._save_row = None
+        self._presets_path = os.path.expanduser("~/.config/boxflat/presets")
+        self._presets_list_group = None
+        self._presets = []
         super().__init__("Presets", button_callback, connection_manager)
+        self.list_presets()
 
 
     def prepare_ui(self) -> None:
@@ -34,13 +39,13 @@ class PresetSettings(SettingsPanel):
         self._current_row.set_active(False)
         self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_active(e.get_text_length()))
 
-        self.add_preferences_group("Presets list")
-        self._add_row(BoxflatButtonRow("Read Preset", "Load"))
+        self.add_preferences_group("Preset list")
+        self._presets_list_group = self._current_group
 
 
     def _save_preset(self, *args):
         pm = MozaPresetHandler(self._cm)
-        pm.set_path(f"~/.config/boxflat/presets")
+        pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
 
         for key, method in self._includes.items():
@@ -48,10 +53,43 @@ class PresetSettings(SettingsPanel):
                 pm.add_device_settings(key)
 
         pm.save_preset()
+        self.list_presets()
 
 
-    def read_preset(self, *args):
+    def _read_preset(self, *args):
         pm = MozaPresetHandler(self._cm)
         pm._load_preset()
+
+
+    def _delete_preset(self, value, preset_name: str, *args):
+        filepath = os.path.join(self._presets_path, preset_name)
+
+        if not os.path.isfile(filepath):
+            filepath += ".yml"
+
+        if not os.path.isfile(filepath):
+            return
+
+        os.remove(filepath)
+        self.list_presets()
+
+
+    def list_presets(self):
+        if not self._presets_list_group:
+            return
+
+        self._presets_list_group.clear_children()
+
+        files = []
+        if os.path.exists(self._presets_path):
+            files = os.listdir(self._presets_path)
+
+        files.sort()
+        for file in files:
+            filepath = os.path.join(self._presets_path, file)
+            if os.path.isfile(filepath):
+                row = BoxflatButtonRow(file.removesuffix(".yml"), "Delete")
+                self._presets_list_group.add(row)
+                row.subscribe(self._delete_preset, file)
 
 
