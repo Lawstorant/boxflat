@@ -22,7 +22,6 @@ if args.local:
 
 if args.flatpak:
     data_path = "/app/share/boxflat/data"
-    config_path = "~/.var/app/io.github.lawstorant.boxflat/.config/boxflat/"
 
 app = app.MyApp(data_path, config_path, args.dry_run, application_id="io.github.lawstorant.boxflat")
 app.run()
