@@ -23,9 +23,9 @@ class BoxflatRow(Adw.ActionRow):
         return self.get_sensitive()
 
 
-    def set_active(self, value, offset=0) -> bool:
+    def set_active(self, value=1, offset=0) -> bool:
         value = bool(int(value) + offset > 0)
-        self.set_sensitive(value)
+        GLib.idle_add(self.set_sensitive, value)
         return value
 
 
@@ -65,7 +65,7 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def _set_widget(self, widget: Gtk.Widget) -> None:
-        self.add_suffix(widget)
+        GLib.idle_add(self.add_suffix, widget)
 
 
     def subscribe(self, callback: callable, *args, raw=False) -> None:

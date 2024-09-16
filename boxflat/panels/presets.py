@@ -55,18 +55,16 @@ class PresetSettings(SettingsPanel):
         self._current_row.set_active(False)
         self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_active(e.get_text_length()))
 
-        self.add_preferences_group("Preset list")
-        self._presets_list_group = self._current_group
 
-
-    def _save_preset(self, *args):
-        toast = self.show_toast(f"Saving preset \"{self._name_row.get_text()}\"")
+    def _save_preset(self, button: Gtk.Button, *args):
+        self.show_toast(f"Saving preset \"{self._name_row.get_text()}\"", 1.5)
+        self._save_row.set_active(False)
 
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
         pm.add_callback(self.list_presets)
-        pm.add_callback(toast.dismiss)
+        pm.add_callback(self._save_row.set_active)
 
         for key, method in self._includes.items():
             if method():
@@ -100,23 +98,24 @@ class PresetSettings(SettingsPanel):
 
 
     def list_presets(self):
-        if not self._presets_list_group:
+        self.remove_preferences_group(self._presets_list_group)
+
+        if not os.path.exists(self._presets_path):
             return
 
-        self._presets_list_group.clear_children()
-
-        files = []
-        if os.path.exists(self._presets_path):
-            files = os.listdir(self._presets_path)
-
+        files = os.listdir(self._presets_path)
         files.sort()
+
+        self.add_preferences_group("Preset list")
+        self._presets_list_group = self._current_group
+
         for file in files:
             filepath = os.path.join(self._presets_path, file)
             if os.path.isfile(filepath):
                 row = BoxflatButtonRow(file.removesuffix(".yml"))
                 row.add_button("Load", self._load_preset, file)
                 row.add_button("Delete")
-                self._presets_list_group.add(row)
                 row.subscribe(self._delete_preset, file)
+                self._add_row(row)
 
 

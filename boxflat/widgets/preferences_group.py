@@ -3,6 +3,8 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 
+from threading import Lock
+
 class BoxflatPreferencesGroup(Adw.PreferencesGroup):
     def __init__(self, title="", level_bar=False, alt_level_bar=False):
         super().__init__()
@@ -15,7 +17,6 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
 
         self._max_value = 1000
         self._offset = 0
-        self._children = []
 
         if level_bar:
             bar = Gtk.LevelBar()
@@ -122,22 +123,10 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
 
 
     def set_active(self, value, offset=0) -> None:
-        self.set_sensitive(int(value + offset) > 0)
+        value = int(value + offset) > 0
+        GLib.idle_add(self.set_sensitive, value)
 
 
     def set_present(self, value, offset=0) -> None:
-        self.set_visible(int(value) + offset > 0)
-
-
-    def add(self, new_child: Gtk.Widget):
-        super().add(new_child)
-        self._children.append(new_child)
-
-
-    def clear_children(self):
-        for child in self._children:
-            self.remove(child)
-
-        self._children.clear()
-
-
+        value = int(value) + offset > 0
+        GLib.idle_add(self.set_visible, value)

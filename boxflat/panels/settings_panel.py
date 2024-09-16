@@ -84,10 +84,10 @@ class SettingsPanel(object):
         return 0
 
     def show_banner(self, value: bool=True) -> None:
-        self._banner.set_revealed(value)
+        GLib.idle_add(self._banner.set_revealed, value)
 
     def hide_banner(self, *arg) -> None:
-        self._banner.set_revealed(False)
+        GLib.idle_add(self._banner.set_revealed, False)
 
     def set_banner_title(self, new_title: str) -> None:
         self._banner.set_title(new_title)
@@ -95,10 +95,8 @@ class SettingsPanel(object):
     def set_banner_label(self, new_label: str) -> None:
         self._banner.set_button_label(new_label)
 
-    def show_toast(self, title: str) -> Adw.Toast:
-        toast = Adw.Toast(title=title)
-        self._toast_overlay.add_toast(toast)
-        return toast
+    def show_toast(self, title: str, timeout=0):
+        GLib.idle_add(self._toast_overlay.add_toast, Adw.Toast(title=title, timeout=timeout))
 
     def apply(self, *arg) -> None:
         # self.hide_banner()
@@ -148,7 +146,7 @@ class SettingsPanel(object):
         self._current_page = page
 
         if self._current_stack == None:
-            self._content.set_content(page)
+            GLib.idle_add(self._content.set_content, page)
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
@@ -161,6 +159,17 @@ class SettingsPanel(object):
         self._current_group.set_bar_width(290)
         self._current_page.add(self._current_group)
         self._groups.append(self._current_group)
+
+
+    def remove_preferences_group(self, group: Adw.PreferencesGroup):
+        if not group:
+            return
+        GLib.idle_add(self._remove_helper, group)
+
+
+    def _remove_helper(self, group: Adw.PreferencesGroup):
+        self._current_page.remove(group)
+        self._groups.remove(group)
 
 
     def add_view_stack(self) -> None:
@@ -178,7 +187,7 @@ class SettingsPanel(object):
         if self._current_group == None:
             self.add_preferences_group()
         self._current_row = row
-        self._current_group.add(row)
+        GLib.idle_add(self._current_group.add, row)
 
 
     def _append_sub(self, *args):
