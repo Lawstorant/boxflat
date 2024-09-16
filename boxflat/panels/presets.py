@@ -113,7 +113,7 @@ class PresetSettings(SettingsPanel):
         for file in files:
             filepath = os.path.join(self._presets_path, file)
             if os.path.isfile(filepath):
-                row = BoxflatButtonRow(file.removesuffix(".yml"))
+                row = BoxflatButtonRow(file.removesuffix(".yml"), subtitle="Auto apply for process: pcars2")
                 row.add_button("Load", self._load_preset, file)
                 row.add_button("Delete")
                 self._presets_list_group.add(row)

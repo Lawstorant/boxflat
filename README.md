@@ -24,11 +24,11 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | Sequential     | 100%         | |
 | Handbrake      | 100%         | |
 | Other settings | 100%         | |
+| Presets        | 80%          | Automatic per-game apply |
 
 Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
 
 ### WiP
-- Presets
 - Automatic per-game preset selection
 - Telemetry ingestion through REST API/WebSockets
 - Cammus support
