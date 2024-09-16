@@ -80,6 +80,20 @@ class MozaConnectionManager():
         self._magic_value = int(self._serial_data["magic-value"])
         self._serial_path = "/dev/serial/by-id"
 
+        self._set_type_method_mapping = {
+            "int" : self.set_setting_int,
+            "float" : self.set_setting_float,
+            "array" : self.set_setting_list,
+            "hex" : self.set_setting_hex
+        }
+
+        self._get_type_method_mapping = {
+            "int" : self.get_setting_int,
+            "float" : self.get_setting_float,
+            "array" : self.get_setting_list,
+            "hex" : self.get_setting_hex
+        }
+
 
     def shutdown(self) -> None:
         self._shutdown = True
@@ -485,6 +499,15 @@ class MozaConnectionManager():
         self._set_setting(command_name, byte_value=bytes.fromhex(value))
 
 
+    def set_setting_auto(self, value, command_name: str) -> bool:
+        if command_name not in self._serial_data["commands"]:
+            return False
+
+        value_type = self._serial_data["commands"][command_name]["type"]
+        self._set_type_method_mapping[value_type](value, command_name)
+        return True
+
+
     # Get a setting value from a device
     def _get_setting(self, command_name: str) -> bytes:
         return self._handle_command(command_name, MOZA_COMMAND_READ)
@@ -518,6 +541,14 @@ class MozaConnectionManager():
         return hexlify(response).decode("utf-8")
 
 
+    def get_setting_auto(self, command_name: str):
+        if command_name not in self._serial_data["commands"]:
+            return
+
+        value_type = self._serial_data["commands"][command_name]["type"]
+        return self._get_type_method_mapping[value_type](command_name)
+
+
     def cycle_wheel_id(self) -> int:
         self._serial_data["device-ids"]["wheel"] -= 1
 
@@ -527,3 +558,13 @@ class MozaConnectionManager():
         new_id = self._serial_data["device-ids"]["wheel"]
         print(f"Cycling wheel id. New id: {new_id}")
         return new_id
+
+
+    def get_command_data(self) -> dict:
+        return self._serial_data["commands"]
+
+
+# TODO: Move value conversion to MozaCommand
+# TODO: Get rid of helper methods for setting/getting settings.
+# TODO: Simplify command handler
+# TODO: Rewrite manager so it keeps a read and write connection open conetantly.

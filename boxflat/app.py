@@ -8,10 +8,11 @@ from boxflat.hid_handler import HidHandler
 import os
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, data_path: str, dry_run: bool, *args, **kwargs):
+    def __init__(self, data_path: str, config_path: str, dry_run: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._hid_handler = HidHandler()
+        self._config_path = config_path
 
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), self._hid_handler ,dry_run)
         # self.connect('close-request', lambda w: self._cm.shutdown())
@@ -123,6 +124,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler)
+        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._config_path)
 
         self._panels["Other"].subscribe_brake_calibration(
             self._panels["Pedals"].set_brake_calibration_active
@@ -134,9 +136,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._panels["Home"].active(1)
         self._panels["Other"].active(1)
-
-        self._panels["Home"].button.set_visible(True)
-        self._panels["Other"].button.set_visible(True)
+        self._panels["Presets"].active(1)
 
         for panel in self._panels.values():
             panel.activate_subs_connected()
@@ -166,16 +166,17 @@ class MainWindow(Adw.ApplicationWindow):
 
 
 class MyApp(Adw.Application):
-    def __init__(self, data_path: str, dry_run: bool, **kwargs):
+    def __init__(self, data_path: str, config_path: str, dry_run: bool, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
         self._data_path = data_path
         self._dry_run = dry_run
+        self._config_path = config_path
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 
     def on_activate(self, app):
-        self.win = MainWindow(self._data_path, self._dry_run, application=app)
+        self.win = MainWindow(self._data_path, self._config_path, self._dry_run, application=app)
         self.win.present()

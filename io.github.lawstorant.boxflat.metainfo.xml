@@ -38,7 +38,7 @@
     <p>
       Settings and their values are a 1:1 match with Pit House. This makes it possible to use presets shared by the community.
       The table of supported settings compared to Pit House can be found on the project website. This project has no official ties to Moza
-      and/or their software, it's 100% independent work based largely on hours of reverse engineering the protocol.
+      and/or their software. It's 100% independent work based largely on hours of reverse engineering the protocol.
     </p>
     <p>
       Supported devices:
@@ -94,6 +94,13 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.17.0" date="2024-09-16">
+      <description>
+        <ul>
+          <li>Preset saving/loading</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.16.4" date="2024-09-06">
       <description>
         <ul>

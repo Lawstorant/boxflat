@@ -10,6 +10,7 @@ class MozaCommand():
         self.write_group = int(commands_data[name]["write"])
         self._length = int(commands_data[name]["bytes"])
         self._payload = bytes(self.length)
+        self.name = name.split("-", maxsplit=1)[1]
         self._device_type = name.split("-")[0]
         self._type = commands_data[name]["type"]
 

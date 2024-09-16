@@ -18,6 +18,9 @@ class BoxflatSwitchRow(BoxflatRow):
 
 
     def get_value(self) -> int:
+        if not self.get_active():
+            return 0
+
         val = self._switch.get_active()
         if self._reverse:
             val = not val
