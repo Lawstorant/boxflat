@@ -94,6 +94,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.17.1" date="2024-09-16">
+      <description>
+        <ul>
+          <li>Preset saving/loading</li>
+          <li>Remove some lingering text strings from preset rows</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.17.0" date="2024-09-16">
       <description>
         <ul>
