@@ -100,8 +100,7 @@ class HidHandler():
 
 
     def start(self):
-        notification_tread = Thread(target=self._notify_axis, daemon=True)
-        notification_tread.start()
+        Thread(target=self._notify_axis, daemon=True).start()
 
 
     def get_update_rate(self) -> int:

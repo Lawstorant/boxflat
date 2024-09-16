@@ -2,6 +2,7 @@ from .connection_manager import MozaConnectionManager
 from .moza_command import MozaCommand
 import yaml
 import os
+from threading import Thread
 
 MozaDevicePresetSettings = {
     "base" : [
@@ -109,13 +110,19 @@ class MozaPresetHandler():
         self._cm = connection_manager
         self._path = None
         self._name = None
+        self._callback = None
 
 
     def set_path(self, preset_path: str):
         self._path = preset_path
 
+
     def set_name(self, name: str):
-        self._name = name + ".yml"
+        self._name = name
+
+
+    def set_callback(self, callback: callable):
+        self._callback = callback
 
 
     def append_setting(self, setting_name: str):
@@ -144,6 +151,14 @@ class MozaPresetHandler():
 
 
     def save_preset(self):
+        Thread(target=self._save_preset).start()
+
+
+    def load_preset(self):
+        Thread(target=self._load_preset).start()
+
+
+    def _save_preset(self):
         if not self._path:
             return
 
@@ -162,11 +177,17 @@ class MozaPresetHandler():
         if not os.path.exists(path):
             os.makedirs(path)
 
-        with open(os.path.join(path, self._name), "w") as file:
+        with open(os.path.join(path, self._name + ".yml"), "w") as file:
             file.write(yaml.safe_dump(preset_data))
 
+        if self._callback:
+            self._callback()
 
-    def read_preset(self):
+
+    def _load_preset(self):
+        if not self._path or not self._name:
+            return
+
         preset_data = None
 
         with open(os.path.join(self._path, self._name), "r") as file:
@@ -174,5 +195,9 @@ class MozaPresetHandler():
 
         for key, settings in preset_data.items():
             if key in MozaDevicePresetSettings.keys():
-                for setting, value in settings:
+                for setting, value in settings.items():
+                    print(f"{key}-{setting}: {value}")
                     self._cm.set_setting_auto(value, f"{key}-{setting}")
+
+        if self._callback:
+            self._callback()

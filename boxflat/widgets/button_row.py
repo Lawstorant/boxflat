@@ -4,15 +4,27 @@ from gi.repository import Gtk
 from .row import BoxflatRow
 
 class BoxflatButtonRow(BoxflatRow):
-    def __init__(self, title: str, button_label: str, subtitle=""):
+    def __init__(self, title: str, button_label: str=None, subtitle=""):
         super().__init__(title, subtitle)
 
-        button = Gtk.Button(label=button_label)
-        button.connect('clicked', lambda button: self._notify())
-        button.set_valign(Gtk.Align.CENTER)
-        self._set_widget(button)
-        self._button = button
+        self._box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self._set_widget(self._box)
+
+        if button_label:
+            self.add_button(button_label)
 
 
     def get_value(self) -> int:
         return round(eval("1" + self._expression))
+
+
+    def add_button(self, button_label: str, callback: callable=None, *args):
+        button = Gtk.Button(label=button_label)
+        button.set_valign(Gtk.Align.CENTER)
+        button.set_margin_start(10)
+        self._box.append(button)
+
+        if callback:
+            button.connect('clicked', lambda button: callback(*args))
+        else:
+            button.connect('clicked', lambda button: self._notify())

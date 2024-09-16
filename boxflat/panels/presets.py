@@ -22,15 +22,19 @@ class PresetSettings(SettingsPanel):
         self._add_row(self._name_row)
 
         self._add_row(BoxflatSwitchRow("Include Base Settings"))
+        self._append_sub_connected("base-limit", self._current_row.set_active, 1)
         self._includes["base"] = self._current_row.get_value
 
         self._add_row(BoxflatSwitchRow("Include Wheel Settings"))
+        self._append_sub_connected("wheel-stick-mode", self._current_row.set_active, 1)
         self._includes["wheel"] = self._current_row.get_value
 
         self._add_row(BoxflatSwitchRow("Include Pedals Settings"))
+        self._append_sub_connected("pedals-throttle-dir", self._current_row.set_active, 1)
         self._includes["pedals"] = self._current_row.get_value
 
         self._add_row(BoxflatSwitchRow("Include Handbrake Settings"))
+        self._append_sub_connected("handbrake-direction", self._current_row.set_active, 1)
         self._includes["handbrake"] = self._current_row.get_value
 
         self._save_row = BoxflatButtonRow("Save preset", "Save")
@@ -47,6 +51,7 @@ class PresetSettings(SettingsPanel):
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
+        pm.set_callback(self.list_presets)
 
         for key, method in self._includes.items():
             if method():
@@ -56,9 +61,14 @@ class PresetSettings(SettingsPanel):
         self.list_presets()
 
 
-    def _read_preset(self, *args):
+    def _load_preset(self, preset_name: str, *args):
+        print(f"Loading preset {preset_name}")
+
         pm = MozaPresetHandler(self._cm)
-        pm._load_preset()
+        pm.set_path(self._presets_path)
+        pm.set_name(preset_name)
+        pm.set_callback(self.list_presets)
+        pm.load_preset()
 
 
     def _delete_preset(self, value, preset_name: str, *args):
@@ -88,7 +98,9 @@ class PresetSettings(SettingsPanel):
         for file in files:
             filepath = os.path.join(self._presets_path, file)
             if os.path.isfile(filepath):
-                row = BoxflatButtonRow(file.removesuffix(".yml"), "Delete")
+                row = BoxflatButtonRow(file.removesuffix(".yml"))
+                row.add_button("Load", self._load_preset, file)
+                row.add_button("Delete")
                 self._presets_list_group.add(row)
                 row.subscribe(self._delete_preset, file)
 
