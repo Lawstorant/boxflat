@@ -5,12 +5,12 @@ from boxflat.preset_handler import MozaPresetHandler
 import os
 
 class PresetSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, config_path: str) -> None:
         self._includes = {}
         self._name_row = Adw.EntryRow()
         self._name_row.set_title("Preset Name")
         self._save_row = None
-        self._presets_path = os.path.expanduser("~/.config/boxflat/presets")
+        self._presets_path = os.path.expanduser(os.path.join(config_path, "presets"))
         self._presets_list_group = None
         self._presets = []
         super().__init__("Presets", button_callback, connection_manager)
