@@ -21,21 +21,32 @@ class PresetSettings(SettingsPanel):
         self.add_preferences_group("Saving")
         self._add_row(self._name_row)
 
-        self._add_row(BoxflatSwitchRow("Include Base Settings"))
-        self._append_sub_connected("base-limit", self._current_row.set_active, 1)
-        self._includes["base"] = self._current_row.get_value
+        expander = Adw.ExpanderRow(title="Include Devices")
+        self._add_row(expander)
 
-        self._add_row(BoxflatSwitchRow("Include Wheel Settings"))
-        self._append_sub_connected("wheel-stick-mode", self._current_row.set_active, 1)
-        self._includes["wheel"] = self._current_row.get_value
+        row = BoxflatSwitchRow("Base")
+        expander.add_row(row)
+        row.set_value(1)
+        self._append_sub_connected("base-limit", row.set_active, 1)
+        self._includes["base"] = row.get_value
 
-        self._add_row(BoxflatSwitchRow("Include Pedals Settings"))
-        self._append_sub_connected("pedals-throttle-dir", self._current_row.set_active, 1)
-        self._includes["pedals"] = self._current_row.get_value
+        row = BoxflatSwitchRow("Wheel")
+        expander.add_row(row)
+        row.set_value(1)
+        self._append_sub_connected("wheel-stick-mode", row.set_active, 1)
+        self._includes["wheel"] = row.get_value
 
-        self._add_row(BoxflatSwitchRow("Include Handbrake Settings"))
-        self._append_sub_connected("handbrake-direction", self._current_row.set_active, 1)
-        self._includes["handbrake"] = self._current_row.get_value
+        row = BoxflatSwitchRow("Pedals")
+        expander.add_row(row)
+        row.set_value(1)
+        self._append_sub_connected("pedals-throttle-dir", row.set_active, 1)
+        self._includes["pedals"] = row.get_value
+
+        row = BoxflatSwitchRow("Handbrake")
+        expander.add_row(row)
+        row.set_value(1)
+        self._append_sub_connected("handbrake-direction", row.set_active, 1)
+        self._includes["handbrake"] = row.get_value
 
         self._save_row = BoxflatButtonRow("Save preset", "Save")
         self._add_row(self._save_row)
@@ -48,6 +59,9 @@ class PresetSettings(SettingsPanel):
 
 
     def _save_preset(self, *args):
+        self.set_banner_title(f"Saving preset \"{self._name_row.get_text()}\"")
+        self.show_banner()
+
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
@@ -58,7 +72,6 @@ class PresetSettings(SettingsPanel):
                 pm.add_device_settings(key)
 
         pm.save_preset()
-        self.list_presets()
 
 
     def _load_preset(self, preset_name: str, *args):
@@ -85,6 +98,8 @@ class PresetSettings(SettingsPanel):
 
 
     def list_presets(self):
+        self.show_banner(False)
+
         if not self._presets_list_group:
             return
 

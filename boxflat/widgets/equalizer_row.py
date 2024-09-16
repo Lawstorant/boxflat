@@ -19,6 +19,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         child = self.get_child()
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        main_box.set_margin_top(13)
         self.set_child(main_box)
 
         sliders_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)

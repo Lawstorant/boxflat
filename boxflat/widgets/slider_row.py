@@ -36,6 +36,7 @@ class BoxflatSliderRow(BoxflatRow):
             self.add_suffix(label)
             child = self.get_child()
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            box.set_margin_top(13)
             self.set_child(box)
             box.append(child)
             box.append(slider)

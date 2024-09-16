@@ -198,16 +198,16 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "main-set-led-status")
         self._append_sub("main-get-led-status", self._current_row.set_value)
 
+        self._add_row(BoxflatSwitchRow("Default Force Feedback State"))
+        self._current_row.reverse_values()
+        self._current_row.subscribe(self._cm.set_setting_int, "main-set-default-ffb-status")
+        self._append_sub("main-get-default-ffb-status", self._current_row.set_value)
+
         self._add_row(BoxflatToggleButtonRow("Temperature Control Strategy",))
         self._current_row.set_subtitle("Conservative = 50°C, Radical = 60°C")
         self._current_row.add_buttons("Conservative", "Radical")
         self._current_row.subscribe(self._cm.set_setting_int, "base-temp-strategy")
         self._append_sub("base-temp-strategy", self._current_row.set_value)
-
-        self._add_row(BoxflatSwitchRow("Default Force Feedback State"))
-        self._current_row.reverse_values()
-        self._current_row.subscribe(self._cm.set_setting_int, "main-set-default-ffb-status")
-        self._append_sub("main-get-default-ffb-status", self._current_row.set_value)
 
         self.add_preferences_group("Temperatures")
         self._add_row(BoxflatLabelRow("MCU Temperature"))
