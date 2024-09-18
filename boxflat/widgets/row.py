@@ -51,8 +51,8 @@ class BoxflatRow(Adw.ActionRow):
 
     def set_value(self, value, mute: bool=True) -> None:
         if self.cooldown():
-            print("Still cooling down")
-            print(self.get_title())
+            # print("Still cooling down")
+            # print(self.get_title())
             return
 
         self.mute(mute)
@@ -109,11 +109,9 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def cooldown(self) -> bool:
-        if self._cooldown == -1:
-            return True
+        ret = (self._cooldown != 0)
 
         if self._cooldown > 0:
             self._cooldown -= 1
-            return True
 
-        return False
+        return ret

@@ -14,7 +14,7 @@ import gi
 gi.require_version('Gtk', '4.0')
 from gi.repository import GLib
 
-CM_RETRY_COUNT=1
+CM_RETRY_COUNT=2
 
 HidDeviceMapping = {
     "base" : MozaHidDevice.BASE,
@@ -37,6 +37,7 @@ class MozaConnectionManager():
 
         self._serial_devices = {}
         self._devices_lock = Lock()
+        self._command_lock = Lock()
 
         with open(serial_data_path) as stream:
             try:
@@ -102,7 +103,7 @@ class MozaConnectionManager():
 
 
     def device_discovery(self, *args) -> None:
-        print("\nDevice discovery...")
+        # print("\nDevice discovery...")
         path = self._serial_path
 
         if not os.path.exists(path):
@@ -120,36 +121,36 @@ class MozaConnectionManager():
             if device.lower().find("base") != -1:
                 serial_devices["base"] = device
                 serial_devices["main"] = device
-                print("Base found")
+                # print("Base found")
 
             elif device.lower().find("hbp") != -1:
                 serial_devices["handbrake"] = device
-                print("Handbrake found")
+                # print("Handbrake found")
 
             elif device.lower().find("hgp") != -1:
                 serial_devices["hpattern"] = device
-                print("H-Pattern shifter found")
+                # print("H-Pattern shifter found")
 
             elif device.lower().find("sgp") != -1:
                 serial_devices["sequential"] = device
-                print("Sequential shifter found")
+                # print("Sequential shifter found")
 
             elif device.lower().find("pedals") != -1:
                 serial_devices["pedals"] = device
-                print("Pedals found")
+                # print("Pedals found")
 
             # TODO: Check this info somehow
             elif device.lower().find("hub") != -1:
                 serial_devices["hub"] = device
-                print("Hub found")
+                # print("Hub found")
 
             elif device.lower().find("stop") != -1:
                 serial_devices["estop"] = device
-                print("E-Stop found")
+                # print("E-Stop found")
 
         self._handle_devices(serial_devices)
 
-        print("Device discovery end\n")
+        # print("Device discovery end\n")
 
 
     def _handle_devices(self, new_devices: dict) -> None:
@@ -180,7 +181,7 @@ class MozaConnectionManager():
 
 
     def reset_subscriptions(self) -> None:
-        print("\nClearing subscriptions")
+        # print("\nClearing subscriptions")
         with self._sub_lock:
             self._subscribtions.clear()
 
@@ -359,16 +360,17 @@ class MozaConnectionManager():
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
-        print(f"\nDevice: {serial_path}")
-        print(f"Sending:  {msg}")
+        # print(f"\nDevice: {serial_path}")
+        # print(f"Sending:  {msg}")
 
         if self._dry_run:
             return bytes(1)
 
         if serial_path == None:
-            print("No compatible device found!")
+            # print("No compatible device found!")
             return None
 
+        initial_len = message[1]
         rest = bytes()
         length = 0
         cmp = bytes([self._message_start])
@@ -382,6 +384,8 @@ class MozaConnectionManager():
             serial.reset_input_buffer()
             for i in range(CM_RETRY_COUNT):
                 serial.write(message)
+
+            time.sleep(1/500)
 
             # read_response = True # For teesting writes
             start_time = time.time()
@@ -425,55 +429,61 @@ class MozaConnectionManager():
         msg = ""
         for b in message:
             msg += f"{hex(b)} "
-        print(f"Response: {msg}")
+        # print(f"Response: {msg}")
 
         return message
 
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=1, byte_value: bytes=None) -> bytes:
-        if not command_name in self._serial_data["commands"]:
-            return bytes(1)
-        command = MozaCommand(command_name, self._serial_data["commands"])
+        with self._command_lock:
+            if not command_name in self._serial_data["commands"]:
+                return bytes(1)
+            command = MozaCommand(command_name, self._serial_data["commands"])
 
-        if command.length == -1 or command.id == -1:
-            print("Command undiscovered")
-            return bytes(1)
+            if command.length == -1 or command.id == -1:
+                print("Command undiscovered")
+                return bytes(1)
 
-        if rw == MOZA_COMMAND_READ and command.read_group == -1:
-            print("Command doesn't support READ access")
-            return bytes(1)
+            if rw == MOZA_COMMAND_READ and command.read_group == -1:
+                print("Command doesn't support READ access")
+                return bytes(1)
 
-        if rw == MOZA_COMMAND_WRITE and command.write_group == -1:
-            print("Command doesn't support WRITE access")
-            return bytes(1)
+            if rw == MOZA_COMMAND_WRITE and command.write_group == -1:
+                print("Command doesn't support WRITE access")
+                return None
 
-        if byte_value != None:
-            command.set_payload_bytes(byte_value)
-        else:
-            command.payload = value
+            if byte_value != None:
+                command.set_payload_bytes(byte_value)
+            else:
+                command.payload = value
 
-        device_id = self._get_device_id(command.device_type)
-        if device_id == -1:
-            print("Device ID undiscovered yet")
-            return bytes(1)
+            device_id = self._get_device_id(command.device_type)
+            if device_id == -1:
+                print("Device ID undiscovered yet")
+                return bytes(1)
 
-        device_path = self._get_device_path(command.device_type)
-        message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
+            device_path = self._get_device_path(command.device_type)
+            message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
-        # WE get a response without the checksum
-        read = (rw == MOZA_COMMAND_READ)
-        response = self.send_serial_message(device_path, message, read)
-        if response == None:
-            return None
+            # WE get a response without the checksum
+            read = (rw == MOZA_COMMAND_READ)
+            initial_len = command.payload_length
+            response = self.send_serial_message(device_path, message, read)
 
-        # check if length is 2 or lower because we need the
-        # device id in the response, not just the value
-        # length = response[1]
-        # if length <= command.length+1:
-        #     return bytes(1)
-        length = command.payload_length
-        return response[-1-length:-1]
+            if response == None:
+                return None
+
+            # if len(response) != len(message):
+            #     return None
+
+            # check if length is 2 or lower because we need the
+            # device id in the response, not just the value
+            # length = response[1]
+            # if length <= command.length+1:
+            #     return bytes(1)
+            length = command.payload_length
+            return response[-1-length:-1]
 
 
     # Set a setting value on a device

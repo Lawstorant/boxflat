@@ -163,9 +163,6 @@ class MozaPresetHandler():
     def add_device_settings(self, device: str):
         if device in MozaDevicePresetSettings:
             for setting in MozaDevicePresetSettings[device]:
-                if "-set-" in setting:
-                    setting = setting.replace("-set-", "-get-")
-
                 self.append_setting(setting)
 
 
@@ -178,11 +175,11 @@ class MozaPresetHandler():
 
 
     def save_preset(self):
-        Thread(target=self._save_preset).start()
+        Thread(target=self._save_preset, daemon=True).start()
 
 
     def load_preset(self):
-        Thread(target=self._load_preset).start()
+        Thread(target=self._load_preset, daemon=True).start()
 
 
     def _save_preset(self):
@@ -195,9 +192,17 @@ class MozaPresetHandler():
         for device, settings in self._settings.items():
             preset_data[device] = {}
             for setting in settings:
-                value = self._cm.get_setting_auto(f"{device}-{setting}")
-                if value != -1:
-                    preset_data[device][setting] = value
+                if "-set-" in setting:
+                    setting = setting.replace("-set-", "-get-")
+
+
+                tries = 0
+                while tries < 3:
+                    tries += 1
+                    value = self._cm.get_setting_auto(f"{device}-{setting}")
+                    if value != -1:
+                        preset_data[device][setting] = value
+                        tries = 3
 
         path = os.path.expanduser(self._path)
 
@@ -223,7 +228,7 @@ class MozaPresetHandler():
         for key, settings in preset_data.items():
             if key in MozaDevicePresetSettings.keys():
                 for setting, value in settings.items():
-                    print(f"{key}-{setting}: {value}")
+                    # print(f"{key}-{setting}: {value}")
                     self._cm.set_setting_auto(value, f"{key}-{setting}")
 
         for callback in self._callbacks:

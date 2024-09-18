@@ -2,7 +2,7 @@ import gi
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Gdk
 from .row import BoxflatRow
-from threading import Thread, Event
+from threading import Thread, Event, Lock
 from time import sleep
 
 MOZA_RPM_LEDS=10
@@ -22,7 +22,8 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         self.set_child(main_box)
 
         colors_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, halign=Gtk.Align.CENTER)
-        colors_box.set_margin_bottom(6)
+        colors_box.set_margin_top(6)
+        colors_box.set_margin_bottom(12)
 
         main_box.append(child)
         main_box.add_css_class("header")
@@ -30,6 +31,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
 
         self._dialog = Gtk.ColorDialog(with_alpha=False)
         self._blinking_event = []
+        self._value_lock = Lock()
 
         self._colors = []
         for i in range(MOZA_RPM_LEDS):
@@ -65,8 +67,11 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         if index not in range(len(self._colors)):
             return
 
+        if self._value_lock.locked():
+            return
+
         if self.cooldown():
-            print("Still cooling down")
+            # print("Still cooling down")
             return
 
         self._mute = True
@@ -91,11 +96,15 @@ class BoxflatNewColorPickerRow(BoxflatRow):
 
 
     def _enter_button(self, controller: Gtk.EventControllerMotion, a, b, index: int):
-        Thread(target=self._button_blinking, args=[index]).start()
+        if not self._blinking_event[index].is_set():
+            self._blinking_event[index].set()
+            self._value_lock.acquire()
+            Thread(target=self._button_blinking, args=[index]).start()
 
 
     def _leave_button(self, controller: Gtk.EventControllerMotion, index: int):
         self._blinking_event[index].clear()
+        self._value_lock.release()
 
 
     def _button_blinking(self, index: int):
@@ -103,11 +112,10 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         button = self._colors[index]
         value = self.get_value(index)
 
-        self._blinking_event[index].set()
         while self._blinking_event[index].is_set():
             self._notify(button, alt_value=[0, 0, 0])
-            sleep(1)
+            sleep(0.5)
             self._notify(button, alt_value=value)
-            sleep(1)
+            sleep(0.8)
 
-        self._cooldown = 2
+        self._cooldown = 10
