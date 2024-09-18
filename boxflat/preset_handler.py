@@ -203,7 +203,8 @@ class MozaPresetHandler():
                 tries = 0
                 while tries < 3:
                     tries += 1
-                    value = self._cm.get_setting_auto(f"{device}-{setting.replace("set-", "get-")}")
+                    replace = setting.replace("set-", "get-")
+                    value = self._cm.get_setting_auto(f"{device}-{replace}")
                     if value != -1:
                         preset_data[device][setting] = value
                         tries = 3
