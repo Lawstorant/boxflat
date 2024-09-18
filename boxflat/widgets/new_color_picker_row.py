@@ -35,8 +35,11 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         self._value_lock = Lock()
 
         self._colors = []
+        red = Gdk.RGBA()
+        red.parse("rgb(230,60,60)")
         for i in range(MOZA_RPM_LEDS):
             color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True, halign=Gtk.Align.CENTER)
+            color.set_rgba(red)
             color.set_size_request(0,48)
             color.connect('notify::rgba', self._notify)
 
@@ -99,6 +102,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
 
     def _enter_button(self, controller: Gtk.EventControllerMotion, a, b, index: int):
         if not self._blinking_event[index].is_set():
+            self._blinking_event[index].set()
             Thread(target=self._button_blinking, args=[index]).start()
 
 
@@ -108,16 +112,18 @@ class BoxflatNewColorPickerRow(BoxflatRow):
 
     def _button_blinking(self, index: int):
         with self._value_lock:
-            self._blinking_event[index].set()
             self._cooldown = -1
 
             button = self._colors[index]
             value = self.get_value(index)
 
-            while self._blinking_event[index].is_set():
+            iterations = 0
+            while self._blinking_event[index].is_set() and iterations < 50:
+                iterations += 1
                 self._notify(button, alt_value=[0, 0, 0])
                 sleep(0.4)
                 self._notify(button, alt_value=value)
                 sleep(0.8)
 
+            self._blinking_event[index].clear()
             self._cooldown = 10

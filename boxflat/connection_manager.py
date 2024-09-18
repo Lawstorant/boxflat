@@ -436,54 +436,53 @@ class MozaConnectionManager():
 
     # Handle command operations
     def _handle_command(self, command_name: str, rw, value: int=1, byte_value: bytes=None) -> bytes:
-        with self._command_lock:
-            if not command_name in self._serial_data["commands"]:
-                return bytes(1)
-            command = MozaCommand(command_name, self._serial_data["commands"])
+        if not command_name in self._serial_data["commands"]:
+            return bytes(1)
+        command = MozaCommand(command_name, self._serial_data["commands"])
 
-            if command.length == -1 or command.id == -1:
-                print("Command undiscovered")
-                return bytes(1)
+        if command.length == -1 or command.id == -1:
+            print("Command undiscovered")
+            return bytes(1)
 
-            if rw == MOZA_COMMAND_READ and command.read_group == -1:
-                print("Command doesn't support READ access")
-                return bytes(1)
+        if rw == MOZA_COMMAND_READ and command.read_group == -1:
+            print("Command doesn't support READ access")
+            return bytes(1)
 
-            if rw == MOZA_COMMAND_WRITE and command.write_group == -1:
-                print("Command doesn't support WRITE access")
-                return None
+        if rw == MOZA_COMMAND_WRITE and command.write_group == -1:
+            print("Command doesn't support WRITE access")
+            return None
 
-            if byte_value != None:
-                command.set_payload_bytes(byte_value)
-            else:
-                command.payload = value
+        if byte_value != None:
+            command.set_payload_bytes(byte_value)
+        else:
+            command.payload = value
 
-            device_id = self._get_device_id(command.device_type)
-            if device_id == -1:
-                print("Device ID undiscovered yet")
-                return bytes(1)
+        device_id = self._get_device_id(command.device_type)
+        if device_id == -1:
+            print("Device ID undiscovered yet")
+            return bytes(1)
 
-            device_path = self._get_device_path(command.device_type)
-            message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
+        device_path = self._get_device_path(command.device_type)
+        message = command.prepare_message(self._message_start, device_id, rw, self._calculate_checksum)
 
-            # WE get a response without the checksum
-            read = (rw == MOZA_COMMAND_READ)
-            initial_len = command.payload_length
-            response = self.send_serial_message(device_path, message, read)
+        # WE get a response without the checksum
+        read = (rw == MOZA_COMMAND_READ)
+        initial_len = command.payload_length
+        response = self.send_serial_message(device_path, message, read)
 
-            if response == None:
-                return None
+        if response == None:
+            return None
 
-            # if len(response) != len(message):
-            #     return None
+        # if len(response) != len(message):
+        #     return None
 
-            # check if length is 2 or lower because we need the
-            # device id in the response, not just the value
-            # length = response[1]
-            # if length <= command.length+1:
-            #     return bytes(1)
-            length = command.payload_length
-            return response[-1-length:-1]
+        # check if length is 2 or lower because we need the
+        # device id in the response, not just the value
+        # length = response[1]
+        # if length <= command.length+1:
+        #     return bytes(1)
+        length = command.payload_length
+        return response[-1-length:-1]
 
 
     # Set a setting value on a device
@@ -561,10 +560,11 @@ class MozaConnectionManager():
 
 
     def cycle_wheel_id(self) -> int:
-        self._serial_data["device-ids"]["wheel"] -= 1
+        if self._serial_data["device-ids"]["wheel"] == 23:
+            self._serial_data["device-ids"]["wheel"] = 21
+        else:
+            self._serial_data["device-ids"]["wheel"] = 23
 
-        if self._serial_data["device-ids"]["wheel"] == self._serial_data["device-ids"]["base"]:
-            self._serial_data["device-ids"]["wheel"] = self._serial_data["device-ids"]["pedals"] - 1
 
         new_id = self._serial_data["device-ids"]["wheel"]
         print(f"Cycling wheel id. New id: {new_id}")

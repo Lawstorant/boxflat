@@ -45,8 +45,6 @@ MozaDevicePresetSettings = {
         "wheel-set-display-mode",
         "wheel-clutch-point",
         "wheel-knob-mode",
-        "wheel-rpm-brightness",
-        "wheel-buttons-brightness",
         "wheel-rpm-interval",
         "wheel-rpm-mode",
         "wheel-rpm-value1",
@@ -90,7 +88,9 @@ MozaDevicePresetSettings = {
         "wheel-button-color7",
         "wheel-button-color8",
         "wheel-button-color9",
-        "wheel-button-color10"
+        "wheel-button-color10",
+        "wheel-rpm-brightness",
+        "wheel-buttons-brightness"
     ],
     "pedals" : [
         "pedals-throttle-dir",
@@ -200,14 +200,10 @@ class MozaPresetHandler():
         for device, settings in self._settings.items():
             preset_data[device] = {}
             for setting in settings:
-                if "-set-" in setting:
-                    setting = setting.replace("-set-", "-get-")
-
-
                 tries = 0
                 while tries < 3:
                     tries += 1
-                    value = self._cm.get_setting_auto(f"{device}-{setting}")
+                    value = self._cm.get_setting_auto(f"{device}-{setting.replace("set-", "get-")}")
                     if value != -1:
                         preset_data[device][setting] = value
                         tries = 3

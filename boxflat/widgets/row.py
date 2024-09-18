@@ -25,8 +25,11 @@ class BoxflatRow(Adw.ActionRow):
 
     def set_active(self, value=1, offset=0) -> bool:
         value = bool(int(value) + offset > 0)
-        GLib.idle_add(self.set_sensitive, value)
-        return value
+        if value != self.get_active():
+            GLib.idle_add(self.set_sensitive, value)
+            return True
+
+        return False
 
 
     def set_present(self, value, additional=0) -> None:

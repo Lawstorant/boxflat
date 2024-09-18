@@ -52,7 +52,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         self._append_sub_connected("sequential-paddle-sync", row.set_active, 1, True)
-        self._includes["seqential"] = row.get_value
+        self._includes["sequential"] = row.get_value
 
         row = BoxflatSwitchRow("Handbrake")
         expander.add_row(row)
@@ -86,7 +86,7 @@ class PresetSettings(SettingsPanel):
 
 
     def _load_preset(self, preset_name: str, *args):
-        print(f"\nLoading preset {preset_name}\n")
+        print(f"\nLoading preset {preset_name}")
 
         self._name_row.set_text(preset_name.removesuffix(".yml"))
 
