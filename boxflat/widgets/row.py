@@ -109,9 +109,6 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def cooldown(self) -> bool:
-        if self._cooldown == -1:
-            return True
-
         if self._cooldown > 0:
             self._cooldown -= 1
             return True
