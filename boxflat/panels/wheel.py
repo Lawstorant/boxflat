@@ -39,7 +39,7 @@ class WheelSettings(SettingsPanel):
         ]
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
-        self._append_sub_connected("wheel-get-display-mode", self.active)
+        self._append_sub_connected("wheel-rpm-brightness", self.active)
         self._cm.subscribe_shutdown(self.shutdown)
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test)
         self._test_event = Event()
