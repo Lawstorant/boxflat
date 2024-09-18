@@ -129,7 +129,6 @@ class WheelSettings(SettingsPanel):
         self._append_sub("wheel-stick-mode", self._current_row.set_value)
 
 
-
         self.add_preferences_group("Misc")
         self._combination_row = BoxflatDialogRow("Key Combination Settings")
         self._add_row(self._combination_row)
