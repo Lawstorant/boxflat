@@ -94,6 +94,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.17.3" date="2024-09-18">
+      <description>
+        <ul>
+          <li>Color picker row will now blink selected button/LED</li>
+          <li>Fixes to color picker row apperance</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.17.2" date="2024-09-16">
       <description>
         <ul>
