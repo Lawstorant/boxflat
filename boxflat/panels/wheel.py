@@ -39,7 +39,7 @@ class WheelSettings(SettingsPanel):
         ]
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
-        self._append_sub_connected("wheel-stick-mode", self.active)
+        self._append_sub_connected("wheel-rpm-brightness", self.active)
         self._cm.subscribe_shutdown(self.shutdown)
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test)
         self._test_event = Event()
@@ -127,7 +127,6 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_reverse_expression("/256")
         self._current_row.subscribe(self._cm.set_setting_int, "wheel-stick-mode")
         self._append_sub("wheel-stick-mode", self._current_row.set_value)
-
 
 
         self.add_preferences_group("Misc")

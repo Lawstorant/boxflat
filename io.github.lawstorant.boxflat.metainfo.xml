@@ -94,11 +94,12 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
-    <release version="v1.17.3" date="2024-09-18">
+    <release version="v1.17.4" date="2024-09-18">
       <description>
         <ul>
-          <li>Color picker row will now blink selected button/LED</li>
+          <li>Color picker row will now blink selected button</li>
           <li>Fixes to color picker row apperance</li>
+          <li>Fixes to Wheel detection</li>
           <li>Additional devices selecatable in presets</li>
         </ul>
       </description>
@@ -136,7 +137,7 @@
     <release version="v1.16.1" date="2024-09-06">
       <description>
         <ul>
-          <li>Wheel paddles level bars improvements</li>Deactivete some wheel settings on ES wheel
+          <li>Wheel paddles level bars improvements</li>
         </ul>
       </description>
     </release>
