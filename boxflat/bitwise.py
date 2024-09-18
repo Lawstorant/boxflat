@@ -25,3 +25,7 @@ def set_bit(value, bit_number: int) -> int:
 
 def unset_bit(value, bit_number: int) -> int:
     return modify_bit(value, bit_number, set_bit=False)
+
+
+def bit(bit_number: int) -> int:
+    return set_bit(0, bit_number)

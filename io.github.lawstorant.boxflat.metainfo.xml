@@ -97,9 +97,10 @@
     <release version="v1.17.4" date="2024-09-18">
       <description>
         <ul>
-          <li>Color picker row will now blink selected button/LED</li>
+          <li>Color picker row will now blink selected button</li>
           <li>Fixes to color picker row apperance</li>
           <li>Fixes to Wheel detection</li>
+          <li>Additional devices selecatable in presets</li>
         </ul>
       </description>
     </release>
