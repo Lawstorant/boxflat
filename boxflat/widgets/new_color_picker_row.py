@@ -14,7 +14,7 @@ def extract_rgb(rgba: Gdk.RGBA) -> list:
 
 
 class BoxflatNewColorPickerRow(BoxflatRow):
-    def __init__(self, title: str, subtitle=""):
+    def __init__(self, title: str, subtitle="", blinking=False):
         super().__init__(title, subtitle)
 
         child = self.get_child()
@@ -28,6 +28,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         main_box.append(child)
         main_box.add_css_class("header")
         main_box.set_valign(Gtk.Align.CENTER)
+        main_box.append(colors_box)
 
         self._dialog = Gtk.ColorDialog(with_alpha=False)
         self._blinking_event = []
@@ -39,21 +40,21 @@ class BoxflatNewColorPickerRow(BoxflatRow):
             color.set_size_request(0,48)
             color.connect('notify::rgba', self._notify)
 
+            self._colors.append(color)
+            colors_box.append(color)
+
+            if not blinking:
+                continue
+
             motion_controller = Gtk.EventControllerMotion()
             motion_controller.connect("enter", self._enter_button, i)
             motion_controller.connect("leave", self._leave_button, i)
             color.add_controller(motion_controller)
-
             self._blinking_event.append(Event())
-
-            self._colors.append(color)
-            colors_box.append(color)
-
-        main_box.append(colors_box)
 
 
     def get_value(self, index: int) -> list:
-        if index in range(len(self._colors)):
+        if index >= 0 and index < len(self._colors):
             rgba = self._colors[index].get_rgba()
             return extract_rgb(rgba)
         return []
@@ -64,16 +65,17 @@ class BoxflatNewColorPickerRow(BoxflatRow):
 
 
     def set_led_value(self, value: list, index: int) -> None:
-        if index not in range(len(self._colors)):
+        if self._value_lock.locked():
             return
 
-        if self._value_lock.locked():
+        if index < 0 or index >= len(self._colors):
             return
 
         if self.cooldown():
             # print("Still cooling down")
             return
 
+        # TODO: use Lock instead of boolean value
         self._mute = True
         rgba = Gdk.RGBA()
         rgba.parse(f"rgb({value[0]},{value[1]},{value[2]})")
@@ -97,25 +99,25 @@ class BoxflatNewColorPickerRow(BoxflatRow):
 
     def _enter_button(self, controller: Gtk.EventControllerMotion, a, b, index: int):
         if not self._blinking_event[index].is_set():
-            self._blinking_event[index].set()
-            self._value_lock.acquire()
             Thread(target=self._button_blinking, args=[index]).start()
 
 
     def _leave_button(self, controller: Gtk.EventControllerMotion, index: int):
         self._blinking_event[index].clear()
-        self._value_lock.release()
 
 
     def _button_blinking(self, index: int):
-        self._cooldown = -1
-        button = self._colors[index]
-        value = self.get_value(index)
+        with self._value_lock:
+            self._blinking_event[index].set()
+            self._cooldown = -1
 
-        while self._blinking_event[index].is_set():
-            self._notify(button, alt_value=[0, 0, 0])
-            sleep(0.5)
-            self._notify(button, alt_value=value)
-            sleep(0.8)
+            button = self._colors[index]
+            value = self.get_value(index)
 
-        self._cooldown = 10
+            while self._blinking_event[index].is_set():
+                self._notify(button, alt_value=[0, 0, 0])
+                sleep(0.4)
+                self._notify(button, alt_value=value)
+                sleep(0.8)
+
+            self._cooldown = 10

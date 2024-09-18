@@ -490,6 +490,7 @@ class MozaConnectionManager():
     # If value should be float, provide bytes
     def _set_setting(self, command_name: str, value: int=0, byte_value=None) -> None:
         with self._write_mutex:
+            # TODO: use Queue here instead of my custom implementation
             self._write_command_buffer[command_name] = (value, byte_value)
 
 
@@ -577,4 +578,4 @@ class MozaConnectionManager():
 # TODO: Move value conversion to MozaCommand
 # TODO: Get rid of helper methods for setting/getting settings.
 # TODO: Simplify command handler
-# TODO: Rewrite manager so it keeps a read and write connection open conetantly.
+# TODO: Rewrite manager so it keeps a read and write connection open constantly.

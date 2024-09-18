@@ -228,7 +228,7 @@ class WheelSettings(SettingsPanel):
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("Buttons")
-        self._add_row(BoxflatNewColorPickerRow(""))
+        self._add_row(BoxflatNewColorPickerRow("", blinking=True))
         self._current_row.subscribe(self._cm.set_setting_list, "wheel-button-color")
         self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_active, +1)
         for i in range(MOZA_RPM_LEDS):

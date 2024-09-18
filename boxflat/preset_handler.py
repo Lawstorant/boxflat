@@ -45,6 +45,22 @@ MozaDevicePresetSettings = {
         "wheel-set-display-mode",
         "wheel-clutch-point",
         "wheel-knob-mode",
+        "wheel-rpm-brightness",
+        "wheel-buttons-brightness",
+        "wheel-rpm-interval",
+        "wheel-rpm-mode",
+        "wheel-rpm-value1",
+        "wheel-rpm-value2",
+        "wheel-rpm-value3",
+        "wheel-rpm-value4",
+        "wheel-rpm-value5",
+        "wheel-rpm-value6",
+        "wheel-rpm-value7",
+        "wheel-rpm-value8",
+        "wheel-rpm-value9",
+        "wheel-rpm-value10"
+    ],
+    "wheel-colors" : [
         # "wheel-rpm-blink-color1",
         # "wheel-rpm-blink-color2",
         # "wheel-rpm-blink-color3",
@@ -74,21 +90,7 @@ MozaDevicePresetSettings = {
         "wheel-button-color7",
         "wheel-button-color8",
         "wheel-button-color9",
-        "wheel-button-color10",
-        "wheel-rpm-brightness",
-        "wheel-buttons-brightness",
-        "wheel-rpm-interval",
-        "wheel-rpm-mode",
-        "wheel-rpm-value1",
-        "wheel-rpm-value2",
-        "wheel-rpm-value3",
-        "wheel-rpm-value4",
-        "wheel-rpm-value5",
-        "wheel-rpm-value6",
-        "wheel-rpm-value7",
-        "wheel-rpm-value8",
-        "wheel-rpm-value9",
-        "wheel-rpm-value10"
+        "wheel-button-color10"
     ],
     "pedals" : [
         "pedals-throttle-dir",
@@ -117,6 +119,12 @@ MozaDevicePresetSettings = {
         "pedals-clutch-y4",
         "pedals-clutch-y5"
      ],
+    "sequential" : [
+        "sequential-direction",
+        "sequential-paddle-sync",
+        "sequential-brightness",
+        "sequential-colors"
+    ],
     "handbrake" : [
         "handbrake-direction",
         "handbrake-mode",

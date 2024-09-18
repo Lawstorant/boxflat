@@ -15,6 +15,7 @@ class BoxflatSwitchRow(BoxflatRow):
         self._switch = switch
         self._set_widget(switch)
         self.set_activatable_widget(switch)
+        self._value_store = None
 
 
     def get_value(self) -> int:
@@ -42,3 +43,17 @@ class BoxflatSwitchRow(BoxflatRow):
         if self._reverse:
             val = not bool(val)
         self._switch.set_active(bool(val))
+
+
+    def set_active(self, value=1, offset=0, off_when_inactive=False) -> bool:
+        active = super().set_active(value, offset=offset)
+
+        if off_when_inactive and not active:
+            self._value_store = self.get_value()
+            self.set_value(0)
+
+        elif off_when_inactive and self._value_store != None:
+            self.set_value(self._value_store)
+            self._value_store = None
+
+        return active
