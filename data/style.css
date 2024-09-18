@@ -130,7 +130,8 @@ levelbar {
 }
 
 colorbutton {
-    margin: 0 13px 16px 0;
+    margin-right: 13px;
+    margin-top: 0;
 }
 
 colorbutton:last-child {
@@ -138,16 +139,16 @@ colorbutton:last-child {
 }
 
 colorbutton > button {
-    border-radius: 100px;
+    border-radius: 120px;
 }
 
 colorbutton > button > colorswatch {
-    border-radius: 100px;
+    border-radius: 120px;
 }
 
 .wheel-dialog-setting {
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
 .altbar1 > * > * {
