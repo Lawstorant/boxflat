@@ -44,6 +44,7 @@ class WheelSettings(SettingsPanel):
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test)
         self._test_event = Event()
         self._test_thread.start()
+        # TODO: rewrite threads so they are not persistent
 
 
     def active(self, value: int) -> None:
