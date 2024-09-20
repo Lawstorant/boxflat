@@ -45,6 +45,7 @@ class BoxflatSliderRow(BoxflatRow):
             box.set_valign(Gtk.Align.CENTER)
         else:
             self.add_suffix(slider)
+            slider.add_css_class("slider")
 
 
     # def _slider_increment_handler(self, scale) -> None:

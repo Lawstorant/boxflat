@@ -12,11 +12,12 @@ class BoxflatToggleButtonRow(BoxflatRow):
         self._group = None
         self._buttons = []
 
+        self._box.add_css_class("linked")
+
 
     def add_buttons(self, *labels: str) -> None:
         for label in labels:
             button = Gtk.ToggleButton(label=label)
-            button.add_css_class("toggle-button")
             button.set_valign(Gtk.Align.CENTER)
             self._box.append(button)
             self._buttons.append(button)

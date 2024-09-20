@@ -68,6 +68,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         if button_row:
             self._box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
             self._box.add_css_class("eq-buttons")
+            self._box.add_css_class("linked")
             main_box.append(self._box)
 
         main_box.append(sliders_box)

@@ -25,7 +25,6 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_suffix("°")
         self._steer_row.set_subtitle(f"Limit = {self._rotation*2}°")
         self._append_sub_hid(MozaAxis.STEERING, self._set_steering)
-        self._set_steering(65000)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(self._cm.set_setting_int, "base-calibration")
@@ -78,5 +77,5 @@ class HomeSettings(SettingsPanel):
 
 
     def _set_limit(self, percent_func: callable, command: str):
-        print(f"{command}: {percent_func()}")
-        # self._cm.set_setting_int(percent_func(), command)
+        # print(f"{command}: {percent_func()}")
+        self._cm.set_setting_int(percent_func(), command)

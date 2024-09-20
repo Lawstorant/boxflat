@@ -47,7 +47,7 @@ class OtherSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
 
-        self._add_row(BoxflatSliderRow("HID Update Rate", suffix="Hz", range_start=20, range_end=240, increment=10))
+        self._add_row(BoxflatSliderRow("HID Update Rate", suffix=" Hz  ", range_start=20, range_end=240, increment=10))
         self._current_row.add_marks(120)
         self._current_row.subscribe(self._hid_handler.set_update_rate)
         self._current_row.set_value(self._hid_handler.get_update_rate())
