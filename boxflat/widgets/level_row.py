@@ -2,10 +2,10 @@ import gi
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, GLib
 from .row import BoxflatRow
-from math import ceil
+from math import ceil, floor
 
 class BoxflatLevelRow(BoxflatRow):
-    def __init__(self, title: str, subtitle="", max_value=1000):
+    def __init__(self, title: str, subtitle="", max_value=1000, append_widget=True):
         super().__init__(title, subtitle)
 
         self._max_value = max_value
@@ -16,14 +16,15 @@ class BoxflatLevelRow(BoxflatRow):
         bar.set_min_value(0)
         bar.set_max_value(max_value)
         bar.set_value(0)
-        bar.add_css_class("level-dark")
+        bar.set_margin_end(2)
 
         bar.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_LOW)
         bar.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_HIGH)
         bar.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_FULL)
 
-        self._set_widget(bar)
         self._bar = bar
+        if append_widget:
+            self._set_widget(bar)
 
         self.set_bar_width(310)
         self._present_cooldown = True
@@ -68,3 +69,11 @@ class BoxflatLevelRow(BoxflatRow):
     def set_active(self, value, offset=0) -> None:
         if not super().set_active(value, offset):
             self.set_value(0)
+
+
+    def get_value(self) -> int:
+        return int(self._bar.get_value())
+
+
+    def get_percent(self) -> int:
+        return floor((self._bar.get_value() * 100) / self._bar.get_max_value())

@@ -12,3 +12,5 @@ from .new_color_picker_row import *
 from .dialog_row import *
 from .label_row import *
 from .level_row import *
+from .button_level_row import *
+from .min_max_level_row import *

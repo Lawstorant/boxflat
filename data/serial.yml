@@ -1252,14 +1252,14 @@ commands:
     bytes: 2
     type: int
 
-  handbrake-range-start:
+  handbrake-min:
     read: 91
     write: 92
     id: [2]
     bytes: 2
     type: int
 
-  handbrake-range-end:
+  handbrake-max:
     read: 91
     write: 92
     id: [3]

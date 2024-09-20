@@ -165,10 +165,11 @@ colorbutton > button > colorswatch {
     background-color: rgba(255, 255, 255, 0.2);
 } */
 
-.level-dark {
-    margin-right: 12px;
+.level-offset {
+    background-color: #b8af38;
 }
 
-.level-offset {
-    background-color: #45af45;
+.level-button {
+    padding-left: 10px;
+    padding-right: 10px;
 }
