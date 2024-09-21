@@ -94,6 +94,18 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.18.0" date="2024-09-21">
+      <description>
+        <ul>
+          <li>Min/Max buttons on the home screen for Pedals and Handbrake</li>
+          <li>Handbrake input level on the home screen</li>
+          <li>Bump Gnome platform to version 47</li>
+          <li>Update button apperance</li>
+          <li>Use standrad Gnome way of linking widgets</li>
+          <li>Update slider row paddings to center it and make it a little bit shorter</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.17.4" date="2024-09-18">
       <description>
         <ul>
