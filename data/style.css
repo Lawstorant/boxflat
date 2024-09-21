@@ -1,3 +1,13 @@
+button:not(.color):not(.color-button) {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+scale.slider {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
 .sidebar-button {
     border-radius: 4px;
     font-weight: bold;
@@ -15,23 +25,6 @@
 
 .transparent {
     opacity: 0;
-}
-
-.toggle-button {
-    border-radius: 0;
-    border-right: 1px solid #727272;
-}
-
-.toggle-button:first-child {
-    border-radius: 5px 0 0 5px;
-}
-
-.toggle-button:last-child {
-    border-radius: 0 5px 5px 0;
-}
-
-.toggle-button:last-child:not(.cs) {
-    border-right: 0;
 }
 
 .color-button {
@@ -65,14 +58,6 @@ levelbar {
 .eq-buttons {
     margin-top: 8px;
 }
-
-/* .banner-disconnected > revealer > widget  {
-	background-color: rgba(255, 60, 60, 0.4);
-}
-
-.banner-disconnected > revealer > widget:backdrop  {
-	background-color: rgba(255, 60, 60, 0.2);
-} */
 
 /* Button colors */
 .c0 {
@@ -165,10 +150,11 @@ colorbutton > button > colorswatch {
     background-color: rgba(255, 255, 255, 0.2);
 } */
 
-.level-dark {
-    margin-right: 12px;
+.level-offset {
+    background-color: #b8af38;
 }
 
-.level-offset {
-    background-color: #45af45;
+.level-button {
+    padding-left: 10px;
+    padding-right: 10px;
 }

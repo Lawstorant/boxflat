@@ -14,7 +14,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 
 | Device         | Completeness | WIP |
 | :------------: | :----------: | :-- |
-| Home page      | 70%          | Pedals min/max |
+| Home page      | 100%         | |
 | Base           | 100%         | |
 | Wheel          | 100%         | |
 | Pedals         | 100%         | |
@@ -59,11 +59,13 @@ https://aur.archlinux.org/packages/boxflat-git
 This package depends on:
 - python3
 - gtk4
-- libadwaita ~>1.3
-- pyyaml 6.0.1
+- libadwaita 1.6
+
+Python dependencies:
+- pyyaml 6.0.2
 - pyserial 3.5
-- pycairo 1.26.1
-- PyGObject 3.48.2
+- pycairo 1.27.0
+- PyGObject 3.50.0
 - evdev 1.7.1
 
 

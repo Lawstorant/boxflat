@@ -160,7 +160,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting_int, "base-speed-damping")
         self._append_sub("base-speed-damping", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Speed-depended Damping", range_end=400, subtitle="KPH"))
+        self._add_row(BoxflatSliderRow("Speed-depended Damping", range_end=400, suffix=" kph   "))
         self._current_row.add_marks(120)
         self._current_row.subscribe(self._cm.set_setting_int, "base-speed-damping-point")
         self._append_sub("base-speed-damping-point", self._current_row.set_value)

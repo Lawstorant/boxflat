@@ -8,6 +8,7 @@ class BoxflatButtonRow(BoxflatRow):
         super().__init__(title, subtitle)
 
         self._box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self._box.add_css_class("linked")
         self._set_widget(self._box)
 
         if button_label:
@@ -18,13 +19,15 @@ class BoxflatButtonRow(BoxflatRow):
         return round(eval("1" + self._expression))
 
 
-    def add_button(self, button_label: str, callback: callable=None, *args):
+    def add_button(self, button_label: str, callback: callable=None, *args) -> Gtk.Button:
         button = Gtk.Button(label=button_label)
         button.set_valign(Gtk.Align.CENTER)
-        button.set_margin_start(10)
+        # button.set_margin_start(10)
         self._box.append(button)
 
         if callback:
             button.connect('clicked', lambda button: callback(*args))
         else:
             button.connect('clicked', lambda button: self._notify())
+
+        return button
