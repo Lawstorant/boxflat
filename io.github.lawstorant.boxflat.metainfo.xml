@@ -94,6 +94,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.18.2" date="2024-09-22">
+      <description>
+        <p>
+          Hid handler now automatically applies offset to axes that have min < 0.
+          This fixes issues with firmwares that change the min/max values of some axes.
+        </p>
+      </description>
+    </release>
     <release version="v1.18.1" date="2024-09-22">
       <description>
         <p>Added 2520 mark to the rotation slider</p>

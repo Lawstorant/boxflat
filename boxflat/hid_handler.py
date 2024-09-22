@@ -164,11 +164,13 @@ class HidHandler():
         code = evdev.ecodes.ABS[code]
         name = ""
 
+        axis_min = device.absinfo(code).min
+
+        if axis_min < 0:
+            value += axis_min
+
         if device == self._base:
             name = MozaAxisBaseCodes[code]
-            if name in MozaAxisBaseOffsets:
-                value += 32767
-
         else:
             name = MozaAxisCodes[code]
 
