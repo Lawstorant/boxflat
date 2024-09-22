@@ -106,7 +106,7 @@
     <release version="v1.18.2" date="2024-09-22">
       <description>
         <p>
-          Hid handler now automatically applies offset to axes that have min < 0.
+          Hid handler now automatically applies offset to axes that have min lower than 0.
           This fixes issues with firmwares that change the min/max values of some axes.
         </p>
       </description>

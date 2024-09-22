@@ -33,13 +33,13 @@ class PresetSettings(SettingsPanel):
         row = BoxflatSwitchRow("Wheel")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("wheel-rpm-brightness", row.set_active, 1, True)
+        self._append_sub_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel Colors")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("wheel-rpm-brightness", row.set_active, 1, True)
+        self._append_sub_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel-colors"] = row.get_value
 
         row = BoxflatSwitchRow("Pedals")
