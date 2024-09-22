@@ -81,7 +81,7 @@ class PresetSettings(SettingsPanel):
 
 
 
-    def _save_preset(self, button: Adw.ButtonRow):
+    def _save_preset(self, *rest):
         self.show_toast(f"Saving preset \"{self._name_row.get_text()}\"", 1.5)
         self._save_row.set_sensitive(False)
 
