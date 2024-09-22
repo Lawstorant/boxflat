@@ -16,11 +16,11 @@ class BoxflatMinMaxLevelRow(BoxflatButtonLevelRow):
 
 
     def _disable_buttons(self, *rest):
-        if self.get_percent_ceil() == 0:
+        if self.get_percent_floor() == 0:
             GLib.idle_add(self._min_button.set_sensitive, False)
             GLib.idle_add(self._max_button.set_sensitive, False)
 
-        elif self.get_percent_floor() == 100:
+        elif self.get_percent_ceil() == 100:
             GLib.idle_add(self._min_button.set_sensitive, False)
             GLib.idle_add(self._max_button.set_sensitive, False)
 
