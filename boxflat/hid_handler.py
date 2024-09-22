@@ -124,7 +124,8 @@ class HidHandler():
             for axis in device.capabilities(absinfo=True)[3]:
                 ecode = axis[0]
 
-                device.set_absinfo(ecode, flat=0)
+                if device.absinfo(ecode).flat > 0:
+                    device.set_absinfo(ecode, flat=0)
 
                 fuzz = 8
                 if device == self._base and ecode == ABS_X:
