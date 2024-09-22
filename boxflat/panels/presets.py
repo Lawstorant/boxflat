@@ -60,14 +60,25 @@ class PresetSettings(SettingsPanel):
         self._append_sub_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
 
-        self._save_row = Adw.ButtonRow(title="Save")
-        self._save_row.add_css_class("suggested-action")
-        self._save_row.set_end_icon_name("document-save-symbolic")
-        self._add_row(self._save_row)
-        self._save_row.connect("activated", self._save_preset)
-        self._save_row.connect("activated", lambda v: expander.set_expanded(False))
-        self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_sensitive(e.get_text_length()))
-        self._save_row.set_sensitive(False)
+        if Adw.get_minor_version() >= 6:
+            self._save_row = Adw.ButtonRow(title="Save")
+            self._save_row.add_css_class("suggested-action")
+            self._save_row.set_end_icon_name("document-save-symbolic")
+            self._add_row(self._save_row)
+            self._save_row.connect("activated", self._save_preset)
+            self._save_row.connect("activated", lambda v: expander.set_expanded(False))
+            self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_sensitive(e.get_text_length()))
+            self._save_row.set_sensitive(False)
+
+        # compatibility with libadwaita older than 1.6
+        else:
+            self._save_row = BoxflatButtonRow("Save preset", "Save")
+            self._add_row(self._save_row)
+            self._current_row.subscribe(self._save_preset)
+            self._current_row.subscribe(lambda v: expander.set_expanded(False))
+            self._current_row.set_active(False)
+            self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_active(e.get_text_length()))
+
 
 
     def _save_preset(self, button: Adw.ButtonRow):

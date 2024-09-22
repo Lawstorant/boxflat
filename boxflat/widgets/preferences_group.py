@@ -77,16 +77,17 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
     def set_alt_bar_level(self, level: int):
         level += self._offset
 
+        if abs(level) > self._max_value:
+            return
+
         if level < 0:
-            level = -level
+            level = abs(level)
             GLib.idle_add(self._bar1.set_value, level)
+            GLib.idle_add(self._bar2.set_value, 0)
 
         elif level > 0:
             GLib.idle_add(self._bar2.set_value, level)
-
-        else:
             GLib.idle_add(self._bar1.set_value, 0)
-            GLib.idle_add(self._bar2.set_value, 0)
 
 
     def get_bar_level(self) -> int:

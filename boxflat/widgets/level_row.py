@@ -75,5 +75,16 @@ class BoxflatLevelRow(BoxflatRow):
         return int(self._bar.get_value())
 
 
+    def get_fraction(self) -> float:
+        return self._bar.get_value()  / self._bar.get_max_value()
+
+
     def get_percent(self) -> int:
-        return floor((self._bar.get_value() * 100) / self._bar.get_max_value())
+        return round(self.get_fraction() * 100)
+
+
+    def get_percent_floor(self) -> int:
+        return floor(self.get_fraction() * 100)
+
+    def get_percent_ceil(self) -> int:
+        return ceil(self.get_fraction() * 100)
