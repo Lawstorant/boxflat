@@ -123,14 +123,12 @@ class HidHandler():
 
             for axis in device.capabilities(absinfo=True)[3]:
                 ecode = axis[0]
+
                 device.set_absinfo(ecode, flat=0)
 
                 fuzz = 8
                 if device == self._base and ecode == ABS_X:
                     fuzz = 0
-
-                e = evdev.ff.Constant()
-                r = evdev.ff.Replay(0xffff, 0)
 
                 # detect current fuzz. Needed for ABS_HAT axes
                 if device.absinfo(ecode).fuzz > 8:
@@ -207,7 +205,7 @@ class HidHandler():
                 #     self._update_button(event.code, event.value)
 
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         print("Hid loop broken")
