@@ -54,8 +54,10 @@ class WheelSettings(SettingsPanel):
 
         if new_id == 21 and self._stick_row:
             self._stick_row.set_active(0)
+            self._combination_row.set_present(0)
         elif self._stick_row:
             self._stick_row.set_active(1)
+            self._combination_row.set_present(1)
 
         super().active(value)
 
@@ -140,7 +142,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_switch("Set angle to 720°", "Button 33 + Down")
         self._current_row.add_switch("Set angle to 900°", "Button 33 + Left")
         self._current_row.add_switch("Switch Dash Display", "Button 32 + Left/Right")
-        self._current_row.add_switch("Center Wheel", "Press both paddles and Button 1")
+        self._current_row.add_switch("Set Wheel Center Point", "Press both paddles and Button 1")
         self._current_row.subscribe(self._set_combination_settings)
         self._append_sub("wheel-key-combination", self._get_combination_settings)
 
