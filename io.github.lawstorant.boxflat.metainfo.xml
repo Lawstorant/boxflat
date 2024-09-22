@@ -94,6 +94,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.18.1" date="2024-09-22">
+      <description>
+        <p>Added 2520 mark to the rotation slider</p>
+      </description>
+    </release>
     <release version="v1.18.0" date="2024-09-21">
       <description>
         <ul>
