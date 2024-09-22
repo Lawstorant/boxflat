@@ -161,20 +161,19 @@ class HidHandler():
 
 
     def _update_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
+        axis_min = device.absinfo(code).min
         code = evdev.ecodes.ABS[code]
         name = ""
 
-        axis_min = device.absinfo(code).min
-
         if axis_min < 0:
-            value += axis_min
+            value += abs(axis_min)
 
         if device == self._base:
             name = MozaAxisBaseCodes[code]
         else:
             name = MozaAxisCodes[code]
 
-        # print(f"axis {name} ({code}), value: {value}")
+        # print(f"axis {name} ({code}), value: {value}, min: {axis_min}")
 
         if name in self._axis_values:
             self._axis_values[name] = value
@@ -204,6 +203,7 @@ class HidHandler():
                     self._update_axis(device, event.code, event.value)
 
         except Exception as e:
+            print(e)
             pass
 
         print("Hid loop broken")

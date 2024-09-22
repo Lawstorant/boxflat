@@ -568,7 +568,7 @@ class MozaConnectionManager():
 
             self._serial_data["device-ids"]["wheel"] = wid
 
-        print(f"Cycling wheel id. New id: {wid}")
+        # print(f"Cycling wheel id. New id: {wid}")
         return wid
 
 
