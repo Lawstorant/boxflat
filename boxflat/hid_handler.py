@@ -70,17 +70,6 @@ MozaAxisBaseCodes = {
 }
 
 
-MozaAxisBaseOffsets = [
-    MozaAxis.THROTTLE.name,
-    MozaAxis.BRAKE.name,
-    MozaAxis.CLUTCH.name,
-    MozaAxis.COMBINED_PADDLES.name,
-    MozaAxis.LEFT_PADDLE.name,
-    MozaAxis.RIGHT_PADDLE.name,
-    MozaAxis.HANDBRAKE.name,
-]
-
-
 class HidHandler():
     def __init__(self):
         self._axis_subs = {}
@@ -131,6 +120,20 @@ class HidHandler():
         if device != None:
             if pattern == MozaHidDevice.BASE:
                 self._base = device
+
+            for axis in device.capabilities(absinfo=True)[3]:
+                ecode = axis[0]
+
+                if device.absinfo(ecode).flat > 0:
+                    device.set_absinfo(ecode, flat=0)
+
+                fuzz = 8
+                if device == self._base and ecode == ABS_X:
+                    fuzz = 0
+
+                # detect current fuzz. Needed for ABS_HAT axes
+                if device.absinfo(ecode).fuzz > 8:
+                    device.set_absinfo(ecode, fuzz=fuzz)
 
             thread = Thread(daemon=True, target=self._read_loop, args=[device])
             thread.start()
@@ -185,7 +188,7 @@ class HidHandler():
         else:
             number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
 
-        # print(f"button {number}, state: {state}")
+        print(f"button {number}, state: {state}")
 
         # if number in self._button_subs.keys():
         #     for sub in self._button_subs[number]:
@@ -196,14 +199,14 @@ class HidHandler():
         sleep(1)
         try:
             for event in device.read_loop():
-                if event.type == EV_KEY:
-                    self._update_button(event.code, event.value)
-
-                elif event.type == EV_ABS:
+                if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
+                # elif event.type == EV_KEY:
+                #     self._update_button(event.code, event.value)
+
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         print("Hid loop broken")

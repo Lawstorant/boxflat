@@ -16,7 +16,7 @@ class BoxflatButtonLevelRow(BoxflatLevelRow):
         self._bar.set_margin_end(0)
 
 
-    def add_button(self, button_label: str, callback: callable, *args):
+    def add_button(self, button_label: str, callback: callable, *args) -> Gtk.Button:
         button = Gtk.Button(label=button_label)
         button.set_valign(Gtk.Align.CENTER)
         button.set_margin_start(10)
@@ -24,6 +24,7 @@ class BoxflatButtonLevelRow(BoxflatLevelRow):
         button.add_css_class("level-button")
 
         button.connect('clicked', lambda button: callback(*args))
+        return button
 
 
     def insert_bar_now(self):

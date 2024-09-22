@@ -94,6 +94,15 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.18.3" date="2024-09-22">
+      <description>
+        <ul>
+          <li>Fixed Min/Max buttons and setting ranges on home screen</li>
+          <li>Set fuzz/flat values on connected devices to enable smoother input</li>
+          <li>libadwaita 1.6 compatibility for older OSes</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.18.2" date="2024-09-22">
       <description>
         <p>

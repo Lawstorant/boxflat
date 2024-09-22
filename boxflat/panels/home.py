@@ -1,7 +1,7 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.widgets import *
-
 from boxflat.hid_handler import MozaAxis, HidHandler
+from math import ceil, floor
 
 class HomeSettings(SettingsPanel):
     def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str="") -> None:
@@ -77,6 +77,19 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_value(round((value - 32768) / 32768 * self._rotation))
 
 
-    def _set_limit(self, percent_func: callable, command: str):
-        # print(f"{command}: {percent_func()}")
-        self._cm.set_setting_int(percent_func(), command)
+    def _set_limit(self, fraction_method: callable, command: str, min_max: str):
+        fraction = fraction_method()
+
+        current_raw_output = int(self._cm.get_setting_auto(command + "-output")) / 65535 * 100
+        new_limit = 0
+
+        if min_max == "max":
+            new_limit = floor(current_raw_output)
+        else:
+            new_limit = ceil(current_raw_output)
+
+        # print(f"\nSetting {min_max}-limit for {command}")
+        # print(f"Current raw output: {current_raw_output}")
+        # print(f"New limit: {new_limit}")
+
+        self._cm.set_setting_auto(new_limit, f"{command}-{min_max}")
