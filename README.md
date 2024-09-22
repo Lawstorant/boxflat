@@ -60,6 +60,7 @@ This package depends on:
 - python3
 - gtk4
 - libadwaita 1.6
+- cairo 1.18
 
 Python dependencies:
 - pyyaml 6.0.2
