@@ -49,6 +49,7 @@ class HomeSettings(SettingsPanel):
         self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65534))
         self._append_sub_hid(MozaAxis.HANDBRAKE, self._current_row.set_value)
         self._append_sub_connected("handbrake-direction", self._current_group.set_present, 1)
+        self._current_group.set_present(False)
 
 
         self.add_preferences_group("About")

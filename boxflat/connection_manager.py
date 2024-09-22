@@ -560,15 +560,16 @@ class MozaConnectionManager():
 
 
     def cycle_wheel_id(self) -> int:
-        if self._serial_data["device-ids"]["wheel"] == 23:
-            self._serial_data["device-ids"]["wheel"] = 21
-        else:
-            self._serial_data["device-ids"]["wheel"] = 23
+        with self._devices_lock:
+            wid = self._serial_data["device-ids"]["wheel"] - 1
 
+            if wid == self._serial_data["device-ids"]["base"]:
+                wid = self._serial_data["device-ids"]["pedals"] - 1
 
-        new_id = self._serial_data["device-ids"]["wheel"]
-        print(f"Cycling wheel id. New id: {new_id}")
-        return new_id
+            self._serial_data["device-ids"]["wheel"] = wid
+
+        # print(f"Cycling wheel id. New id: {wid}")
+        return wid
 
 
     def get_command_data(self) -> dict:
