@@ -121,7 +121,14 @@ class HidHandler():
             if pattern == MozaHidDevice.BASE:
                 self._base = device
 
-            for axis in device.capabilities(absinfo=True)[3]:
+            capabilities = device.capabilities(absinfo=True, verbose=False)
+
+            if 3 not in capabilities[0]:
+                capabilities = []
+            else:
+                capabilities = capabilities[3]
+
+            for axis in capabilities:
                 ecode = axis[0]
 
                 if device.absinfo(ecode).flat > 0:
