@@ -31,7 +31,8 @@ class BoxflatLevelRow(BoxflatRow):
 
 
     def _set_value(self, value: int) -> None:
-        value = round(eval("value"+self._reverse_expression))
+        if not self.get_active():
+            return
 
         if value > self._max_value:
             value = self._max_value
@@ -67,7 +68,7 @@ class BoxflatLevelRow(BoxflatRow):
 
 
     def set_active(self, value, offset=0) -> None:
-        if not super().set_active(value, offset):
+        if super().set_active(value, offset):
             self.set_value(0)
 
 

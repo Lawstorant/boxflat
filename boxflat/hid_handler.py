@@ -4,9 +4,7 @@ from time import sleep
 
 from evdev.ecodes import *
 
-from threading import Thread
-from threading import Lock
-from threading import Event
+from threading import Thread, Lock, Event
 
 
 BTN_JOYSTICK = 0x120
@@ -83,6 +81,8 @@ class HidHandler():
         self._devices = []
         self._base = None
 
+        self._axis_values_lock = Lock()
+
 
     def __del__(self):
         self.shutdown()
@@ -114,7 +114,7 @@ class HidHandler():
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):
-                print("HID device added")
+                print(f"HID device \"{hid.name}\" found")
                 device = hid
 
         if device != None:
@@ -156,8 +156,13 @@ class HidHandler():
 
 
     def _notify_axis(self) -> None:
+        axis_values = {}
         while not self._shutdown:
             sleep(1/self._update_rate)
+
+            with self._axis_values_lock:
+                axis_values = self._axis_values.copy()
+
             for axis, value in self._axis_values.items():
                 for sub in self._axis_subs[axis]:
                     sub[0](value, *sub[1])
@@ -179,7 +184,8 @@ class HidHandler():
         # print(f"axis {name} ({code}), value: {value}, min: {axis_min}")
 
         if name in self._axis_values:
-            self._axis_values[name] = value
+            with self._axis_values_lock:
+                self._axis_values[name] = value
 
 
     def _update_button(self, number: int, state: int) -> None:
@@ -209,7 +215,7 @@ class HidHandler():
             # print(e)
             pass
 
-        print("Hid loop broken")
+        print(f"HID device \"{device.name}\" disconnected")
         if device == self._base:
             self._base = None
         device = None
