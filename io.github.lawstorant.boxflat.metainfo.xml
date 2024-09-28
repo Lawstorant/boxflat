@@ -94,6 +94,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.18.5" date="2024-09-28">
+      <description>
+        <ul>
+          <li>Fix level bar flickering</li>
+          <li>Fix HID-related crashes when connecting devices without any axes</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.18.4" date="2024-09-22">
       <description>
         <p>Usage and compatibility fixes</p>
