@@ -16,15 +16,17 @@ class BoxflatRow(Adw.ActionRow):
         self.set_subtitle(subtitle)
         self._expression = "*1"
         self._reverse_expression = "*1"
+        self._active = True
 
 
     def get_active(self) -> bool:
-        return self.get_sensitive()
+        return self._active
 
 
     def set_active(self, value=1, offset=0) -> bool:
         value = bool(int(value) + offset > 0)
         if value != self.get_active():
+            self._active = value
             GLib.idle_add(self.set_sensitive, value)
             return True
 
