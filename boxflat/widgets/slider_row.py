@@ -67,7 +67,7 @@ class BoxflatSliderRow(BoxflatRow):
                 mark, Gtk.PositionType.BOTTOM,f"{mark}{self._suffix}")
 
 
-    def set_width(self, width: int) -> None:
+    def set_slider_width(self, width: int) -> None:
         self._slider.set_size_request(width, 0)
 
 

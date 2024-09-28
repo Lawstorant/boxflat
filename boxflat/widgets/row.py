@@ -16,7 +16,6 @@ class BoxflatRow(Adw.ActionRow):
         self.set_subtitle(subtitle)
         self._expression = "*1"
         self._reverse_expression = "*1"
-        self.set_size_request(620, 0)
 
 
     def get_active(self) -> bool:

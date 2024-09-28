@@ -52,13 +52,13 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-throttle-min")
         self._append_sub("pedals-throttle-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-throttle-max")
         self._append_sub("pedals-throttle-max", self._current_row.set_value)
 
@@ -91,17 +91,17 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake-min")
         self._append_sub("pedals-brake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake-max")
         self._append_sub("pedals-brake-max", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Angle sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
+        self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting_float, "pedals-brake-angle-ratio")
         self._append_sub("pedals-brake-angle-ratio", self._current_row.set_value)
@@ -137,13 +137,13 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-clutch-min")
         self._append_sub("pedals-clutch-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
+        self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "pedals-clutch-max")
         self._append_sub("pedals-clutch-max", self._current_row.set_value)
 

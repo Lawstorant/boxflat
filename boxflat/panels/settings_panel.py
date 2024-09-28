@@ -187,6 +187,10 @@ class SettingsPanel(object):
         if self._current_group == None:
             self.add_preferences_group()
         self._current_row = row
+
+        if isinstance(row, BoxflatRow):
+            row.set_width(620)
+
         GLib.idle_add(self._current_group.add, row)
 
 
