@@ -4,15 +4,15 @@ from .button_row import BoxflatButtonRow
 from .switch_row import BoxflatSwitchRow
 from .advence_row import BoxflatAdvanceRow
 
-from boxflat.subscription import Subscription
+from boxflat.subscription import Subscription, SubscribtionList
 
 class BoxflatPresetDialog(Adw.Dialog):
     def __init__(self, presets_path: str, file_name: str):
         super().__init__()
 
         preset_name = file_name.removesuffix(".yml")
-        self._delete_subs = []
-        self._save_subs = []
+        self._delete_subs = SubscribtionList()
+        self._save_subs = SubscribtionList()
         self.set_title(preset_name)
 
         # Create UI
@@ -91,16 +91,12 @@ class BoxflatPresetDialog(Adw.Dialog):
 
 
     def _notify_save(self, *rest):
-        for sub in self._save_subs:
-            sub.call()
-
+        self._save_subs.call()
         self.close()
 
 
     def _notify_delete(self, *rest):
-        for sub in self._delete_subs:
-            sub.call_with_custom_args("XDD")
-
+        self._delete_subs.call()
         self.close()
 
 
@@ -108,7 +104,7 @@ class BoxflatPresetDialog(Adw.Dialog):
         if not callback:
             return False
 
-        self._save_subs.append(Subscription(callback, *args))
+        self._save_subs.append(callback, *args)
         return True
 
 
@@ -116,5 +112,5 @@ class BoxflatPresetDialog(Adw.Dialog):
         if not callback:
             return False
 
-        self._delete_subs.append(Subscription(callback, *args))
+        self._delete_subs.append(callback, *args)
         return True
