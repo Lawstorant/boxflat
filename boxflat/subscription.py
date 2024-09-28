@@ -50,3 +50,7 @@ class SubscribtionList():
     def call_without_args(self):
         for sub in self._subscribtions:
             sub.call_without_args()
+
+
+    def clear(self):
+        self._subscribtions.clear()

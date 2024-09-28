@@ -3,12 +3,14 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 import time
+from boxflat.subscription import SubscribtionList
 
 class BoxflatRow(Adw.ActionRow):
     def __init__(self, title="", subtitle=""):
         super().__init__()
         self._cooldown = 0
-        self._subscribers = []
+        self._subscribers = SubscribtionList()
+        self._raw_subscribers = SubscribtionList()
         self._mute = False
         self._shutdown = False
         self.set_sensitive(True)
@@ -73,11 +75,15 @@ class BoxflatRow(Adw.ActionRow):
 
 
     def subscribe(self, callback: callable, *args, raw=False) -> None:
-        self._subscribers.append((callback, raw, args))
+        if raw:
+            self._raw_subscribers.append(callback, *args)
+        else:
+            self._subscribers.append(callback, *args)
 
 
     def clear_subscribtions(self) -> None:
-        self._subscribers = []
+        self._subscribers.clear()
+        self._raw_subscribers.clear()
 
 
     def _notify(self) -> None:
@@ -85,9 +91,8 @@ class BoxflatRow(Adw.ActionRow):
             return
 
         self._cooldown = 1
-        for sub in self._subscribers:
-            value = self.get_raw_value() if sub[1] else self.get_value()
-            sub[0](value, *sub[2])
+        self._subscribers.call_with_value(self.get_value())
+        self._raw_subscribers.call_with_value(self.get_raw_value())
 
 
     def set_expression(self, expr: str) -> None:

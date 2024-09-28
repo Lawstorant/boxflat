@@ -4,7 +4,7 @@ from .button_row import BoxflatButtonRow
 from .switch_row import BoxflatSwitchRow
 from .advence_row import BoxflatAdvanceRow
 
-from boxflat.subscription import Subscription, SubscribtionList
+from boxflat.subscription import SubscribtionList
 
 class BoxflatPresetDialog(Adw.Dialog):
     def __init__(self, presets_path: str, file_name: str):
