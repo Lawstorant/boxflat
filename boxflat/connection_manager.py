@@ -107,7 +107,7 @@ class MozaConnectionManager():
         path = self._serial_path
 
         if not os.path.exists(path):
-            print("No devices found!")
+            # print("No devices found!")
             self._handle_devices({})
             return
 
