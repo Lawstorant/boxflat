@@ -14,3 +14,4 @@ from .label_row import *
 from .level_row import *
 from .button_level_row import *
 from .min_max_level_row import *
+from .preset_dialog import *
