@@ -12,10 +12,9 @@ class BoxflatAdvanceRow(BoxflatRow):
         self._set_widget(self._icon)
         self.set_activatable(True)
 
-        self.connect("activated", lambda v: self._notify)
+        self.connect("activated", self._notify)
 
 
     def set_active(self, value=1, offset=0):
         super().set_active(value=value, offset=offset)
-
         self._icon.set_opacity(0.5 + int(self._active))

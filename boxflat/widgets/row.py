@@ -86,7 +86,7 @@ class BoxflatRow(Adw.ActionRow):
         self._raw_subscribers.clear()
 
 
-    def _notify(self) -> None:
+    def _notify(self, *rest) -> None:
         if self._mute:
             return
 

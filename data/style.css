@@ -154,7 +154,8 @@ colorbutton > button > colorswatch {
     background-color: #b8af38;
 }
 
-.level-button {
-    padding-left: 10px;
-    padding-right: 10px;
+.square {
+    border-radius: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }

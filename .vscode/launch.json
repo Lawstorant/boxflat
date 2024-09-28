@@ -10,6 +10,9 @@
             "request": "launch",
             "program": "entrypoint.py",
             "console": "integratedTerminal",
+            "env": {
+                "GTK_DEBUG": "interactive"
+            },
             "args": [
                 "--local"
             ]
