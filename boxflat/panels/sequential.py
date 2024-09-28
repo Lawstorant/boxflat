@@ -29,7 +29,8 @@ class SequentialSettings(SettingsPanel):
 
         self.add_preferences_group("Buttons")
         self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
-        self._current_row.add_marks(5);
+        self._current_row.add_marks(5)
+        self._current_row.set_slider_width(290)
         self._current_row.subscribe(self._cm.set_setting_int, "sequential-brightness")
         self._append_sub("sequential-brightness", self._current_row.set_value)
 
