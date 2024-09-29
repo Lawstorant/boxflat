@@ -27,11 +27,10 @@ class MozaHidDevice():
 class AxisData():
     name: str
     device: str
-    base_offset: int
 
-    def __init__(self, n, d):
-        self.name = n
-        self.device = d
+    def __init__(self, name: str, device: str):
+        self.name = name
+        self.device = device
 
 
 class MozaAxis():
