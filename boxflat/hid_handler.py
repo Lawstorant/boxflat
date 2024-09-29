@@ -175,7 +175,7 @@ class HidHandler():
             with self._axis_values_lock:
                 axis_values = self._axis_values.copy()
 
-            for axis, value in self._axis_values.items():
+            for axis, value in axis_values.items():
                 self._axis_subs[axis].call_with_value(value)
 
 
