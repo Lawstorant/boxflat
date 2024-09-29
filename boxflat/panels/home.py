@@ -27,7 +27,7 @@ class HomeSettings(SettingsPanel):
         self._append_sub_hid(MozaAxis.STEERING.name, self._set_steering)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
-        self._current_row.subscribe(self._cm.set_setting_int, "base-calibration")
+        self._current_row.subscribe(self._cm.set_setting_auto, "base-calibration")
 
 
         self.add_preferences_group("Pedals")

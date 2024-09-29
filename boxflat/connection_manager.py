@@ -77,7 +77,7 @@ class MozaConnectionManager():
         self._serial_path = "/dev/serial/by-id"
 
         self._set_type_method_mapping = {
-            "int" : self.set_setting_int,
+            "int" : self._set_setting_int,
             "float" : self.set_setting_float,
             "array" : self.set_setting_list,
             "hex" : self.set_setting_hex
@@ -437,7 +437,7 @@ class MozaConnectionManager():
             self._write_command_buffer[command_name] = (value, byte_value)
 
 
-    def set_setting_int(self, value: int, command_name: str) -> None:
+    def _set_setting_int(self, value: int, command_name: str) -> None:
         self._set_setting(command_name, value)
 
 

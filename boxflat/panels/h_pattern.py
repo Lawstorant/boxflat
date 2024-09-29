@@ -38,5 +38,5 @@ class HPatternSettings(SettingsPanel):
 
         self.add_preferences_group("Calibration")
         self._add_row(BoxflatCalibrationRow("Device Calibration", "Shift into R > 7th > R > Neutral"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting_int, "hpattern-calibration-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting_int, "hpattern-calibration-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting_auto, "hpattern-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting_auto, "hpattern-calibration-stop")

@@ -72,7 +72,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
 
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-paddles-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-paddles-mode")
         self._append_sub("wheel-paddles-mode", self._current_row.set_value)
         self._append_sub_connected("wheel-paddles-mode", self._current_row.set_present)
         self._current_row.set_present(False)
@@ -104,7 +104,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-clutch-point")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-clutch-point")
         self._current_row.subscribe(level.set_offset)
         paddle_mode.subscribe(lambda v: slider.set_active(v == 2))
         self._append_sub("wheel-clutch-point", self._current_row.set_value)
@@ -114,7 +114,7 @@ class WheelSettings(SettingsPanel):
 
         self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
         self._current_row.add_buttons("Buttons", "  Knob ")
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-knob-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-knob-mode")
         self._append_sub("wheel-knob-mode", self._current_row.set_value)
         self._append_sub_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
@@ -123,7 +123,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("Buttons", "D-Pad")
         self._current_row.set_expression("*256")
         self._current_row.set_reverse_expression("/256")
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-stick-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-stick-mode")
         self._append_sub("wheel-stick-mode", self._current_row.set_value)
 
 
@@ -158,17 +158,17 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("RPM", "Off", "On ")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-indicator-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-indicator-mode")
         self._append_sub("wheel-indicator-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
         self._current_row.add_buttons("Mode 1", "Mode 2")
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-set-display-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-set-display-mode")
         self._append_sub("wheel-get-display-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Mode"))
         self._current_row.add_buttons("Percent", "RPM")
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-rpm-mode")
         self._current_row.subscribe(self._reconfigure_timings)
         self._append_sub("wheel-rpm-mode", self._current_row.set_value)
 
@@ -193,7 +193,7 @@ class WheelSettings(SettingsPanel):
 
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_labels(f"RPM{i+1}", index=i)
-            self._timing_row2.subscribe_slider(i, self._cm.set_setting_int, f"wheel-rpm-value{i+1}")
+            self._timing_row2.subscribe_slider(i, self._cm.set_setting_auto, f"wheel-rpm-value{i+1}")
             self._append_sub(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
         self._append_sub(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
@@ -205,7 +205,7 @@ class WheelSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
         self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-interval")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-rpm-interval")
         self._append_sub("wheel-rpm-interval", self._current_row.set_value)
 
 
@@ -230,18 +230,18 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_group("Brightness")
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-buttons-brightness")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-buttons-brightness")
         self._append_sub("wheel-buttons-brightness", self._current_row.set_value)
         self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
 
         self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
-        self._current_row.subscribe(self._cm.set_setting_int, "wheel-rpm-brightness")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-rpm-brightness")
         self._append_sub("wheel-rpm-brightness", self._current_row.set_value)
 
         # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
         # self._current_row.add_marks(5, 10)
-        # self._current_row.subscribe(self._cm.set_setting_int, "wheel-flags-brightness")
+        # self._current_row.subscribe(self._cm.set_setting_auto, "wheel-flags-brightness")
         # self._append_sub("wheel-flags-brightness", self._current_row.set_value)
 
         # self.add_preferences_group("Telemetry flag")
@@ -273,7 +273,7 @@ class WheelSettings(SettingsPanel):
 
     def _set_rpm_timings2_preset(self, index) -> None:
         for i in range(10):
-            self._cm.set_setting_int(self._timings2[index][i], f"wheel-rpm-value{i+1}")
+            self._cm.set_setting_auto(self._timings2[index][i], f"wheel-rpm-value{i+1}")
 
 
     def _get_rpm_timings2_preset(self, *args) -> None:
@@ -293,11 +293,11 @@ class WheelSettings(SettingsPanel):
 
     def _calibrate_paddles(self, value: int) -> None:
         if value == 0:
-            self._cm.set_setting_int(5, "wheel-paddles-calibration")
+            self._cm.set_setting_auto(5, "wheel-paddles-calibration")
 
         else:
-            self._cm.set_setting_int(1, "wheel-paddles-calibration")
-            self._cm.set_setting_int(2, "wheel-paddles-calibration2")
+            self._cm.set_setting_auto(1, "wheel-paddles-calibration")
+            self._cm.set_setting_auto(2, "wheel-paddles-calibration2")
 
 
     def _set_combination_settings(self, values) -> None:
@@ -346,30 +346,30 @@ class WheelSettings(SettingsPanel):
 
     def _wheel_rpm_test(self, *args) -> None:
         initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
-        self._cm.set_setting_int(1, "wheel-indicator-mode")
+        self._cm.set_setting_auto(1, "wheel-indicator-mode")
 
         t = 0.3
         for i in range(10):
             val = modify_bit(0, i)
-            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            self._cm.set_setting_auto(val, "wheel-send-telemetry")
             time.sleep(t)
 
         for i in reversed(range(9)):
             val = modify_bit(0, i)
-            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            self._cm.set_setting_auto(val, "wheel-send-telemetry")
             time.sleep(t)
 
         val = 0
-        self._cm.set_setting_int(val, "wheel-send-telemetry")
+        self._cm.set_setting_auto(val, "wheel-send-telemetry")
         time.sleep(t)
         for i in range(10):
             val = modify_bit(val, i)
-            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            self._cm.set_setting_auto(val, "wheel-send-telemetry")
             time.sleep(t)
 
         time.sleep(0.5)
         val = modify_bit(0,15)
-        self._cm.set_setting_int(val, "wheel-send-telemetry")
+        self._cm.set_setting_auto(val, "wheel-send-telemetry")
         time.sleep(1)
 
-        self._cm.set_setting_int(initial_mode, "wheel-indicator-mode")
+        self._cm.set_setting_auto(initial_mode, "wheel-indicator-mode")

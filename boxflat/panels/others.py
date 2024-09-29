@@ -20,17 +20,17 @@ class OtherSettings(SettingsPanel):
         self._current_row.reverse_values()
         self._current_row.set_expression("*85")
         self._current_row.set_reverse_expression("/85")
-        self._current_row.subscribe(self._cm.set_setting_int, "main-set-ble-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "main-set-ble-mode")
         self._append_sub("main-get-ble-mode", self._current_row.set_value)
         self._append_sub_connected("base-limit", self._current_row.set_active)
 
         self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Changes USB product ID"))
-        self._current_row.subscribe(self._cm.set_setting_int, "main-set-compat-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "main-set-compat-mode")
         self._append_sub("main-get-compat-mode", self._current_row.set_value)
         self._append_sub_connected("main-get-compat-mode", self._current_row.set_present, +1)
 
         self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Changes USB product ID"))
-        self._current_row.subscribe(self._cm.set_setting_int, "pedals-compat-mode")
+        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-compat-mode")
         self._append_sub("pedals-compat-mode", self._current_row.set_value)
         self._append_sub_connected("pedals-compat-mode", self._current_row.set_present, +1)
 
@@ -79,4 +79,4 @@ class OtherSettings(SettingsPanel):
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
         val = int(self._value.get_text())
-        self._cm.set_setting_int(val, com)
+        self._cm.set_setting_auto(val, com)
