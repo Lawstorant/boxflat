@@ -3,6 +3,7 @@ import re
 from time import sleep
 
 from evdev.ecodes import *
+from .subscription import SubscribtionList
 
 from threading import Thread
 from threading import Lock
@@ -75,8 +76,9 @@ class HidHandler():
         self._axis_subs = {}
         self._axis_values = {}
         self._button_subs = {}
+        self._button_values = {}
 
-        self._shutdown = False
+        self._running = Event()
         self._update_rate = 120
 
         self._device_patterns = []
@@ -85,11 +87,16 @@ class HidHandler():
 
 
     def __del__(self):
-        self.shutdown()
+        self.stop()
 
 
     def start(self):
+        self._running.set()
         Thread(target=self._notify_axis, daemon=True).start()
+        # Thread(target=self._notify_button, daemon=True).start()
+
+    def stop(self):
+        self._running.clear()
 
 
     def get_update_rate(self) -> int:
@@ -135,32 +142,36 @@ class HidHandler():
                 if device.absinfo(ecode).fuzz > 8:
                     device.set_absinfo(ecode, fuzz=fuzz)
 
-            thread = Thread(daemon=True, target=self._read_loop, args=[device])
-            thread.start()
+            Thread(daemon=True, target=self._read_loop, args=[device]).start()
 
 
     def subscribe_axis(self, axis: AxisData, callback: callable, *args) -> None:
         if not axis.name in self._axis_subs:
-            self._axis_subs[axis.name] = []
+            self._axis_subs[axis.name] = SubscribtionList()
             self._axis_values[axis.name] = 0
 
-        self._axis_subs[axis.name].append((callback, args))
+        self._axis_subs[axis.name].append(callback, *args)
 
 
     def subscribe_button(self, number, callback: callable, *args) -> None:
-        # if not button in self._button_subs:
-        #     self._button_subs[number] = []
+        if not button in self._button_subs:
+            self._button_subs[number] = SubscribtionList()
 
-        # self._button_subs[number].append((callback, args))
-        pass
+        self._button_subs[number].append(callback, *args)
 
 
     def _notify_axis(self) -> None:
-        while not self._shutdown:
+        while self._running.is_set():
             sleep(1/self._update_rate)
             for axis, value in self._axis_values.items():
-                for sub in self._axis_subs[axis]:
-                    sub[0](value, *sub[1])
+                self._axis_subs[axis].call_with_value(value)
+
+
+    def _notify_button(self) -> None:
+        while self._running.is_set():
+            sleep(1/self._update_rate)
+            for button, value in self._button_values.items():
+                self._button_subs[button].call_with_value(value)
 
 
     def _update_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
@@ -188,11 +199,10 @@ class HidHandler():
         else:
             number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
 
-        print(f"button {number}, state: {state}")
+        # print(f"button {number}, state: {state}")
 
-        # if number in self._button_subs.keys():
-        #     for sub in self._button_subs[number]:
-        #         sub[0](number, state*sub[1])
+        if number in self._button_values:
+            self._button_values[number] = state
 
 
     def _read_loop(self, device: evdev.InputDevice) -> None:
@@ -212,4 +222,3 @@ class HidHandler():
         print("Hid loop broken")
         if device == self._base:
             self._base = None
-        device = None

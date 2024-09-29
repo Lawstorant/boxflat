@@ -4,7 +4,7 @@ class Subscription():
         self._args = args
 
 
-    def call(self, additional=None):
+    def call(self):
         self._callback(*self._args)
 
 
@@ -24,7 +24,6 @@ class SubscribtionList():
     def __init__(self):
         self._subscribtions = []
 
-
     def append(self, callback: callable, *args):
         if callable(callback):
             self._subscribtions.append(Subscription(callback, *args))
@@ -37,7 +36,7 @@ class SubscribtionList():
         self._subscribtions.append(subscription)
 
 
-    def call(self, additional=None):
+    def call(self):
         for sub in self._subscribtions:
             sub.call()
 
