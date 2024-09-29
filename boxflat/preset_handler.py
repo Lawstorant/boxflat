@@ -157,10 +157,6 @@ class MozaPresetHandler(SimpleEventDispatcher):
         self._name = name
 
 
-    def _notify(self):
-        self._dispatch()
-
-
     def append_setting(self, setting_name: str):
         command = MozaCommand(setting_name, self._cm.get_command_data())
         if command.device_type not in self._settings:
@@ -218,7 +214,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
         with open(os.path.join(path, self._name + ".yml"), "w") as file:
             file.write(yaml.safe_dump(preset_data))
 
-        self._notify()
+        self._dispatch()
 
 
     def _load_preset(self):
@@ -236,4 +232,4 @@ class MozaPresetHandler(SimpleEventDispatcher):
                     # print(f"{key}-{setting}: {value}")
                     self._cm.set_setting_auto(value, f"{key}-{setting}")
 
-        self._notify()
+        self._dispatch()

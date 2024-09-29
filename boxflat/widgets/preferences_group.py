@@ -114,14 +114,6 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
         self._offset = value
 
 
-    # def set_range_start(self, value: int) -> None:
-    #     self._bar.set_min_value(round(self._max_value * (value/100)))
-
-
-    # def set_range_end(self, value: int) -> None:
-    #     self._bar.set_max_value(round(self._max_value * (value/100)))
-
-
     def set_active(self, value, offset=0) -> None:
         value = int(value + offset) > 0
         GLib.idle_add(self.set_sensitive, value)

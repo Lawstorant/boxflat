@@ -149,9 +149,10 @@ class WheelSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
         self._current_row.subscribe(self.start_test)
 
-        self._add_row(BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True))
-        self._current_row.subscribe(self._calibrate_paddles)
-        self._cm.subscribe_shutdown(self._current_row.shutdown)
+        calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
+        self._add_row(calibration)
+        calibration.subscribe("calibration-start", self._calibrate_paddles, 0)
+        calibration.subscribe("calibration-stop", self._calibrate_paddles, 1)
 
 
         # RPM

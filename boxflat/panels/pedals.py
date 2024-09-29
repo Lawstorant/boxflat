@@ -68,8 +68,8 @@ class PedalsSettings(SettingsPanel):
         self._append_sub("pedals-throttle-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress throttle once"))
-        self._current_row.subscribe(self._cm.set_setting_int, "pedals-throttle")
-        self._cm.subscribe_shutdown(self._current_row.shutdown)
+        self._current_row.subscribe("calibration-start", self._cm.set_setting_int, "pedals-throttle-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting_int, "pedals-throttle-calibration-stop")
 
         # Brake
         self.add_preferences_page("Brake")
@@ -113,9 +113,9 @@ class PedalsSettings(SettingsPanel):
 
         self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Fully depress brake once")
         self._add_row(self._brake_calibration_row)
-        self._current_row.subscribe(self._cm.set_setting_int, "pedals-brake")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting_int, "pedals-throttle-brake-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting_int, "pedals-throttle-brake-stop")
         self._current_row.set_active(False)
-        self._cm.subscribe_shutdown(self._current_row.shutdown)
 
         # Clutch
         self.add_preferences_page("Clutch")
@@ -153,8 +153,8 @@ class PedalsSettings(SettingsPanel):
         self._append_sub("pedals-clutch-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress clutch once"))
-        self._current_row.subscribe(self._cm.set_setting_int, "pedals-clutch")
-        self._cm.subscribe_shutdown(self._current_row.shutdown)
+        self._current_row.subscribe("calibration-start", self._cm.set_setting_int, "pedals-clutch-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting_int, "pedals-clutch-calibration-stop")
 
 
     def _set_curve_preset(self, value: int, pedal: str) -> None:

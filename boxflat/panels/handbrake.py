@@ -61,20 +61,18 @@ class HandbrakeSettings(SettingsPanel):
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "handbrake-min")
-        # self._current_row.subscribe(self._current_group.set_range_start)
         self._append_sub("handbrake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%", value=100))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting_int, "handbrake-max")
-        # self._current_row.subscribe(self._current_group.set_range_end)
         self._append_sub("handbrake-max", self._current_row.set_value)
 
         self.add_preferences_group("Calibration")
         self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Pull handbrake fully once"))
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake")
-        self._cm.subscribe_shutdown(self._current_row.shutdown)
+        self._current_row.subscribe("calibration-start", self._cm.set_setting_int, "handbrake-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting_int, "handbrake-calibration-stop")
 
 
     def _set_curve_preset(self, value: int) -> None:
