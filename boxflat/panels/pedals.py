@@ -36,7 +36,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Throttle")
         self.add_preferences_group("Throttle settings", level_bar=1)
         self._current_group.set_bar_max(65534)
-        self._append_sub_hid(MozaAxis.THROTTLE, self._current_group.set_bar_level)
+        self._append_sub_hid(MozaAxis.THROTTLE.name, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Throttle Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[0])
@@ -75,7 +75,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Brake")
         self.add_preferences_group("Brake settings", level_bar=1)
         self._current_group.set_bar_max(65534)
-        self._append_sub_hid(MozaAxis.BRAKE, self._current_group.set_bar_level)
+        self._append_sub_hid(MozaAxis.BRAKE.name, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Brake Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[1])
@@ -121,7 +121,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Clutch")
         self.add_preferences_group("Clutch settings", level_bar=1)
         self._current_group.set_bar_max(65534)
-        self._append_sub_hid(MozaAxis.CLUTCH, self._current_group.set_bar_level)
+        self._append_sub_hid(MozaAxis.CLUTCH.name, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Clutch Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[2])

@@ -6,7 +6,7 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 
 from boxflat.connection_manager import MozaConnectionManager
-from boxflat.hid_handler import HidHandler
+from boxflat.hid_handler import HidHandler, MozaAxis
 
 class SettingsPanel(object):
     def __init__(self, title: str, button_callback: callable,
@@ -218,7 +218,7 @@ class SettingsPanel(object):
 
     def activate_hid_subs(self) -> None:
         for sub in self._hid_subs:
-            self._hid_handler.subscribe_axis(*sub)
+            self._hid_handler.subscribe(*sub)
 
 
     # def deactivate_hid_subs(self) -> None:

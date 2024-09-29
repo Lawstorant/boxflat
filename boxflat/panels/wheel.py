@@ -85,20 +85,20 @@ class WheelSettings(SettingsPanel):
 
         level = BoxflatLevelRow("Combined Paddles", max_value=65534)
         self._add_row(level)
-        self._append_sub_hid(MozaAxis.COMBINED_PADDLES, self._current_row.set_value)
+        self._append_sub_hid(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
         self._append_sub_connected("wheel-paddles-mode", lambda v: level.set_present(v == 2))
         self._append_sub("wheel-clutch-point", self._current_row.set_offset)
         paddle_mode.subscribe(lambda v: level.set_present(v == 2, skip_cooldown=True))
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
         self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
-        self._append_sub_hid(MozaAxis.LEFT_PADDLE, self._current_row.set_value)
+        self._append_sub_hid(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
         self._append_sub_connected("wheel-paddles-mode", self._current_row.set_present, -2)
         paddle_mode.subscribe(self._current_row.set_present, -2, True)
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
         self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
-        self._append_sub_hid(MozaAxis.RIGHT_PADDLE, self._current_row.set_value)
+        self._append_sub_hid(MozaAxis.RIGHT_PADDLE.name, self._current_row.set_value)
         self._append_sub_connected("wheel-paddles-mode", self._current_row.set_present, -2)
         paddle_mode.subscribe(self._current_row.set_present, -2, True)
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)

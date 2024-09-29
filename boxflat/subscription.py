@@ -4,6 +4,10 @@ class Subscription():
         self._args = args
 
 
+    def __call__(self):
+        self.call()
+
+
     def call(self):
         self._callback(*self._args)
 
@@ -28,9 +32,6 @@ class SubscriptionList():
     def append(self, callback: callable, *args):
         if callable(callback):
             self._subscriptions.append(Subscription(callback, *args))
-
-        elif isinstance(Subscription, callback):
-            self.append_subscription(callback)
 
 
     def append_subscription(self, subscription: Subscription):
@@ -70,6 +71,15 @@ class EventDispatcher():
         self.__events = {}
 
 
+    def list_events(self) -> list[str]:
+        return list(self.__events.keys())
+
+
+    @property
+    def events(self) -> list[str]:
+        return self.list_events()
+
+
     def __find_event(self, event_name: str) -> bool:
         return bool(self.__events.get(event_name, False))
 
@@ -82,20 +92,31 @@ class EventDispatcher():
         # TODO debug warn if event already exists
 
 
+    def _register_events(self, *event_names: str):
+        for event in event_names:
+            self._register_event(event)
+
+
+    def _deregister_event(self, event_name: str) -> bool:
+        if event_name not in self.events:
+            return False
+
+        self.__events.pop(event_name)
+        return True
+
+    def _deregister_events(self) -> bool:
+        self.__events = {}
+
+
     def _dispatch(self, event_name: str, value=None) -> bool:
         if not self.__find_event(event_name):
             return False
 
-        if not value:
+        if value == None:
             self.__events[event_name].call()
         else:
             self.__events[event_name].call_with_value(value)
-
         return True
-
-
-    def list_events(self) -> list[str]:
-        return list(self.__events.keys())
 
 
     def subscribe(self, event_name: str, callback: callable, *args) -> bool:
@@ -113,7 +134,7 @@ class EventDispatcher():
         self.__events[event_name].clear()
 
 
-    def _clear_all_subscriptions(self):
+    def _clear_subscriptions(self):
         for event in self.__events.values():
             event.clear()
 
@@ -133,5 +154,5 @@ class SimpleEventDispatcher(EventDispatcher):
         super().subscribe("default", callback, *args)
 
 
-    def clear_subscriptions(self):
-        super().clear_all_subscriptions()
+    def _clear_subscriptions(self):
+        super().clear_subscriptions()

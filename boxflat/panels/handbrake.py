@@ -42,7 +42,7 @@ class HandbrakeSettings(SettingsPanel):
 
         self.add_preferences_group("Range settings", level_bar=1)
         self._current_group.set_bar_max(65535)
-        self._append_sub_hid(MozaAxis.HANDBRAKE, self._current_group.set_bar_level)
+        self._append_sub_hid(MozaAxis.HANDBRAKE.name, self._current_group.set_bar_level)
 
         self._curve_row = BoxflatEqRow("Output Curve", 5, suffix="%")
         self._add_row(self._curve_row)

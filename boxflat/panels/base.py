@@ -53,7 +53,7 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_group("Important settings", alt_level_bar=True)
         self._current_group.set_bar_max(32767)
         self._current_group.set_offset(-32767)
-        self._append_sub_hid(MozaAxis.STEERING, self._current_group.set_alt_bar_level)
+        self._append_sub_hid(MozaAxis.STEERING.name, self._current_group.set_alt_bar_level)
 
         self._add_row(BoxflatSliderRow(
             "Wheel Rotation Angle",subtitle="Round and round", range_start=90, range_end=2700, big=True, draw_value=False))

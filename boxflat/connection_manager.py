@@ -185,7 +185,7 @@ class MozaConnectionManager():
 
 
     def subscribe_no_access(self, callback, *args) -> None:
-        self._no_access_subs.append(callback, args)
+        self._no_access_subs.append((callback, args))
 
 
     def refresh(self, *args) -> None:
