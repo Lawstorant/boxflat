@@ -80,12 +80,13 @@ class BaseSettings(SettingsPanel):
 
         # Basic settings
         self.add_preferences_group("Basic settings")
-        self._add_row(BoxflatSliderRow("Road Sensitivity", range_end=10))
+        self._sensitivity_row = BoxflatSliderRow("Road Sensitivity", range_end=10)
+        self._add_row(self._sensitivity_row)
         self._current_row.add_marks(2, 4, 6, 8)
         self._current_row.set_expression("*4 + 10")
         self._current_row.set_reverse_expression("/4 - 2.5")
         self._current_row.subscribe(self._cm.set_setting_int, "base-road-sensitivity")
-        self._current_row.subscribe(self._set_eq_preset, raw=True)
+        self._current_row.subscribe(self._set_eq_preset, True)
         self._append_sub("base-road-sensitivity", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Maximum Wheel Speed", suffix="%", range_end=200))
@@ -295,6 +296,9 @@ class BaseSettings(SettingsPanel):
         self._curve_row.set_slider_value(value, sindex)
 
 
-    def _set_eq_preset(self, index: int) -> None:
+    def _set_eq_preset(self, index: int, get_index_from_sensitivity=False) -> None:
+        if get_index_from_sensitivity:
+            index = self._sensitivity_row.get_raw_value()
+
         for i in range(6):
             self._cm.set_setting_int(self._eq_presets[index][i], f"base-equalizer{i+1}")

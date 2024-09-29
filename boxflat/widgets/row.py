@@ -3,12 +3,12 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 import time
-from boxflat.subscription import EventDispatcher
+from boxflat.subscription import SimpleEventDispatcher
 
-class BoxflatRow(Adw.ActionRow, EventDispatcher):
+class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
     def __init__(self, title="", subtitle=""):
         Adw.ActionRow.__init__(self)
-        EventDispatcher.__init__(self)
+        SimpleEventDispatcher.__init__(self)
 
         self._cooldown = 0
         self._mute = False
@@ -19,9 +19,6 @@ class BoxflatRow(Adw.ActionRow, EventDispatcher):
         self._expression = "*1"
         self._reverse_expression = "*1"
         self._active = True
-
-        self._register_event("value-change")
-        self._register_event("value-change-raw")
 
 
     def get_active(self) -> bool:
@@ -77,24 +74,12 @@ class BoxflatRow(Adw.ActionRow, EventDispatcher):
         GLib.idle_add(self.add_suffix, widget)
 
 
-    def subscribe(self, callback: callable, *args, raw=False) -> None:
-        if raw:
-            super().subscribe("value-change-raw", callback, *args)
-        else:
-            super().subscribe("value-change", callback, *args)
-
-
-    def clear_subscriptions(self) -> None:
-        self._clear_all_subscriptions()
-
-
     def _notify(self, *rest) -> None:
         if self._mute:
             return
 
         self._cooldown = 1
-        self._dispatch("value-change", self.get_value())
-        self._dispatch("value-change-raw", self.get_raw_value())
+        self._dispatch(self.get_value())
 
 
     def set_expression(self, expr: str) -> None:

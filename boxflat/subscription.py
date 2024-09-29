@@ -133,5 +133,5 @@ class SimpleEventDispatcher(EventDispatcher):
         super().subscribe("default", callback, *args)
 
 
-    def _clear_subscriptions(self):
+    def clear_subscriptions(self):
         super().clear_all_subscriptions()
