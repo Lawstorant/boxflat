@@ -3,7 +3,7 @@ from .moza_command import MozaCommand
 import yaml
 import os
 from threading import Thread
-from .subscription import SubscriptionList
+from .subscription import SimpleEventDispatcher
 
 MozaDevicePresetSettings = {
     "base" : [
@@ -140,13 +140,13 @@ MozaDevicePresetSettings = {
     ]
 }
 
-class MozaPresetHandler():
+class MozaPresetHandler(SimpleEventDispatcher):
     def __init__(self, connection_manager: MozaConnectionManager):
+        super().__init__()
         self._settings = {}
         self._cm = connection_manager
         self._path = None
         self._name = None
-        self._callbacks = SubscriptionList()
 
 
     def set_path(self, preset_path: str):
@@ -157,12 +157,8 @@ class MozaPresetHandler():
         self._name = name
 
 
-    def add_callback(self, callback: callable):
-        self._callbacks.append(callback)
-
-
     def _notify(self):
-        self._callbacks.call_without_args()
+        self._dispatch()
 
 
     def append_setting(self, setting_name: str):

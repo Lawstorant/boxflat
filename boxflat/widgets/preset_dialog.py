@@ -4,16 +4,16 @@ from .button_row import BoxflatButtonRow
 from .switch_row import BoxflatSwitchRow
 from .advance_row import BoxflatAdvanceRow
 
-from boxflat.subscription import SubscriptionList
+from boxflat.subscription import EventDispatcher
 
-class BoxflatPresetDialog(Adw.Dialog):
+class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
     def __init__(self, presets_path: str, file_name: str):
-        super().__init__()
+        Adw.Dialog.__init__(self)
+        EventDispatcher.__init__(self)
 
+        self._register_events("save",  "delete")
         preset_name = file_name.removesuffix(".yml")
         self._preset_name = preset_name
-        self._delete_subs = SubscriptionList()
-        self._save_subs = SubscriptionList()
         self.set_title("Preset settings")
         self.set_content_width(480)
 
@@ -109,21 +109,13 @@ class BoxflatPresetDialog(Adw.Dialog):
 
 
     def _notify_save(self, *rest):
-        self._save_subs.call()
+        self._dispatch("save", self._preset_name)
         self.close()
 
 
     def _notify_delete(self, *rest):
-        self._delete_subs.call()
+        self._dispatch("delete", self._preset_name)
         self.close()
-
-
-    def subscribe_save(self, callback: callable, *args):
-        self._save_subs.append(callback, self._preset_name, *args)
-
-
-    def subscribe_delete(self, callback: callable, *args):
-        self._delete_subs.append(callback, self._preset_name, *args)
 
 
     def _open_process_page(self, *rest):

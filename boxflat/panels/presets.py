@@ -88,8 +88,9 @@ class PresetSettings(SettingsPanel):
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
-        pm.add_callback(self.list_presets)
-        pm.add_callback(self._activate_save)
+
+        pm.subscribe(self.list_presets)
+        pm.subscribe(self._activate_save)
 
         for key, method in self._includes.items():
             if method():
@@ -98,7 +99,7 @@ class PresetSettings(SettingsPanel):
         pm.save_preset()
 
 
-    def _activate_save(self):
+    def _activate_save(self, *rest):
         GLib.idle_add(self._save_row.set_sensitive, True)
 
 
@@ -106,7 +107,6 @@ class PresetSettings(SettingsPanel):
         print(f"\nLoading preset {preset_name}")
 
         self._name_row.set_text(preset_name.removesuffix(".yml"))
-
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
@@ -126,7 +126,7 @@ class PresetSettings(SettingsPanel):
         self.list_presets()
 
 
-    def list_presets(self):
+    def list_presets(self, *rest):
         self.remove_preferences_group(self._presets_list_group)
 
         if not os.path.exists(self._presets_path):
@@ -156,7 +156,6 @@ class PresetSettings(SettingsPanel):
             return
 
         dialog = BoxflatPresetDialog(self._presets_path, file_name)
-        dialog.subscribe_save(print, "Save preset")
-        dialog.subscribe_delete(self._delete_preset)
-
+        dialog.subscribe("save", print, "Save preset")
+        dialog.subscribe("delete", self._delete_preset)
         dialog.present()

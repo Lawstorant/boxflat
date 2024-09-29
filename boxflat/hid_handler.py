@@ -3,7 +3,7 @@ import re
 from time import sleep
 
 from evdev.ecodes import *
-from .subscription import SubscriptionList, EventDispatcher
+from .subscription import EventDispatcher
 
 from threading import Thread, Lock, Event
 
