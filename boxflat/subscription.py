@@ -67,16 +67,16 @@ class SubscriptionList():
 
 class EventDispatcher():
     def __init__(self):
-        self.__event = {}
+        self.__events = {}
 
 
     def __find_event(self, event_name: str) -> bool:
-        return event_name in self.__event
+        return bool(self.__events.get(event_name, False))
 
 
     def _register_event(self, event_name: str) -> bool:
         if not self.__find_event(event_name):
-            self._event[event_name] = SubscriptionList()
+            self.__events[event_name] = SubscriptionList()
             return True
         return False
         # TODO debug warn if event already exists
@@ -87,23 +87,35 @@ class EventDispatcher():
             return False
 
         if not value:
-            self._event[event_name].call()
+            self.__events[event_name].call()
         else:
-            self._event[event_name].call_with_value(value)
+            self.__events[event_name].call_with_value(value)
 
         return True
 
 
     def list_events(self) -> list[str]:
-        return list(self.__event.keys())
+        return list(self.__events.keys())
 
 
     def subscribe(self, event_name: str, callback: callable, *args) -> bool:
         if not self.__find_event(event_name):
             return False
 
-        self.__event[event_name].append(callback, *args)
+        self.__events[event_name].append(callback, *args)
         return True
+
+
+    def _clear_event_subscriptions(self, event_name: str) -> bool:
+        if not self.__find_event(event_name):
+            return False
+
+        self.__events[event_name].clear()
+
+
+    def _clear_all_subscriptions(self):
+        for event in self.__events.values():
+            event.clear()
 
 
 
@@ -119,3 +131,7 @@ class SimpleEventDispatcher(EventDispatcher):
 
     def subscribe(self, callback: callable, *args):
         super().subscribe("default", callback, *args)
+
+
+    def _clear_subscriptions(self):
+        super().clear_all_subscriptions()

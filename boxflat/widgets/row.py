@@ -3,14 +3,14 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 import time
-from boxflat.subscription import SubscriptionList
+from boxflat.subscription import EventDispatcher
 
-class BoxflatRow(Adw.ActionRow):
+class BoxflatRow(Adw.ActionRow, EventDispatcher):
     def __init__(self, title="", subtitle=""):
-        super().__init__()
+        Adw.ActionRow.__init__(self)
+        EventDispatcher.__init__(self)
+
         self._cooldown = 0
-        self._subscribers = SubscriptionList()
-        self._raw_subscribers = SubscriptionList()
         self._mute = False
         self._shutdown = False
         self.set_sensitive(True)
@@ -19,6 +19,9 @@ class BoxflatRow(Adw.ActionRow):
         self._expression = "*1"
         self._reverse_expression = "*1"
         self._active = True
+
+        self._register_event("value-change")
+        self._register_event("value-change-raw")
 
 
     def get_active(self) -> bool:
@@ -76,14 +79,13 @@ class BoxflatRow(Adw.ActionRow):
 
     def subscribe(self, callback: callable, *args, raw=False) -> None:
         if raw:
-            self._raw_subscribers.append(callback, *args)
+            super().subscribe("value-change-raw", callback, *args)
         else:
-            self._subscribers.append(callback, *args)
+            super().subscribe("value-change", callback, *args)
 
 
     def clear_subscriptions(self) -> None:
-        self._subscribers.clear()
-        self._raw_subscribers.clear()
+        self._clear_all_subscriptions()
 
 
     def _notify(self, *rest) -> None:
@@ -91,8 +93,8 @@ class BoxflatRow(Adw.ActionRow):
             return
 
         self._cooldown = 1
-        self._subscribers.call_with_value(self.get_value())
-        self._raw_subscribers.call_with_value(self.get_raw_value())
+        self._dispatch("value-change", self.get_value())
+        self._dispatch("value-change-raw", self.get_raw_value())
 
 
     def set_expression(self, expr: str) -> None:
