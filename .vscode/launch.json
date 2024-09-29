@@ -5,7 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Boxflat",
+            "name": "Normal",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "entrypoint.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--local"
+            ]
+        },
+        {
+            "name": "GTK Debug",
             "type": "debugpy",
             "request": "launch",
             "program": "entrypoint.py",
