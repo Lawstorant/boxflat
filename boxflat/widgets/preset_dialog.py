@@ -11,6 +11,7 @@ class BoxflatPresetDialog(Adw.Dialog):
         super().__init__()
 
         preset_name = file_name.removesuffix(".yml")
+        self._preset_name = preset_name
         self._delete_subs = SubscribtionList()
         self._save_subs = SubscribtionList()
         self.set_title("Preset settings")
@@ -28,7 +29,7 @@ class BoxflatPresetDialog(Adw.Dialog):
         self._auto_apply.subscribe(self._auto_apply_name.set_sensitive)
 
         self._auto_apply_select = BoxflatAdvanceRow("Select running process")
-        # self._auto_apply_select.set_active(False)
+        self._auto_apply_select.set_active(False)
         self._auto_apply_select.subscribe(self._open_process_page)
         self._auto_apply.subscribe(self._auto_apply_select.set_active)
 
@@ -118,11 +119,11 @@ class BoxflatPresetDialog(Adw.Dialog):
 
 
     def subscribe_save(self, callback: callable, *args):
-        self._save_subs.append(callback, *args)
+        self._save_subs.append(callback, self._preset_name, *args)
 
 
     def subscribe_delete(self, callback: callable, *args):
-        self._delete_subs.append(callback, *args)
+        self._delete_subs.append(callback, self._preset_name, *args)
 
 
     def _open_process_page(self, *rest):

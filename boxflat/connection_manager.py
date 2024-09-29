@@ -9,6 +9,7 @@ from threading import Event
 import struct
 import time
 from .hid_handler import HidHandler, MozaHidDevice
+from .subscription import SubscribtionList
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -59,17 +60,11 @@ class MozaConnectionManager():
         self._connected_thread = Thread(daemon=True, target=self._notify_connected)
         self._connected_thread.start()
 
-        self._cont_active = Event()
-        self._cont_subscribtions = {}
-        self._cont_thread = Thread(daemon=True, target=self._notify_cont)
-        # self._cont_thread.start()
-
-        self._shutown_subscribtions = []
+        self._shutown_subs = SubscribtionList()
         self._no_access_subs = []
 
         self._sub_lock = Lock()
         self._connected_lock = Lock()
-        self._cont_lock = Lock()
 
         self._write_command_buffer = {}
         self._read_command_buffer = {}
@@ -97,9 +92,8 @@ class MozaConnectionManager():
 
 
     def shutdown(self) -> None:
+        self._shutown_subs.call_without_args()
         self._shutdown = True
-        for sub in self._shutown_subscribtions:
-            sub[0](*sub[1])
 
 
     def device_discovery(self, *args) -> None:
@@ -175,9 +169,9 @@ class MozaConnectionManager():
 
     def subscribe_connected(self, command: str, callback: callable, *args) -> None:
         if not command in self._connected_subscribtions:
-            self._connected_subscribtions[command] = []
+            self._connected_subscribtions[command] = SubscribtionList()
 
-        self._connected_subscribtions[command].append((callback, args))
+        self._connected_subscribtions[command].append(callback, *args)
 
 
     def reset_subscriptions(self) -> None:
@@ -185,19 +179,9 @@ class MozaConnectionManager():
         with self._sub_lock:
             self._subscribtions.clear()
 
-        with self._cont_lock:
-            self._cont_subscribtions.clear()
-
-
-    def subscribe_cont(self, command: str, callback: callable, *args) -> None:
-        if not command in self._cont_subscribtions:
-            self._cont_subscribtions[command] = []
-
-        self._cont_subscribtions[command].append((callback, args))
-
 
     def subscribe_shutdown(self, callback, *args) -> None:
-        self._shutown_subscribtions.append((callback, args))
+        self._shutown_subs.append(callback, *args)
 
 
     def subscribe_no_access(self, callback, *args) -> None:
@@ -258,44 +242,15 @@ class MozaConnectionManager():
 
             self.device_discovery()
 
-            with self._sub_lock:
-                subs = dict(self._connected_subscribtions)
+            with self._connected_lock:
+                lists = self._connected_subscribtions.copy()
 
-            for com in subs.keys():
-                com_type = self._serial_data["commands"][com]["type"]
-                if com_type == "array":
-                    response = self.get_setting_list(com)
-                elif com_type == "float":
-                    response = self.get_setting_float(com)
-                elif com_type == "hex":
-                    response = self.get_setting_hex(com)
-                else:
-                    response = self.get_setting_int(com)
-
-                self._no_access_subs = []
-
-                for subscriber in subs[com]:
-                    subscriber[0](response, *subscriber[1])
+            self._no_access_subs = []
+            for com in lists.keys():
+                lists[com].call_with_value(self.get_setting_auto(com))
 
             if self._refresh_cont.is_set():
                 time.sleep(1)
-
-
-    def _notify_cont(self) -> None:
-        while not self._shutdown:
-            if not self._cont_active.wait(2):
-                continue
-
-            time.sleep(1/40) # 40 Hz refresh rate
-            with self._cont_lock:
-                subs = dict(self._cont_subscribtions)
-
-            for com in subs.keys():
-                response = self.get_setting_int(com)
-                if response == -1:
-                    break
-                for subscriber in subs[com]:
-                    GLib.idle_add(subscriber[0], response, *subscriber[1])
 
 
     def _notify_no_access(self) -> None:

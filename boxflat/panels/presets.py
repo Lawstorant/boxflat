@@ -157,6 +157,6 @@ class PresetSettings(SettingsPanel):
 
         dialog = BoxflatPresetDialog(self._presets_path, file_name)
         dialog.subscribe_save(print, "Save preset")
-        dialog.subscribe_delete(print, "Delete preset")
+        dialog.subscribe_delete(self._delete_preset)
 
         dialog.present()

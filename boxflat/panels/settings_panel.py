@@ -198,10 +198,6 @@ class SettingsPanel(object):
         self._cm_subs.append(args)
 
 
-    def _append_sub_cont(self, *args):
-        pass
-
-
     def _append_sub_connected(self, *args):
         self._cm_subs_connected.append(args)
 
