@@ -140,19 +140,21 @@ class EventDispatcher():
 
 
 
-class SimpleEventDispatcher(EventDispatcher):
+class SimpleEventDispatcher():
     def __init__(self):
-        super().__init__()
-        self._register_event("default")
+        self.__events = SubscriptionList()
 
 
     def _dispatch(self, value=None):
-        super()._dispatch("default", value=value)
+        if value is None:
+            self.__events.call()
+        else:
+            self.__events.call_with_value(value)
 
 
     def subscribe(self, callback: callable, *args):
-        super().subscribe("default", callback, *args)
+        self.__events.append(callback, *args)
 
 
     def _clear_subscriptions(self):
-        super().clear_subscriptions()
+        self.__events.clear()

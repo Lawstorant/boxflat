@@ -8,14 +8,14 @@ from boxflat.subscription import EventDispatcher
 
 class BoxflatCalibrationRow(EventDispatcher, BoxflatButtonRow):
     def __init__(self, title: str, subtitle="", alternative=False):
-        BoxflatButtonRow(self).__init__(title, "Calibrate", subtitle)
-        EventDispatcher(self).__init__()
+        BoxflatButtonRow.__init__(self, title, button_label="Calibrate", subtitle=subtitle)
+        EventDispatcher.__init__(self)
 
         self._alternative = alternative
         self._register_events("calibration-start", "calibration-stop")
 
 
-    def _notify(self) -> None:
+    def _notify(self, *rest) -> None:
         Thread(daemon=True, target=self._calibration).start()
 
 

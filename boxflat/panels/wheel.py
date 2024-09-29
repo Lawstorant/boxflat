@@ -40,11 +40,6 @@ class WheelSettings(SettingsPanel):
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("wheel-indicator-mode", self.active)
-        self._cm.subscribe_shutdown(self.shutdown)
-        self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test)
-        self._test_event = Event()
-        self._test_thread.start()
-        # TODO: rewrite threads so they are not persistent
 
 
     def active(self, value: int) -> None:
@@ -346,41 +341,35 @@ class WheelSettings(SettingsPanel):
 
 
     def start_test(self, *args) -> None:
-        self._test_event.set()
+        self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test).start()
 
 
     def _wheel_rpm_test(self, *args) -> None:
-        while not self._shutdown:
-            if not self._test_event.wait(timeout=1):
-                continue
+        initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
+        self._cm.set_setting_int(1, "wheel-indicator-mode")
 
-            self._test_event.clear()
-
-            initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
-            self._cm.set_setting_int(1, "wheel-indicator-mode")
-
-            t = 0.3
-            for i in range(10):
-                val = modify_bit(0, i)
-                self._cm.set_setting_int(val, "wheel-send-telemetry")
-                time.sleep(t)
-
-            for i in reversed(range(9)):
-                val = modify_bit(0, i)
-                self._cm.set_setting_int(val, "wheel-send-telemetry")
-                time.sleep(t)
-
-            val = 0
+        t = 0.3
+        for i in range(10):
+            val = modify_bit(0, i)
             self._cm.set_setting_int(val, "wheel-send-telemetry")
             time.sleep(t)
-            for i in range(10):
-                val = modify_bit(val, i)
-                self._cm.set_setting_int(val, "wheel-send-telemetry")
-                time.sleep(t)
 
-            time.sleep(0.5)
-            val = modify_bit(0,15)
+        for i in reversed(range(9)):
+            val = modify_bit(0, i)
             self._cm.set_setting_int(val, "wheel-send-telemetry")
-            time.sleep(1)
+            time.sleep(t)
 
-            self._cm.set_setting_int(initial_mode, "wheel-indicator-mode")
+        val = 0
+        self._cm.set_setting_int(val, "wheel-send-telemetry")
+        time.sleep(t)
+        for i in range(10):
+            val = modify_bit(val, i)
+            self._cm.set_setting_int(val, "wheel-send-telemetry")
+            time.sleep(t)
+
+        time.sleep(0.5)
+        val = modify_bit(0,15)
+        self._cm.set_setting_int(val, "wheel-send-telemetry")
+        time.sleep(1)
+
+        self._cm.set_setting_int(initial_mode, "wheel-indicator-mode")
