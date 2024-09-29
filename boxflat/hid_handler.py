@@ -5,9 +5,7 @@ from time import sleep
 from evdev.ecodes import *
 from .subscription import SubscribtionList
 
-from threading import Thread
-from threading import Lock
-from threading import Event
+from threading import Thread, Lock, Event
 
 
 BTN_JOYSTICK = 0x120
@@ -85,6 +83,8 @@ class HidHandler():
         self._devices = []
         self._base = None
 
+        self._axis_values_lock = Lock()
+
 
     def __del__(self):
         self.stop()
@@ -121,14 +121,21 @@ class HidHandler():
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):
-                print("HID device added")
+                print(f"HID device \"{hid.name}\" found")
                 device = hid
 
         if device != None:
             if pattern == MozaHidDevice.BASE:
                 self._base = device
 
-            for axis in device.capabilities(absinfo=True)[3]:
+            capabilities = device.capabilities(absinfo=True, verbose=False)
+
+            if 3 not in capabilities[0]:
+                capabilities = []
+            else:
+                capabilities = capabilities[3]
+
+            for axis in capabilities:
                 ecode = axis[0]
 
                 if device.absinfo(ecode).flat > 0:
@@ -161,8 +168,13 @@ class HidHandler():
 
 
     def _notify_axis(self) -> None:
+        axis_values = {}
         while self._running.is_set():
             sleep(1/self._update_rate)
+
+            with self._axis_values_lock:
+                axis_values = self._axis_values.copy()
+
             for axis, value in self._axis_values.items():
                 self._axis_subs[axis].call_with_value(value)
 
@@ -190,7 +202,8 @@ class HidHandler():
         # print(f"axis {name} ({code}), value: {value}, min: {axis_min}")
 
         if name in self._axis_values:
-            self._axis_values[name] = value
+            with self._axis_values_lock:
+                self._axis_values[name] = value
 
 
     def _update_button(self, number: int, state: int) -> None:
@@ -219,6 +232,6 @@ class HidHandler():
             # print(e)
             pass
 
-        print("Hid loop broken")
+        print(f"HID device \"{device.name}\" disconnected")
         if device == self._base:
             self._base = None
