@@ -20,36 +20,41 @@ class Subscription():
         self._callback(*args)
 
 
-class SubscribtionList():
+class SubscriptionList():
     def __init__(self):
-        self._subscribtions = []
+        self._subscriptions = []
 
     def append(self, callback: callable, *args):
         if callable(callback):
-            self._subscribtions.append(Subscription(callback, *args))
+            self._subscriptions.append(Subscription(callback, *args))
 
         elif isinstance(Subscription, callback):
             self.append_subscription(callback)
 
 
     def append_subscription(self, subscription: Subscription):
-        self._subscribtions.append(subscription)
+        self._subscriptions.append(subscription)
 
 
     def call(self):
-        for sub in self._subscribtions:
+        for sub in self._subscriptions:
             sub.call()
 
 
     def call_with_value(self, value):
-        for sub in self._subscribtions:
+        for sub in self._subscriptions:
             sub.call_with_value(value)
 
 
     def call_without_args(self):
-        for sub in self._subscribtions:
+        for sub in self._subscriptions:
             sub.call_without_args()
 
 
+    def call_with_custom_args(self, *args):
+        for sub in self._subscriptions:
+            sub.call_with_custom_args(*args)
+
+
     def clear(self):
-        self._subscribtions.clear()
+        self._subscriptions.clear()

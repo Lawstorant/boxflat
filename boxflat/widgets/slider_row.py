@@ -57,10 +57,6 @@ class BoxflatSliderRow(BoxflatRow):
     #         self._notify()
 
 
-    def _notify(self, *args) -> None:
-        super()._notify()
-
-
     def add_marks(self, *marks: int) -> None:
         for mark in marks:
             self._slider.add_mark(

@@ -3,14 +3,14 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 import time
-from boxflat.subscription import SubscribtionList
+from boxflat.subscription import SubscriptionList
 
 class BoxflatRow(Adw.ActionRow):
     def __init__(self, title="", subtitle=""):
         super().__init__()
         self._cooldown = 0
-        self._subscribers = SubscribtionList()
-        self._raw_subscribers = SubscribtionList()
+        self._subscribers = SubscriptionList()
+        self._raw_subscribers = SubscriptionList()
         self._mute = False
         self._shutdown = False
         self.set_sensitive(True)
@@ -81,7 +81,7 @@ class BoxflatRow(Adw.ActionRow):
             self._subscribers.append(callback, *args)
 
 
-    def clear_subscribtions(self) -> None:
+    def clear_subscriptions(self) -> None:
         self._subscribers.clear()
         self._raw_subscribers.clear()
 

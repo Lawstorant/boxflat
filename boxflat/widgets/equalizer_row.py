@@ -3,6 +3,7 @@ gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 from .row import BoxflatRow
 from .toggle_button_row import BoxflatToggleButtonRow
+from boxflat.subscription import SubscriptionList
 
 class BoxflatEqRow(BoxflatToggleButtonRow):
     def __init__(self, title: str, sliders_number: int,
@@ -12,8 +13,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         super().__init__(title, subtitle)
 
         self._suffix = suffix
-        self._slider_subs = []
-        self._sliders_subs = []
+        self._slider_subs_list = []
+        self._sliders_subs = SubscriptionList()
         self._button_row = button_row
         self._draw_marks = draw_marks
 
@@ -35,7 +36,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         for i in range(sliders_number):
             slider = Gtk.Scale(orientation=Gtk.Orientation.VERTICAL)
             self._sliders.append(slider)
-            self._slider_subs.append([])
+            self._slider_subs_list.append(SubscriptionList())
             slider.set_range(range_start, range_end)
             slider.set_inverted(True)
             slider.set_halign(Gtk.Align.FILL)
@@ -81,8 +82,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         for mark in marks:
             for slider in self._sliders:
-                slider.add_mark(mark,
-                    Gtk.PositionType.RIGHT,f"{mark}{self._suffix}")
+                slider.add_mark(mark, Gtk.PositionType.RIGHT,f"{mark}{self._suffix}")
 
 
     def add_labels(self, *labels: str, index=None) -> None:
@@ -142,18 +142,18 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def subscribe_slider(self, index: int, callback: callable, *args) -> None:
-        self._slider_subs[index].append((callback, args))
+        self._slider_subs_list[index].append(callback, *args)
 
 
     def subscribe_sliders(self, callback: callable, *args) -> None:
-        self._sliders_subs.append((callback, args))
+        self._sliders_subs.append(callback, *args)
 
 
     def set_slider_active(self, active: bool, index: int) -> None:
         self._sliders[index].set_sensitive(active)
 
 
-    def _notify_slider(self, scale) -> None:
+    def _notify_slider(self, scale: Gtk.Scale) -> None:
         if self._mute:
             return
 
@@ -161,8 +161,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         index = self._sliders.index(scale)
 
         self.set_button_value(-1)
-        for sub in self._slider_subs[index]:
-            sub[0](self.get_slider_value(index), *sub[1])
+        self._slider_subs_list[index].call_with_value(self.get_slider_value(index))
 
 
     def _notify_sliders(self, scale) -> None:
@@ -171,8 +170,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         self._cooldown = 1
         self.set_button_value(-1)
-        for sub in self._sliders_subs:
-            sub[0](self.get_sliders_value(), *sub[1])
+        self._sliders_subs.call_with_value(self.get_sliders_value())
 
 
     def reconfigure(self, range_start=0, range_end=100, clear_marks=True) -> None:

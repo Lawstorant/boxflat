@@ -9,7 +9,7 @@ from threading import Event
 import struct
 import time
 from .hid_handler import HidHandler, MozaHidDevice
-from .subscription import SubscribtionList
+from .subscription import SubscriptionList
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -52,16 +52,16 @@ class MozaConnectionManager():
 
         self._refresh = Event()
         self._refresh_cont = Event()
-        self._subscribtions = {}
+        self._subscriptions = {}
         self._refresh_thread = Thread(daemon=True, target=self._notify)
         self._refresh_thread.start()
 
-        self._connected_subscribtions = {}
+        self._connected_subscriptions = {}
         self._connected_thread = Thread(daemon=True, target=self._notify_connected)
         self._connected_thread.start()
 
-        self._shutown_subs = SubscribtionList()
-        self._no_access_subs = []
+        self._shutown_subs = SubscriptionList()
+        self._no_access_subs = SubscriptionList()
 
         self._sub_lock = Lock()
         self._connected_lock = Lock()
@@ -161,23 +161,23 @@ class MozaConnectionManager():
 
 
     def subscribe(self, command: str, callback: callable, *args) -> None:
-        if not command in self._subscribtions:
-            self._subscribtions[command] = []
+        if not command in self._subscriptions:
+            self._subscriptions[command] = SubscriptionList()
 
-        self._subscribtions[command].append((callback, args))
+        self._subscriptions[command].append(callback, *args)
 
 
     def subscribe_connected(self, command: str, callback: callable, *args) -> None:
-        if not command in self._connected_subscribtions:
-            self._connected_subscribtions[command] = SubscribtionList()
+        if not command in self._connected_subscriptions:
+            self._connected_subscriptions[command] = SubscriptionList()
 
-        self._connected_subscribtions[command].append(callback, *args)
+        self._connected_subscriptions[command].append(callback, *args)
 
 
     def reset_subscriptions(self) -> None:
         # print("\nClearing subscriptions")
         with self._sub_lock:
-            self._subscribtions.clear()
+            self._subscriptions.clear()
 
 
     def subscribe_shutdown(self, callback, *args) -> None:
@@ -185,7 +185,7 @@ class MozaConnectionManager():
 
 
     def subscribe_no_access(self, callback, *args) -> None:
-        self._no_access_subs.append((callback, args))
+        self._no_access_subs.append(callback, args)
 
 
     def refresh(self, *args) -> None:
@@ -202,7 +202,6 @@ class MozaConnectionManager():
 
 
     def _notify(self) -> None:
-        response = 0
         while not self._shutdown:
             if not self._refresh.wait(2):
                 continue
@@ -211,24 +210,15 @@ class MozaConnectionManager():
                 self._refresh.clear()
 
             with self._sub_lock:
-                subs = dict(self._subscribtions)
+                subs = self._subscriptions.copy()
 
-            for com in subs.keys():
-                com_type = self._serial_data["commands"][com]["type"]
-                if com_type == "array":
-                    response = self.get_setting_list(com)
-                elif com_type == "float":
-                    response = self.get_setting_float(com)
-                elif com_type == "hex":
-                    response = self.get_setting_hex(com)
-                else:
-                    response = self.get_setting_int(com)
+            for command, subs in subs.items():
+                response = self.get_setting_auto(command)
 
                 if response == -1:
                     continue
 
-                for subscriber in subs[com]:
-                    subscriber[0](response, *subscriber[1])
+                subs.call_with_value(response)
 
             if self._refresh_cont.is_set():
                 time.sleep(1)
@@ -243,21 +233,20 @@ class MozaConnectionManager():
             self.device_discovery()
 
             with self._connected_lock:
-                lists = self._connected_subscribtions.copy()
+                lists = self._connected_subscriptions.copy()
 
             self._no_access_subs = []
-            for com in lists.keys():
-                lists[com].call_with_value(self.get_setting_auto(com))
+            for command, subs in lists.items():
+                subs.call_with_value(self.get_setting_auto(command))
 
             if self._refresh_cont.is_set():
                 time.sleep(1)
 
 
     def _notify_no_access(self) -> None:
-        for i in range(len(self._no_access_subs)):
-            subscriber = self._no_access_subs[i]
-            GLib.idle_add(subscriber[0], *subscriber[1])
-            self._no_access_subs.pop(i)
+        if self._no_access_subs:
+            self._no_access_subs.call()
+            self._no_access_subs = None
 
 
     def set_cont_active(self, active: bool) -> None:

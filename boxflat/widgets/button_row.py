@@ -28,6 +28,6 @@ class BoxflatButtonRow(BoxflatRow):
         if callback:
             button.connect('clicked', lambda button: callback(*args))
         else:
-            button.connect('clicked', lambda button: self._notify())
+            button.connect('clicked', self._notify)
 
         return button

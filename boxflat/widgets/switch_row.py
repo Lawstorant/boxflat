@@ -9,7 +9,7 @@ class BoxflatSwitchRow(BoxflatRow):
 
         switch = Gtk.Switch()
         switch.add_css_class("switch")
-        switch.connect('notify::active', lambda switch, whatever: self._notify())
+        switch.connect('notify::active', self._notify)
         switch.set_valign(Gtk.Align.CENTER)
         self._reverse = False
         self._switch = switch

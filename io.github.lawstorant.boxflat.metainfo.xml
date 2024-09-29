@@ -94,6 +94,17 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.0" date="2024-09-">
+      <description>
+        <p>
+          Automatic per-game presets
+        </p>
+        <ul>
+          <li></li>
+          <li></li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.18.5" date="2024-09-28">
       <description>
         <ul>

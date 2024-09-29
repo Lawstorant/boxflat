@@ -3,7 +3,7 @@ import re
 from time import sleep
 
 from evdev.ecodes import *
-from .subscription import SubscribtionList
+from .subscription import SubscriptionList
 
 from threading import Thread, Lock, Event
 
@@ -154,7 +154,7 @@ class HidHandler():
 
     def subscribe_axis(self, axis: AxisData, callback: callable, *args) -> None:
         if not axis.name in self._axis_subs:
-            self._axis_subs[axis.name] = SubscribtionList()
+            self._axis_subs[axis.name] = SubscriptionList()
             self._axis_values[axis.name] = 0
 
         self._axis_subs[axis.name].append(callback, *args)
@@ -162,7 +162,7 @@ class HidHandler():
 
     def subscribe_button(self, number, callback: callable, *args) -> None:
         if not button in self._button_subs:
-            self._button_subs[number] = SubscribtionList()
+            self._button_subs[number] = SubscriptionList()
 
         self._button_subs[number].append(callback, *args)
 

@@ -8,7 +8,6 @@ from threading import Lock
 class BoxflatPreferencesGroup(Adw.PreferencesGroup):
     def __init__(self, title="", level_bar=False, alt_level_bar=False):
         super().__init__()
-        self._subscribers = []
         self._bar = None
         self._bar1 = None
         self._bar2 = None

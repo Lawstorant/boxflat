@@ -4,7 +4,7 @@ from .button_row import BoxflatButtonRow
 from .switch_row import BoxflatSwitchRow
 from .advance_row import BoxflatAdvanceRow
 
-from boxflat.subscription import SubscribtionList
+from boxflat.subscription import SubscriptionList
 
 class BoxflatPresetDialog(Adw.Dialog):
     def __init__(self, presets_path: str, file_name: str):
@@ -12,8 +12,8 @@ class BoxflatPresetDialog(Adw.Dialog):
 
         preset_name = file_name.removesuffix(".yml")
         self._preset_name = preset_name
-        self._delete_subs = SubscribtionList()
-        self._save_subs = SubscribtionList()
+        self._delete_subs = SubscriptionList()
+        self._save_subs = SubscriptionList()
         self.set_title("Preset settings")
         self.set_content_width(480)
 

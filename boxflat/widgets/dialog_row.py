@@ -48,7 +48,7 @@ class BoxflatDialogRow(BoxflatRow):
         row.set_width(400)
         self._group.add(row)
         self._switches.append(row)
-        row.subscribe(lambda v: self._notify())
+        row.subscribe(self._notify)
 
 
     def get_value(self) -> list:

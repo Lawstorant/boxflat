@@ -24,12 +24,11 @@ class BoxflatCalibrationRow(BoxflatButtonRow):
             return
 
         self._cooldown = 1
-        for sub in self._subscribers:
-            if not self._alternative:
-                sub[0](1, f"{sub[2][0]}-{self.get_value()}-calibration")
+        if not self._alternative:
+            self._subscribers.call_with_custom_args(1, f"{sub[2][0]}-{self.get_value()}-calibration")
 
-            else:
-                sub[0](self.get_value(), *sub[2])
+        else:
+            self._subscribers.call_with_value(self.get_value())
 
 
     def get_value(self) -> str:

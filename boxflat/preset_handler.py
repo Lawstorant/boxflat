@@ -3,6 +3,7 @@ from .moza_command import MozaCommand
 import yaml
 import os
 from threading import Thread
+from .subscription import SubscriptionList
 
 MozaDevicePresetSettings = {
     "base" : [
@@ -145,7 +146,7 @@ class MozaPresetHandler():
         self._cm = connection_manager
         self._path = None
         self._name = None
-        self._callbacks = []
+        self._callbacks = SubscriptionList()
 
 
     def set_path(self, preset_path: str):
@@ -158,6 +159,10 @@ class MozaPresetHandler():
 
     def add_callback(self, callback: callable):
         self._callbacks.append(callback)
+
+
+    def _notify(self):
+        self._callbacks.call_without_args()
 
 
     def append_setting(self, setting_name: str):
@@ -217,8 +222,7 @@ class MozaPresetHandler():
         with open(os.path.join(path, self._name + ".yml"), "w") as file:
             file.write(yaml.safe_dump(preset_data))
 
-        for callback in self._callbacks:
-            callback()
+        self._notify()
 
 
     def _load_preset(self):
@@ -236,5 +240,4 @@ class MozaPresetHandler():
                     # print(f"{key}-{setting}: {value}")
                     self._cm.set_setting_auto(value, f"{key}-{setting}")
 
-        for callback in self._callbacks:
-            callback()
+        self._notify()
