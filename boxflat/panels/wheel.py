@@ -212,20 +212,20 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("Colors")
         self.add_preferences_group("Buttons")
         self._add_row(BoxflatNewColorPickerRow("", blinking=True))
-        self._current_row.subscribe(self._cm.set_setting_list, "wheel-button-color")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-button-color")
         self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_active, +1)
         for i in range(MOZA_RPM_LEDS):
             self._append_sub(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Colors")
         self._add_row(BoxflatNewColorPickerRow(""))
-        self._current_row.subscribe(self._cm.set_setting_list, "wheel-rpm-color")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-rpm-color")
         for i in range(MOZA_RPM_LEDS):
             self._append_sub(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Blinking")
         self._add_row(BoxflatNewColorPickerRow(""))
-        self._current_row.subscribe(self._cm.set_setting_list, "wheel-rpm-blink-color")
+        self._current_row.subscribe(self._cm.set_setting_auto, "wheel-rpm-blink-color")
 
         self.add_preferences_group("Brightness")
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
@@ -246,17 +246,17 @@ class WheelSettings(SettingsPanel):
 
         # self.add_preferences_group("Telemetry flag")
         # self._add_row(BoxflatNewColorPickerRow(""))
-        # self._current_row.subscribe(self._cm.set_setting_list, "wheel-flag-color")
+        # self._current_row.subscribe(self._cm.set_setting_auto, "wheel-flag-color")
         # for i in range(MOZA_RPM_LEDS):
         #     self._append_sub(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
 
 
     def _set_rpm_timings(self, timings: list) -> None:
-        self._cm.set_setting_list(timings, "wheel-rpm-timings")
+        self._cm.set_setting_auto(timings, "wheel-rpm-timings")
 
 
     def _set_rpm_timings_preset(self, value: int) -> None:
-        self._cm.set_setting_list(self._timings[value], "wheel-rpm-timings")
+        self._cm.set_setting_auto(self._timings[value], "wheel-rpm-timings")
 
 
     def _get_rpm_timings(self, timings: list) -> None:
@@ -315,7 +315,7 @@ class WheelSettings(SettingsPanel):
         output[3] = modify_bit(output[3], 1, values[6])
         output[3] = modify_bit(output[3], 5, values[7])
 
-        self._cm.set_setting_list(output, "wheel-key-combination")
+        self._cm.set_setting_auto(output, "wheel-key-combination")
 
 
     def _get_combination_settings(self, values) -> None:
@@ -345,7 +345,7 @@ class WheelSettings(SettingsPanel):
 
 
     def _wheel_rpm_test(self, *args) -> None:
-        initial_mode = self._cm.get_setting_int("wheel-indicator-mode")
+        initial_mode = self._cm._get_setting_int("wheel-indicator-mode")
         self._cm.set_setting_auto(1, "wheel-indicator-mode")
 
         t = 0.3

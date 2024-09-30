@@ -46,7 +46,7 @@ class SequentialSettings(SettingsPanel):
 
 
     def _set_colors(self, *args) -> None:
-        self._cm.set_setting_list([self._S1.get_value(), self._S2.get_value()], "sequential-colors")
+        self._cm.set_setting_auto([self._S1.get_value(), self._S2.get_value()], "sequential-colors")
 
 
     def _get_colors(self, value: list) -> None:

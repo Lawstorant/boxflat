@@ -72,11 +72,11 @@ class OtherSettings(SettingsPanel):
 
 
     def _read_custom(self, *args) -> None:
-        out = self._cm.get_setting_int(self._command.get_text())
+        out = self._cm._get_setting_auto(self._command.get_text())
         self._value.set_text(str(out))
 
 
     def _write_custom(self, *args) -> None:
         com = self._command.get_text()
-        val = int(self._value.get_text())
+        val = eval(self._value.get_text())
         self._cm.set_setting_auto(val, com)

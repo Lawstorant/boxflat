@@ -103,7 +103,7 @@ class PedalsSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_float, "pedals-brake-angle-ratio")
+        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-brake-angle-ratio")
         self._append_sub("pedals-brake-angle-ratio", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
@@ -162,7 +162,7 @@ class PedalsSettings(SettingsPanel):
 
 
     def _set_curve_point(self, value: int, index: int, pedal: str) -> None:
-        self._cm.set_setting_float(value, f"pedals-{pedal}-y{index+1}")
+        self._cm.set_setting_auto(value, f"pedals-{pedal}-y{index+1}")
 
 
     def _set_curve(self, values: list, pedal: str) -> None:
@@ -170,7 +170,7 @@ class PedalsSettings(SettingsPanel):
         curve.extend(values)
 
         for i in range(0,5):
-            self._cm.set_setting_float(curve[i], f"pedals-{pedal}-y{i+1}")
+            self._cm.set_setting_auto(curve[i], f"pedals-{pedal}-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int, pedal: str) -> None:

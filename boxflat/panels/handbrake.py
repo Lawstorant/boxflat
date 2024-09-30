@@ -80,7 +80,7 @@ class HandbrakeSettings(SettingsPanel):
 
 
     def _set_curve_point(self, value: int, index: int) -> None:
-        self._cm.set_setting_float(float(value), f"handbrake-y{index+1}")
+        self._cm.set_setting_auto(float(value), f"handbrake-y{index+1}")
 
 
     def _set_curve(self, values: list) -> None:
@@ -88,7 +88,7 @@ class HandbrakeSettings(SettingsPanel):
         curve.extend(values)
 
         for i in range(0,5):
-            self._cm.set_setting_float(curve[i], f"handbrake-y{i+1}")
+            self._cm.set_setting_auto(curve[i], f"handbrake-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int) -> None:
