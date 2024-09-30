@@ -148,7 +148,6 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._panels["Base"].activate_subs()
         self._cm.set_rw_active(True)
-        self._hid_handler.start()
 
 
     def _activate_default(self) -> SettingsPanel:

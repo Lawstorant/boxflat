@@ -3,7 +3,7 @@ import re
 from time import sleep
 
 from evdev.ecodes import *
-from .subscription import EventDispatcher
+from .subscription import EventDispatcher, Observable
 
 from threading import Thread, Lock, Event
 
@@ -114,25 +114,26 @@ class HidHandler(EventDispatcher):
         super().__init__()
 
         self._axis_values = {}
-        # for axis in MOZA_AXIS_LIST:
-        #     self._register_event(axis)
-        #     self._axis_values[axis] = AxisValue(axis)
-
         for i in range(0, MOZA_BUTTON_COUNT):
             self._register_event(f"button-{i}")
 
         self._running = Event()
         self._update_rate = 120
         self._base = None
+        self._device_count = Observable(0)
+        self._device_count.subscribe(self._device_count_changed)
 
 
     def __del__(self):
         self.stop()
 
 
-    def start(self):
-        self._running.set()
-        Thread(target=self._notify_axes, daemon=True).start()
+    def _device_count_changed(self, new_count):
+        if new_count == 0:
+            self.stop()
+
+        elif not self._running.is_set():
+            Thread(target=self._notify_axes, daemon=True).start()
 
 
     def stop(self):
@@ -162,9 +163,8 @@ class HidHandler(EventDispatcher):
         if not pattern:
             return
 
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-
         device = None
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):
@@ -197,9 +197,11 @@ class HidHandler(EventDispatcher):
                     device.set_absinfo(ecode, fuzz=fuzz)
 
             Thread(daemon=True, target=self._read_loop, args=[device]).start()
+            self._device_count.value += 1
 
 
     def _notify_axes(self):
+        self._running.set()
         while self._running.is_set():
             sleep(1/self._update_rate)
             for axis in self._axis_values.values():
@@ -248,5 +250,6 @@ class HidHandler(EventDispatcher):
             pass
 
         print(f"HID device \"{device.name}\" disconnected")
+        self._device_count.value -= 1
         if device == self._base:
             self._base = None

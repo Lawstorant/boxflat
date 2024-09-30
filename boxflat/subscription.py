@@ -158,3 +158,21 @@ class SimpleEventDispatcher():
 
     def _clear_subscriptions(self):
         self.__events.clear()
+
+
+
+class Observable(SimpleEventDispatcher):
+    def __init__(self, init_value=None):
+        super().__init__()
+        self._value = init_value
+
+
+    @property
+    def value(self):
+        return self._value
+
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
+        self._dispatch(self._value)
