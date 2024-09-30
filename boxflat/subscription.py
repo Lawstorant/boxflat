@@ -46,6 +46,10 @@ class SubscriptionList():
             sub.call()
 
 
+    def __call__(self):
+        self.call()
+
+
     def call_with_value(self, value):
         for sub in self._subscriptions:
             sub.call_with_value(value)
@@ -165,6 +169,10 @@ class Observable(SimpleEventDispatcher):
     def __init__(self, init_value=None):
         super().__init__()
         self._value = init_value
+
+
+    def __call__(self):
+        self._dispatch(self._value)
 
 
     @property
