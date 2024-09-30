@@ -35,15 +35,15 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         return False
 
 
-    def set_present(self, value, additional=0) -> None:
+    def set_present(self, value, additional=0):
         GLib.idle_add(self.set_visible, int(value) + additional > 0)
 
 
-    def mute(self, value: bool=True) -> None:
+    def mute(self, value: bool=True):
         self._mute = value
 
 
-    def unmute(self) -> None:
+    def unmute(self):
         self._mute = False
 
 
@@ -55,7 +55,7 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         return self.get_value()
 
 
-    def set_value(self, value, mute: bool=True) -> None:
+    def set_value(self, value, mute: bool=True):
         if self.cooldown():
             # print("Still cooling down")
             # print(self.get_title())
@@ -66,15 +66,15 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         self.unmute()
 
 
-    def _set_value(self, value) -> None:
+    def _set_value(self, value):
         pass
 
 
-    def _set_widget(self, widget: Gtk.Widget) -> None:
+    def _set_widget(self, widget: Gtk.Widget):
         GLib.idle_add(self.add_suffix, widget)
 
 
-    def _notify(self, *rest) -> None:
+    def _notify(self, *rest):
         if self._mute:
             return
 
@@ -82,25 +82,25 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         self._dispatch(self.get_value())
 
 
-    def set_expression(self, expr: str) -> None:
+    def set_expression(self, expr: str):
         """
         Modify the value when invoking get_value()
         """
         self._expression = expr
 
 
-    def set_reverse_expression(self, expr: str) -> None:
+    def set_reverse_expression(self, expr: str):
         """
         Modify the value when invoking set_value()
         """
         self._reverse_expression = expr
 
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         self._shutdown = True
 
 
-    def set_width(self, width: int) -> None:
+    def set_width(self, width: int):
         self.set_size_request(width, 0)
 
 

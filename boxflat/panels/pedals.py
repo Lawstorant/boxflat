@@ -4,7 +4,7 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis
 
 class PedalsSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
         self._brake_calibration_row = None
         self._curve_rows = []
 
@@ -29,7 +29,7 @@ class PedalsSettings(SettingsPanel):
         self._brake_calibration_row.set_active(active)
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_view_stack()
 
         # Throttle
@@ -157,15 +157,15 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-clutch-calibration-stop")
 
 
-    def _set_curve_preset(self, value: int, pedal: str) -> None:
+    def _set_curve_preset(self, value: int, pedal: str):
         self._set_curve(self._presets[value], pedal)
 
 
-    def _set_curve_point(self, value: int, index: int, pedal: str) -> None:
+    def _set_curve_point(self, value: int, index: int, pedal: str):
         self._cm.set_setting(value, f"pedals-{pedal}-y{index+1}")
 
 
-    def _set_curve(self, values: list, pedal: str) -> None:
+    def _set_curve(self, values: list, pedal: str):
         curve = []
         curve.extend(values)
 
@@ -173,7 +173,7 @@ class PedalsSettings(SettingsPanel):
             self._cm.set_setting(curve[i], f"pedals-{pedal}-y{i+1}")
 
 
-    def _get_curve(self, value: int, sindex: int, pedal: str) -> None:
+    def _get_curve(self, value: int, sindex: int, pedal: str):
         index = -1
         pi = self._pedals.index(pedal)
         values = self._curve_rows[pi].get_sliders_value()

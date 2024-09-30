@@ -24,7 +24,7 @@ class MozaCommand():
         return self.get_payload_bytes()
 
     @payload.setter
-    def payload(self, value) -> None:
+    def payload(self, value):
         self.set_payload(value)
 
     @property
@@ -60,7 +60,7 @@ class MozaCommand():
         return self._type
 
 
-    def set_payload_bytes(self, value: bytes) -> None:
+    def set_payload_bytes(self, value: bytes):
         self._payload = value
 
 

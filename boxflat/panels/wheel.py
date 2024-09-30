@@ -20,7 +20,7 @@ MOZA_TELEMETRY_FLAGS = [
 ]
 
 class WheelSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
@@ -42,7 +42,7 @@ class WheelSettings(SettingsPanel):
         self._append_sub_connected("wheel-indicator-mode", self.active)
 
 
-    def active(self, value: int) -> None:
+    def active(self, value: int):
         new_id = None
         if value == -1:
             new_id = self._cm.cycle_wheel_id()
@@ -60,7 +60,7 @@ class WheelSettings(SettingsPanel):
             self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_view_stack()
         self.add_preferences_page("Wheel")
 
@@ -251,19 +251,19 @@ class WheelSettings(SettingsPanel):
         #     self._append_sub(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
 
 
-    def _set_rpm_timings(self, timings: list) -> None:
+    def _set_rpm_timings(self, timings: list):
         self._cm.set_setting(timings, "wheel-rpm-timings")
 
 
-    def _set_rpm_timings_preset(self, value: int) -> None:
+    def _set_rpm_timings_preset(self, value: int):
         self._cm.set_setting(self._timings[value], "wheel-rpm-timings")
 
 
-    def _get_rpm_timings(self, timings: list) -> None:
+    def _get_rpm_timings(self, timings: list):
         self._timing_row.set_sliders_value(timings)
 
 
-    def _get_rpm_timings_preset(self, timings: list) -> None:
+    def _get_rpm_timings_preset(self, timings: list):
         index = -1
         if list(timings) in self._timings:
             index = self._timings.index(list(timings))
@@ -271,12 +271,12 @@ class WheelSettings(SettingsPanel):
         self._timing_row.set_button_value(index)
 
 
-    def _set_rpm_timings2_preset(self, index) -> None:
+    def _set_rpm_timings2_preset(self, index):
         for i in range(10):
             self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
 
 
-    def _get_rpm_timings2_preset(self, *args) -> None:
+    def _get_rpm_timings2_preset(self, *args):
         index = -1
         timings = self._timing_row2.get_sliders_value()
 
@@ -286,12 +286,12 @@ class WheelSettings(SettingsPanel):
         self._timing_row2.set_button_value(index)
 
 
-    def _reconfigure_timings(self, value: int) -> None:
+    def _reconfigure_timings(self, value: int):
         self._timing_row.set_present(value < 1)
         self._timing_row2.set_present(value >= 1)
 
 
-    def _calibrate_paddles(self, value: int) -> None:
+    def _calibrate_paddles(self, value: int):
         if value == 0:
             self._cm.set_setting(5, "wheel-paddles-calibration")
 
@@ -300,7 +300,7 @@ class WheelSettings(SettingsPanel):
             self._cm.set_setting(2, "wheel-paddles-calibration2")
 
 
-    def _set_combination_settings(self, values) -> None:
+    def _set_combination_settings(self, values):
         output = self._wheel_combination_data.copy()
 
         if len(output) != 4:
@@ -318,7 +318,7 @@ class WheelSettings(SettingsPanel):
         self._cm.set_setting(output, "wheel-key-combination")
 
 
-    def _get_combination_settings(self, values) -> None:
+    def _get_combination_settings(self, values):
         self._wheel_combination_data = values
         byte1 = values[1]
         byte2 = values[3]
@@ -340,11 +340,11 @@ class WheelSettings(SettingsPanel):
         self._combination_row.set_value(switch_values)
 
 
-    def start_test(self, *args) -> None:
+    def start_test(self, *args):
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test).start()
 
 
-    def _wheel_rpm_test(self, *args) -> None:
+    def _wheel_rpm_test(self, *args):
         initial_mode = self._cm.get_setting("wheel-indicator-mode")
         self._cm.set_setting(1, "wheel-indicator-mode")
 

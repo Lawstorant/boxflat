@@ -76,7 +76,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.add_marks(range_start, range_end)
 
 
-    def add_marks(self, *marks: int) -> None:
+    def add_marks(self, *marks: int):
         if not self._draw_marks:
             return
 
@@ -85,7 +85,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
                 slider.add_mark(mark, Gtk.PositionType.RIGHT,f"{mark}{self._suffix}")
 
 
-    def add_labels(self, *labels: str, index=None) -> None:
+    def add_labels(self, *labels: str, index=None):
         if index != None:
             self._slider_labels[index].set_text(labels[0])
             return
@@ -94,13 +94,13 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             self._slider_labels[i].set_text(labels[i])
 
 
-    def add_buttons(self, *buttons) -> None:
+    def add_buttons(self, *buttons):
         super().add_buttons(*buttons)
         for button in self._buttons:
             button.set_hexpand(self._button_row)
 
 
-    def set_height(self, height: int) -> None:
+    def set_height(self, height: int):
         for slider in self._sliders:
             slider.set_size_request(0, height)
 
@@ -117,7 +117,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         return round(self._sliders[index].get_value())
 
 
-    def set_sliders_value(self, values: list) -> None:
+    def set_sliders_value(self, values: list):
         self.mute(True)
         if len(values) > len(self._sliders):
             return
@@ -127,7 +127,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.unmute()
 
 
-    def set_slider_value(self, value: int, index: int, mute=True) -> None:
+    def set_slider_value(self, value: int, index: int, mute=True):
         self.mute(mute)
         self._sliders[index].set_value(value)
         self.unmute()
@@ -137,23 +137,23 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         return super().get_value()
 
 
-    def set_button_value(self, value: int, mute: bool=True) -> None:
+    def set_button_value(self, value: int, mute: bool=True):
         super().set_value(value, mute)
 
 
-    def subscribe_slider(self, index: int, callback: callable, *args) -> None:
+    def subscribe_slider(self, index: int, callback: callable, *args):
         self._slider_subs_list[index].append(callback, *args)
 
 
-    def subscribe_sliders(self, callback: callable, *args) -> None:
+    def subscribe_sliders(self, callback: callable, *args):
         self._sliders_subs.append(callback, *args)
 
 
-    def set_slider_active(self, active: bool, index: int) -> None:
+    def set_slider_active(self, active: bool, index: int):
         self._sliders[index].set_sensitive(active)
 
 
-    def _notify_slider(self, scale: Gtk.Scale) -> None:
+    def _notify_slider(self, scale: Gtk.Scale):
         if self._mute:
             return
 
@@ -164,7 +164,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self._slider_subs_list[index].call_with_value(self.get_slider_value(index))
 
 
-    def _notify_sliders(self, scale) -> None:
+    def _notify_sliders(self, scale):
         if self._mute:
             return
 
@@ -173,7 +173,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self._sliders_subs.call_with_value(self.get_sliders_value())
 
 
-    def reconfigure(self, range_start=0, range_end=100, clear_marks=True) -> None:
+    def reconfigure(self, range_start=0, range_end=100, clear_marks=True):
         for slider in self._sliders:
             slider.set_range(range_start, range_end)
             if clear_marks:

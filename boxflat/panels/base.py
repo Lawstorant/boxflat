@@ -7,7 +7,7 @@ from boxflat.widgets import *
 import time
 
 class BaseSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
         self._curve_row = None
         self._eq_row = None
 
@@ -42,12 +42,12 @@ class BaseSettings(SettingsPanel):
         self._append_sub_connected("base-limit", self.active)
 
 
-    def _set_rotation(self, value: int) -> None:
+    def _set_rotation(self, value: int):
         self._cm.set_setting(value, "base-limit")
         self._cm.set_setting(value, "base-max-angle")
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_view_stack()
         self.add_preferences_page("Base")
         self.add_preferences_group("Important settings", alt_level_bar=True)
@@ -227,7 +227,7 @@ class BaseSettings(SettingsPanel):
         self._append_sub("base-motor-temp", self._current_row.set_value)
 
 
-    def __prepare_eq(self) -> None:
+    def __prepare_eq(self):
         self.add_preferences_page("Equalizer", "network-cellular-signal-excellent-symbolic")
 
         self.add_preferences_group("Equalizer")
@@ -242,7 +242,7 @@ class BaseSettings(SettingsPanel):
             self._append_sub(f"base-equalizer{i+1}", self._eq_row.set_slider_value, i)
 
 
-    def __prepare_curve(self) -> None:
+    def __prepare_curve(self):
         self.add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
 
         self.add_preferences_group("Base FFB Curve")
@@ -264,15 +264,15 @@ class BaseSettings(SettingsPanel):
         self._append_sub("base-ffb-reverse", self._current_row.set_value)
 
 
-    def _set_curve_preset(self, value: int) -> None:
+    def _set_curve_preset(self, value: int):
         self._set_curve(self._curve_presets[value])
 
 
-    def _set_curve_point(self, value: int, index: int) -> None:
+    def _set_curve_point(self, value: int, index: int):
         self._cm.set_setting(value, f"base-ffb-curve-y{index+1}")
 
 
-    def _set_curve(self, values: list) -> None:
+    def _set_curve(self, values: list):
         curve = []
         curve.extend(self._curve_x)
         curve.extend(values)
@@ -284,7 +284,7 @@ class BaseSettings(SettingsPanel):
             self._cm.set_setting(curve[i+4], f"base-ffb-curve-y{i+1}")
 
 
-    def _get_curve(self, value: int, sindex: int) -> None:
+    def _get_curve(self, value: int, sindex: int):
         index = -1
         values = self._curve_row.get_sliders_value()
         values[sindex] = value
@@ -296,7 +296,7 @@ class BaseSettings(SettingsPanel):
         self._curve_row.set_slider_value(value, sindex)
 
 
-    def _set_eq_preset(self, index: int, get_index_from_sensitivity=False) -> None:
+    def _set_eq_preset(self, index: int, get_index_from_sensitivity=False):
         if get_index_from_sensitivity:
             index = self._sensitivity_row.get_raw_value()
 

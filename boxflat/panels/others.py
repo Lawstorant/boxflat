@@ -14,7 +14,7 @@ class OtherSettings(SettingsPanel):
         self._brake_calibration.subscribe(callback)
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Other settings")
         self._add_row(BoxflatSwitchRow("Base Bluetooth", "For the mobile app"))
         self._current_row.reverse_values()
@@ -71,12 +71,12 @@ class OtherSettings(SettingsPanel):
         # self._add_row(write)
 
 
-    def _read_custom(self, *args) -> None:
+    def _read_custom(self, *args):
         out = self._cm.get_setting(self._command.get_text())
         self._value.set_text(str(out))
 
 
-    def _write_custom(self, *args) -> None:
+    def _write_custom(self, *args):
         com = self._command.get_text()
         val = eval(self._value.get_text())
         self._cm.set_setting(val, com)

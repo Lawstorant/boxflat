@@ -15,11 +15,11 @@ class BoxflatCalibrationRow(EventDispatcher, BoxflatButtonRow):
         self._register_events("calibration-start", "calibration-stop")
 
 
-    def _notify(self, *rest) -> None:
+    def _notify(self, *rest):
         Thread(daemon=True, target=self._calibration).start()
 
 
-    def _calibration(self) -> None:
+    def _calibration(self):
         GLib.idle_add(self.set_active, False)
         tmp = self.get_subtitle()
         text = "Calibration in progress..."

@@ -27,7 +27,7 @@ class BoxflatDialogRow(BoxflatRow):
         self.connect("activated", self.show_dialog)
 
 
-    def show_dialog(self, whatever) -> None:
+    def show_dialog(self, whatever):
         if self._page.get_parent():
             return
 
@@ -38,12 +38,12 @@ class BoxflatDialogRow(BoxflatRow):
         dialog.present()
 
 
-    def add_switches(self, *switches) -> None:
+    def add_switches(self, *switches):
         for switch in switches:
             self.add_switch(switch)
 
 
-    def add_switch(self, title: str, subtitle="") -> None:
+    def add_switch(self, title: str, subtitle=""):
         row = BoxflatSwitchRow(title, subtitle=subtitle)
         row.set_width(400)
         self._group.add(row)
@@ -63,7 +63,7 @@ class BoxflatDialogRow(BoxflatRow):
         return len(self._switches)
 
 
-    def set_value(self, values) -> None:
+    def set_value(self, values):
         for i in range(self.get_count()):
             self._switches[i].set_value(bool(values[i]))
 

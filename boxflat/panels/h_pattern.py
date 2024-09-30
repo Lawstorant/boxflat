@@ -3,19 +3,19 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 
 class HPatternSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager):
         self._slider1 = None
         self._slider2 = None
         super().__init__("H-Pattern Shifter", button_callback, connection_manager)
         self._append_sub_connected("hpattern-paddle-sync", self.active)
 
 
-    def active(self, value: int) -> None:
+    def active(self, value: int):
         value = -1 if value != 0 else value
         super().active(value)
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Warning")
         self._add_row(BoxflatRow("These options are disabled in FW", "Moza decided that they did't work properly. Only calibration is operational"))
 

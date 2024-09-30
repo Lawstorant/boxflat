@@ -71,12 +71,12 @@ class MozaConnectionManager():
         self._serial_path = "/dev/serial/by-id"
 
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         self._shutown_subs.call_without_args()
         self._shutdown = True
 
 
-    def device_discovery(self, *args) -> None:
+    def device_discovery(self, *args):
         # print("\nDevice discovery...")
         path = self._serial_path
 
@@ -127,7 +127,7 @@ class MozaConnectionManager():
         # print("Device discovery end\n")
 
 
-    def _handle_devices(self, new_devices: dict) -> None:
+    def _handle_devices(self, new_devices: dict):
         old_devices = None
 
         with self._devices_lock:
@@ -140,39 +140,39 @@ class MozaConnectionManager():
 
 
 
-    def subscribe(self, command: str, callback: callable, *args) -> None:
+    def subscribe(self, command: str, callback: callable, *args):
         if not command in self._subscriptions:
             self._subscriptions[command] = SubscriptionList()
 
         self._subscriptions[command].append(callback, *args)
 
 
-    def subscribe_connected(self, command: str, callback: callable, *args) -> None:
+    def subscribe_connected(self, command: str, callback: callable, *args):
         if not command in self._connected_subscriptions:
             self._connected_subscriptions[command] = SubscriptionList()
 
         self._connected_subscriptions[command].append(callback, *args)
 
 
-    def reset_subscriptions(self) -> None:
+    def reset_subscriptions(self):
         # print("\nClearing subscriptions")
         with self._sub_lock:
             self._subscriptions.clear()
 
 
-    def subscribe_shutdown(self, callback, *args) -> None:
+    def subscribe_shutdown(self, callback, *args):
         self._shutown_subs.append(callback, *args)
 
 
-    def subscribe_no_access(self, callback: callable, *args) -> None:
+    def subscribe_no_access(self, callback: callable, *args):
         self._no_access_subs.append(callback, *args)
 
 
-    def refresh(self, *args) -> None:
+    def refresh(self, *args):
         self._refresh.set()
 
 
-    def refresh_cont(self, active: bool) -> None:
+    def refresh_cont(self, active: bool):
         if active:
             self._refresh_cont.set()
             self._refresh.set()
@@ -181,7 +181,7 @@ class MozaConnectionManager():
             self._refresh.clear()
 
 
-    def _notify(self) -> None:
+    def _notify(self):
         while not self._shutdown:
             if not self._refresh.wait(2):
                 continue
@@ -204,7 +204,7 @@ class MozaConnectionManager():
                 time.sleep(1)
 
 
-    def _notify_connected(self) -> None:
+    def _notify_connected(self):
         response = 0
         while not self._shutdown:
             if not self._refresh.wait(2):
@@ -223,26 +223,26 @@ class MozaConnectionManager():
                 time.sleep(1)
 
 
-    def _notify_no_access(self) -> None:
+    def _notify_no_access(self):
         if self._no_access_subs:
             self._no_access_subs.call()
             self._no_access_subs = None
 
 
-    def set_cont_active(self, active: bool) -> None:
+    def set_cont_active(self, active: bool):
         if active:
             self._cont_active.set()
         else:
             self._cont_active.clear()
 
 
-    def set_rw_active(self, *args) -> None:
+    def set_rw_active(self, *args):
         if not self._rw_thread:
             self._rw_thread = Thread(daemon=True, target=self._rw_handler)
             self._rw_thread.start()
 
 
-    def _rw_handler(self) -> None:
+    def _rw_handler(self):
         while not self._shutdown:
             value, command = self._write_queue.get()
             self.handle_setting(value, command_name, True)

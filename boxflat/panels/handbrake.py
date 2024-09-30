@@ -4,7 +4,7 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis
 
 class HandbrakeSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
         self._threshold_active = None
         self._calibration_button = None
         self._curve_row = None
@@ -19,7 +19,7 @@ class HandbrakeSettings(SettingsPanel):
         super().__init__("Handbrake", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("handbrake-direction", self.active)
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Handbrake settings")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(self._cm.set_setting, "handbrake-direction")
@@ -75,15 +75,15 @@ class HandbrakeSettings(SettingsPanel):
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "handbrake-calibration-stop")
 
 
-    def _set_curve_preset(self, value: int) -> None:
+    def _set_curve_preset(self, value: int):
         self._set_curve(self._presets[value])
 
 
-    def _set_curve_point(self, value: int, index: int) -> None:
+    def _set_curve_point(self, value: int, index: int):
         self._cm.set_setting(float(value), f"handbrake-y{index+1}")
 
 
-    def _set_curve(self, values: list) -> None:
+    def _set_curve(self, values: list):
         curve = []
         curve.extend(values)
 
@@ -91,7 +91,7 @@ class HandbrakeSettings(SettingsPanel):
             self._cm.set_setting(curve[i], f"handbrake-y{i+1}")
 
 
-    def _get_curve(self, value: int, sindex: int) -> None:
+    def _get_curve(self, value: int, sindex: int):
         index = -1
         values = self._curve_row.get_sliders_value()
         values[sindex] = value

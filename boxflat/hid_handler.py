@@ -158,7 +158,7 @@ class HidHandler(EventDispatcher):
         super().subscribe(event_name, callback, *args)
 
 
-    def add_device(self, pattern: MozaHidDevice) -> None:
+    def add_device(self, pattern: MozaHidDevice):
         if not pattern:
             return
 
@@ -199,14 +199,14 @@ class HidHandler(EventDispatcher):
             Thread(daemon=True, target=self._read_loop, args=[device]).start()
 
 
-    def _notify_axes(self) -> None:
+    def _notify_axes(self):
         while self._running.is_set():
             sleep(1/self._update_rate)
             for axis in self._axis_values.values():
                 self._dispatch(*axis.data)
 
 
-    def _update_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
+    def _update_axis(self, device: evdev.InputDevice, code: int, value: int):
         axis_min = device.absinfo(code).min
         code = evdev.ecodes.ABS[code]
         name = ""
@@ -223,7 +223,7 @@ class HidHandler(EventDispatcher):
         self._axis_values[name].value = value
 
 
-    def _notify_button(self, number: int, state: int) -> None:
+    def _notify_button(self, number: int, state: int):
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
@@ -233,7 +233,7 @@ class HidHandler(EventDispatcher):
         self._dispatch("button-" + number, state)
 
 
-    def _read_loop(self, device: evdev.InputDevice) -> None:
+    def _read_loop(self, device: evdev.InputDevice):
         sleep(1)
         try:
             for event in device.read_loop():

@@ -84,7 +84,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._cm.subscribe_no_access(self.show_udev_dialog)
 
 
-    def switch_panel(self, button) -> None:
+    def switch_panel(self, button):
         new_title = button.get_child().get_label()
         new_content = self._panels[new_title].content
 
@@ -96,11 +96,11 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels[new_title].activate_subs()
 
 
-    def set_content_title(self, title: str) -> None:
+    def set_content_title(self, title: str):
         self.navigation.get_content().set_title(title)
 
 
-    def show_udev_dialog(self) -> None:
+    def show_udev_dialog(self):
         self._alert.choose()
 
 
@@ -109,13 +109,13 @@ class MainWindow(Adw.ApplicationWindow):
             self.open_url("https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak")
 
 
-    def open_url(self, url: str) -> None:
+    def open_url(self, url: str):
         launcher = Gtk.UriLauncher()
         launcher.set_uri(url)
         launcher.launch()
 
 
-    def _prepare_settings(self) -> None:
+    def _prepare_settings(self):
         self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run, self._cm, self._hid_handler, self._version)
         self._panels["Base"] = BaseSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm, self._hid_handler)

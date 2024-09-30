@@ -4,7 +4,7 @@ from boxflat.hid_handler import MozaAxis, HidHandler
 from math import ceil, floor
 
 class HomeSettings(SettingsPanel):
-    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str="") -> None:
+    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str=""):
         self._test_text = "inactive"
         if dry_run:
             self._test_text = "active"
@@ -16,7 +16,7 @@ class HomeSettings(SettingsPanel):
         self._append_sub("base-limit", self._get_rotation_limit)
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Wheelbase")
         self._append_sub_connected("base-limit", self._current_group.set_active)
 
@@ -65,7 +65,7 @@ class HomeSettings(SettingsPanel):
         # self._add_row(BoxflatRow(f"Test mode:  {self._test_text}"))
 
 
-    def _get_rotation_limit(self, value: int) -> None:
+    def _get_rotation_limit(self, value: int):
         if value == self._rotation:
             return
 
@@ -73,7 +73,7 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_subtitle(f"Limit = {value*2}°")
 
 
-    def _set_steering(self, value: int) -> None:
+    def _set_steering(self, value: int):
         self._steer_row.set_value(round((value - 32768) / 32768 * self._rotation))
 
 

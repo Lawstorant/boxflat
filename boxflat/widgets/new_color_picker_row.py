@@ -67,7 +67,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         return self._colors.index(button)
 
 
-    def set_led_value(self, value: list, index: int) -> None:
+    def set_led_value(self, value: list, index: int):
         if self._value_lock.locked():
             return
 
@@ -87,7 +87,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         self._mute = False
 
 
-    def _notify(self, button: Gtk.ColorDialogButton, *param, alt_value=None) -> None:
+    def _notify(self, button: Gtk.ColorDialogButton, *param, alt_value=None):
         if self._mute:
             return
 
