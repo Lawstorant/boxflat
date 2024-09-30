@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "entrypoint.py",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "args": [
                 "--local"
             ]
@@ -19,7 +19,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "entrypoint.py",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "env": {
                 "GTK_DEBUG": "interactive"
             },

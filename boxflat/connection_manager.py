@@ -245,8 +245,7 @@ class MozaConnectionManager():
     def _rw_handler(self):
         while not self._shutdown:
             value, command = self._write_queue.get()
-            self.handle_setting(value, command_name, True)
-
+            self.handle_setting(value, command, True)
         self._rw_thread = None
 
 
@@ -278,11 +277,11 @@ class MozaConnectionManager():
         # print(f"Sending:  {msg}")
 
         if self._dry_run:
-            return bytes(1)
+            return bytes()
 
         if serial_path == None:
             # print("No compatible device found!")
-            return bytes(1)
+            return bytes()
 
         initial_len = message[1]
         rest = bytes()
@@ -333,7 +332,7 @@ class MozaConnectionManager():
         self._serial_lock.release()
 
         if read_response == False:
-            return bytes(1)
+            return bytes()
 
         # message = bytearray()
         # message.extend(cmp)
@@ -373,6 +372,12 @@ class MozaConnectionManager():
 
         command.set_payload(value)
         response = self._handle_command_v2(command, MOZA_COMMAND_WRITE if write else MOZA_COMMAND_READ)
+        if response == None:
+            return None
+
+        if response == bytes():
+            return None
+
         command.set_payload_bytes(response)
         return command.get_payload()
 
