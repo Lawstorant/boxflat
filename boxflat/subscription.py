@@ -198,3 +198,45 @@ class Observable(SimpleEventDispatcher):
         if new_value != self._value:
             self._dispatch(new_value)
         self._value = new_value
+
+
+class Semaphore(EventDispatcher):
+    def __init__(self, maximum: int):
+        super().__init__()
+        self._value = 0
+        self._max = maximum
+        self._register_event("value-changed")
+        self._register_event("quorum-established")
+        self._register_event("quorum-dissolved")
+
+
+    @property
+    def value(self):
+        return self._value
+
+
+    @value.setter
+    def value(self, new_value: int):
+        if new_value > self._max:
+            return
+
+        if new_value < 0:
+            return
+
+        old_value = self._value
+        self._value = new_value
+
+        if new_value != old_value:
+            self._dispatch(new_value)
+            if new_value == self._max:
+                self._dispatch("quorum-established")
+            elif old_value == self._max:
+                self._dispatch("quorum-dissolved")
+
+
+    def increment(self):
+        self.value += 1
+
+
+    def decrement(self):
+        self.value -= 1
