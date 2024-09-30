@@ -4,7 +4,7 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis
 
 class HandbrakeSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
         self._threshold_active = None
         self._calibration_button = None
         self._curve_row = None
@@ -19,30 +19,30 @@ class HandbrakeSettings(SettingsPanel):
         super().__init__("Handbrake", button_callback, connection_manager, hid_handler)
         self._append_sub_connected("handbrake-direction", self.active)
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Handbrake settings")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake-direction")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-direction")
         self._append_sub("handbrake-direction", self._current_row.set_value)
 
         row = BoxflatSliderRow("Button threshold", suffix="%")
 
         self._add_row(BoxflatToggleButtonRow("Handbrake Mode"))
         self._current_row.add_buttons("Axis", "Button")
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake-mode")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-mode")
         self._current_row.subscribe(row.set_active)
         self._append_sub("handbrake-mode", self._current_row.set_value)
 
         self._add_row(row)
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake-button-threshold")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-button-threshold")
         self._append_sub("handbrake-mode", self._current_row.set_active)
         self._append_sub("handbrake-button-threshold", self._current_row.set_value)
         self._current_row.set_active(False)
 
         self.add_preferences_group("Range settings", level_bar=1)
         self._current_group.set_bar_max(65535)
-        self._append_sub_hid(MozaAxis.HANDBRAKE, self._current_group.set_bar_level)
+        self._append_sub_hid(MozaAxis.HANDBRAKE.name, self._current_group.set_bar_level)
 
         self._curve_row = BoxflatEqRow("Output Curve", 5, suffix="%")
         self._add_row(self._curve_row)
@@ -59,41 +59,39 @@ class HandbrakeSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake-min")
-        # self._current_row.subscribe(self._current_group.set_range_start)
+        self._current_row.set_slider_width(380)
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-min")
         self._append_sub("handbrake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%", value=100))
         self._current_row.add_marks(20, 40, 60, 80)
-        self._current_row.set_width(380)
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake-max")
-        # self._current_row.subscribe(self._current_group.set_range_end)
+        self._current_row.set_slider_width(380)
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-max")
         self._append_sub("handbrake-max", self._current_row.set_value)
 
         self.add_preferences_group("Calibration")
         self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Pull handbrake fully once"))
-        self._current_row.subscribe(self._cm.set_setting_int, "handbrake")
-        self._cm.subscribe_shutdown(self._current_row.shutdown)
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "handbrake-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "handbrake-calibration-stop")
 
 
-    def _set_curve_preset(self, value: int) -> None:
+    def _set_curve_preset(self, value: int):
         self._set_curve(self._presets[value])
 
 
-    def _set_curve_point(self, value: int, index: int) -> None:
-        self._cm.set_setting_float(float(value), f"handbrake-y{index+1}")
+    def _set_curve_point(self, value: int, index: int):
+        self._cm.set_setting(float(value), f"handbrake-y{index+1}")
 
 
-    def _set_curve(self, values: list) -> None:
+    def _set_curve(self, values: list):
         curve = []
         curve.extend(values)
 
         for i in range(0,5):
-            self._cm.set_setting_float(curve[i], f"handbrake-y{i+1}")
+            self._cm.set_setting(curve[i], f"handbrake-y{i+1}")
 
 
-    def _get_curve(self, value: int, sindex: int) -> None:
+    def _get_curve(self, value: int, sindex: int):
         index = -1
         values = self._curve_row.get_sliders_value()
         values[sindex] = value

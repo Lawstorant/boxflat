@@ -48,7 +48,7 @@ class BoxflatSliderRow(BoxflatRow):
             slider.add_css_class("slider")
 
 
-    # def _slider_increment_handler(self, scale) -> None:
+    # def _slider_increment_handler(self, scale):
     #     modulo = self.get_value() % self._increment
 
     #     if modulo != 0:
@@ -57,17 +57,16 @@ class BoxflatSliderRow(BoxflatRow):
     #         self._notify()
 
 
-    def _notify(self, *args) -> None:
-        super()._notify()
-
-
-    def add_marks(self, *marks: int) -> None:
+    def add_marks(self, *marks: int):
         for mark in marks:
-            self._slider.add_mark(
-                mark, Gtk.PositionType.BOTTOM,f"{mark}{self._suffix}")
+            self.add_mark(mark, str(mark))
 
 
-    def set_width(self, width: int) -> None:
+    def add_mark(self, value: int, text: str):
+        self._slider.add_mark(value, Gtk.PositionType.BOTTOM, f"{text}{self._suffix}")
+
+
+    def set_slider_width(self, width: int):
         self._slider.set_size_request(width, 0)
 
 
@@ -79,7 +78,7 @@ class BoxflatSliderRow(BoxflatRow):
         return int(self._slider.get_value())
 
 
-    def _set_value(self, value: int) -> None:
+    def _set_value(self, value: int):
         value = round(eval("value"+self._reverse_expression))
         if value < self._range_start:
             value = self._range_start

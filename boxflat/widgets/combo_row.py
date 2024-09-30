@@ -17,7 +17,7 @@
 #     def row_name(self) -> str:
 #         return self._row_name
 
-#     def add_combo_row(self, title: str, values: dict, callback=None, subtitle="") -> None:
+#     def add_combo_row(self, title: str, values: dict, callback=None, subtitle=""):
 #         if self._current_group == None:
 #             return
 

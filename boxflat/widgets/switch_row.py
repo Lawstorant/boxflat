@@ -9,7 +9,7 @@ class BoxflatSwitchRow(BoxflatRow):
 
         switch = Gtk.Switch()
         switch.add_css_class("switch")
-        switch.connect('notify::active', lambda switch, whatever: self._notify())
+        switch.connect('notify::active', self._notify)
         switch.set_valign(Gtk.Align.CENTER)
         self._reverse = False
         self._switch = switch
@@ -29,11 +29,11 @@ class BoxflatSwitchRow(BoxflatRow):
         return round(eval("int(val)" + self._expression))
 
 
-    def reverse_values(self) -> None:
+    def reverse_values(self):
         self._reverse = True
 
 
-    def _set_value(self, value: int) -> None:
+    def _set_value(self, value: int):
         if value < 0:
             return
 
