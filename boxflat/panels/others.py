@@ -40,9 +40,9 @@ class OtherSettings(SettingsPanel):
         self._brake_calibration = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
         self._add_row(self._brake_calibration)
 
-        self._add_row(BoxflatSwitchRow("Read settings continuously"))
-        self._current_row.subscribe(self._cm.refresh_cont)
-        self._current_row.set_value(1, mute=False)
+        # self._add_row(BoxflatSwitchRow("Read settings continuously"))
+        # self._current_row.subscribe(self._cm.refresh_cont)
+        # self._current_row.set_value(1, mute=False)
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)

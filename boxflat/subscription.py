@@ -174,5 +174,6 @@ class Observable(SimpleEventDispatcher):
 
     @value.setter
     def value(self, new_value):
+        if new_value != self._value:
+            self._dispatch(new_value)
         self._value = new_value
-        self._dispatch(self._value)

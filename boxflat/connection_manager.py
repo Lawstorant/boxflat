@@ -5,7 +5,7 @@ from .moza_command import *
 from serial import Serial
 from threading import Thread, Lock, Event
 import time
-from .hid_handler import HidHandler, MozaHidDevice
+from .hid_handler import MozaHidDevice
 from .subscription import SubscriptionList, EventDispatcher
 from queue import SimpleQueue
 
@@ -16,23 +16,25 @@ from gi.repository import GLib
 CM_RETRY_COUNT=2
 
 HidDeviceMapping = {
-    "base" : MozaHidDevice.BASE,
-    "handbrake" : MozaHidDevice.HANDBRAKE,
-    "hpattern" : MozaHidDevice.HPATTERN,
+    "base"       : MozaHidDevice.BASE,
+    "handbrake"  : MozaHidDevice.HANDBRAKE,
+    "hpattern"   : MozaHidDevice.HPATTERN,
     "sequential" : MozaHidDevice.SEQUENTIAL,
-    "pedals" : MozaHidDevice.PEDALS,
-    "hub" : MozaHidDevice.HUB,
-    "estop" : MozaHidDevice.ESTOP,
-    "main" : None
+    "pedals"     : MozaHidDevice.PEDALS,
+    "hub"        : MozaHidDevice.HUB,
+    "estop"      : MozaHidDevice.ESTOP,
+    "main"       : None
 }
 
-class MozaConnectionManager():
-    def __init__(self, serial_data_path: str, hid_handler: HidHandler, dry_run=False):
+class MozaConnectionManager(EventDispatcher):
+    def __init__(self, serial_data_path: str, dry_run=False):
+        super().__init__()
+        self._register_event("device-connected")
+        self._register_event("hid-device-connected")
+
         self._serial_data = None
         self._dry_run = dry_run
         self._shutdown = False
-
-        self._hid_handler = hid_handler
 
         self._serial_devices = {}
         self._devices_lock = Lock()
@@ -50,8 +52,6 @@ class MozaConnectionManager():
         self._refresh = Event()
         self._refresh_cont = Event()
         self._subscriptions = {}
-        self._refresh_thread = Thread(daemon=True, target=self._notify)
-        self._refresh_thread.start()
 
         self._connected_subscriptions = {}
         self._connected_thread = Thread(daemon=True, target=self._notify_connected)
@@ -71,7 +71,7 @@ class MozaConnectionManager():
         self._serial_path = "/dev/serial/by-id"
 
 
-    def shutdown(self):
+    def shutdown(self, *rest):
         self._shutown_subs.call_without_args()
         self._shutdown = True
 
@@ -123,21 +123,28 @@ class MozaConnectionManager():
                 # print("E-Stop found")
 
         self._handle_devices(serial_devices)
-
         # print("Device discovery end\n")
 
 
     def _handle_devices(self, new_devices: dict):
         old_devices = None
-
         with self._devices_lock:
             old_devices = self._serial_devices
             self._serial_devices = new_devices
 
         for device in new_devices:
             if device not in old_devices:
-                self._hid_handler.add_device(HidDeviceMapping[device])
+                self._dispatch("device-connected", device)
+                self._dispatch("hid-device-connected", HidDeviceMapping[device])
 
+        old_len = len(old_devices)
+        new_len = len(new_devices)
+
+        if new_len == 0 and self._refresh_cont.is_set():
+            self.refresh_cont(False)
+
+        elif new_len > 0 and not self._refresh_cont.is_set():
+            self.refresh_cont(True)
 
 
     def subscribe(self, command: str, callback: callable, *args):
@@ -176,6 +183,7 @@ class MozaConnectionManager():
         if active:
             self._refresh_cont.set()
             self._refresh.set()
+            Thread(daemon=True, target=self._notify).start()
         else:
             self._refresh_cont.clear()
             self._refresh.clear()
@@ -207,9 +215,7 @@ class MozaConnectionManager():
     def _notify_connected(self):
         response = 0
         while not self._shutdown:
-            if not self._refresh.wait(2):
-                continue
-
+            time.sleep(2)
             self.device_discovery()
 
             with self._connected_lock:

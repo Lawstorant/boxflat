@@ -14,8 +14,9 @@ class MainWindow(Adw.ApplicationWindow):
         self._hid_handler = HidHandler()
         self._config_path = config_path
 
-        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), self._hid_handler ,dry_run)
-        # self.connect('close-request', lambda w: self._cm.shutdown())
+        self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
+        self.connect('close-request', self._cm.shutdown)
+        self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
 
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
