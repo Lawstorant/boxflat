@@ -1,6 +1,6 @@
 from sys import byteorder
-
 from binascii import hexlify
+from struct import pack, unpack
 
 MOZA_COMMAND_READ=0
 MOZA_COMMAND_WRITE=1
@@ -74,7 +74,7 @@ class MozaCommand():
             data = int(value).to_bytes(self._length)
 
         elif self._type == "float":
-            data = struct.pack(">f", float(value))
+            data = pack(">f", float(value))
 
         elif self._type == "array":
             data = bytes(value)
@@ -91,7 +91,7 @@ class MozaCommand():
             data = int.from_bytes(data)
 
         elif self._type == "float":
-            data = struct.unpack(">f", data)[0]
+            data = unpack(">f", data)[0]
 
         elif self._type == "array":
             data = list(data)
@@ -106,15 +106,15 @@ class MozaCommand():
         return self._length
 
 
-    def _calculate_checksum(self, data: bytes) -> int:
-        value = self._magic_value
+    def _calculate_checksum(self, data: bytes, magic_value: int) -> int:
+        value = magic_value
         for d in data:
             value += int(d)
         return value % 256
 
 
     def prepare_message(self, start_value: int,
-                        device_id: int, rw: int) -> bytes:
+                        device_id: int, rw: int, magic_value: int) -> bytes:
 
         ret = bytearray()
         ret.append(start_value)
@@ -128,8 +128,6 @@ class MozaCommand():
         ret.append(device_id)
         ret.extend(self.id_bytes)
         ret.extend(self._payload)
-
-        if check_function != None:
-            ret.append(self._calculate_checksum(ret))
+        ret.append(self._calculate_checksum(ret, magic_value))
 
         return bytes(ret)

@@ -6,7 +6,8 @@ from serial import Serial
 from threading import Thread, Lock, Event
 import time
 from .hid_handler import HidHandler, MozaHidDevice
-from .subscription import SubscriptionList
+from .subscription import SubscriptionList, EventDispatcher
+from queue import SimpleQueue
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -35,7 +36,6 @@ class MozaConnectionManager():
 
         self._serial_devices = {}
         self._devices_lock = Lock()
-        self._command_lock = Lock()
 
         with open(serial_data_path) as stream:
             try:
@@ -63,11 +63,8 @@ class MozaConnectionManager():
         self._sub_lock = Lock()
         self._connected_lock = Lock()
 
-        self._write_command_buffer = {}
-        self._read_command_buffer = {}
-        self._write_mutex = Lock()
-        self._read_mutex = Lock()
-        self._rw_thread = Thread(daemon=True, target=self._rw_handler)
+        self._write_queue = SimpleQueue()
+        self._rw_thread = None
 
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
@@ -167,8 +164,8 @@ class MozaConnectionManager():
         self._shutown_subs.append(callback, *args)
 
 
-    def subscribe_no_access(self, callback, *args) -> None:
-        self._no_access_subs.append((callback, args))
+    def subscribe_no_access(self, callback: callable, *args) -> None:
+        self._no_access_subs.append(callback, *args)
 
 
     def refresh(self, *args) -> None:
@@ -218,7 +215,7 @@ class MozaConnectionManager():
             with self._connected_lock:
                 lists = self._connected_subscriptions.copy()
 
-            self._no_access_subs = []
+            self._no_access_subs.clear()
             for command, subs in lists.items():
                 subs.call_with_value(self.get_setting(command))
 
@@ -240,20 +237,17 @@ class MozaConnectionManager():
 
 
     def set_rw_active(self, *args) -> None:
-        if not self._rw_thread.is_alive():
+        if not self._rw_thread:
+            self._rw_thread = Thread(daemon=True, target=self._rw_handler)
             self._rw_thread.start()
 
 
     def _rw_handler(self) -> None:
         while not self._shutdown:
-            time.sleep(0.1)
+            value, command = self._write_queue.get()
+            self.handle_setting(value, command_name, True)
 
-            with self._write_mutex:
-                write_buffer = self._write_command_buffer
-                self._write_command_buffer = {}
-
-            for com, val in write_buffer.items():
-                self.handle_setting(val, com, True)
+        self._rw_thread = None
 
 
     def _get_device_id(self, device_type: str) -> int:
@@ -355,9 +349,9 @@ class MozaConnectionManager():
 
 
     def _handle_command_v2(self, command_data: MozaCommand, rw: int) -> bytes:
-        device_id = self._get_device_id(command.device_type)
-        message = command_data.prepare_message(self._message_start, device_id, rw)
-        device_path = self._get_device_path(command.device_type)
+        device_id = self._get_device_id(command_data.device_type)
+        message = command_data.prepare_message(self._message_start, device_id, rw, self._magic_value)
+        device_path = self._get_device_path(command_data.device_type)
 
         return self.send_serial_message(device_path, message, (rw == MOZA_COMMAND_READ))
 
@@ -384,13 +378,11 @@ class MozaConnectionManager():
 
 
     def set_setting(self, value, command_name: str):
-        with self._write_mutex:
-            # TODO: use Queue here instead of my custom implementation
-            self._write_command_buffer[command_name] = value
+        self._write_queue.put((value, command_name))
 
 
-    def get_setting(self, value, command_name: str):
-        response = self.handle_setting(value, command_name, write=False)
+    def get_setting(self, command_name: str):
+        response = self.handle_setting(1, command_name, write=False)
         if response == None:
             return -1
         return response
