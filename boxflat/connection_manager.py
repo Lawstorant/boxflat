@@ -203,13 +203,13 @@ class MozaConnectionManager(EventDispatcher):
                     continue
 
                 self._dispatch(command, response)
-            time.sleep(1)
+            time.sleep(2)
 
 
     def _notify_connected(self):
         response = 0
         while not self._shutdown:
-            time.sleep(1)
+            time.sleep(2)
             self.device_discovery()
 
             with self._connected_lock:
