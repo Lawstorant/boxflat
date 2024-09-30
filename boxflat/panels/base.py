@@ -43,8 +43,8 @@ class BaseSettings(SettingsPanel):
 
 
     def _set_rotation(self, value: int) -> None:
-        self._cm.set_setting_auto(value, "base-limit")
-        self._cm.set_setting_auto(value, "base-max-angle")
+        self._cm.set_setting(value, "base-limit")
+        self._cm.set_setting(value, "base-max-angle")
 
 
     def prepare_ui(self) -> None:
@@ -67,16 +67,16 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(25, 50, 75)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-ffb-strength")
+        self._current_row.subscribe(self._cm.set_setting, "base-ffb-strength")
         self._append_sub("base-ffb-strength", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Force Feedback Enabled"))
         self._current_row.reverse_values()
-        self._current_row.subscribe(self._cm.set_setting_auto, "main-set-ffb-status")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-ffb-status")
         self._append_sub("main-get-ffb-status", self._current_row.set_value)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-calibration")
+        self._current_row.subscribe(self._cm.set_setting, "base-calibration")
 
         # Basic settings
         self.add_preferences_group("Basic settings")
@@ -85,7 +85,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(2, 4, 6, 8)
         self._current_row.set_expression("*4 + 10")
         self._current_row.set_reverse_expression("/4 - 2.5")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-road-sensitivity")
+        self._current_row.subscribe(self._cm.set_setting, "base-road-sensitivity")
         self._current_row.subscribe(self._set_eq_preset, True)
         self._append_sub("base-road-sensitivity", self._current_row.set_value)
 
@@ -93,42 +93,42 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(50, 100, 150)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-speed")
+        self._current_row.subscribe(self._cm.set_setting, "base-speed")
         self._append_sub("base-speed", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Wheel Spring", suffix="%"))
         self._current_row.add_marks(50)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-spring")
+        self._current_row.subscribe(self._cm.set_setting, "base-spring")
         self._append_sub("base-spring", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
         self._current_row.add_marks(10, 25, 50)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-damper")
+        self._current_row.subscribe(self._cm.set_setting, "base-damper")
         self._append_sub("base-damper", self._current_row.set_value)
 
         # Advenced settings
         self.add_preferences_group("Advenced Settings")
         self._add_row(BoxflatSliderRow("Torque output", suffix="%"))
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-torque")
+        self._current_row.subscribe(self._cm.set_setting, "base-torque")
         self._append_sub("base-torque", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500, increment=50))
         self._current_row.add_marks(150, 300)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-inertia")
+        self._current_row.subscribe(self._cm.set_setting, "base-inertia")
         self._append_sub("base-inertia", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Wheel Friction", suffix="%"))
         self._current_row.add_marks(10, 30)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-friction")
+        self._current_row.subscribe(self._cm.set_setting, "base-friction")
         self._append_sub("base-friction", self._current_row.set_value)
 
 
@@ -137,7 +137,7 @@ class BaseSettings(SettingsPanel):
         mode = BoxflatToggleButtonRow("Protection Mode")
 
         self._add_row(BoxflatSwitchRow("Hands-Off Protection"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-protection")
+        self._current_row.subscribe(self._cm.set_setting, "base-protection")
         self._current_row.subscribe(slider.set_active)
         self._current_row.subscribe(mode.set_active)
         self._append_sub("base-protection", self._current_row.set_value)
@@ -146,24 +146,24 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_buttons("Mode 1", "Mode 2")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-protection-mode")
+        self._current_row.subscribe(self._cm.set_setting, "base-protection-mode")
         self._append_sub("base-protection-mode", self._current_row.set_value)
         self._append_sub("base-protection", self._current_row.set_active)
 
         self._add_row(slider)
         self._current_row.add_marks(900, 1550, 2800, 3500)
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-natural-inertia")
+        self._current_row.subscribe(self._cm.set_setting, "base-natural-inertia")
         self._append_sub("base-natural-inertia", self._current_row.set_value)
         self._append_sub("base-protection", self._current_row.set_active)
 
         self._add_row(BoxflatSliderRow("Speed-depended Damping", suffix="%"))
         self._current_row.add_marks(50)
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-speed-damping")
+        self._current_row.subscribe(self._cm.set_setting, "base-speed-damping")
         self._append_sub("base-speed-damping", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Speed-depended Damping", range_end=400, suffix=" kph   "))
         self._current_row.add_marks(120)
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-speed-damping-point")
+        self._current_row.subscribe(self._cm.set_setting, "base-speed-damping-point")
         self._append_sub("base-speed-damping-point", self._current_row.set_value)
 
         # FFB Equalizer
@@ -179,35 +179,35 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(4, 6, 8)
         self._current_row.set_expression("*(400/9)-(400/9)+100")
         self._current_row.set_reverse_expression("/(400/9) - 2.25 + 1")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-soft-limit-stiffness")
+        self._current_row.subscribe(self._cm.set_setting, "base-soft-limit-stiffness")
         self._append_sub("base-soft-limit-stiffness", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Soft Limit Strength"))
         self._current_row.add_buttons("Soft", "Middle", "Hard")
         self._current_row.set_expression("*22+56")
         self._current_row.set_reverse_expression("/22 - 2.5454")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-soft-limit-strength")
+        self._current_row.subscribe(self._cm.set_setting, "base-soft-limit-strength")
         self._append_sub("base-soft-limit-strength", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Soft Limit Retain Game FFB"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-soft-limit-retain")
+        self._current_row.subscribe(self._cm.set_setting, "base-soft-limit-retain")
         self._append_sub("base-soft-limit-retain", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Base Status Indicator"))
         self._current_row.set_subtitle("Does nothing if your base doesn't have it")
-        self._current_row.subscribe(self._cm.set_setting_auto, "main-set-led-status")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-led-status")
         self._append_sub("main-get-led-status", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Default Force Feedback State"))
         self._current_row.reverse_values()
-        self._current_row.subscribe(self._cm.set_setting_auto, "main-set-default-ffb-status")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-default-ffb-status")
         self._append_sub("main-get-default-ffb-status", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Temperature Control Strategy",))
         self._current_row.set_subtitle("Conservative = 50°C, Radical = 60°C")
         self._current_row.add_buttons("Conservative", "Radical")
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-temp-strategy")
+        self._current_row.subscribe(self._cm.set_setting, "base-temp-strategy")
         self._append_sub("base-temp-strategy", self._current_row.set_value)
 
         self.add_preferences_group("Temperatures")
@@ -238,7 +238,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_labels("10Hz", "15Hz", "25Hz", "40Hz", "60Hz", "100Hz")
         self._current_row.set_height(450)
         for i in range(6):
-            self._eq_row.subscribe_slider(i, self._cm.set_setting_auto, f"base-equalizer{i+1}")
+            self._eq_row.subscribe_slider(i, self._cm.set_setting, f"base-equalizer{i+1}")
             self._append_sub(f"base-equalizer{i+1}", self._eq_row.set_slider_value, i)
 
 
@@ -260,7 +260,7 @@ class BaseSettings(SettingsPanel):
 
         self.add_preferences_group("")
         self._add_row(BoxflatSwitchRow("Force Feedback Reversal"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "base-ffb-reverse")
+        self._current_row.subscribe(self._cm.set_setting, "base-ffb-reverse")
         self._append_sub("base-ffb-reverse", self._current_row.set_value)
 
 
@@ -269,7 +269,7 @@ class BaseSettings(SettingsPanel):
 
 
     def _set_curve_point(self, value: int, index: int) -> None:
-        self._cm.set_setting_auto(value, f"base-ffb-curve-y{index+1}")
+        self._cm.set_setting(value, f"base-ffb-curve-y{index+1}")
 
 
     def _set_curve(self, values: list) -> None:
@@ -278,10 +278,10 @@ class BaseSettings(SettingsPanel):
         curve.extend(values)
 
         for i in range(1,5):
-            self._cm.set_setting_auto(curve[i-1], f"base-ffb-curve-x{i}")
+            self._cm.set_setting(curve[i-1], f"base-ffb-curve-x{i}")
 
         for i in range(0,5):
-            self._cm.set_setting_auto(curve[i+4], f"base-ffb-curve-y{i+1}")
+            self._cm.set_setting(curve[i+4], f"base-ffb-curve-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int) -> None:
@@ -301,4 +301,4 @@ class BaseSettings(SettingsPanel):
             index = self._sensitivity_row.get_raw_value()
 
         for i in range(6):
-            self._cm.set_setting_auto(self._eq_presets[index][i], f"base-equalizer{i+1}")
+            self._cm.set_setting(self._eq_presets[index][i], f"base-equalizer{i+1}")

@@ -22,20 +22,20 @@ class HandbrakeSettings(SettingsPanel):
     def prepare_ui(self) -> None:
         self.add_preferences_group("Handbrake settings")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "handbrake-direction")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-direction")
         self._append_sub("handbrake-direction", self._current_row.set_value)
 
         row = BoxflatSliderRow("Button threshold", suffix="%")
 
         self._add_row(BoxflatToggleButtonRow("Handbrake Mode"))
         self._current_row.add_buttons("Axis", "Button")
-        self._current_row.subscribe(self._cm.set_setting_auto, "handbrake-mode")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-mode")
         self._current_row.subscribe(row.set_active)
         self._append_sub("handbrake-mode", self._current_row.set_value)
 
         self._add_row(row)
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_auto, "handbrake-button-threshold")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-button-threshold")
         self._append_sub("handbrake-mode", self._current_row.set_active)
         self._append_sub("handbrake-button-threshold", self._current_row.set_value)
         self._current_row.set_active(False)
@@ -60,19 +60,19 @@ class HandbrakeSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "handbrake-min")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-min")
         self._append_sub("handbrake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%", value=100))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "handbrake-max")
+        self._current_row.subscribe(self._cm.set_setting, "handbrake-max")
         self._append_sub("handbrake-max", self._current_row.set_value)
 
         self.add_preferences_group("Calibration")
         self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Pull handbrake fully once"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting_auto, "handbrake-calibration-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting_auto, "handbrake-calibration-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "handbrake-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "handbrake-calibration-stop")
 
 
     def _set_curve_preset(self, value: int) -> None:
@@ -80,7 +80,7 @@ class HandbrakeSettings(SettingsPanel):
 
 
     def _set_curve_point(self, value: int, index: int) -> None:
-        self._cm.set_setting_auto(float(value), f"handbrake-y{index+1}")
+        self._cm.set_setting(float(value), f"handbrake-y{index+1}")
 
 
     def _set_curve(self, values: list) -> None:
@@ -88,7 +88,7 @@ class HandbrakeSettings(SettingsPanel):
         curve.extend(values)
 
         for i in range(0,5):
-            self._cm.set_setting_auto(curve[i], f"handbrake-y{i+1}")
+            self._cm.set_setting(curve[i], f"handbrake-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int) -> None:

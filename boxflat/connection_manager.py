@@ -196,7 +196,7 @@ class MozaConnectionManager():
                 subs = self._subscriptions.copy()
 
             for command, subs in subs.items():
-                response = self.get_setting_auto(command)
+                response = self.get_setting(command)
 
                 if response == -1:
                     continue
@@ -220,7 +220,7 @@ class MozaConnectionManager():
 
             self._no_access_subs = []
             for command, subs in lists.items():
-                subs.call_with_value(self.get_setting_auto(command))
+                subs.call_with_value(self.get_setting(command))
 
             if self._refresh_cont.is_set():
                 time.sleep(1)

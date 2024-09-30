@@ -53,23 +53,23 @@ class PedalsSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-throttle-min")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-throttle-min")
         self._append_sub("pedals-throttle-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-throttle-max")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-throttle-max")
         self._append_sub("pedals-throttle-max", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-throttle-dir")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-throttle-dir")
         self._append_sub("pedals-throttle-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress throttle once"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting_auto, "pedals-throttle-calibration-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting_auto, "pedals-throttle-calibration-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-throttle-calibration-stop")
 
         # Brake
         self.add_preferences_page("Brake")
@@ -92,29 +92,29 @@ class PedalsSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-brake-min")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-brake-min")
         self._append_sub("pedals-brake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-brake-max")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-brake-max")
         self._append_sub("pedals-brake-max", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
         self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-brake-angle-ratio")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-brake-angle-ratio")
         self._append_sub("pedals-brake-angle-ratio", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-brake-dir")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-brake-dir")
         self._append_sub("pedals-brake-dir", self._current_row.set_value)
 
         self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Fully depress brake once")
         self._add_row(self._brake_calibration_row)
-        self._current_row.subscribe("calibration-start", self._cm.set_setting_auto, "pedals-throttle-brake-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting_auto, "pedals-throttle-brake-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-brake-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-throttle-brake-stop")
         self._current_row.set_active(False)
 
         # Clutch
@@ -138,23 +138,23 @@ class PedalsSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-clutch-min")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-clutch-min")
         self._append_sub("pedals-clutch-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-clutch-max")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-clutch-max")
         self._append_sub("pedals-clutch-max", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(self._cm.set_setting_auto, "pedals-clutch-dir")
+        self._current_row.subscribe(self._cm.set_setting, "pedals-clutch-dir")
         self._append_sub("pedals-clutch-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress clutch once"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting_auto, "pedals-clutch-calibration-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting_auto, "pedals-clutch-calibration-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-clutch-calibration-start")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-clutch-calibration-stop")
 
 
     def _set_curve_preset(self, value: int, pedal: str) -> None:
@@ -162,7 +162,7 @@ class PedalsSettings(SettingsPanel):
 
 
     def _set_curve_point(self, value: int, index: int, pedal: str) -> None:
-        self._cm.set_setting_auto(value, f"pedals-{pedal}-y{index+1}")
+        self._cm.set_setting(value, f"pedals-{pedal}-y{index+1}")
 
 
     def _set_curve(self, values: list, pedal: str) -> None:
@@ -170,7 +170,7 @@ class PedalsSettings(SettingsPanel):
         curve.extend(values)
 
         for i in range(0,5):
-            self._cm.set_setting_auto(curve[i], f"pedals-{pedal}-y{i+1}")
+            self._cm.set_setting(curve[i], f"pedals-{pedal}-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int, pedal: str) -> None:
