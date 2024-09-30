@@ -229,6 +229,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
         for key, settings in preset_data.items():
             if key in MozaDevicePresetSettings.keys():
                 for setting, value in settings.items():
+                    setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                     # print(f"{key}-{setting}: {value}")
                     self._cm.set_setting(value, f"{key}-{setting}")
 
