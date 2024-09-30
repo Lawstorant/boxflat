@@ -9,9 +9,10 @@
             "type": "debugpy",
             "request": "launch",
             "program": "entrypoint.py",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "args": [
-                "--local"
+                "--local",
+                "--custom"
             ]
         },
         {
@@ -24,7 +25,8 @@
                 "GTK_DEBUG": "interactive"
             },
             "args": [
-                "--local"
+                "--local",
+                "--custom"
             ]
         }
     ]

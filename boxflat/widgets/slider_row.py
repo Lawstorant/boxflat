@@ -59,8 +59,11 @@ class BoxflatSliderRow(BoxflatRow):
 
     def add_marks(self, *marks: int):
         for mark in marks:
-            self._slider.add_mark(
-                mark, Gtk.PositionType.BOTTOM,f"{mark}{self._suffix}")
+            self.add_mark(mark, str(mark))
+
+
+    def add_mark(self, value: int, text: str):
+        self._slider.add_mark(value, Gtk.PositionType.BOTTOM, f"{text}{self._suffix}")
 
 
     def set_slider_width(self, width: int):

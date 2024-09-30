@@ -4,6 +4,7 @@ from struct import pack, unpack
 
 MOZA_COMMAND_READ=0
 MOZA_COMMAND_WRITE=1
+MOZA_COMMAND_DEAD=2
 
 class MozaCommand():
     def __init__(self, name:str, commands_data: object):
@@ -17,6 +18,7 @@ class MozaCommand():
         self.name = name.split("-", maxsplit=1)[1]
         self._device_type = name.split("-")[0]
         self._type = commands_data[name]["type"]
+        self._device_id = None
 
 
     @property
@@ -60,6 +62,17 @@ class MozaCommand():
         return self._type
 
 
+    @property
+    def device_id(self) -> int:
+        return self._device_id
+
+
+    @device_id.setter
+    def device_id(self, new_id: int):
+        if isinstance(new_id, int):
+            self._device_id = new_id
+
+
     def set_payload_bytes(self, value: bytes):
         self._payload = value
 
@@ -70,17 +83,23 @@ class MozaCommand():
 
     def set_payload(self, value):
         data = None
-        if self._type == "int":
-            data = int(value).to_bytes(self._length)
+        try:
+            if self._type == "int":
+                data = int(value).to_bytes(self._length)
 
-        elif self._type == "float":
-            data = pack(">f", float(value))
+            elif self._type == "float":
+                data = pack(">f", float(value))
 
-        elif self._type == "array":
-            data = bytes(value)
+            elif self._type == "array":
+                if isinstance(value, list):
+                    data = bytes(value)
+                else:
+                    data = bytes(self._length)
 
-        elif self._type == "hex":
-            data = bytes.fromhex(value)
+            elif self._type == "hex":
+                data = bytes.fromhex(value)
+        except:
+            data = bytes(self._length)
 
         self._payload = data
 
@@ -114,7 +133,7 @@ class MozaCommand():
 
 
     def prepare_message(self, start_value: int,
-                        device_id: int, rw: int, magic_value: int) -> bytes:
+                        rw: int, magic_value: int) -> bytes:
 
         ret = bytearray()
         ret.append(start_value)
@@ -125,7 +144,7 @@ class MozaCommand():
         elif rw == MOZA_COMMAND_WRITE:
             ret.extend(self.write_group_byte)
 
-        ret.append(device_id)
+        ret.append(self._device_id)
         ret.extend(self.id_bytes)
         ret.extend(self._payload)
         ret.append(self._calculate_checksum(ret, magic_value))

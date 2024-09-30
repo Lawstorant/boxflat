@@ -8,7 +8,7 @@ from boxflat.hid_handler import HidHandler
 import os
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, data_path: str, config_path: str, dry_run: bool, *args, **kwargs):
+    def __init__(self, data_path: str, config_path: str, dry_run: bool, custom: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._hid_handler = HidHandler()
@@ -56,6 +56,8 @@ class MainWindow(Adw.ApplicationWindow):
         self.navigation = navigation
 
         self._prepare_settings()
+        if custom:
+            self._panels["Other"].enable_custom_commands()
 
         buttons = self._panel_buttons()
         for button in buttons:
@@ -124,8 +126,8 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm)
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
-        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler)
-        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._config_path)
+        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler, self._version)
+        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._config_path, self._version)
 
         self._panels["Other"].subscribe_brake_calibration(
             self._panels["Pedals"].set_brake_calibration_active
@@ -148,7 +150,7 @@ class MainWindow(Adw.ApplicationWindow):
             return
 
         self._panels["Base"].activate_subs()
-        self._cm.set_rw_active(True)
+        self._cm.set_write_active()
 
 
     def _activate_default(self) -> SettingsPanel:
@@ -166,17 +168,16 @@ class MainWindow(Adw.ApplicationWindow):
 
 
 class MyApp(Adw.Application):
-    def __init__(self, data_path: str, config_path: str, dry_run: bool, **kwargs):
+    def __init__(self, data_path: str, config_path: str, dry_run: bool, custom: bool, **kwargs):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
-        self._data_path = data_path
-        self._dry_run = dry_run
-        self._config_path = config_path
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
+        self.win = MainWindow(data_path, config_path, dry_run, custom)
+
 
     def on_activate(self, app):
-        self.win = MainWindow(self._data_path, self._config_path, self._dry_run, application=app)
+        self.win.set_application(app)
         self.win.present()

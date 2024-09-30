@@ -26,6 +26,15 @@ HidDeviceMapping = {
     "main"       : None
 }
 
+
+
+class MozaQueueElement():
+    def __init__(self, value=None, command=None):
+        self.value = value
+        self.command = command
+
+
+
 class MozaConnectionManager(EventDispatcher):
     def __init__(self, serial_data_path: str, dry_run=False):
         super().__init__()
@@ -47,11 +56,13 @@ class MozaConnectionManager(EventDispatcher):
                 self._shutdown = True
                 quit(1)
 
+        self._command_list = list(self._serial_data["commands"].keys())
+        self._register_events(*self._command_list)
+
         self._serial_lock = Lock()
 
-        self._refresh = Event()
         self._refresh_cont = Event()
-        self._subscriptions = {}
+        self._subscriptions = []
 
         self._connected_subscriptions = {}
         self._connected_thread = Thread(daemon=True, target=self._notify_connected)
@@ -64,7 +75,7 @@ class MozaConnectionManager(EventDispatcher):
         self._connected_lock = Lock()
 
         self._write_queue = SimpleQueue()
-        self._rw_thread = None
+        self._write_thread = None
 
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
@@ -137,21 +148,17 @@ class MozaConnectionManager(EventDispatcher):
                 self._dispatch("device-connected", device)
                 self._dispatch("hid-device-connected", HidDeviceMapping[device])
 
-        old_len = len(old_devices)
-        new_len = len(new_devices)
-
-        if new_len == 0 and self._refresh_cont.is_set():
+        if len(new_devices) == 0 and self._refresh_cont.is_set():
             self.refresh_cont(False)
 
-        elif new_len > 0 and not self._refresh_cont.is_set():
+        elif len(new_devices) > 0 and not self._refresh_cont.is_set():
             self.refresh_cont(True)
 
 
-    def subscribe(self, command: str, callback: callable, *args):
-        if not command in self._subscriptions:
-            self._subscriptions[command] = SubscriptionList()
-
-        self._subscriptions[command].append(callback, *args)
+    def subscribe(self, event_name: str, callback: callable, *args):
+        super().subscribe(event_name, callback, *args)
+        if event_name in self._command_list:
+            self._subscriptions.append(event_name)
 
 
     def subscribe_connected(self, command: str, callback: callable, *args):
@@ -163,6 +170,7 @@ class MozaConnectionManager(EventDispatcher):
 
     def reset_subscriptions(self):
         # print("\nClearing subscriptions")
+        self._clear_subscriptions(self._command_list)
         with self._sub_lock:
             self._subscriptions.clear()
 
@@ -175,47 +183,33 @@ class MozaConnectionManager(EventDispatcher):
         self._no_access_subs.append(callback, *args)
 
 
-    def refresh(self, *args):
-        self._refresh.set()
-
-
     def refresh_cont(self, active: bool):
         if active:
             self._refresh_cont.set()
-            self._refresh.set()
             Thread(daemon=True, target=self._notify).start()
         else:
             self._refresh_cont.clear()
-            self._refresh.clear()
 
 
     def _notify(self):
-        while not self._shutdown:
-            if not self._refresh.wait(2):
-                continue
-
-            if not self._refresh_cont.is_set():
-                self._refresh.clear()
-
+        while self._refresh_cont.is_set():
             with self._sub_lock:
                 subs = self._subscriptions.copy()
 
-            for command, subs in subs.items():
+            for command in subs:
                 response = self.get_setting(command)
 
                 if response == -1:
                     continue
 
-                subs.call_with_value(response)
-
-            if self._refresh_cont.is_set():
-                time.sleep(1)
+                self._dispatch(command, response)
+            time.sleep(1)
 
 
     def _notify_connected(self):
         response = 0
         while not self._shutdown:
-            time.sleep(2)
+            time.sleep(1)
             self.device_discovery()
 
             with self._connected_lock:
@@ -225,14 +219,11 @@ class MozaConnectionManager(EventDispatcher):
             for command, subs in lists.items():
                 subs.call_with_value(self.get_setting(command))
 
-            if self._refresh_cont.is_set():
-                time.sleep(1)
-
 
     def _notify_no_access(self):
         if self._no_access_subs:
             self._no_access_subs.call()
-            self._no_access_subs = None
+            self._no_access_subs.clear()
 
 
     def set_cont_active(self, active: bool):
@@ -242,17 +233,17 @@ class MozaConnectionManager(EventDispatcher):
             self._cont_active.clear()
 
 
-    def set_rw_active(self, *args):
-        if not self._rw_thread:
-            self._rw_thread = Thread(daemon=True, target=self._rw_handler)
-            self._rw_thread.start()
+    def set_write_active(self, *args):
+        if not self._write_thread:
+            self._write_thread = Thread(daemon=True, target=self._write_handler)
+            self._write_thread.start()
 
 
-    def _rw_handler(self):
+    def _write_handler(self):
         while not self._shutdown:
-            value, command = self._write_queue.get()
-            self.handle_setting(value, command, True)
-        self._rw_thread = None
+            element = self._write_queue.get()
+            self.handle_setting(element.value, element.command, True)
+        self._write_thread = None
 
 
     def _get_device_id(self, device_type: str) -> int:
@@ -283,11 +274,11 @@ class MozaConnectionManager(EventDispatcher):
         # print(f"Sending:  {msg}")
 
         if self._dry_run:
-            return bytes()
+            return
 
         if serial_path == None:
             # print("No compatible device found!")
-            return bytes()
+            return
 
         initial_len = message[1]
         rest = bytes()
@@ -304,7 +295,7 @@ class MozaConnectionManager(EventDispatcher):
             for i in range(CM_RETRY_COUNT):
                 serial.write(message)
 
-            time.sleep(1/500)
+            #time.sleep(1/500)
 
             # read_response = True # For teesting writes
             start_time = time.time()
@@ -331,69 +322,75 @@ class MozaConnectionManager(EventDispatcher):
 
             serial.close()
         except Exception as error:
-            print("Error opening device!")
+            # print("Error opening device!")
             read_response = False
             self._notify_no_access()
 
         self._serial_lock.release()
 
         if read_response == False:
-            return bytes()
+            return
 
-        # message = bytearray()
-        # message.extend(cmp)
-        # message.append(length)
-        # message.extend(rest)
+        message = bytearray()
+        message.extend(cmp)
+        message.append(length)
+        message.extend(rest)
 
         # msg = ""
         # for b in message:
         #     msg += f"{hex(b)} "
         # print(f"Response: {msg}")
 
-        return rest
+        return bytes(message)
 
 
     def _handle_command_v2(self, command_data: MozaCommand, rw: int) -> bytes:
-        device_id = self._get_device_id(command_data.device_type)
-        message = command_data.prepare_message(self._message_start, device_id, rw, self._magic_value)
+        message = command_data.prepare_message(self._message_start, rw, self._magic_value)
         device_path = self._get_device_path(command_data.device_type)
 
-        return self.send_serial_message(device_path, message, (rw == MOZA_COMMAND_READ))
+        response = self.send_serial_message(device_path, message, (rw == MOZA_COMMAND_READ))
+        if not response is None:
+            response = response[-1-command_data.payload_length:-1]
+
+        # only return payload
+        return response
 
 
-    def handle_setting(self, value, command_name: str, write=True) -> bool:
-        if command_name not in self._serial_data["commands"]:
+    def handle_setting(self, value, command_name: str, rw: int) -> bool:
+        if command_name not in self._command_list:
             print("Command not found!")
             return
 
         command = MozaCommand(command_name, self._serial_data["commands"])
+        command.device_id = self._get_device_id(command.device_type)
 
-        if write and (command.write_group == -1):
+        if command.device_id == -1:
+            print("Invalid Device ID")
+            return
+
+        if rw == MOZA_COMMAND_WRITE and command.write_group == -1:
             print("Command doesn't support WRITE operation")
             return
 
-        elif command.read_group == -1:
+        elif rw == MOZA_COMMAND_READ and command.read_group == -1:
             print("Command doesn't support READ operation")
             return
 
         command.set_payload(value)
-        response = self._handle_command_v2(command, MOZA_COMMAND_WRITE if write else MOZA_COMMAND_READ)
+        response = self._handle_command_v2(command, rw)
         if response == None:
-            return None
-
-        if response == bytes():
-            return None
+            return
 
         command.set_payload_bytes(response)
         return command.get_payload()
 
 
     def set_setting(self, value, command_name: str):
-        self._write_queue.put((value, command_name))
+        self._write_queue.put(MozaQueueElement(value, command_name))
 
 
     def get_setting(self, command_name: str):
-        response = self.handle_setting(1, command_name, write=False)
+        response = self.handle_setting(1, command_name, MOZA_COMMAND_READ)
         if response == None:
             return -1
         return response

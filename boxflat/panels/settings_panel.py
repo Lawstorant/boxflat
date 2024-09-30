@@ -164,12 +164,8 @@ class SettingsPanel(object):
     def remove_preferences_group(self, group: Adw.PreferencesGroup):
         if not group:
             return
-        GLib.idle_add(self._remove_helper, group)
-
-
-    def _remove_helper(self, group: Adw.PreferencesGroup):
-        self._current_page.remove(group)
         self._groups.remove(group)
+        GLib.idle_add(self._current_page.remove, group)
 
 
     def add_view_stack(self):

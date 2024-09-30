@@ -57,7 +57,8 @@ class BaseSettings(SettingsPanel):
 
         self._add_row(BoxflatSliderRow(
             "Wheel Rotation Angle",subtitle="Round and round", range_start=90, range_end=2700, big=True, draw_value=False))
-        self._current_row.add_marks(360, 540, 720, 900, 1080, 1440, 1800, 2160, 2520)
+        self._current_row.add_marks(360, 540, 720, 900, 1080, 1440, 1800, 2160)
+        self._current_row.add_mark(2520, "2520  ")
         self._current_row.set_expression("/2")
         self._current_row.set_reverse_expression("*2")
         self._current_row.subscribe(self._set_rotation)
@@ -151,7 +152,10 @@ class BaseSettings(SettingsPanel):
         self._append_sub("base-protection", self._current_row.set_active)
 
         self._add_row(slider)
-        self._current_row.add_marks(900, 1550, 2800, 3500)
+        self._current_row.add_marks(2800)
+        self._current_row.add_mark(1100, "1100  ")
+        self._current_row.add_mark(1550, "  1550")
+        self._current_row.add_mark(3500, "3500  ")
         self._current_row.subscribe(self._cm.set_setting, "base-natural-inertia")
         self._append_sub("base-natural-inertia", self._current_row.set_value)
         self._append_sub("base-protection", self._current_row.set_active)

@@ -4,8 +4,10 @@ from gi.repository import Gtk, Gdk
 from .row import BoxflatRow
 from threading import Thread, Event, Lock
 from time import sleep
+from boxflat.subscription import EventDispatcher
 
-MOZA_RPM_LEDS=10
+MOZA_RPM_LEDS = 10
+MOZA_RGB_BUTTONS = 10
 
 def extract_rgb(rgba: Gdk.RGBA) -> list:
         rgb = rgba.to_string()[4:-1]
@@ -13,21 +15,26 @@ def extract_rgb(rgba: Gdk.RGBA) -> list:
         return rgb
 
 
-class BoxflatNewColorPickerRow(BoxflatRow):
-    def __init__(self, title: str, subtitle="", blinking=False):
-        super().__init__(title, subtitle)
+class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
+    def __init__(self, title="", subtitle="", blinking=False):
+        BoxflatRow.__init__(self, title, subtitle)
+        EventDispatcher.__init__(self)
+
+        for i in range(MOZA_RPM_LEDS):
+            self._register_event(f"color{i}")
 
         child = self.get_child()
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.set_child(main_box)
 
-        colors_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, halign=Gtk.Align.CENTER)
+        colors_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, halign=Gtk.Align.FILL)
         colors_box.set_margin_top(6)
         colors_box.set_margin_bottom(12)
 
         main_box.append(child)
         main_box.add_css_class("header")
         main_box.set_valign(Gtk.Align.CENTER)
+        main_box.set_halign(Gtk.Align.FILL)
         main_box.append(colors_box)
 
         self._dialog = Gtk.ColorDialog(with_alpha=False)
@@ -38,13 +45,16 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         red = Gdk.RGBA()
         red.parse("rgb(230,60,60)")
         for i in range(MOZA_RPM_LEDS):
-            color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True, halign=Gtk.Align.CENTER)
+            color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True)
             color.set_rgba(red)
-            color.set_size_request(0,48)
+            color.set_valign(Gtk.Align.CENTER)
+            color.set_halign(Gtk.Align.CENTER)
             color.connect('notify::rgba', self._notify)
 
             self._colors.append(color)
             colors_box.append(color)
+            size = color.get_preferred_size()[1]
+            color.set_size_request(0, size.width - 2)
 
             if not blinking:
                 continue
@@ -96,8 +106,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         index = self.get_index(button)
         value = alt_value if alt_value else self.get_value(index)
 
-        for sub in self._subscribers:
-            sub[0](value, sub[2][0] + str(index+1))
+        self._dispatch(f"color{index}", value)
 
 
     def _enter_button(self, controller: Gtk.EventControllerMotion, a, b, index: int):

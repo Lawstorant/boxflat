@@ -25,6 +25,7 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_suffix("°")
         self._steer_row.set_subtitle(f"Limit = {self._rotation*2}°")
         self._append_sub_hid(MozaAxis.STEERING.name, self._set_steering)
+        self._current_row.set_value(0)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(self._cm.set_setting, "base-calibration")

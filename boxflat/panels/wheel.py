@@ -211,21 +211,22 @@ class WheelSettings(SettingsPanel):
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("Buttons")
-        self._add_row(BoxflatNewColorPickerRow("", blinking=True))
-        self._current_row.subscribe(self._cm.set_setting, "wheel-button-color")
+        self._add_row(BoxflatNewColorPickerRow(blinking=True))
         self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_active, +1)
-        for i in range(MOZA_RPM_LEDS):
+        for i in range(MOZA_RGB_BUTTONS):
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+1}")
             self._append_sub(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Colors")
-        self._add_row(BoxflatNewColorPickerRow(""))
-        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-color")
+        self._add_row(BoxflatNewColorPickerRow())
         for i in range(MOZA_RPM_LEDS):
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-color{i+1}")
             self._append_sub(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Blinking")
-        self._add_row(BoxflatNewColorPickerRow(""))
-        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-blink-color")
+        self._add_row(BoxflatNewColorPickerRow())
+        for i in range(MOZA_RPM_LEDS):
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-blink-color{i+1}")
 
         self.add_preferences_group("Brightness")
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
@@ -246,7 +247,6 @@ class WheelSettings(SettingsPanel):
 
         # self.add_preferences_group("Telemetry flag")
         # self._add_row(BoxflatNewColorPickerRow(""))
-        # self._current_row.subscribe(self._cm.set_setting, "wheel-flag-color")
         # for i in range(MOZA_RPM_LEDS):
         #     self._append_sub(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
 

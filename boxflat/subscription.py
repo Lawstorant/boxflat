@@ -20,6 +20,10 @@ class Subscription():
         self._callback(value, *self._args)
 
 
+    def call_with_values(self, *values):
+        self._callback(*values, *self._args)
+
+
     def call_with_custom_args(self, *args):
         self._callback(*args)
 
@@ -53,6 +57,11 @@ class SubscriptionList():
     def call_with_value(self, value):
         for sub in self._subscriptions:
             sub.call_with_value(value)
+
+
+    def call_with_values(self, *values):
+        for sub in self._subscriptions:
+            sub.call_with_values(*values)
 
 
     def call_without_args(self):
@@ -99,6 +108,7 @@ class EventDispatcher():
     def _register_events(self, *event_names: str):
         for event in event_names:
             self._register_event(event)
+            #print(f"Event \"{event}\" registered")
 
 
     def _deregister_event(self, event_name: str) -> bool:
@@ -112,14 +122,14 @@ class EventDispatcher():
         self.__events = {}
 
 
-    def _dispatch(self, event_name: str, value=None) -> bool:
+    def _dispatch(self, event_name: str, *values) -> bool:
         if not self.__find_event(event_name):
             return False
 
-        if value == None:
+        if len(values) == 0:
             self.__events[event_name].call()
         else:
-            self.__events[event_name].call_with_value(value)
+            self.__events[event_name].call_with_values(*values)
         return True
 
 
@@ -138,9 +148,12 @@ class EventDispatcher():
         self.__events[event_name].clear()
 
 
-    def _clear_subscriptions(self):
-        for event in self.__events.values():
-            event.clear()
+    def _clear_subscriptions(self, event_names=None):
+        if not event_names:
+            event_names = self.__events.keys()
+
+        for event in event_names:
+            self._clear_event_subscriptions(event)
 
 
 
@@ -149,11 +162,11 @@ class SimpleEventDispatcher():
         self.__events = SubscriptionList()
 
 
-    def _dispatch(self, value=None):
-        if value is None:
+    def _dispatch(self, *values):
+        if len(values) == 0:
             self.__events.call()
         else:
-            self.__events.call_with_value(value)
+            self.__events.call_with_values(*values)
 
 
     def subscribe(self, callback: callable, *args):

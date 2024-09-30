@@ -231,8 +231,8 @@ class HidHandler(EventDispatcher):
         else:
             number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
 
-        # print(f"button {number}, state: {state}")
-        self._dispatch("button-" + number, state)
+        print(f"button {number}, state: {state}")
+        self._dispatch("button-" + str(number), state)
 
 
     def _read_loop(self, device: evdev.InputDevice):
@@ -242,11 +242,11 @@ class HidHandler(EventDispatcher):
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
-                elif event.type == EV_KEY:
-                    self._notify_button(event.code, event.value)
+                # elif event.type == EV_KEY:
+                #     self._notify_button(event.code, event.value)
 
         except Exception as e:
-            print(e)
+            # print(e)
             pass
 
         print(f"HID device \"{device.name}\" disconnected")

@@ -3,10 +3,12 @@ from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 from boxflat.bitwise import *
 from threading import Thread, Event
+from gi.repository import Gtk
 
 class OtherSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, cm: MozaConnectionManager, hid_handler):
+    def __init__(self, button_callback: callable, cm: MozaConnectionManager, hid_handler, version: str):
         self._brake_calibration = None
+        self._version = version
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
 
 
@@ -52,27 +54,34 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(self._hid_handler.set_update_rate)
         self._current_row.set_value(self._hid_handler.get_update_rate())
 
-        # self.add_preferences_group("Custom command")
-        # self._command = Adw.EntryRow()
-        # self._command.set_title("Command name")
 
-        # self._value = Adw.EntryRow()
-        # self._value.set_title("Value")
+    def enable_custom_commands(self):
+        self.add_preferences_group("Custom command")
+        self._command = Adw.EntryRow()
+        self._command.set_title("Command name")
 
-        # read = BoxflatButtonRow("Execute command", "Read")
-        # write = BoxflatButtonRow("Execute command", "Write")
+        self._value = Adw.EntryRow()
+        self._value.set_title("Value")
 
-        # read.subscribe(self._read_custom)
-        # write.subscribe(self._write_custom)
+        commands_url = self._version.removesuffix("-flatpak")
+        commands_url = "https://raw.githubusercontent.com/Lawstorant/boxflat/refs/heads/main/data/serial.yml"
+        #commands_url = f"https://raw.githubusercontent.com/Lawstorant/boxflat/refs/tags/{commands_url}/data/serial.yml"
+        #commands_url = f"https://github.com/Lawstorant/boxflat/blob/{commands_url}/data/serial.yml"
 
-        # self._add_row(self._command)
-        # self._add_row(self._value)
-        # self._add_row(read)
-        # self._add_row(write)
+        read = BoxflatButtonRow("Execute command")
+        read.add_button("Read", self._read_custom)
+        read.add_button("Write", self._write_custom)
+        read.add_button("Database", self.open_url, commands_url)
+
+        self._add_row(self._command)
+        self._add_row(self._value)
+        self._add_row(read)
 
 
     def _read_custom(self, *args):
         out = self._cm.get_setting(self._command.get_text())
+        if out == -1:
+            out = "Error/Command not found"
         self._value.set_text(str(out))
 
 

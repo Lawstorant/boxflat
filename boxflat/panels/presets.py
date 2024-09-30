@@ -5,7 +5,7 @@ from boxflat.preset_handler import MozaPresetHandler
 import os
 
 class PresetSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, config_path: str):
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, config_path: str, version: str):
         self._includes = {}
         self._name_row = Adw.EntryRow()
         self._name_row.set_title("Preset Name")
