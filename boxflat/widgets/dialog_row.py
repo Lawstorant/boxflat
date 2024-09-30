@@ -1,5 +1,3 @@
-import gi
-gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Adw
 from .row import BoxflatRow
 from .switch_row import BoxflatSwitchRow
@@ -55,7 +53,6 @@ class BoxflatDialogRow(BoxflatRow):
         values = []
         for switch in self._switches:
             values.append(switch.get_value())
-
         return values
 
 
@@ -63,8 +60,6 @@ class BoxflatDialogRow(BoxflatRow):
         return len(self._switches)
 
 
-    def set_value(self, values):
+    def _set_value(self, values):
         for i in range(self.get_count()):
             self._switches[i].set_value(bool(values[i]))
-
-        return values

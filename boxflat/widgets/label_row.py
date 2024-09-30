@@ -17,7 +17,7 @@ class BoxflatLabelRow(BoxflatRow):
 
     def _set_value(self, value: str):
         value = round(eval("value"+self._reverse_expression), 1)
-        GLib.idle_add(self._label.set_label, str(value) + self._suffix)
+        self._label.set_label(str(value) + self._suffix)
 
 
     def set_suffix(self, suffix: str):

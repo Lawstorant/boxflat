@@ -1,8 +1,6 @@
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 import time
+from threading import Event
 from boxflat.subscription import SimpleEventDispatcher
 
 class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
@@ -11,7 +9,7 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         SimpleEventDispatcher.__init__(self)
 
         self._cooldown = 0
-        self._mute = False
+        self._mute = Event()
         self._shutdown = False
         self.set_sensitive(True)
         self.set_title(title)
@@ -40,11 +38,14 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
 
 
     def mute(self, value: bool=True):
-        self._mute = value
+        if value:
+            self._mute.set()
+        else:
+            self.unmute()
 
 
     def unmute(self):
-        self._mute = False
+        self._mute.clear()
 
 
     def get_value(self) -> int:
@@ -58,12 +59,14 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
     def set_value(self, value, mute: bool=True):
         if self.cooldown():
             # print("Still cooling down")
-            # print(self.get_title())
             return
+        GLib.idle_add(self.__set_value_helper, value, mute)
 
-        self.mute(mute)
+
+    def __set_value_helper(self, value, mute: bool=True):
+        self._mute.set()
         self._set_value(value)
-        self.unmute()
+        self._mute.clear()
 
 
     def _set_value(self, value):
@@ -71,14 +74,14 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
 
 
     def _set_widget(self, widget: Gtk.Widget):
-        GLib.idle_add(self.add_suffix, widget)
+        self.add_suffix(widget)
 
 
     def _notify(self, *rest):
-        if self._mute:
+        if self._mute.is_set():
             return
 
-        self._cooldown = 1
+        self._cooldown = 2
         self._dispatch(self.get_value())
 
 

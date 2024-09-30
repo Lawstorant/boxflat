@@ -22,7 +22,6 @@ class BoxflatButtonRow(BoxflatRow):
     def add_button(self, button_label: str, callback: callable=None, *args) -> Gtk.Button:
         button = Gtk.Button(label=button_label)
         button.set_valign(Gtk.Align.CENTER)
-        # button.set_margin_start(10)
         self._box.append(button)
 
         if callback:

@@ -1,6 +1,4 @@
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GLib
 from .row import BoxflatRow
 from threading import Thread, Event, Lock
 from time import sleep
@@ -88,21 +86,24 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
             # print("Still cooling down")
             return
 
-        # TODO: use Lock instead of boolean value
-        self._mute = True
         rgba = Gdk.RGBA()
         rgba.parse(f"rgb({value[0]},{value[1]},{value[2]})")
+        GLib.idle_add(self._set_led_value, rgba, index)
 
+
+    def _set_led_value(self, rgba, index):
+        self._mute.set()
         self._colors[index].set_rgba(rgba)
-        self._mute = False
+        self._mute.clear()
 
 
     def _notify(self, button: Gtk.ColorDialogButton, *param, alt_value=None):
-        if self._mute:
+        if self._mute.is_set():
             return
 
         if self._cooldown == 0:
             self._cooldown = 1
+
         index = self.get_index(button)
         value = alt_value if alt_value else self.get_value(index)
 
@@ -135,4 +136,4 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
                 sleep(0.8)
 
             self._blinking_event[index].clear()
-            self._cooldown = 10
+            self._cooldown = 8

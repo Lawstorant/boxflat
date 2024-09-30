@@ -1,6 +1,4 @@
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 from .toggle_button_row import BoxflatToggleButtonRow
 from boxflat.subscription import SubscriptionList
@@ -118,16 +116,18 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def set_sliders_value(self, values: list):
-        self.mute(True)
         if len(values) > len(self._sliders):
             return
 
         for i in range(len(values)):
-            self._sliders[i].set_value(values[i])
-        self.unmute()
+            self._set_slider_value(values[i], i)
 
 
     def set_slider_value(self, value: int, index: int, mute=True):
+        GLib.idle_add(self._set_slider_value, value, index, mute)
+
+
+    def _set_slider_value(self, value: int, index: int, mute=True):
         self.mute(mute)
         self._sliders[index].set_value(value)
         self.unmute()

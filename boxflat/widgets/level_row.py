@@ -1,5 +1,3 @@
-import gi
-gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 from math import ceil, floor
@@ -40,7 +38,7 @@ class BoxflatLevelRow(BoxflatRow):
         if value < 0:
             value = 0
 
-        GLib.idle_add(self._bar.set_value, value)
+        self._bar.set_value(value)
 
 
     def set_bar_max(self, value: int):
@@ -69,7 +67,7 @@ class BoxflatLevelRow(BoxflatRow):
 
     def set_active(self, value, offset=0):
         if super().set_active(value, offset):
-            self.set_value(0)
+            GLib.idle_add(self.set_value, 0)
 
 
     def get_value(self) -> int:
@@ -86,6 +84,7 @@ class BoxflatLevelRow(BoxflatRow):
 
     def get_percent_floor(self) -> int:
         return floor(self.get_fraction() * 100)
+
 
     def get_percent_ceil(self) -> int:
         return ceil(self.get_fraction() * 100)

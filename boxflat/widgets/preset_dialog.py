@@ -109,13 +109,13 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
 
 
     def _notify_save(self, *rest):
-        self._dispatch("save", self._preset_name)
         self.close()
+        self._dispatch("save", self._preset_name)
 
 
     def _notify_delete(self, *rest):
-        self._dispatch("delete", self._preset_name)
         self.close()
+        self._dispatch("delete", self._preset_name)
 
 
     def _open_process_page(self, *rest):

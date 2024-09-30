@@ -94,8 +94,8 @@ class MainWindow(Adw.ApplicationWindow):
         if self.navigation.get_content() == new_content:
             return
 
-        self._cm.reset_subscriptions()
         self.navigation.set_content(new_content)
+        self._cm.reset_subscriptions()
         self._panels[new_title].activate_subs()
 
 
