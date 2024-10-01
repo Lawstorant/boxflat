@@ -277,15 +277,11 @@ class BaseSettings(SettingsPanel):
 
 
     def _set_curve(self, values: list):
-        curve = []
-        curve.extend(self._curve_x)
-        curve.extend(values)
+        for i in range(4):
+            self._cm.set_setting(self._curve_x[i], f"base-ffb-curve-x{i+1}")
 
-        for i in range(1,5):
-            self._cm.set_setting(curve[i-1], f"base-ffb-curve-x{i}")
-
-        for i in range(0,5):
-            self._cm.set_setting(curve[i+4], f"base-ffb-curve-y{i+1}")
+        for i in range(5):
+            self._cm.set_setting(values[i], f"base-ffb-curve-y{i+1}")
 
 
     def _get_curve(self, value: int, sindex: int):

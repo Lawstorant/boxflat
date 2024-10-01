@@ -166,11 +166,7 @@ class PedalsSettings(SettingsPanel):
 
 
     def _set_curve(self, values: list, pedal: str):
-        curve = []
-        curve.extend(values)
-
-        for i in range(0,5):
-            self._cm.set_setting(curve[i], f"pedals-{pedal}-y{i+1}")
+        self._curve_rows[self._pedals.index(pedal)].set_sliders_value(values, mute=False)
 
 
     def _get_curve(self, value: int, sindex: int, pedal: str):
