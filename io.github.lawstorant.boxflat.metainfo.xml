@@ -108,6 +108,7 @@
           <li>Remove all "None" return type hints</li>
           <li>RPM/Button color picker row is now sized more universally</li>
           <li>Custom commands are now accessible with "--custom" launch flag</li>
+          <li>Instant curve preset application</li>
         </ul>
       </description>
     </release>
