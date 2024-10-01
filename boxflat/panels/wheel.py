@@ -345,31 +345,54 @@ class WheelSettings(SettingsPanel):
 
 
     def _wheel_rpm_test(self, *args):
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        time.sleep(0.2)
         initial_mode = self._cm.get_setting("wheel-indicator-mode")
         self._cm.set_setting(1, "wheel-indicator-mode")
 
-        t = 0.15
-        for i in range(10):
-            val = bit(i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
-            time.sleep(t)
+        t = 0.07
+        for j in range(2):
+            for i in range(10):
+                val = bit(i)
+                self._cm.set_setting(val, "wheel-send-telemetry")
+                time.sleep(t)
 
-        for i in reversed(range(9)):
-            val = modify_bit(0, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
-            time.sleep(t)
+            for i in reversed(range(1,9)):
+                val = bit(i)
+                self._cm.set_setting(val, "wheel-send-telemetry")
+                time.sleep(t)
 
         val = 0
         self._cm.set_setting(val, "wheel-send-telemetry")
         time.sleep(t)
         for i in range(10):
-            val = modify_bit(val, i)
+            val = set_bit(val, i)
             self._cm.set_setting(val, "wheel-send-telemetry")
             time.sleep(t)
 
-        time.sleep(0.5)
+        for i in range(9):
+            val = unset_bit(val, i)
+            self._cm.set_setting(val, "wheel-send-telemetry")
+            time.sleep(t)
+
+        for i in reversed(range(10)):
+            val = set_bit(val, i)
+            self._cm.set_setting(val, "wheel-send-telemetry")
+            time.sleep(t)
+
+        for i in reversed(range(1,10)):
+            val = unset_bit(val, i)
+            self._cm.set_setting(val, "wheel-send-telemetry")
+            time.sleep(t)
+
+        for i in range(1,10):
+            val = set_bit(val, i)
+            self._cm.set_setting(val, "wheel-send-telemetry")
+            time.sleep(t)
+
+        time.sleep(0.2)
         val = modify_bit(0,15)
         self._cm.set_setting(val, "wheel-send-telemetry")
-        time.sleep(1)
+        time.sleep(0.8)
 
         self._cm.set_setting(initial_mode, "wheel-indicator-mode")
