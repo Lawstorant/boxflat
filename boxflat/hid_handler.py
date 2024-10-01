@@ -117,6 +117,10 @@ class HidHandler(EventDispatcher):
         for i in range(0, MOZA_BUTTON_COUNT):
             self._register_event(f"button-{i}")
 
+        for axis in MOZA_AXIS_LIST:
+            self._axis_values[axis] = 0
+            self._register_event(axis)
+
         self._running = Event()
         self._update_rate = 120
         self._base = None
@@ -133,7 +137,7 @@ class HidHandler(EventDispatcher):
             self.stop()
 
         elif not self._running.is_set():
-            Thread(target=self._notify_axes, daemon=True).start()
+            Thread(target=self._axis_data_polling, daemon=True).start()
 
 
     def stop(self):
@@ -152,13 +156,6 @@ class HidHandler(EventDispatcher):
         return True
 
 
-    def subscribe(self, event_name: str, callback: callable, *args):
-        if event_name in MOZA_AXIS_LIST:
-            self._axis_values[event_name] = AxisValue(event_name)
-            self._register_event(event_name)
-        super().subscribe(event_name, callback, *args)
-
-
     def add_device(self, pattern: MozaHidDevice):
         if not pattern:
             return
@@ -168,7 +165,7 @@ class HidHandler(EventDispatcher):
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):
-                print(f"HID device \"{hid.name}\" found")
+                print(f"HID device found: " + hid.name)
                 device = hid
 
         if device != None:
@@ -196,11 +193,11 @@ class HidHandler(EventDispatcher):
                 if device.absinfo(ecode).fuzz > 8:
                     device.set_absinfo(ecode, fuzz=fuzz)
 
-            Thread(daemon=True, target=self._read_loop, args=[device]).start()
+            Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
             self._device_count.value += 1
 
 
-    def _notify_axes(self):
+    def _axis_data_polling(self):
         self._running.set()
         while self._running.is_set():
             sleep(1/self._update_rate)
@@ -235,21 +232,21 @@ class HidHandler(EventDispatcher):
         self._dispatch("button-" + str(number), state)
 
 
-    def _read_loop(self, device: evdev.InputDevice):
-        sleep(1)
+    def _hid_read_loop(self, device: evdev.InputDevice):
+        sleep(0.5)
         try:
             for event in device.read_loop():
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
-                # elif event.type == EV_KEY:
-                #     self._notify_button(event.code, event.value)
+                elif event.type == EV_KEY:
+                    self._notify_button(event.code, event.value)
 
         except Exception as e:
             # print(e)
             pass
 
-        print(f"HID device \"{device.name}\" disconnected")
+        print(f"HID device disconnected: " + device.name)
         self._device_count.value -= 1
         if device == self._base:
             self._base = None

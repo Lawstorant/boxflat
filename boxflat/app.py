@@ -84,7 +84,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._alert.set_body_use_markup(True)
         self._alert.connect("response", self._handle_udev_dialog)
 
-        self._cm.subscribe_no_access(self.show_udev_dialog)
+        self._cm.subscribe("no-accesss", self.show_udev_dialog)
 
 
     def switch_panel(self, button):
@@ -95,8 +95,6 @@ class MainWindow(Adw.ApplicationWindow):
             return
 
         self.navigation.set_content(new_content)
-        self._cm.reset_subscriptions()
-        self._panels[new_title].activate_subs()
 
 
     def set_content_title(self, title: str):
@@ -129,9 +127,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler, self._version)
         self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._config_path, self._version)
 
-        self._panels["Other"].subscribe_brake_calibration(
-            self._panels["Pedals"].set_brake_calibration_active
-        )
+        self._panels["Other"].subscribe("brake-calibration-active", self._panels["Pedals"].set_brake_calibration_active)
 
         for panel in self._panels.values():
             panel.active(-2)
@@ -141,21 +137,15 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["Other"].active(1)
         self._panels["Presets"].active(1)
 
-        for panel in self._panels.values():
-            panel.activate_subs_connected()
-            panel.activate_hid_subs()
-
         if self._dry_run:
             print("Dry run")
             return
 
-        self._panels["Base"].activate_subs()
         self._cm.set_write_active()
 
 
     def _activate_default(self) -> SettingsPanel:
         self._panels["Home"].button.set_active(True)
-        self._panels["Home"].activate_subs()
         return self._panels["Home"]
 
 

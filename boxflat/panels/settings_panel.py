@@ -7,12 +7,16 @@ from gi.repository import Gtk, Adw
 
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler, MozaAxis
+from boxflat.subscription import EventDispatcher
 
-class SettingsPanel(object):
+class SettingsPanel(EventDispatcher):
     def __init__(self, title: str, button_callback: callable,
                  connection_manager: MozaConnectionManager=None,
                  hid_handler: HidHandler=None):
+        super().__init__()
+
         self._cm = connection_manager
+        self._hid_handler = hid_handler
 
         self._current_page = None
         self._current_group: BoxflatPreferencesGroup=None
@@ -21,11 +25,6 @@ class SettingsPanel(object):
         self._header = None
 
         self._groups = []
-        self._cm_subs = []
-        self._cm_subs_connected = []
-
-        self._hid_subs = []
-        self._hid_handler = hid_handler
 
         self._active = True
         self._shutdown = False
@@ -188,34 +187,6 @@ class SettingsPanel(object):
             row.set_width(620)
 
         GLib.idle_add(self._current_group.add, row)
-
-
-    def _append_sub(self, *args):
-        self._cm_subs.append(args)
-
-
-    def _append_sub_connected(self, *args):
-        self._cm_subs_connected.append(args)
-
-
-    def _append_sub_hid(self, *args):
-        self._hid_subs.append(args)
-
-
-    def activate_subs(self):
-        for sub in self._cm_subs:
-            self._cm.subscribe(*sub)
-
-
-    def activate_subs_connected(self):
-        for sub in self._cm_subs_connected:
-            self._cm.subscribe_connected(*sub)
-
-
-    def activate_hid_subs(self):
-        for sub in self._hid_subs:
-            self._hid_handler.subscribe(*sub)
-
 
     # def deactivate_hid_subs(self):
     #     if not self._hid_handler:

@@ -7,7 +7,7 @@ class SequentialSettings(SettingsPanel):
         self._S1 = None
         self._S2 = None
         super().__init__("Sequential Shifter", button_callback, connection_manager)
-        self._append_sub_connected("sequential-paddle-sync", self.active)
+        self._cm.subscribe_connected("sequential-paddle-sync", self.active)
 
 
     def active(self, value: int):
@@ -19,20 +19,20 @@ class SequentialSettings(SettingsPanel):
         self.add_preferences_group("Shifter Settings")
         self._add_row(BoxflatSwitchRow("Reverse Shift Direction"))
         self._current_row.subscribe(self._cm.set_setting, "sequential-direction")
-        self._append_sub("sequential-direction", self._current_row.set_value)
+        self._cm.subscribe("sequential-direction", self._current_row.set_value)
 
         self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Use the same buttons as paddle shifters"))
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(self._cm.set_setting, "sequential-paddle-sync")
-        self._append_sub("sequential-paddle-sync", self._current_row.set_value)
+        self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
 
         self.add_preferences_group("Buttons")
         self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
         self._current_row.add_marks(5)
         self._current_row.set_slider_width(290)
         self._current_row.subscribe(self._cm.set_setting, "sequential-brightness")
-        self._append_sub("sequential-brightness", self._current_row.set_value)
+        self._cm.subscribe("sequential-brightness", self._current_row.set_value)
 
         self._S1 = BoxflatColorPickerRow("S1 Color")
         self._add_row(self._S1)
@@ -42,7 +42,7 @@ class SequentialSettings(SettingsPanel):
 
         self._S1.subscribe(self._set_colors)
         self._S2.subscribe(self._set_colors)
-        self._append_sub("sequential-colors", self._get_colors)
+        self._cm.subscribe("sequential-colors", self._get_colors)
 
 
     def _set_colors(self, *args):

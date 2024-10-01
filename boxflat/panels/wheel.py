@@ -39,7 +39,7 @@ class WheelSettings(SettingsPanel):
         ]
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
-        self._append_sub_connected("wheel-indicator-mode", self.active)
+        self._cm.subscribe_connected("wheel-indicator-mode", self.active)
 
 
     def active(self, value: int):
@@ -73,28 +73,28 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_reverse_expression("-1")
 
         self._current_row.subscribe(self._cm.set_setting, "wheel-paddles-mode")
-        self._append_sub("wheel-paddles-mode", self._current_row.set_value)
-        self._append_sub_connected("wheel-paddles-mode", self._current_row.set_present)
+        self._cm.subscribe("wheel-paddles-mode", self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-paddles-mode", self._current_row.set_present)
         self._current_row.set_present(False)
 
 
         level = BoxflatLevelRow("Combined Paddles", max_value=65534)
         self._add_row(level)
-        self._append_sub_hid(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
-        self._append_sub_connected("wheel-paddles-mode", lambda v: level.set_present(v == 2))
-        self._append_sub("wheel-clutch-point", self._current_row.set_offset)
+        self._hid_handler.subscribe(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-paddles-mode", lambda v: level.set_present(v == 2))
+        self._cm.subscribe("wheel-clutch-point", self._current_row.set_offset)
         paddle_mode.subscribe(lambda v: level.set_present(v == 2, skip_cooldown=True))
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
         self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
-        self._append_sub_hid(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
-        self._append_sub_connected("wheel-paddles-mode", self._current_row.set_present, -2)
+        self._hid_handler.subscribe(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-paddles-mode", self._current_row.set_present, -2)
         paddle_mode.subscribe(self._current_row.set_present, -2, True)
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
         self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
-        self._append_sub_hid(MozaAxis.RIGHT_PADDLE.name, self._current_row.set_value)
-        self._append_sub_connected("wheel-paddles-mode", self._current_row.set_present, -2)
+        self._hid_handler.subscribe(MozaAxis.RIGHT_PADDLE.name, self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-paddles-mode", self._current_row.set_present, -2)
         paddle_mode.subscribe(self._current_row.set_present, -2, True)
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
@@ -107,16 +107,16 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "wheel-clutch-point")
         self._current_row.subscribe(level.set_offset)
         paddle_mode.subscribe(lambda v: slider.set_active(v == 2))
-        self._append_sub("wheel-clutch-point", self._current_row.set_value)
-        self._append_sub("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
-        self._append_sub_connected("wheel-clutch-point", self._current_row.set_present)
+        self._cm.subscribe("wheel-clutch-point", self._current_row.set_value)
+        self._cm.subscribe("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
+        self._cm.subscribe_connected("wheel-clutch-point", self._current_row.set_present)
         self._current_row.set_present(False)
 
         self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
         self._current_row.add_buttons("Buttons", "  Knob ")
         self._current_row.subscribe(self._cm.set_setting, "wheel-knob-mode")
-        self._append_sub("wheel-knob-mode", self._current_row.set_value)
-        self._append_sub_connected("wheel-knob-mode", self._current_row.set_present, +1)
+        self._cm.subscribe("wheel-knob-mode", self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
         self._stick_row = BoxflatToggleButtonRow("Left Stick Mode")
         self._add_row(self._stick_row)
@@ -124,7 +124,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_expression("*256")
         self._current_row.set_reverse_expression("/256")
         self._current_row.subscribe(self._cm.set_setting, "wheel-stick-mode")
-        self._append_sub("wheel-stick-mode", self._current_row.set_value)
+        self._cm.subscribe("wheel-stick-mode", self._current_row.set_value)
 
 
         self.add_preferences_group("Misc")
@@ -139,7 +139,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_switch("Switch Dash Display", "Button 32 + Left/Right")
         self._current_row.add_switch("Set Wheel Center Point", "Press both paddles and Button 1")
         self._current_row.subscribe(self._set_combination_settings)
-        self._append_sub("wheel-key-combination", self._get_combination_settings)
+        self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
 
         self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
         self._current_row.subscribe(self.start_test)
@@ -159,18 +159,18 @@ class WheelSettings(SettingsPanel):
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(self._cm.set_setting, "wheel-indicator-mode")
-        self._append_sub("wheel-indicator-mode", self._current_row.set_value)
+        self._cm.subscribe("wheel-indicator-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
         self._current_row.add_buttons("Mode 1", "Mode 2")
         self._current_row.subscribe(self._cm.set_setting, "wheel-set-display-mode")
-        self._append_sub("wheel-get-display-mode", self._current_row.set_value)
+        self._cm.subscribe("wheel-get-display-mode", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("RPM Mode"))
         self._current_row.add_buttons("Percent", "RPM")
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-mode")
         self._current_row.subscribe(self._reconfigure_timings)
-        self._append_sub("wheel-rpm-mode", self._current_row.set_value)
+        self._cm.subscribe("wheel-rpm-mode", self._current_row.set_value)
 
         self.add_preferences_group("Timings")
         self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
@@ -194,34 +194,34 @@ class WheelSettings(SettingsPanel):
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_labels(f"RPM{i+1}", index=i)
             self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"wheel-rpm-value{i+1}")
-            self._append_sub(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
-        self._append_sub(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
+            self._cm.subscribe(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
+        self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
 
-        self._append_sub("wheel-rpm-timings", self._get_rpm_timings)
-        self._append_sub("wheel-rpm-timings", self._get_rpm_timings_preset)
-        self._append_sub("wheel-rpm-mode", self._reconfigure_timings)
+        self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings)
+        self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings_preset)
+        self._cm.subscribe("wheel-rpm-mode", self._reconfigure_timings)
 
 
         self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
         self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-interval")
-        self._append_sub("wheel-rpm-interval", self._current_row.set_value)
+        self._cm.subscribe("wheel-rpm-interval", self._current_row.set_value)
 
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("Buttons")
         self._add_row(BoxflatNewColorPickerRow(blinking=True))
-        self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_active, +1)
+        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, +1)
         for i in range(MOZA_RGB_BUTTONS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+1}")
-            self._append_sub(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
+            self._cm.subscribe(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Colors")
         self._add_row(BoxflatNewColorPickerRow())
         for i in range(MOZA_RPM_LEDS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-color{i+1}")
-            self._append_sub(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
+            self._cm.subscribe(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Blinking")
         self._add_row(BoxflatNewColorPickerRow())
@@ -232,23 +232,23 @@ class WheelSettings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting, "wheel-buttons-brightness")
-        self._append_sub("wheel-buttons-brightness", self._current_row.set_value)
-        self._append_sub_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
+        self._cm.subscribe("wheel-buttons-brightness", self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
 
         self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-brightness")
-        self._append_sub("wheel-rpm-brightness", self._current_row.set_value)
+        self._cm.subscribe("wheel-rpm-brightness", self._current_row.set_value)
 
         # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
         # self._current_row.add_marks(5, 10)
         # self._current_row.subscribe(self._cm.set_setting, "wheel-flags-brightness")
-        # self._append_sub("wheel-flags-brightness", self._current_row.set_value)
+        # self._cm.subscribe("wheel-flags-brightness", self._current_row.set_value)
 
         # self.add_preferences_group("Telemetry flag")
         # self._add_row(BoxflatNewColorPickerRow(""))
         # for i in range(MOZA_RPM_LEDS):
-        #     self._append_sub(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
+        #     self._cm.subscribe(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
 
 
     def _set_rpm_timings(self, timings: list):

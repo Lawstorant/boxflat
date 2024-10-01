@@ -4,10 +4,6 @@ class Subscription():
         self._args = args
 
 
-    def __call__(self):
-        self.call()
-
-
     def call(self):
         self._callback(*self._args)
 
@@ -33,6 +29,11 @@ class SubscriptionList():
     def __init__(self):
         self._subscriptions = []
 
+
+    def count(self) -> int:
+        return len(self._subscriptions)
+
+
     def append(self, callback: callable, *args):
         if callable(callback):
             self._subscriptions.append(Subscription(callback, *args))
@@ -48,10 +49,6 @@ class SubscriptionList():
         """
         for sub in self._subscriptions:
             sub.call()
-
-
-    def __call__(self):
-        self.call()
 
 
     def call_with_value(self, value):
@@ -82,6 +79,12 @@ class SubscriptionList():
 class EventDispatcher():
     def __init__(self):
         self.__events = {}
+
+
+    def _event_sub_count(self, event_name: str) -> int:
+        if event_name in self.__events:
+            return self.__events[event_name].count()
+        return -1
 
 
     def list_events(self) -> list[str]:

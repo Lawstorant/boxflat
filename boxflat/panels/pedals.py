@@ -22,7 +22,7 @@ class PedalsSettings(SettingsPanel):
         ]
 
         super().__init__("Pedals", button_callback, connection_manager, hid_handler)
-        self._append_sub_connected("pedals-throttle-dir", self.active)
+        self._cm.subscribe_connected("pedals-throttle-dir", self.active)
 
 
     def set_brake_calibration_active(self, active: bool):
@@ -36,7 +36,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Throttle")
         self.add_preferences_group("Throttle settings", level_bar=1)
         self._current_group.set_bar_max(65534)
-        self._append_sub_hid(MozaAxis.THROTTLE.name, self._current_group.set_bar_level)
+        self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Throttle Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[0])
@@ -48,24 +48,24 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, "throttle")
         for i in range(5):
             self._curve_rows[0].subscribe_slider(i, self._set_curve_point, i, "throttle")
-            self._append_sub(f"pedals-throttle-y{i+1}", self._get_curve, i, "throttle")
+            self._cm.subscribe(f"pedals-throttle-y{i+1}", self._get_curve, i, "throttle")
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, "pedals-throttle-min")
-        self._append_sub("pedals-throttle-min", self._current_row.set_value)
+        self._cm.subscribe("pedals-throttle-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, "pedals-throttle-max")
-        self._append_sub("pedals-throttle-max", self._current_row.set_value)
+        self._cm.subscribe("pedals-throttle-max", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(self._cm.set_setting, "pedals-throttle-dir")
-        self._append_sub("pedals-throttle-dir", self._current_row.set_value)
+        self._cm.subscribe("pedals-throttle-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress throttle once"))
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-calibration-start")
@@ -75,7 +75,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Brake")
         self.add_preferences_group("Brake settings", level_bar=1)
         self._current_group.set_bar_max(65534)
-        self._append_sub_hid(MozaAxis.BRAKE.name, self._current_group.set_bar_level)
+        self._hid_handler.subscribe(MozaAxis.BRAKE.name, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Brake Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[1])
@@ -87,29 +87,29 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, "brake")
         for i in range(5):
             self._curve_rows[1].subscribe_slider(i, self._set_curve_point, i, "brake")
-            self._append_sub(f"pedals-brake-y{i+1}", self._get_curve, i, "brake")
+            self._cm.subscribe(f"pedals-brake-y{i+1}", self._get_curve, i, "brake")
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, "pedals-brake-min")
-        self._append_sub("pedals-brake-min", self._current_row.set_value)
+        self._cm.subscribe("pedals-brake-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, "pedals-brake-max")
-        self._append_sub("pedals-brake-max", self._current_row.set_value)
+        self._cm.subscribe("pedals-brake-max", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting, "pedals-brake-angle-ratio")
-        self._append_sub("pedals-brake-angle-ratio", self._current_row.set_value)
+        self._cm.subscribe("pedals-brake-angle-ratio", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(self._cm.set_setting, "pedals-brake-dir")
-        self._append_sub("pedals-brake-dir", self._current_row.set_value)
+        self._cm.subscribe("pedals-brake-dir", self._current_row.set_value)
 
         self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Fully depress brake once")
         self._add_row(self._brake_calibration_row)
@@ -121,7 +121,7 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_page("Clutch")
         self.add_preferences_group("Clutch settings", level_bar=1)
         self._current_group.set_bar_max(65534)
-        self._append_sub_hid(MozaAxis.CLUTCH.name, self._current_group.set_bar_level)
+        self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._current_group.set_bar_level)
 
         self._curve_rows.append(BoxflatEqRow("Clutch Curve", 5, suffix="%"))
         self._add_row(self._curve_rows[2])
@@ -133,24 +133,24 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, "clutch")
         for i in range(5):
             self._curve_rows[2].subscribe_slider(i, self._set_curve_point, i, "clutch")
-            self._append_sub(f"pedals-clutch-y{i+1}", self._get_curve, i, "clutch")
+            self._cm.subscribe(f"pedals-clutch-y{i+1}", self._get_curve, i, "clutch")
 
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, "pedals-clutch-min")
-        self._append_sub("pedals-clutch-min", self._current_row.set_value)
+        self._cm.subscribe("pedals-clutch-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, "pedals-clutch-max")
-        self._append_sub("pedals-clutch-max", self._current_row.set_value)
+        self._cm.subscribe("pedals-clutch-max", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
         self._current_row.subscribe(self._cm.set_setting, "pedals-clutch-dir")
-        self._append_sub("pedals-clutch-dir", self._current_row.set_value)
+        self._cm.subscribe("pedals-clutch-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress clutch once"))
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-clutch-calibration-start")

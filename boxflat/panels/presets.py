@@ -27,37 +27,37 @@ class PresetSettings(SettingsPanel):
         row = BoxflatSwitchRow("Base")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("base-limit", row.set_active, 1, True)
+        self._cm.subscribe_connected("base-limit", row.set_active, 1, True)
         self._includes["base"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("wheel-indicator-mode", row.set_active, 1, True)
+        self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel Colors")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("wheel-indicator-mode", row.set_active, 1, True)
+        self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel-colors"] = row.get_value
 
         row = BoxflatSwitchRow("Pedals")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("pedals-throttle-dir", row.set_active, 1, True)
+        self._cm.subscribe_connected("pedals-throttle-dir", row.set_active, 1, True)
         self._includes["pedals"] = row.get_value
 
         row = BoxflatSwitchRow("Sequential Shifter")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("sequential-paddle-sync", row.set_active, 1, True)
+        self._cm.subscribe_connected("sequential-paddle-sync", row.set_active, 1, True)
         self._includes["sequential"] = row.get_value
 
         row = BoxflatSwitchRow("Handbrake")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("handbrake-direction", row.set_active, 1, True)
+        self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
 
         if Adw.get_minor_version() >= 6:
