@@ -25,9 +25,6 @@ class MozaHidDevice():
 
 
 class AxisData():
-    name: str
-    device: str
-
     def __init__(self, name: str, device: str):
         self.name = name
         self.device = device
@@ -117,9 +114,9 @@ class HidHandler(EventDispatcher):
         for i in range(0, MOZA_BUTTON_COUNT):
             self._register_event(f"button-{i}")
 
-        for axis in MOZA_AXIS_LIST:
-            self._axis_values[axis] = 0
-            self._register_event(axis)
+        for name in MOZA_AXIS_LIST:
+            self._axis_values[name] = AxisValue(name)
+            self._register_event(name)
 
         self._running = Event()
         self._update_rate = 120
@@ -228,7 +225,7 @@ class HidHandler(EventDispatcher):
         else:
             number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
 
-        print(f"button {number}, state: {state}")
+        #print(f"button {number}, state: {state}")
         self._dispatch("button-" + str(number), state)
 
 
@@ -239,8 +236,8 @@ class HidHandler(EventDispatcher):
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
-                elif event.type == EV_KEY:
-                    self._notify_button(event.code, event.value)
+                # elif event.type == EV_KEY:
+                #     self._notify_button(event.code, event.value)
 
         except Exception as e:
             # print(e)
