@@ -348,9 +348,9 @@ class WheelSettings(SettingsPanel):
         initial_mode = self._cm.get_setting("wheel-indicator-mode")
         self._cm.set_setting(1, "wheel-indicator-mode")
 
-        t = 0.3
+        t = 0.15
         for i in range(10):
-            val = modify_bit(0, i)
+            val = bit(i)
             self._cm.set_setting(val, "wheel-send-telemetry")
             time.sleep(t)
 

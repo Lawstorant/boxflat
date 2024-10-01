@@ -351,7 +351,7 @@ class MozaConnectionManager(EventDispatcher):
 
     def handle_setting(self, value, command_name: str, rw: int) -> bool:
         if command_name not in self._command_list:
-            print("Command not found!")
+            print("Command not found: " + command_name)
             return
 
         command = MozaCommand(command_name, self._serial_data["commands"])

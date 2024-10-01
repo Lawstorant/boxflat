@@ -1439,4 +1439,4 @@ commands:
     write: 65
     id: [253, 222]
     bytes: 4
-    type: array
+    type: int

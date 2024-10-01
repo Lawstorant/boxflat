@@ -81,7 +81,7 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         if self._mute.is_set():
             return
 
-        self._cooldown = 2
+        self._cooldown = 1
         self._dispatch(self.get_value())
 
 

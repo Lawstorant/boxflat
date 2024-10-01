@@ -9,10 +9,12 @@ def modify_bit(value, bit_number: int, set_bit=True) -> int:
     if bit_number < 0:
         return
 
+    bit = 1 << bit_number
+
     if set_bit:
-        value |= bit(bit_number)
+        value |= bit
     else:
-        value &= ~bit(bit_number)
+        value &= ~bit
 
     return value
 
