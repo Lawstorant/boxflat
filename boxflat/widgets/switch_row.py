@@ -16,6 +16,7 @@ class BoxflatSwitchRow(BoxflatRow):
         self._set_widget(switch)
         self.set_activatable_widget(switch)
         self._value_store = None
+        self._cooldown_increment = 2
 
 
     def get_value(self) -> int:
@@ -46,13 +47,14 @@ class BoxflatSwitchRow(BoxflatRow):
 
 
     def set_active(self, value=1, offset=0, off_when_inactive=False) -> bool:
+        tmp = self.get_value()
         change = super().set_active(value, offset=offset)
 
         if not change:
             return change
 
         if off_when_inactive and self._value_store == None:
-            self._value_store = self.get_value()
+            self._value_store = tmp
             self.set_value(0)
 
         elif off_when_inactive and self._value_store != None:

@@ -17,6 +17,7 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         self._expression = "*1"
         self._reverse_expression = "*1"
         self._active = True
+        self._cooldown_increment = 1
 
 
     def get_active(self) -> bool:
@@ -81,7 +82,7 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         if self._mute.is_set():
             return
 
-        self._cooldown = 1
+        self._cooldown = self._cooldown_increment
         self._dispatch(self.get_value())
 
 

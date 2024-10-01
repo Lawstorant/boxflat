@@ -67,7 +67,7 @@ class BoxflatLevelRow(BoxflatRow):
 
     def set_active(self, value, offset=0):
         if super().set_active(value, offset):
-            GLib.idle_add(self.set_value, 0)
+            GLib.idle_add(self._bar.set_value, 0)
 
 
     def get_value(self) -> int:
