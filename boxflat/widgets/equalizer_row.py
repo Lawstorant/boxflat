@@ -115,12 +115,12 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         return round(self._sliders[index].get_value())
 
 
-    def set_sliders_value(self, values: list):
+    def set_sliders_value(self, values: list, mute=True):
         if len(values) > len(self._sliders):
             return
 
         for i in range(len(values)):
-            self._set_slider_value(values[i], i)
+            self.set_slider_value(values[i], i, mute)
 
 
     def set_slider_value(self, value: int, index: int, mute=True):
@@ -154,10 +154,10 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def _notify_slider(self, scale: Gtk.Scale):
-        if self._mute:
+        if self._mute.is_set():
             return
 
-        self._cooldown = 1
+        self._cooldown = 2
         index = self._sliders.index(scale)
 
         self.set_button_value(-1)
@@ -165,7 +165,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def _notify_sliders(self, scale):
-        if self._mute:
+        if self._mute.is_set():
             return
 
         self._cooldown = 1

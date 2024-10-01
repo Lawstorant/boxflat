@@ -84,11 +84,7 @@ class HandbrakeSettings(SettingsPanel):
 
 
     def _set_curve(self, values: list):
-        curve = []
-        curve.extend(values)
-
-        for i in range(0,5):
-            self._cm.set_setting(curve[i], f"handbrake-y{i+1}")
+        self._curve_row.set_sliders_value(values, mute=False)
 
 
     def _get_curve(self, value: int, sindex: int):
