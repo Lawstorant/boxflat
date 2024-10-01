@@ -104,7 +104,7 @@ class PresetSettings(SettingsPanel):
 
 
     def _load_preset(self, preset_name: str, *args):
-        print(f"\nLoading preset {preset_name}")
+        print(f"Loading preset {preset_name}")
 
         self._name_row.set_text(preset_name.removesuffix(".yml"))
         pm = MozaPresetHandler(self._cm)

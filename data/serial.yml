@@ -659,7 +659,7 @@ commands:
 
 # Steering wheel
   wheel-colors:
-    read: 64
+    read: -1 # 64
     write: 63
     id: [0]
     bytes: 15

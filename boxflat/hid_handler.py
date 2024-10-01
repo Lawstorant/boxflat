@@ -223,7 +223,7 @@ class HidHandler(EventDispatcher):
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
-            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
+            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
 
         #print(f"button {number}, state: {state}")
         self._dispatch("button-" + str(number), state)

@@ -176,13 +176,13 @@ class MozaConnectionManager(EventDispatcher):
 
     def _polling_thread(self):
         while self._refresh_cont.is_set():
-            time.sleep(0.5)
+            time.sleep(0.2)
             device = "laptop" # lol, so random!
             for command in self._polling_list:
                 if command.startswith(device):
                     continue
 
-                if self._event_sub_count(command) < 0:
+                if self._event_sub_count(command) == 0:
                     continue
 
                 # print("Polling data: " + command)

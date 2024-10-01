@@ -190,12 +190,13 @@ class WheelSettings(SettingsPanel):
         self._add_row(self._timing_row2)
         self._timing_row2.add_buttons("Early", "Normal", "Late")
         self._timing_row2.subscribe(self._set_rpm_timings2_preset)
+        self._timing_row2.set_present(0)
 
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_labels(f"RPM{i+1}", index=i)
             self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"wheel-rpm-value{i+1}")
             self._cm.subscribe(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
-        self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
+        # self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
 
         self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings)

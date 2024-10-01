@@ -173,7 +173,7 @@
         <ul>
           <li>Preset saving/loading</li>
           <li>Remove some lingering text strings from preset rows</li>
-          <li>Fix crashed related to reloading presets view</li>
+          <li>Fix crashes related to reloading presets view</li>
         </ul>
       </description>
     </release>
