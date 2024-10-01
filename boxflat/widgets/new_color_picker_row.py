@@ -131,7 +131,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
             while self._blinking_event[index].is_set() and iterations < 50:
                 iterations += 1
                 self._notify(button, alt_value=[0, 0, 0])
-                sleep(0.3)
+                sleep(0.4)
                 self._notify(button, alt_value=value)
                 sleep(0.4)
 
