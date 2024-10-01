@@ -4,7 +4,7 @@ from boxflat.hid_handler import MozaAxis, HidHandler
 from math import ceil, floor
 
 class HomeSettings(SettingsPanel):
-    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str="") -> None:
+    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str=""):
         self._test_text = "inactive"
         if dry_run:
             self._test_text = "active"
@@ -13,42 +13,43 @@ class HomeSettings(SettingsPanel):
         self._rotation = 180
 
         super().__init__("Home", button_callback, connection_manager=connection_manager, hid_handler=hid_handler)
-        self._append_sub("base-limit", self._get_rotation_limit)
+        self._cm.subscribe("base-limit", self._get_rotation_limit)
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Wheelbase")
-        self._append_sub_connected("base-limit", self._current_group.set_active)
+        self._cm.subscribe_connected("base-limit", self._current_group.set_active)
 
         self._steer_row = BoxflatLabelRow("Steering position")
         self._add_row(self._steer_row)
         self._steer_row.set_suffix("°")
         self._steer_row.set_subtitle(f"Limit = {self._rotation*2}°")
-        self._append_sub_hid(MozaAxis.STEERING, self._set_steering)
+        self._hid_handler.subscribe(MozaAxis.STEERING.name, self._set_steering)
+        self._current_row.set_value(0)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
-        self._current_row.subscribe(self._cm.set_setting_int, "base-calibration")
+        self._current_row.subscribe(self._cm.set_setting, "base-calibration")
 
 
         self.add_preferences_group("Pedals")
-        self._append_sub_connected("pedals-throttle-dir", self._current_group.set_active, 1)
+        self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Throttle input", self._set_limit, "pedals-throttle", max_value=65534))
-        self._append_sub_hid(MozaAxis.THROTTLE, self._current_row.set_value)
-        self._append_sub_connected("pedals-throttle-dir", self._current_row.set_active, 1)
+        self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._current_row.set_value)
+        self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Brake input", self._set_limit, "pedals-brake", max_value=65534))
-        self._append_sub_hid(MozaAxis.BRAKE, self._current_row.set_value)
-        self._append_sub_connected("pedals-throttle-dir", self._current_row.set_active, 1)
+        self._hid_handler.subscribe(MozaAxis.BRAKE.name, self._current_row.set_value)
+        self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Clutch input", self._set_limit, "pedals-clutch", max_value=65534))
-        self._append_sub_hid(MozaAxis.CLUTCH, self._current_row.set_value)
-        self._append_sub_connected("pedals-throttle-dir", self._current_row.set_active, 1)
+        self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._current_row.set_value)
+        self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self.add_preferences_group("Handbrake")
         self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65534))
-        self._append_sub_hid(MozaAxis.HANDBRAKE, self._current_row.set_value)
-        self._append_sub_connected("handbrake-direction", self._current_group.set_present, 1)
+        self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
+        self._cm.subscribe_connected("handbrake-direction", self._current_group.set_present, 1)
         self._current_group.set_present(False)
 
 
@@ -65,7 +66,7 @@ class HomeSettings(SettingsPanel):
         # self._add_row(BoxflatRow(f"Test mode:  {self._test_text}"))
 
 
-    def _get_rotation_limit(self, value: int) -> None:
+    def _get_rotation_limit(self, value: int):
         if value == self._rotation:
             return
 
@@ -73,14 +74,14 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_subtitle(f"Limit = {value*2}°")
 
 
-    def _set_steering(self, value: int) -> None:
+    def _set_steering(self, value: int):
         self._steer_row.set_value(round((value - 32768) / 32768 * self._rotation))
 
 
     def _set_limit(self, fraction_method: callable, command: str, min_max: str):
         fraction = fraction_method()
 
-        current_raw_output = int(self._cm.get_setting_auto(command + "-output")) / 65535 * 100
+        current_raw_output = int(self._cm.get_setting(command + "-output")) / 65535 * 100
         new_limit = 0
 
         if min_max == "max":
@@ -92,4 +93,4 @@ class HomeSettings(SettingsPanel):
         # print(f"Current raw output: {current_raw_output}")
         # print(f"New limit: {new_limit}")
 
-        self._cm.set_setting_auto(new_limit, f"{command}-{min_max}")
+        self._cm.set_setting(new_limit, f"{command}-{min_max}")

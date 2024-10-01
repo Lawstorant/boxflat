@@ -1,8 +1,7 @@
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 from .toggle_button_row import BoxflatToggleButtonRow
+from boxflat.subscription import SubscriptionList
 
 class BoxflatEqRow(BoxflatToggleButtonRow):
     def __init__(self, title: str, sliders_number: int,
@@ -12,8 +11,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         super().__init__(title, subtitle)
 
         self._suffix = suffix
-        self._slider_subs = []
-        self._sliders_subs = []
+        self._slider_subs_list = []
+        self._sliders_subs = SubscriptionList()
         self._button_row = button_row
         self._draw_marks = draw_marks
 
@@ -35,7 +34,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         for i in range(sliders_number):
             slider = Gtk.Scale(orientation=Gtk.Orientation.VERTICAL)
             self._sliders.append(slider)
-            self._slider_subs.append([])
+            self._slider_subs_list.append(SubscriptionList())
             slider.set_range(range_start, range_end)
             slider.set_inverted(True)
             slider.set_halign(Gtk.Align.FILL)
@@ -75,17 +74,16 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.add_marks(range_start, range_end)
 
 
-    def add_marks(self, *marks: int) -> None:
+    def add_marks(self, *marks: int):
         if not self._draw_marks:
             return
 
         for mark in marks:
             for slider in self._sliders:
-                slider.add_mark(mark,
-                    Gtk.PositionType.RIGHT,f"{mark}{self._suffix}")
+                slider.add_mark(mark, Gtk.PositionType.RIGHT,f"{mark}{self._suffix}")
 
 
-    def add_labels(self, *labels: str, index=None) -> None:
+    def add_labels(self, *labels: str, index=None):
         if index != None:
             self._slider_labels[index].set_text(labels[0])
             return
@@ -94,13 +92,13 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             self._slider_labels[i].set_text(labels[i])
 
 
-    def add_buttons(self, *buttons) -> None:
+    def add_buttons(self, *buttons):
         super().add_buttons(*buttons)
         for button in self._buttons:
             button.set_hexpand(self._button_row)
 
 
-    def set_height(self, height: int) -> None:
+    def set_height(self, height: int):
         for slider in self._sliders:
             slider.set_size_request(0, height)
 
@@ -117,17 +115,19 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         return round(self._sliders[index].get_value())
 
 
-    def set_sliders_value(self, values: list) -> None:
-        self.mute(True)
+    def set_sliders_value(self, values: list, mute=True):
         if len(values) > len(self._sliders):
             return
 
         for i in range(len(values)):
-            self._sliders[i].set_value(values[i])
-        self.unmute()
+            self.set_slider_value(values[i], i, mute)
 
 
-    def set_slider_value(self, value: int, index: int, mute=True) -> None:
+    def set_slider_value(self, value: int, index: int, mute=True):
+        GLib.idle_add(self._set_slider_value, value, index, mute)
+
+
+    def _set_slider_value(self, value: int, index: int, mute=True):
         self.mute(mute)
         self._sliders[index].set_value(value)
         self.unmute()
@@ -137,45 +137,43 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         return super().get_value()
 
 
-    def set_button_value(self, value: int, mute: bool=True) -> None:
+    def set_button_value(self, value: int, mute: bool=True):
         super().set_value(value, mute)
 
 
-    def subscribe_slider(self, index: int, callback: callable, *args) -> None:
-        self._slider_subs[index].append((callback, args))
+    def subscribe_slider(self, index: int, callback: callable, *args):
+        self._slider_subs_list[index].append(callback, *args)
 
 
-    def subscribe_sliders(self, callback: callable, *args) -> None:
-        self._sliders_subs.append((callback, args))
+    def subscribe_sliders(self, callback: callable, *args):
+        self._sliders_subs.append(callback, *args)
 
 
-    def set_slider_active(self, active: bool, index: int) -> None:
+    def set_slider_active(self, active: bool, index: int):
         self._sliders[index].set_sensitive(active)
 
 
-    def _notify_slider(self, scale) -> None:
-        if self._mute:
+    def _notify_slider(self, scale: Gtk.Scale):
+        if self._mute.is_set():
             return
 
-        self._cooldown = 1
+        self._cooldown = 2
         index = self._sliders.index(scale)
 
         self.set_button_value(-1)
-        for sub in self._slider_subs[index]:
-            sub[0](self.get_slider_value(index), *sub[1])
+        self._slider_subs_list[index].call_with_value(self.get_slider_value(index))
 
 
-    def _notify_sliders(self, scale) -> None:
-        if self._mute:
+    def _notify_sliders(self, scale):
+        if self._mute.is_set():
             return
 
         self._cooldown = 1
         self.set_button_value(-1)
-        for sub in self._sliders_subs:
-            sub[0](self.get_sliders_value(), *sub[1])
+        self._sliders_subs.call_with_value(self.get_sliders_value())
 
 
-    def reconfigure(self, range_start=0, range_end=100, clear_marks=True) -> None:
+    def reconfigure(self, range_start=0, range_end=100, clear_marks=True):
         for slider in self._sliders:
             slider.set_range(range_start, range_end)
             if clear_marks:

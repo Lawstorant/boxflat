@@ -6,13 +6,17 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 
 from boxflat.connection_manager import MozaConnectionManager
-from boxflat.hid_handler import HidHandler
+from boxflat.hid_handler import HidHandler, MozaAxis
+from boxflat.subscription import EventDispatcher
 
-class SettingsPanel(object):
+class SettingsPanel(EventDispatcher):
     def __init__(self, title: str, button_callback: callable,
                  connection_manager: MozaConnectionManager=None,
-                 hid_handler: HidHandler=None) -> None:
+                 hid_handler: HidHandler=None):
+        super().__init__()
+
         self._cm = connection_manager
+        self._hid_handler = hid_handler
 
         self._current_page = None
         self._current_group: BoxflatPreferencesGroup=None
@@ -21,11 +25,6 @@ class SettingsPanel(object):
         self._header = None
 
         self._groups = []
-        self._cm_subs = []
-        self._cm_subs_connected = []
-
-        self._hid_subs = []
-        self._hid_handler = hid_handler
 
         self._active = True
         self._shutdown = False
@@ -74,31 +73,31 @@ class SettingsPanel(object):
         return banner
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         return
 
-    def set_setting(self, value) -> None:
+    def set_setting(self, value):
         pass
 
     def get_setting(self) -> int:
         return 0
 
-    def show_banner(self, value: bool=True) -> None:
+    def show_banner(self, value: bool=True):
         GLib.idle_add(self._banner.set_revealed, value)
 
-    def hide_banner(self, *arg) -> None:
+    def hide_banner(self, *arg):
         GLib.idle_add(self._banner.set_revealed, False)
 
-    def set_banner_title(self, new_title: str) -> None:
+    def set_banner_title(self, new_title: str):
         self._banner.set_title(new_title)
 
-    def set_banner_label(self, new_label: str) -> None:
+    def set_banner_label(self, new_label: str):
         self._banner.set_button_label(new_label)
 
     def show_toast(self, title: str, timeout=0):
         GLib.idle_add(self._toast_overlay.add_toast, Adw.Toast(title=title, timeout=timeout))
 
-    def apply(self, *arg) -> None:
+    def apply(self, *arg):
         # self.hide_banner()
         print(f"Applying {self.title} settings...")
 
@@ -115,11 +114,11 @@ class SettingsPanel(object):
         return self._button.get_child().get_label()
 
 
-    def deactivate_button(self) -> None:
+    def deactivate_button(self):
         self._button.set_active(False)
 
 
-    def active(self, value: int) -> None:
+    def active(self, value: int):
         value = (value > -1)
         if value == self._active:
             return
@@ -135,13 +134,13 @@ class SettingsPanel(object):
         # self._button.set_visible(value)
 
 
-    def open_url(self, url: str) -> None:
+    def open_url(self, url: str):
         launcher = Gtk.UriLauncher()
         launcher.set_uri(url)
         launcher.launch()
 
 
-    def add_preferences_page(self, name="", icon="preferences-system-symbolic") -> None:
+    def add_preferences_page(self, name="", icon="preferences-system-symbolic"):
         page = Adw.PreferencesPage()
         self._current_page = page
 
@@ -164,15 +163,11 @@ class SettingsPanel(object):
     def remove_preferences_group(self, group: Adw.PreferencesGroup):
         if not group:
             return
-        GLib.idle_add(self._remove_helper, group)
-
-
-    def _remove_helper(self, group: Adw.PreferencesGroup):
-        self._current_page.remove(group)
         self._groups.remove(group)
+        GLib.idle_add(self._current_page.remove, group)
 
 
-    def add_view_stack(self) -> None:
+    def add_view_stack(self):
         stack = Adw.ViewStack()
         self._content.set_content(stack)
         self._current_stack = stack
@@ -183,45 +178,17 @@ class SettingsPanel(object):
         self._header.set_title_widget(switcher)
 
 
-    def _add_row(self, row: BoxflatRow) -> None:
+    def _add_row(self, row: BoxflatRow):
         if self._current_group == None:
             self.add_preferences_group()
         self._current_row = row
+
+        if isinstance(row, BoxflatRow):
+            row.set_width(620)
+
         GLib.idle_add(self._current_group.add, row)
 
-
-    def _append_sub(self, *args):
-        self._cm_subs.append(args)
-
-
-    def _append_sub_cont(self, *args):
-        pass
-
-
-    def _append_sub_connected(self, *args):
-        self._cm_subs_connected.append(args)
-
-
-    def _append_sub_hid(self, *args):
-        self._hid_subs.append(args)
-
-
-    def activate_subs(self) -> None:
-        for sub in self._cm_subs:
-            self._cm.subscribe(*sub)
-
-
-    def activate_subs_connected(self) -> None:
-        for sub in self._cm_subs_connected:
-            self._cm.subscribe_connected(*sub)
-
-
-    def activate_hid_subs(self) -> None:
-        for sub in self._hid_subs:
-            self._hid_handler.subscribe_axis(*sub)
-
-
-    # def deactivate_hid_subs(self) -> None:
+    # def deactivate_hid_subs(self):
     #     if not self._hid_handler:
     #         return
 
@@ -229,5 +196,5 @@ class SettingsPanel(object):
     #     self._hid_handler = None
 
 
-    def shutdown(self, *args) -> None:
+    def shutdown(self, *args):
         self._shutdown = True

@@ -165,3 +165,7 @@ cython_debug/
 
 /.flatpak-builder
 /app
+
+.config
+.vscode/*
+!.vscode/launch.json

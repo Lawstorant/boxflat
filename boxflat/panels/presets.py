@@ -5,7 +5,7 @@ from boxflat.preset_handler import MozaPresetHandler
 import os
 
 class PresetSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, config_path: str) -> None:
+    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, config_path: str, version: str):
         self._includes = {}
         self._name_row = Adw.EntryRow()
         self._name_row.set_title("Preset Name")
@@ -17,7 +17,7 @@ class PresetSettings(SettingsPanel):
         self.list_presets()
 
 
-    def prepare_ui(self) -> None:
+    def prepare_ui(self):
         self.add_preferences_group("Saving")
         self._add_row(self._name_row)
 
@@ -27,37 +27,37 @@ class PresetSettings(SettingsPanel):
         row = BoxflatSwitchRow("Base")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("base-limit", row.set_active, 1, True)
+        self._cm.subscribe_connected("base-limit", row.set_active, 1, True)
         self._includes["base"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("wheel-indicator-mode", row.set_active, 1, True)
+        self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel Colors")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("wheel-indicator-mode", row.set_active, 1, True)
+        self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel-colors"] = row.get_value
 
         row = BoxflatSwitchRow("Pedals")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("pedals-throttle-dir", row.set_active, 1, True)
+        self._cm.subscribe_connected("pedals-throttle-dir", row.set_active, 1, True)
         self._includes["pedals"] = row.get_value
 
         row = BoxflatSwitchRow("Sequential Shifter")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("sequential-paddle-sync", row.set_active, 1, True)
+        self._cm.subscribe_connected("sequential-paddle-sync", row.set_active, 1, True)
         self._includes["sequential"] = row.get_value
 
         row = BoxflatSwitchRow("Handbrake")
         expander.add_row(row)
         row.set_value(1)
-        self._append_sub_connected("handbrake-direction", row.set_active, 1, True)
+        self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
 
         if Adw.get_minor_version() >= 6:
@@ -88,8 +88,9 @@ class PresetSettings(SettingsPanel):
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(self._name_row.get_text())
-        pm.add_callback(self.list_presets)
-        pm.add_callback(self._activate_save)
+
+        pm.subscribe(self.list_presets)
+        pm.subscribe(self._activate_save)
 
         for key, method in self._includes.items():
             if method():
@@ -98,22 +99,21 @@ class PresetSettings(SettingsPanel):
         pm.save_preset()
 
 
-    def _activate_save(self):
+    def _activate_save(self, *rest):
         GLib.idle_add(self._save_row.set_sensitive, True)
 
 
     def _load_preset(self, preset_name: str, *args):
-        print(f"\nLoading preset {preset_name}")
+        print(f"Loading preset {preset_name}")
 
         self._name_row.set_text(preset_name.removesuffix(".yml"))
-
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
         pm.load_preset()
 
 
-    def _delete_preset(self, value, preset_name: str, *args):
+    def _delete_preset(self, preset_name: str, *args):
         filepath = os.path.join(self._presets_path, preset_name)
 
         if not os.path.isfile(filepath):
@@ -126,7 +126,7 @@ class PresetSettings(SettingsPanel):
         self.list_presets()
 
 
-    def list_presets(self):
+    def list_presets(self, *rest):
         self.remove_preferences_group(self._presets_list_group)
 
         if not os.path.exists(self._presets_path):
@@ -143,8 +143,19 @@ class PresetSettings(SettingsPanel):
             if os.path.isfile(filepath):
                 row = BoxflatButtonRow(file.removesuffix(".yml"))
                 row.add_button("Load", self._load_preset, file)
-                row.add_button("Delete").add_css_class("destructive-action")
-                row.subscribe(self._delete_preset, file)
+                # row.add_button("Settings", self._show_preset_dialog, file)
+                row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
                 self._add_row(row)
 
 
+    def _show_preset_dialog(self, file_name: str):
+        if not file_name:
+            return
+
+        if file_name == "":
+            return
+
+        dialog = BoxflatPresetDialog(self._presets_path, file_name)
+        dialog.subscribe("save", print, "Save preset")
+        dialog.subscribe("delete", self._delete_preset)
+        dialog.present()

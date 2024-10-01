@@ -20,10 +20,10 @@ class BoxflatButtonLevelRow(BoxflatLevelRow):
         button = Gtk.Button(label=button_label)
         button.set_valign(Gtk.Align.CENTER)
         button.set_margin_start(10)
-        self._box.append(button)
         button.add_css_class("level-button")
-
         button.connect('clicked', lambda button: callback(*args))
+
+        self._box.append(button)
         return button
 
 

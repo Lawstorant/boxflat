@@ -8,7 +8,6 @@ from threading import Lock
 class BoxflatPreferencesGroup(Adw.PreferencesGroup):
     def __init__(self, title="", level_bar=False, alt_level_bar=False):
         super().__init__()
-        self._subscribers = []
         self._bar = None
         self._bar1 = None
         self._bar2 = None
@@ -94,14 +93,14 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
         return int(self._bar.get_level())
 
 
-    def set_bar_width(self, width: int) -> None:
+    def set_bar_width(self, width: int):
         if self._box:
             self._box.set_size_request(width/2, 0)
         elif self._bar:
             self._bar.set_size_request(width, 0)
 
 
-    def set_bar_max(self, value: int) -> None:
+    def set_bar_max(self, value: int):
         self._max_value = value
 
         if self._box:
@@ -111,23 +110,15 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
             self._bar.set_max_value(value)
 
 
-    def set_offset(self, value: int) -> None:
+    def set_offset(self, value: int):
         self._offset = value
 
 
-    # def set_range_start(self, value: int) -> None:
-    #     self._bar.set_min_value(round(self._max_value * (value/100)))
-
-
-    # def set_range_end(self, value: int) -> None:
-    #     self._bar.set_max_value(round(self._max_value * (value/100)))
-
-
-    def set_active(self, value, offset=0) -> None:
+    def set_active(self, value, offset=0):
         value = int(value + offset) > 0
         GLib.idle_add(self.set_sensitive, value)
 
 
-    def set_present(self, value, offset=0) -> None:
+    def set_present(self, value, offset=0):
         value = int(value) + offset > 0
         GLib.idle_add(self.set_visible, value)

@@ -659,7 +659,7 @@ commands:
 
 # Steering wheel
   wheel-colors:
-    read: 64
+    read: -1 # 64
     write: 63
     id: [0]
     bytes: 15
@@ -1161,31 +1161,6 @@ commands:
     bytes: 2
     type: int
 
-  # Even PitHouse is not sending anything
-  # These options are dead
-  # They didn't work correctly and were probably disabled
-  # some time in 2023
-  hpattern-throttle-blip:
-    read: -1
-    write: -1
-    id: [-1]
-    bytes: 2
-    type: int
-
-  hpattern-blip-output:
-    read: -1
-    write: -1
-    id: [-1]
-    bytes: 2
-    type: int
-
-  hpattern-blip-duration:
-    read: -1
-    write: -1
-    id: [-1]
-    bytes: 2
-    type: int
-
 # estop
   estop-set-status:
     read: -1
@@ -1464,4 +1439,4 @@ commands:
     write: 65
     id: [253, 222]
     bytes: 4
-    type: array
+    type: int

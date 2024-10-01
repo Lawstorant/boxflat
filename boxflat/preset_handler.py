@@ -3,6 +3,7 @@ from .moza_command import MozaCommand
 import yaml
 import os
 from threading import Thread
+from .subscription import SimpleEventDispatcher
 
 MozaDevicePresetSettings = {
     "base" : [
@@ -139,13 +140,13 @@ MozaDevicePresetSettings = {
     ]
 }
 
-class MozaPresetHandler():
+class MozaPresetHandler(SimpleEventDispatcher):
     def __init__(self, connection_manager: MozaConnectionManager):
+        super().__init__()
         self._settings = {}
         self._cm = connection_manager
         self._path = None
         self._name = None
-        self._callbacks = []
 
 
     def set_path(self, preset_path: str):
@@ -154,10 +155,6 @@ class MozaPresetHandler():
 
     def set_name(self, name: str):
         self._name = name
-
-
-    def add_callback(self, callback: callable):
-        self._callbacks.append(callback)
 
 
     def append_setting(self, setting_name: str):
@@ -204,7 +201,7 @@ class MozaPresetHandler():
                 while tries < 3:
                     tries += 1
                     replace = setting.replace("set-", "get-")
-                    value = self._cm.get_setting_auto(f"{device}-{replace}")
+                    value = self._cm.get_setting(f"{device}-{replace}")
                     if value != -1:
                         preset_data[device][setting] = value
                         tries = 3
@@ -217,8 +214,7 @@ class MozaPresetHandler():
         with open(os.path.join(path, self._name + ".yml"), "w") as file:
             file.write(yaml.safe_dump(preset_data))
 
-        for callback in self._callbacks:
-            callback()
+        self._dispatch()
 
 
     def _load_preset(self):
@@ -233,8 +229,8 @@ class MozaPresetHandler():
         for key, settings in preset_data.items():
             if key in MozaDevicePresetSettings.keys():
                 for setting, value in settings.items():
+                    setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                     # print(f"{key}-{setting}: {value}")
-                    self._cm.set_setting_auto(value, f"{key}-{setting}")
+                    self._cm.set_setting(value, f"{key}-{setting}")
 
-        for callback in self._callbacks:
-            callback()
+        self._dispatch()

@@ -15,7 +15,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
         self._box.add_css_class("linked")
 
 
-    def add_buttons(self, *labels: str) -> None:
+    def add_buttons(self, *labels: str):
         for label in labels:
             button = Gtk.ToggleButton(label=label)
             button.set_valign(Gtk.Align.CENTER)
@@ -39,7 +39,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
         return round(eval("val" + self._expression))
 
 
-    def _set_value(self, value: int) -> None:
+    def _set_value(self, value: int):
         if value == -1:
             for button in self._buttons:
                 button.set_active(False)
@@ -55,7 +55,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
         self._buttons[value].set_active(True)
 
 
-    def _notify(self, button: Gtk.ToggleButton) -> None:
+    def _notify(self, button: Gtk.ToggleButton):
         if button.get_active():
             super()._notify()
 

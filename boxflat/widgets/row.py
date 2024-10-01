@@ -1,47 +1,52 @@
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib
 import time
+from threading import Event
+from boxflat.subscription import SimpleEventDispatcher
 
-class BoxflatRow(Adw.ActionRow):
+class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
     def __init__(self, title="", subtitle=""):
-        super().__init__()
+        Adw.ActionRow.__init__(self)
+        SimpleEventDispatcher.__init__(self)
+
         self._cooldown = 0
-        self._subscribers = []
-        self._mute = False
+        self._mute = Event()
         self._shutdown = False
         self.set_sensitive(True)
         self.set_title(title)
         self.set_subtitle(subtitle)
         self._expression = "*1"
         self._reverse_expression = "*1"
-        self.set_size_request(620, 0)
+        self._active = True
+        self._cooldown_increment = 1
 
 
     def get_active(self) -> bool:
-        return self.get_sensitive()
+        return self._active
 
 
     def set_active(self, value=1, offset=0) -> bool:
         value = bool(int(value) + offset > 0)
         if value != self.get_active():
+            self._active = value
             GLib.idle_add(self.set_sensitive, value)
             return True
 
         return False
 
 
-    def set_present(self, value, additional=0) -> None:
+    def set_present(self, value, additional=0):
         GLib.idle_add(self.set_visible, int(value) + additional > 0)
 
 
-    def mute(self, value: bool=True) -> None:
-        self._mute = value
+    def mute(self, value: bool=True):
+        if value:
+            self._mute.set()
+        else:
+            self.unmute()
 
 
-    def unmute(self) -> None:
-        self._mute = False
+    def unmute(self):
+        self._mute.clear()
 
 
     def get_value(self) -> int:
@@ -52,62 +57,54 @@ class BoxflatRow(Adw.ActionRow):
         return self.get_value()
 
 
-    def set_value(self, value, mute: bool=True) -> None:
+    def set_value(self, value, mute: bool=True):
         if self.cooldown():
             # print("Still cooling down")
-            # print(self.get_title())
             return
+        GLib.idle_add(self.__set_value_helper, value, mute)
 
-        self.mute(mute)
+
+    def __set_value_helper(self, value, mute: bool=True):
+        self._mute.set()
         self._set_value(value)
-        self.unmute()
+        self._mute.clear()
 
 
-    def _set_value(self, value) -> None:
+    def _set_value(self, value):
         pass
 
 
-    def _set_widget(self, widget: Gtk.Widget) -> None:
-        GLib.idle_add(self.add_suffix, widget)
+    def _set_widget(self, widget: Gtk.Widget):
+        self.add_suffix(widget)
 
 
-    def subscribe(self, callback: callable, *args, raw=False) -> None:
-        self._subscribers.append((callback, raw, args))
-
-
-    def clear_subscribtions(self) -> None:
-        self._subscribers = []
-
-
-    def _notify(self) -> None:
-        if self._mute:
+    def _notify(self, *rest):
+        if self._mute.is_set():
             return
 
-        self._cooldown = 1
-        for sub in self._subscribers:
-            value = self.get_raw_value() if sub[1] else self.get_value()
-            sub[0](value, *sub[2])
+        self._cooldown = self._cooldown_increment
+        self._dispatch(self.get_value())
 
 
-    def set_expression(self, expr: str) -> None:
+    def set_expression(self, expr: str):
         """
         Modify the value when invoking get_value()
         """
         self._expression = expr
 
 
-    def set_reverse_expression(self, expr: str) -> None:
+    def set_reverse_expression(self, expr: str):
         """
         Modify the value when invoking set_value()
         """
         self._reverse_expression = expr
 
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         self._shutdown = True
 
 
-    def set_width(self, width: int) -> None:
+    def set_width(self, width: int):
         self.set_size_request(width, 0)
 
 

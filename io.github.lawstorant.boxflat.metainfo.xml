@@ -94,6 +94,24 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.0" date="2024-10-01">
+      <description>
+        <p>Major rewrite pt.1. No user-facing changes :/ Maybe less crashing</p>
+        <ul>
+          <li>Unified event handling through new classes Subscription, SubscriptionList, EventDispatcher, Observable etc.</li>
+          <li>Make sure everything is updated through idle_add</li>
+          <li>Cutting spaghetti from connection manager. No more per-type setters/getters</li>
+          <li>Consume command queue in real time to enable faster writes to devices</li>
+          <li>MozaCommands now handles type conversion automatically</li>
+          <li>Use more Events/Locks instead of boolean values</li>
+          <li>Create Threads on demand instead of keeping them alive with loops and sleep()</li>
+          <li>Remove all "None" return type hints</li>
+          <li>RPM/Button color picker row is now sized more universally</li>
+          <li>Custom commands are now accessible with "--custom" launch flag</li>
+          <li>Instant curve preset application</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.18.5" date="2024-09-28">
       <description>
         <ul>
@@ -156,7 +174,7 @@
         <ul>
           <li>Preset saving/loading</li>
           <li>Remove some lingering text strings from preset rows</li>
-          <li>Fix crashed related to reloading presets view</li>
+          <li>Fix crashes related to reloading presets view</li>
         </ul>
       </description>
     </release>

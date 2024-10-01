@@ -1,5 +1,3 @@
-import gi
-gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Adw
 from .row import BoxflatRow
 from .switch_row import BoxflatSwitchRow
@@ -27,7 +25,7 @@ class BoxflatDialogRow(BoxflatRow):
         self.connect("activated", self.show_dialog)
 
 
-    def show_dialog(self, whatever) -> None:
+    def show_dialog(self, whatever):
         if self._page.get_parent():
             return
 
@@ -38,24 +36,23 @@ class BoxflatDialogRow(BoxflatRow):
         dialog.present()
 
 
-    def add_switches(self, *switches) -> None:
+    def add_switches(self, *switches):
         for switch in switches:
             self.add_switch(switch)
 
 
-    def add_switch(self, title: str, subtitle="") -> None:
+    def add_switch(self, title: str, subtitle=""):
         row = BoxflatSwitchRow(title, subtitle=subtitle)
         row.set_width(400)
         self._group.add(row)
         self._switches.append(row)
-        row.subscribe(lambda v: self._notify())
+        row.subscribe(self._notify)
 
 
     def get_value(self) -> list:
         values = []
         for switch in self._switches:
             values.append(switch.get_value())
-
         return values
 
 
@@ -63,8 +60,6 @@ class BoxflatDialogRow(BoxflatRow):
         return len(self._switches)
 
 
-    def set_value(self, values) -> None:
+    def _set_value(self, values):
         for i in range(self.get_count()):
             self._switches[i].set_value(bool(values[i]))
-
-        return values

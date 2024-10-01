@@ -1,11 +1,11 @@
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GLib
 from .row import BoxflatRow
 from threading import Thread, Event, Lock
 from time import sleep
+from boxflat.subscription import EventDispatcher
 
-MOZA_RPM_LEDS=10
+MOZA_RPM_LEDS = 10
+MOZA_RGB_BUTTONS = 10
 
 def extract_rgb(rgba: Gdk.RGBA) -> list:
         rgb = rgba.to_string()[4:-1]
@@ -13,21 +13,26 @@ def extract_rgb(rgba: Gdk.RGBA) -> list:
         return rgb
 
 
-class BoxflatNewColorPickerRow(BoxflatRow):
-    def __init__(self, title: str, subtitle="", blinking=False):
-        super().__init__(title, subtitle)
+class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
+    def __init__(self, title="", subtitle="", blinking=False):
+        BoxflatRow.__init__(self, title, subtitle)
+        EventDispatcher.__init__(self)
+
+        for i in range(MOZA_RPM_LEDS):
+            self._register_event(f"color{i}")
 
         child = self.get_child()
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.set_child(main_box)
 
-        colors_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, halign=Gtk.Align.CENTER)
+        colors_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True, halign=Gtk.Align.FILL)
         colors_box.set_margin_top(6)
         colors_box.set_margin_bottom(12)
 
         main_box.append(child)
         main_box.add_css_class("header")
         main_box.set_valign(Gtk.Align.CENTER)
+        main_box.set_halign(Gtk.Align.FILL)
         main_box.append(colors_box)
 
         self._dialog = Gtk.ColorDialog(with_alpha=False)
@@ -38,13 +43,16 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         red = Gdk.RGBA()
         red.parse("rgb(230,60,60)")
         for i in range(MOZA_RPM_LEDS):
-            color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True, halign=Gtk.Align.CENTER)
+            color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True)
             color.set_rgba(red)
-            color.set_size_request(0,48)
+            color.set_valign(Gtk.Align.CENTER)
+            color.set_halign(Gtk.Align.CENTER)
             color.connect('notify::rgba', self._notify)
 
             self._colors.append(color)
             colors_box.append(color)
+            size = color.get_preferred_size()[1]
+            color.set_size_request(0, size.width - 2)
 
             if not blinking:
                 continue
@@ -67,7 +75,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
         return self._colors.index(button)
 
 
-    def set_led_value(self, value: list, index: int) -> None:
+    def set_led_value(self, value: list, index: int):
         if self._value_lock.locked():
             return
 
@@ -78,26 +86,28 @@ class BoxflatNewColorPickerRow(BoxflatRow):
             # print("Still cooling down")
             return
 
-        # TODO: use Lock instead of boolean value
-        self._mute = True
         rgba = Gdk.RGBA()
         rgba.parse(f"rgb({value[0]},{value[1]},{value[2]})")
+        GLib.idle_add(self._set_led_value, rgba, index)
 
+
+    def _set_led_value(self, rgba, index):
+        self._mute.set()
         self._colors[index].set_rgba(rgba)
-        self._mute = False
+        self._mute.clear()
 
 
-    def _notify(self, button: Gtk.ColorDialogButton, *param, alt_value=None) -> None:
-        if self._mute:
+    def _notify(self, button: Gtk.ColorDialogButton, *param, alt_value=None):
+        if self._mute.is_set():
             return
 
         if self._cooldown == 0:
             self._cooldown = 1
+
         index = self.get_index(button)
         value = alt_value if alt_value else self.get_value(index)
 
-        for sub in self._subscribers:
-            sub[0](value, sub[2][0] + str(index+1))
+        self._dispatch(f"color{index}", value)
 
 
     def _enter_button(self, controller: Gtk.EventControllerMotion, a, b, index: int):
@@ -123,7 +133,7 @@ class BoxflatNewColorPickerRow(BoxflatRow):
                 self._notify(button, alt_value=[0, 0, 0])
                 sleep(0.4)
                 self._notify(button, alt_value=value)
-                sleep(0.8)
+                sleep(0.4)
 
             self._blinking_event[index].clear()
-            self._cooldown = 10
+            self._cooldown = 8

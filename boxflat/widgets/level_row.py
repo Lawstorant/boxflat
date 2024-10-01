@@ -1,5 +1,3 @@
-import gi
-gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 from math import ceil, floor
@@ -30,7 +28,7 @@ class BoxflatLevelRow(BoxflatRow):
         self._present_cooldown = True
 
 
-    def _set_value(self, value: int) -> None:
+    def _set_value(self, value: int):
         if not self.get_active():
             return
 
@@ -40,25 +38,25 @@ class BoxflatLevelRow(BoxflatRow):
         if value < 0:
             value = 0
 
-        GLib.idle_add(self._bar.set_value, value)
+        self._bar.set_value(value)
 
 
-    def set_bar_max(self, value: int) -> None:
+    def set_bar_max(self, value: int):
         self._max_value = value
         self._bar.set_max_value(value)
 
 
-    def set_bar_width(self, width: int) -> None:
+    def set_bar_width(self, width: int):
         self._bar.set_size_request(width, 0)
 
 
-    def set_offset(self, value: int) -> None:
+    def set_offset(self, value: int):
         value = ceil((value / 100) * self._max_value)
         self._bar.add_offset_value("level-offset", value)
 
 
     def set_present(self, value, additional=0,
-                    skip_cooldown=False, trigger_cooldown=True) -> None:
+                    skip_cooldown=False, trigger_cooldown=True):
         if self._present_cooldown and not skip_cooldown:
             self._present_cooldown = False
 
@@ -67,9 +65,9 @@ class BoxflatLevelRow(BoxflatRow):
             super().set_present(value, additional)
 
 
-    def set_active(self, value, offset=0) -> None:
+    def set_active(self, value, offset=0):
         if super().set_active(value, offset):
-            self.set_value(0)
+            GLib.idle_add(self._bar.set_value, 0)
 
 
     def get_value(self) -> int:
@@ -86,6 +84,7 @@ class BoxflatLevelRow(BoxflatRow):
 
     def get_percent_floor(self) -> int:
         return floor(self.get_fraction() * 100)
+
 
     def get_percent_ceil(self) -> int:
         return ceil(self.get_fraction() * 100)

@@ -3,6 +3,7 @@ import re
 from time import sleep
 
 from evdev.ecodes import *
+from .subscription import EventDispatcher, Observable
 
 from threading import Thread, Lock, Event
 
@@ -24,13 +25,9 @@ class MozaHidDevice():
 
 
 class AxisData():
-    name: str
-    device: str
-    base_offset: int
-
-    def __init__(self, n, d):
-        self.name = n
-        self.device = d
+    def __init__(self, name: str, device: str):
+        self.name = name
+        self.device = device
 
 
 class MozaAxis():
@@ -46,7 +43,21 @@ class MozaAxis():
     HANDBRAKE        = AxisData("handbrake", MozaHidDevice.HANDBRAKE)
 
 
-MozaAxisCodes = {
+MOZA_AXIS_LIST = [
+    "steering",
+    "throttle",
+    "brake",
+    "clutch",
+    "combined",
+    "left_paddle",
+    "right_paddle",
+    "stick_x",
+    "stick_y",
+    "handbrake"
+]
+
+
+MOZA_AXIS_CODES = {
     "ABS_RX"     : MozaAxis.THROTTLE.name,
     "ABS_RY"     : MozaAxis.BRAKE.name,
     "ABS_RZ"     : MozaAxis.CLUTCH.name,
@@ -54,7 +65,7 @@ MozaAxisCodes = {
 }
 
 
-MozaAxisBaseCodes = {
+MOZA_AXIS_BASE_CODES = {
     "ABS_X"        : MozaAxis.STEERING.name,
     "ABS_Z"        : MozaAxis.THROTTLE.name,
     "ABS_RZ"       : MozaAxis.BRAKE.name,
@@ -68,28 +79,66 @@ MozaAxisBaseCodes = {
 }
 
 
-class HidHandler():
+MOZA_BUTTON_COUNT = 128
+
+
+class AxisValue():
+    def __init__(self, name: str):
+        self.name = name
+        self._lock = Lock()
+        self._value = 0
+
+
+    @property
+    def value(self) -> int:
+        with self._lock:
+            return self._value
+
+
+    @value.setter
+    def value(self, new_value: int):
+        with self._lock:
+            self._value = new_value
+
+
+    @property
+    def data(self) -> tuple[str, int]:
+        return self.name, self.value
+
+
+class HidHandler(EventDispatcher):
     def __init__(self):
-        self._axis_subs = {}
+        super().__init__()
+
         self._axis_values = {}
-        self._button_subs = {}
+        for i in range(0, MOZA_BUTTON_COUNT):
+            self._register_event(f"button-{i}")
 
-        self._shutdown = False
+        for name in MOZA_AXIS_LIST:
+            self._axis_values[name] = AxisValue(name)
+            self._register_event(name)
+
+        self._running = Event()
         self._update_rate = 120
-
-        self._device_patterns = []
-        self._devices = []
         self._base = None
-
-        self._axis_values_lock = Lock()
+        self._device_count = Observable(0)
+        self._device_count.subscribe(self._device_count_changed)
 
 
     def __del__(self):
-        self.shutdown()
+        self.stop()
 
 
-    def start(self):
-        Thread(target=self._notify_axis, daemon=True).start()
+    def _device_count_changed(self, new_count):
+        if new_count == 0:
+            self.stop()
+
+        elif not self._running.is_set():
+            Thread(target=self._axis_data_polling, daemon=True).start()
+
+
+    def stop(self):
+        self._running.clear()
 
 
     def get_update_rate(self) -> int:
@@ -104,17 +153,16 @@ class HidHandler():
         return True
 
 
-    def add_device(self, pattern: MozaHidDevice) -> None:
+    def add_device(self, pattern: MozaHidDevice):
         if not pattern:
             return
 
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-
         device = None
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):
-                print(f"HID device \"{hid.name}\" found")
+                print(f"HID device found: " + hid.name)
                 device = hid
 
         if device != None:
@@ -142,40 +190,19 @@ class HidHandler():
                 if device.absinfo(ecode).fuzz > 8:
                     device.set_absinfo(ecode, fuzz=fuzz)
 
-            thread = Thread(daemon=True, target=self._read_loop, args=[device])
-            thread.start()
+            Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
+            self._device_count.value += 1
 
 
-    def subscribe_axis(self, axis: AxisData, callback: callable, *args) -> None:
-        if not axis.name in self._axis_subs:
-            self._axis_subs[axis.name] = []
-            self._axis_values[axis.name] = 0
-
-        self._axis_subs[axis.name].append((callback, args))
-
-
-    def subscribe_button(self, number, callback: callable, *args) -> None:
-        # if not button in self._button_subs:
-        #     self._button_subs[number] = []
-
-        # self._button_subs[number].append((callback, args))
-        pass
-
-
-    def _notify_axis(self) -> None:
-        axis_values = {}
-        while not self._shutdown:
+    def _axis_data_polling(self):
+        self._running.set()
+        while self._running.is_set():
             sleep(1/self._update_rate)
-
-            with self._axis_values_lock:
-                axis_values = self._axis_values.copy()
-
-            for axis, value in self._axis_values.items():
-                for sub in self._axis_subs[axis]:
-                    sub[0](value, *sub[1])
+            for axis in self._axis_values.values():
+                self._dispatch(*axis.data)
 
 
-    def _update_axis(self, device: evdev.InputDevice, code: int, value: int) -> None:
+    def _update_axis(self, device: evdev.InputDevice, code: int, value: int):
         axis_min = device.absinfo(code).min
         code = evdev.ecodes.ABS[code]
         name = ""
@@ -184,45 +211,39 @@ class HidHandler():
             value += abs(axis_min)
 
         if device == self._base:
-            name = MozaAxisBaseCodes[code]
+            name = MOZA_AXIS_BASE_CODES[code]
         else:
-            name = MozaAxisCodes[code]
+            name = MOZA_AXIS_CODES[code]
 
         # print(f"axis {name} ({code}), value: {value}, min: {axis_min}")
-
-        if name in self._axis_values:
-            with self._axis_values_lock:
-                self._axis_values[name] = value
+        self._axis_values[name].value = value
 
 
-    def _update_button(self, number: int, state: int) -> None:
+    def _notify_button(self, number: int, state: int):
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
-            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) -2
+            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
 
-        print(f"button {number}, state: {state}")
-
-        # if number in self._button_subs.keys():
-        #     for sub in self._button_subs[number]:
-        #         sub[0](number, state*sub[1])
+        #print(f"button {number}, state: {state}")
+        self._dispatch("button-" + str(number), state)
 
 
-    def _read_loop(self, device: evdev.InputDevice) -> None:
-        sleep(1)
+    def _hid_read_loop(self, device: evdev.InputDevice):
+        sleep(0.5)
         try:
             for event in device.read_loop():
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
                 # elif event.type == EV_KEY:
-                #     self._update_button(event.code, event.value)
+                #     self._notify_button(event.code, event.value)
 
         except Exception as e:
             # print(e)
             pass
 
-        print(f"HID device \"{device.name}\" disconnected")
+        print(f"HID device disconnected: " + device.name)
+        self._device_count.value -= 1
         if device == self._base:
             self._base = None
-        device = None
