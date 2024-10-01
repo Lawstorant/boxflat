@@ -96,7 +96,7 @@
   <releases>
     <release version="v1.19.0" date="2024-10-01">
       <description>
-        <p>Major rewrite pt.1. No user-facing changes :/</p>
+        <p>Major rewrite pt.1. No user-facing changes :/ Maybe less crashing</p>
         <ul>
           <li>Unified event handling through new classes Subscription, SubscriptionList, EventDispatcher, Observable etc.</li>
           <li>Make sure everything is updated through idle_add</li>
