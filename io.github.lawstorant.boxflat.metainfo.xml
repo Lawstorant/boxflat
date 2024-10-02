@@ -94,6 +94,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.1" date="2024-10-02">
+      <description>
+        <p>Fix data polling</p>
+      </description>
+    </release>
     <release version="v1.19.0" date="2024-10-01">
       <description>
         <p>Major rewrite pt.1. No user-facing changes :/ Maybe less crashing</p>

@@ -27,6 +27,11 @@ HidDeviceMapping = {
 }
 
 
+POLLING_ERROR_EXCLUSIONS = [
+    "wheel-knob-mode"
+]
+
+
 class MozaQueueElement():
     def __init__(self, value=None, command_name=None):
         self.value = value
@@ -176,19 +181,15 @@ class MozaConnectionManager(EventDispatcher):
 
     def _polling_thread(self):
         while self._refresh_cont.is_set():
-            time.sleep(0.2)
-            device = "laptop" # lol, so random!
-            for command in self._polling_list:
-                if command.startswith(device):
-                    continue
+            time.sleep(0.5)
 
+            for command in self._polling_list:
                 if self._event_sub_count(command) == 0:
                     continue
 
                 # print("Polling data: " + command)
                 response = self.get_setting(command)
-                if response == -1:
-                    device = command.split("-")[0]
+                if not response:
                     continue
 
                 self._dispatch(command, response)
@@ -203,7 +204,11 @@ class MozaConnectionManager(EventDispatcher):
 
             self._clear_event_subscriptions("no-access")
             for command, subs in lists.items():
-                subs.call_with_value(self.get_setting(command))
+                value = self.get_setting(command)
+                if value == None:
+                    value = -1
+                subs.call_with_value(value)
+
             time.sleep(1)
         self._connected_thread = None
 
@@ -383,10 +388,7 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def get_setting(self, command_name: str):
-        response = self.handle_setting(1, command_name, MOZA_COMMAND_READ)
-        if response == None:
-            return -1
-        return response
+        return self.handle_setting(1, command_name, MOZA_COMMAND_READ)
 
 
     def cycle_wheel_id(self) -> int:
