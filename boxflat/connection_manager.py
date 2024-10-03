@@ -1,6 +1,5 @@
 import yaml
 import os.path
-from binascii import hexlify
 from .moza_command import *
 from serial import Serial
 from threading import Thread, Lock, Event
@@ -8,12 +7,9 @@ import time
 from .hid_handler import MozaHidDevice
 from .subscription import SubscriptionList, EventDispatcher
 from queue import SimpleQueue
+from .serial_handler import SerialHandler
 
-import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import GLib
-
-CM_RETRY_COUNT=2
+CM_RETRY_COUNT=1
 
 HidDeviceMapping = {
     "base"       : MozaHidDevice.BASE,
@@ -25,11 +21,6 @@ HidDeviceMapping = {
     "estop"      : MozaHidDevice.ESTOP,
     "main"       : None
 }
-
-
-POLLING_ERROR_EXCLUSIONS = [
-    "wheel-knob-mode"
-]
 
 
 class MozaQueueElement():
@@ -115,7 +106,7 @@ class MozaConnectionManager(EventDispatcher):
         for device in devices:
             if device.lower().find("base") != -1:
                 serial_devices["base"] = device
-                serial_devices["main"] = device
+                # serial_devices["main"] = device
                 # print("Base found")
 
             elif device.lower().find("hbp") != -1:
@@ -134,15 +125,6 @@ class MozaConnectionManager(EventDispatcher):
                 serial_devices["pedals"] = device
                 # print("Pedals found")
 
-            # TODO: Check this info somehow
-            # elif device.lower().find("hub") != -1:
-            #     serial_devices["hub"] = device
-                # print("Hub found")
-
-            # elif device.lower().find("stop") != -1:
-            #     serial_devices["estop"] = device
-                # print("E-Stop found")
-
         self._handle_devices(serial_devices)
         # print("Device discovery end\n")
 
@@ -153,8 +135,9 @@ class MozaConnectionManager(EventDispatcher):
             old_devices = self._serial_devices
             self._serial_devices = new_devices
 
-        for device in new_devices:
+        for device, path in new_devices:
             if device not in old_devices:
+                SerialHandler(path, self._message_start)
                 self._dispatch("device-connected", device)
                 self._dispatch("hid-device-connected", HidDeviceMapping[device])
 
@@ -263,11 +246,10 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def send_serial_message(self, serial_path: str, message: bytes, read_response=False) -> bytes:
-        # msg = ""
-        # for b in message:
-        #     msg += f"{hex(b)} "
-        # print(f"\nDevice: {serial_path}")
-        # print(f"Sending:  {msg}")
+        # msg = message.hex(':')
+        # print(f"Sending: {msg}")
+
+        return
 
         if self._dry_run:
             return
@@ -334,10 +316,8 @@ class MozaConnectionManager(EventDispatcher):
         message.append(length)
         message.extend(rest)
 
-        # msg = ""
-        # for b in message:
-        #     msg += f"{hex(b)} "
-        # print(f"Response: {msg}")
+        # msg = message.hex(':')
+        # print(f"Response: {msg}\n")
 
         return bytes(message)
 
