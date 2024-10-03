@@ -104,8 +104,8 @@ class MozaCommand():
         self._payload = data
 
 
-    def get_payload(self):
-        data = self._payload
+    def get_payload(self, alt_data=None):
+        data = self._payload if alt_data == None else alt_data
         if self._type == "int":
             data = int.from_bytes(data)
 

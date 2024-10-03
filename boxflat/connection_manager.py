@@ -189,7 +189,7 @@ class MozaConnectionManager(EventDispatcher):
 
                 # print("Polling data: " + command)
                 response = self.get_setting(command)
-                if not response:
+                if response is None:
                     continue
 
                 self._dispatch(command, response)
@@ -205,7 +205,7 @@ class MozaConnectionManager(EventDispatcher):
             self._clear_event_subscriptions("no-access")
             for command, subs in lists.items():
                 value = self.get_setting(command)
-                if value == None:
+                if value is None:
                     value = -1
                 subs.call_with_value(value)
 
@@ -238,7 +238,7 @@ class MozaConnectionManager(EventDispatcher):
     def _write_handler(self):
         while not self._shutdown.is_set():
             element = self._write_queue.get()
-            self.handle_setting(element.value, element.command_name, True)
+            self._handle_setting(element.value, element.command_name, True)
         self._write_thread = None
 
 
@@ -347,14 +347,14 @@ class MozaConnectionManager(EventDispatcher):
         device_path = self._get_device_path(command_data.device_type)
 
         response = self.send_serial_message(device_path, message, (rw == MOZA_COMMAND_READ))
-        if not response is None:
+        if response is not None:
             response = response[-1-command_data.payload_length:-1]
 
         # only return payload
         return response
 
 
-    def handle_setting(self, value, command_name: str, rw: int) -> bool:
+    def _handle_setting(self, value, command_name: str, rw: int) -> bool:
         if command_name not in self._command_list:
             print("Command not found: " + command_name)
             return
@@ -376,11 +376,10 @@ class MozaConnectionManager(EventDispatcher):
 
         command.set_payload(value)
         response = self._handle_command_v2(command, rw)
-        if response == None:
+        if response is None:
             return
 
-        command.set_payload_bytes(response)
-        return command.get_payload()
+        return command.get_payload(alt_data=response)
 
 
     def set_setting(self, value, command_name: str):
@@ -388,7 +387,7 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def get_setting(self, command_name: str):
-        return self.handle_setting(1, command_name, MOZA_COMMAND_READ)
+        return self._handle_setting(1, command_name, MOZA_COMMAND_READ)
 
 
     def cycle_wheel_id(self) -> int:

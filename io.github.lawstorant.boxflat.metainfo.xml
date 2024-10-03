@@ -41,6 +41,9 @@
       and/or their software. It's 100% independent work based largely on hours of reverse engineering the protocol.
     </p>
     <p>
+      Boxflat supports saving/loading presets. Automatic game detection is coming in the near future.
+    </p>
+    <p>
       Supported devices:
     </p>
     <ul>
@@ -94,6 +97,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.2" date="2024-10-03">
+      <description>
+        <p>Fix reading 0 values</p>
+      </description>
+    </release>
     <release version="v1.19.1" date="2024-10-02">
       <description>
         <p>Fix data polling</p>
