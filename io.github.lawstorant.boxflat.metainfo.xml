@@ -97,6 +97,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.4" date="2024-10-03">
+      <description>
+        <p>Reduce disconnection false-positives before serial connection rewrite</p>
+      </description>
+    </release>
     <release version="v1.19.3" date="2024-10-03">
       <description>
         <ul>

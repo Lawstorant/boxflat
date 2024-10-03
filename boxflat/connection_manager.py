@@ -296,7 +296,7 @@ class MozaConnectionManager(EventDispatcher):
             # read_response = True # For teesting writes
             start_time = time.time()
             while read_response:
-                if time.time() - start_time > 0.01:
+                if time.time() - start_time > 0.02:
                     # print("Time's up!")
                     read_response = False
                     break
