@@ -97,9 +97,12 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
-    <release version="v1.19.2" date="2024-10-03">
+    <release version="v1.19.3" date="2024-10-03">
       <description>
-        <p>Fix reading 0 values</p>
+        <ul>
+          <li>Fix reading 0 values</li>
+          <li>Update Natural inertia marks</li>
+        </ul>
       </description>
     </release>
     <release version="v1.19.1" date="2024-10-02">
