@@ -14,6 +14,16 @@ device-ids:
   dash: -1
   estop: -1
 
+
+ids-to-names:
+  18: main
+  19: base
+  23: wheel
+  25: pedals
+  26: hpattern
+  26: sequential
+  27: handbrake
+
 # TODO: EEPROM commands
 # Maybe that's how we update FW?
 # ===========================================
@@ -33,1410 +43,1418 @@ device-ids:
 # ===========================================
 commands:
 # Main commands(?)
-  main-output:
-    read: 30
-    write: -1
-    id: [57]
-    bytes: 7
-    type: int
+  main:
+    output:
+      read: 30
+      write: -1
+      id: [57]
+      bytes: 7
+      type: int
 
-  main-set-compat-mode:
-    read: -1
-    write: 31
-    id: [19]
-    bytes: 1
-    type: int
+    set-compat-mode:
+      read: -1
+      write: 31
+      id: [19]
+      bytes: 1
+      type: int
 
-  main-get-compat-mode:
-    read: 31
-    write: -1
-    id: [23]
-    bytes: 1
-    type: int
+    get-compat-mode:
+      read: 31
+      write: -1
+      id: [23]
+      bytes: 1
+      type: int
 
-  # BLE off = 0
-  # BLE on = 85
-  main-get-ble-mode:
-    read: 31
-    write: -1
-    id: [70]
-    bytes: 1
-    type: int
+    # BLE off = 0
+    # BLE on = 85
+    get-ble-mode:
+      read: 31
+      write: -1
+      id: [70]
+      bytes: 1
+      type: int
 
-  main-set-ble-mode:
-    read: -1
-    write: 31
-    id: [71]
-    bytes: 1
-    type: int
+    set-ble-mode:
+      read: -1
+      write: 31
+      id: [71]
+      bytes: 1
+      type: int
 
-  main-get-led-status:
-    read: 31
-    write: -1
-    id: [8]
-    bytes: 1
-    type: int
+    get-led-status:
+      read: 31
+      write: -1
+      id: [8]
+      bytes: 1
+      type: int
 
-  main-set-led-status:
-    read: -1
-    write: 31
-    id: [9]
-    bytes: 1
-    type: int
+    set-led-status:
+      read: -1
+      write: 31
+      id: [9]
+      bytes: 1
+      type: int
 
-  main-set-ffb-status:
-    read: -1
-    write: 31
-    id: [51]
-    bytes: 1
-    type: int
+    set-ffb-status:
+      read: -1
+      write: 31
+      id: [51]
+      bytes: 1
+      type: int
 
-  main-get-ffb-status:
-    read: 31
-    write: -1
-    id: [52]
-    bytes: 1
-    type: int
+    get-ffb-status:
+      read: 31
+      write: -1
+      id: [52]
+      bytes: 1
+      type: int
 
-  main-set-default-ffb-status:
-    read: -1
-    write: 31
-    id: [53]
-    bytes: 1
-    type: int
+    set-default-ffb-status:
+      read: -1
+      write: 31
+      id: [53]
+      bytes: 1
+      type: int
 
-  main-get-default-ffb-status:
-    read: 31
-    write: -1
-    id: [54]
-    bytes: 1
-    type: int
+    get-default-ffb-status:
+      read: 31
+      write: -1
+      id: [54]
+      bytes: 1
+      type: int
 
 # Pedals
-  pedals-throttle-dir:
-    read: 35
-    write: 36
-    id: [1]
-    bytes: 2
-    type: int
+  pedals:
+    throttle-dir:
+      read: 35
+      write: 36
+      id: [1]
+      bytes: 2
+      type: int
 
-  pedals-throttle-min:
-    read: 35
-    write: 36
-    id: [2]
-    bytes: 2
-    type: int
+    throttle-min:
+      read: 35
+      write: 36
+      id: [2]
+      bytes: 2
+      type: int
 
-  pedals-throttle-max:
-    read: 35
-    write: 36
-    id: [3]
-    bytes: 2
-    type: int
+    throttle-max:
+      read: 35
+      write: 36
+      id: [3]
+      bytes: 2
+      type: int
 
-  pedals-brake-dir:
-    read: 35
-    write: 36
-    id: [4]
-    bytes: 2
-    type: int
+    brake-dir:
+      read: 35
+      write: 36
+      id: [4]
+      bytes: 2
+      type: int
 
-  pedals-brake-min:
-    read: 35
-    write: 36
-    id: [5]
-    bytes: 2
-    type: int
+    brake-min:
+      read: 35
+      write: 36
+      id: [5]
+      bytes: 2
+      type: int
 
-  pedals-brake-max:
-    read: 35
-    write: 36
-    id: [6]
-    bytes: 2
-    type: int
+    brake-max:
+      read: 35
+      write: 36
+      id: [6]
+      bytes: 2
+      type: int
 
-  pedals-clutch-dir:
-    read: 35
-    write: 36
-    id: [7]
-    bytes: 2
-    type: int
+    clutch-dir:
+      read: 35
+      write: 36
+      id: [7]
+      bytes: 2
+      type: int
 
-  pedals-clutch-min:
-    read: 35
-    write: 36
-    id: [8]
-    bytes: 2
-    type: int
+    clutch-min:
+      read: 35
+      write: 36
+      id: [8]
+      bytes: 2
+      type: int
 
-  pedals-clutch-max:
-    read: 35
-    write: 36
-    id: [9]
-    bytes: 2
-    type: int
+    clutch-max:
+      read: 35
+      write: 36
+      id: [9]
+      bytes: 2
+      type: int
 
-  pedals-compat-mode:
-    read: 35
-    write: 36
-    id: [13]
-    bytes: 2
-    type: int
+    compat-mode:
+      read: 35
+      write: 36
+      id: [13]
+      bytes: 2
+      type: int
 
-  pedals-throttle-y1:
-    read: 35
-    write: 36
-    id: [14]
-    bytes: 4
-    type: float
+    throttle-y1:
+      read: 35
+      write: 36
+      id: [14]
+      bytes: 4
+      type: float
 
-  pedals-throttle-y2:
-    read: 35
-    write: 36
-    id: [15]
-    bytes: 4
-    type: float
+    throttle-y2:
+      read: 35
+      write: 36
+      id: [15]
+      bytes: 4
+      type: float
 
-  pedals-throttle-y3:
-    read: 35
-    write: 36
-    id: [16]
-    bytes: 4
-    type: float
+    throttle-y3:
+      read: 35
+      write: 36
+      id: [16]
+      bytes: 4
+      type: float
 
-  pedals-throttle-y4:
-    read: 35
-    write: 36
-    id: [17]
-    bytes: 4
-    type: float
+    throttle-y4:
+      read: 35
+      write: 36
+      id: [17]
+      bytes: 4
+      type: float
 
-  pedals-brake-y1:
-    read: 35
-    write: 36
-    id: [18]
-    bytes: 4
-    type: float
+    brake-y1:
+      read: 35
+      write: 36
+      id: [18]
+      bytes: 4
+      type: float
 
-  pedals-brake-y2:
-    read: 35
-    write: 36
-    id: [19]
-    bytes: 4
-    type: float
+    brake-y2:
+      read: 35
+      write: 36
+      id: [19]
+      bytes: 4
+      type: float
 
-  pedals-brake-y3:
-    read: 35
-    write: 36
-    id: [20]
-    bytes: 4
-    type: float
+    brake-y3:
+      read: 35
+      write: 36
+      id: [20]
+      bytes: 4
+      type: float
 
-  pedals-brake-y4:
-    read: 35
-    write: 36
-    id: [21]
-    bytes: 4
-    type: float
+    brake-y4:
+      read: 35
+      write: 36
+      id: [21]
+      bytes: 4
+      type: float
 
-  pedals-clutch-y1:
-    read: 35
-    write: 36
-    id: [22]
-    bytes: 4
-    type: float
+    clutch-y1:
+      read: 35
+      write: 36
+      id: [22]
+      bytes: 4
+      type: float
 
-  pedals-clutch-y2:
-    read: 35
-    write: 36
-    id: [23]
-    bytes: 4
-    type: float
+    clutch-y2:
+      read: 35
+      write: 36
+      id: [23]
+      bytes: 4
+      type: float
 
-  pedals-clutch-y3:
-    read: 35
-    write: 36
-    id: [24]
-    bytes: 4
-    type: float
+    clutch-y3:
+      read: 35
+      write: 36
+      id: [24]
+      bytes: 4
+      type: float
 
-  pedals-clutch-y4:
-    read: 35
-    write: 36
-    id: [25]
-    bytes: 4
-    type: float
+    clutch-y4:
+      read: 35
+      write: 36
+      id: [25]
+      bytes: 4
+      type: float
 
-  pedals-brake-angle-ratio:
-    read: 35
-    write: 36
-    id: [26]
-    bytes: 4
-    type: float
+    brake-angle-ratio:
+      read: 35
+      write: 36
+      id: [26]
+      bytes: 4
+      type: float
 
-  pedals-throttle-y5:
-    read: 35
-    write: 36
-    id: [27]
-    bytes: 4
-    type: float
+    throttle-y5:
+      read: 35
+      write: 36
+      id: [27]
+      bytes: 4
+      type: float
 
-  pedals-brake-y5:
-    read: 35
-    write: 36
-    id: [28]
-    bytes: 4
-    type: float
+    brake-y5:
+      read: 35
+      write: 36
+      id: [28]
+      bytes: 4
+      type: float
 
-  pedals-clutch-y5:
-    read: 35
-    write: 36
-    id: [29]
-    bytes: 4
-    type: float
+    clutch-y5:
+      read: 35
+      write: 36
+      id: [29]
+      bytes: 4
+      type: float
 
-  pedals-throttle-hid-source:
-    read: 35
-    write: 36
-    id: [30]
-    bytes: 2
-    type: int
+    throttle-hid-source:
+      read: 35
+      write: 36
+      id: [30]
+      bytes: 2
+      type: int
 
-  pedals-throttle-hid-cmd:
-    read: 35
-    write: 36
-    id: [31]
-    bytes: 2
-    type: int
+    throttle-hid-cmd:
+      read: 35
+      write: 36
+      id: [31]
+      bytes: 2
+      type: int
 
-  pedals-throttle-output:
-    read: 37
-    write: -1
-    id: [1]
-    bytes: 2
-    type: int
+    throttle-output:
+      read: 37
+      write: -1
+      id: [1]
+      bytes: 2
+      type: int
 
-  pedals-brake-output:
-    read: 37
-    write: -1
-    id: [2]
-    bytes: 2
-    type: int
+    brake-output:
+      read: 37
+      write: -1
+      id: [2]
+      bytes: 2
+      type: int
 
-  pedals-clutch-output:
-    read: 37
-    write: -1
-    id: [3]
-    bytes: 2
-    type: int
+    clutch-output:
+      read: 37
+      write: -1
+      id: [3]
+      bytes: 2
+      type: int
+
+    throttle-start-calibration:
+      read: -1
+      write: 38
+      id: [12]
+      bytes: 2
+      type: int
+
+    brake-start-calibration:
+      read: -1
+      write: 38
+      id: [13]
+      bytes: 2
+      type: int
+
+    clutch-start-calibration:
+      read: -1
+      write: 38
+      id: [14]
+      bytes: 2
+      type: int
+
+    throttle-stop-calibration:
+      read: -1
+      write: 38
+      id: [15]
+      bytes: 2
+      type: int
+
+    brake-stop-calibration:
+      read: -1
+      write: 38
+      id: [16]
+      bytes: 2
+      type: int
+
+    clutch-stop-calibration:
+      read: -1
+      write: 38
+      id: [17]
+      bytes: 2
+      type: int
 
 # Wheelbase
-  base-limit:
-    read: 40
-    write: 41
-    id: [1]
-    bytes: 2
-    type: int
+  base:
+    limit:
+      read: 40
+      write: 41
+      id: [1]
+      bytes: 2
+      type: int
 
-  base-ffb-strength:
-    read: 40
-    write: 41
-    id: [2]
-    bytes: 2
-    type: int
+    ffb-strength:
+      read: 40
+      write: 41
+      id: [2]
+      bytes: 2
+      type: int
 
-  base-inertia:
-    read: 40
-    write: 41
-    id: [4]
-    bytes: 2
-    type: int
+    inertia:
+      read: 40
+      write: 41
+      id: [4]
+      bytes: 2
+      type: int
 
-  base-damper:
-    read: 40
-    write: 41
-    id: [7]
-    bytes: 2
-    type: int
+    damper:
+      read: 40
+      write: 41
+      id: [7]
+      bytes: 2
+      type: int
 
-  base-friction:
-    read: 40
-    write: 41
-    id: [8]
-    bytes: 2
-    type: int
+    friction:
+      read: 40
+      write: 41
+      id: [8]
+      bytes: 2
+      type: int
 
-  base-spring:
-    read: 40
-    write: 41
-    id: [9]
-    bytes: 2
-    type: int
+    spring:
+      read: 40
+      write: 41
+      id: [9]
+      bytes: 2
+      type: int
 
-  base-speed:
-    read: 40
-    write: 41
-    id: [10]
-    bytes: 2
-    type: int
+    speed:
+      read: 40
+      write: 41
+      id: [10]
+      bytes: 2
+      type: int
 
-  base-road-sensitivity:
-    read: 40
-    write: 41
-    id: [12]
-    bytes: 2
-    type: int
+    road-sensitivity:
+      read: 40
+      write: 41
+      id: [12]
+      bytes: 2
+      type: int
 
-  # hands-off protection
-  base-protection:
-    read: 40
-    write: 41
-    id: [13]
-    bytes: 2
-    type: int
+    # hands-off protection
+    protection:
+      read: 40
+      write: 41
+      id: [13]
+      bytes: 2
+      type: int
 
-  base-protection-mode:
-    read: 40
-    write: 41
-    id: [45]
-    bytes: 2
-    type: int
+    protection-mode:
+      read: 40
+      write: 41
+      id: [45]
+      bytes: 2
+      type: int
 
-  base-equalizer1:
-    read: 40
-    write: 41
-    id: [14]
-    bytes: 2
-    type: int
+    equalizer1:
+      read: 40
+      write: 41
+      id: [14]
+      bytes: 2
+      type: int
 
-  base-equalizer2:
-    read: 40
-    write: 41
-    id: [15]
-    bytes: 2
-    type: int
+    equalizer2:
+      read: 40
+      write: 41
+      id: [15]
+      bytes: 2
+      type: int
 
-  base-equalizer3:
-    read: 40
-    write: 41
-    id: [16]
-    bytes: 2
-    type: int
+    equalizer3:
+      read: 40
+      write: 41
+      id: [16]
+      bytes: 2
+      type: int
 
-  base-equalizer4:
-    read: 40
-    write: 41
-    id: [17]
-    bytes: 2
-    type: int
+    equalizer4:
+      read: 40
+      write: 41
+      id: [17]
+      bytes: 2
+      type: int
 
-  base-equalizer5:
-    read: 40
-    write: 41
-    id: [20]
-    bytes: 2
-    type: int
+    equalizer5:
+      read: 40
+      write: 41
+      id: [20]
+      bytes: 2
+      type: int
 
-  base-equalizer6:
-    read: 40
-    write: 41
-    id: [44]
-    bytes: 2
-    type: int
+    equalizer6:
+      read: 40
+      write: 41
+      id: [44]
+      bytes: 2
+      type: int
 
-  base-torque:
-    read: 40
-    write: 41
-    id: [18]
-    bytes: 2
-    type: int
+    torque:
+      read: 40
+      write: 41
+      id: [18]
+      bytes: 2
+      type: int
 
-  # hands-off protection
-  base-natural-inertia:
-    read: 40
-    write: 41
-    id: [19]
-    bytes: 2
-    type: int
+    # hands-off protection
+    natural-inertia:
+      read: 40
+      write: 41
+      id: [19]
+      bytes: 2
+      type: int
 
-  # hands-off protection
-  base-natural-inertia-enable:
-    read: 40
-    write: 41
-    id: [22]
-    bytes: 2
-    type: int
+    # hands-off protection
+    natural-inertia-enable:
+      read: 40
+      write: 41
+      id: [22]
+      bytes: 2
+      type: int
 
-  base-max-angle:
-    read: 40
-    write: 41
-    id: [23]
-    bytes: 2
-    type: int
+    max-angle:
+      read: 40
+      write: 41
+      id: [23]
+      bytes: 2
+      type: int
 
-  base-ffb-reverse:
-    read: 40
-    write: 41
-    id: [24]
-    bytes: 2
-    type: int
+    ffb-reverse:
+      read: 40
+      write: 41
+      id: [24]
+      bytes: 2
+      type: int
 
-  base-speed-damping:
-    read: 40
-    write: 41
-    id: [25]
-    bytes: 2
-    type: int
+    speed-damping:
+      read: 40
+      write: 41
+      id: [25]
+      bytes: 2
+      type: int
 
-  base-speed-damping-point:
-    read: 40
-    write: 41
-    id: [26]
-    bytes: 2
-    type: int
+    speed-damping-point:
+      read: 40
+      write: 41
+      id: [26]
+      bytes: 2
+      type: int
 
-  base-soft-limit-strength:
-    read: 40
-    write: 41
-    id: [27]
-    bytes: 2
-    type: int
+    soft-limit-strength:
+      read: 40
+      write: 41
+      id: [27]
+      bytes: 2
+      type: int
 
-  base-soft-limit-retain:
-    read: 40
-    write: 41
-    id: [28]
-    bytes: 2
-    type: int
+    soft-limit-retain:
+      read: 40
+      write: 41
+      id: [28]
+      bytes: 2
+      type: int
 
-  base-temp-strategy:
-    read: 40
-    write: 41
-    id: [30]
-    bytes: 2
-    type: int
+    temp-strategy:
+      read: 40
+      write: 41
+      id: [30]
+      bytes: 2
+      type: int
 
-  base-soft-limit-stiffness:
-    read: 40
-    write: 41
-    id: [31]
-    bytes: 2
-    type: int
+    soft-limit-stiffness:
+      read: 40
+      write: 41
+      id: [31]
+      bytes: 2
+      type: int
 
-  base-ffb-curve-x1:
-    read: 40
-    write: 41
-    id: [34, 1]
-    bytes: 1
-    type: int
+    ffb-curve-x1:
+      read: 40
+      write: 41
+      id: [34, 1]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-x2:
-    read: 40
-    write: 41
-    id: [34, 2]
-    bytes: 1
-    type: int
+    ffb-curve-x2:
+      read: 40
+      write: 41
+      id: [34, 2]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-x3:
-    read: 40
-    write: 41
-    id: [34, 3]
-    bytes: 1
-    type: int
+    ffb-curve-x3:
+      read: 40
+      write: 41
+      id: [34, 3]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-x4:
-    read: 40
-    write: 41
-    id: [34, 4]
-    bytes: 1
-    type: int
+    ffb-curve-x4:
+      read: 40
+      write: 41
+      id: [34, 4]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-y1:
-    read: 40
-    write: 41
-    id: [34, 5]
-    bytes: 1
-    type: int
+    ffb-curve-y1:
+      read: 40
+      write: 41
+      id: [34, 5]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-y2:
-    read: 40
-    write: 41
-    id: [34, 6]
-    bytes: 1
-    type: int
+    ffb-curve-y2:
+      read: 40
+      write: 41
+      id: [34, 6]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-y3:
-    read: 40
-    write: 41
-    id: [34, 7]
-    bytes: 1
-    type: int
+    ffb-curve-y3:
+      read: 40
+      write: 41
+      id: [34, 7]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-y4:
-    read: 40
-    write: 41
-    id: [34, 8]
-    bytes: 1
-    type: int
+    ffb-curve-y4:
+      read: 40
+      write: 41
+      id: [34, 8]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-y5:
-    read: 40
-    write: 41
-    id: [34, 9]
-    bytes: 1
-    type: int
+    ffb-curve-y5:
+      read: 40
+      write: 41
+      id: [34, 9]
+      bytes: 1
+      type: int
 
-  base-ffb-curve-y0:
-    read: -1
-    write: -1
-    id: [34, 10]
-    bytes: 1
-    type: int
+    ffb-curve-y0:
+      read: -1
+      write: -1
+      id: [34, 10]
+      bytes: 1
+      type: int
 
-  base-state:
-    read: 43
-    write: -1
-    id: [1]
-    bytes: 2
-    type: int
+    state:
+      read: 43
+      write: -1
+      id: [1]
+      bytes: 2
+      type: int
 
-  base-state-err:
-    read: 43
-    write: -1
-    id: [2]
-    bytes: 2
-    type: int
+    state-err:
+      read: 43
+      write: -1
+      id: [2]
+      bytes: 2
+      type: int
 
-  base-mcu-temp:
-    read: 43
-    write: -1
-    id: [4]
-    bytes: 2
-    type: int
+    mcu-temp:
+      read: 43
+      write: -1
+      id: [4]
+      bytes: 2
+      type: int
 
-  base-mosfet-temp:
-    read: 43
-    write: -1
-    id: [5]
-    bytes: 2
-    type: int
+    mosfet-temp:
+      read: 43
+      write: -1
+      id: [5]
+      bytes: 2
+      type: int
 
-  base-motor-temp:
-    read: 43
-    write: -1
-    id: [6]
-    bytes: 2
-    type: int
+    motor-temp:
+      read: 43
+      write: -1
+      id: [6]
+      bytes: 2
+      type: int
+
+    calibration:
+      read: -1
+      write: 42
+      id: [1]
+      bytes: 2
+      type: int
 
 # Dashboard
-  dash-brightness:
-    read: 51
-    write: 50
-    id: [0]
-    bytes: 1
-    type: int
+  dash:
+    dash-brightness:
+      read: 51
+      write: 50
+      id: [0]
+      bytes: 1
+      type: int
 
-  dash-ui-index:
-    read: 51
-    write: 50
-    id: [1]
-    bytes: 1
-    type: int
+    dash-ui-index:
+      read: 51
+      write: 50
+      id: [1]
+      bytes: 1
+      type: int
 
-  dash-speed-unit:
-    read: 51
-    write: 50
-    id: [2]
-    bytes: 1
-    type: int
+    dash-speed-unit:
+      read: 51
+      write: 50
+      id: [2]
+      bytes: 1
+      type: int
 
-  dash-temp-unit:
-    read: 51
-    write: 50
-    id: [3]
-    bytes: 1
-    type: int
+    dash-temp-unit:
+      read: 51
+      write: 50
+      id: [3]
+      bytes: 1
+      type: int
 
 # Steering wheel
-  wheel-colors:
-    read: -1 # 64
-    write: 63
-    id: [0]
-    bytes: 15
-    type: hex
-
-  wheel-brightness:
-    read: 64
-    write: 63
-    id: [1]
-    bytes: 1
-    type: int
-
-  wheel-rpm-timings:
-    read: 64
-    write: 63
-    id: [2]
-    bytes: 10
-    type: array
-
-  wheel-paddles-mode:
-    read: 64
-    write: 63
-    id: [3]
-    bytes: 1
-    type: int
-
-  wheel-indicator-mode:
-    read: 64
-    write: 63
-    id: [4]
-    bytes: 1
-    type: int
-
-  wheel-stick-mode:
-    read: 64
-    write: 63
-    id: [5]
-    bytes: 2
-    type: int
-
-  wheel-set-display-mode:
-    read: -1
-    write: 63
-    id: [7]
-    bytes: 1
-    type: int
-
-  wheel-get-display-mode:
-    read: 64
-    write: -1
-    id: [8]
-    bytes: 1
-    type: int
-
-  wheel-clutch-point:
-    read: 64
-    write: 63
-    id: [9]
-    bytes: 1
-    type: int
-
-  wheel-knob-mode:
-    read: 64
-    write: 63
-    id: [10]
-    bytes: 1
-    type: int
-
-  wheel-paddle-adaptive-mode:
-    read: 64
-    write: 63
-    id: [11]
-    bytes: 1
-    type: int
-
-  wheel-paddle-button-mode:
-    read: 64
-    write: 63
-    id: [13]
-    bytes: 1
-    type: int
-
-  wheel-rpm-blink-color1:
-    read: -1
-    write: 63
-    id: [15, 0]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color2:
-    read: -1
-    write: 63
-    id: [15, 1]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color3:
-    read: -1
-    write: 63
-    id: [15, 2]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color4:
-    read: -1
-    write: 63
-    id: [15, 3]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color5:
-    read: -1
-    write: 63
-    id: [15, 4]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color6:
-    read: -1
-    write: 63
-    id: [15, 5]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color7:
-    read: -1
-    write: 63
-    id: [15, 6]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color8:
-    read: -1
-    write: 63
-    id: [15, 7]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color9:
-    read: -1
-    write: 63
-    id: [15, 8]
-    bytes: 3
-    type: array
-
-  wheel-rpm-blink-color10:
-    read: -1
-    write: 63
-    id: [15, 9]
-    bytes: 3
-    type: array
-
-  wheel-key-combination:
-    read: 64
-    write: 63
-    id: [19]
-    bytes: 4
-    type: array
-
-  wheel-rpm-color1:
-    read: 64
-    write: 63
-    id: [21, 0, 0]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color2:
-    read: 64
-    write: 63
-    id: [21, 0, 1]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color3:
-    read: 64
-    write: 63
-    id: [21, 0, 2]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color4:
-    read: 64
-    write: 63
-    id: [21, 0, 3]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color5:
-    read: 64
-    write: 63
-    id: [21, 0, 4]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color6:
-    read: 64
-    write: 63
-    id: [21, 0, 5]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color7:
-    read: 64
-    write: 63
-    id: [21, 0, 6]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color8:
-    read: 64
-    write: 63
-    id: [21, 0, 7]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color9:
-    read: 64
-    write: 63
-    id: [21, 0, 8]
-    bytes: 3
-    type: array
-
-  wheel-rpm-color10:
-    read: 64
-    write: 63
-    id: [21, 0, 9]
-    bytes: 3
-    type: array
-
-  wheel-button-color1:
-    read: 64
-    write: 63
-    id: [21, 1, 0]
-    bytes: 3
-    type: array
-
-  wheel-button-color2:
-    read: 64
-    write: 63
-    id: [21, 1, 1]
-    bytes: 3
-    type: array
-
-  wheel-button-color3:
-    read: 64
-    write: 63
-    id: [21, 1, 2]
-    bytes: 3
-    type: array
-
-  wheel-button-color4:
-    read: 64
-    write: 63
-    id: [21, 1, 3]
-    bytes: 3
-    type: array
-
-  wheel-button-color5:
-    read: 64
-    write: 63
-    id: [21, 1, 4]
-    bytes: 3
-    type: array
-
-  wheel-button-color6:
-    read: 64
-    write: 63
-    id: [21, 1, 5]
-    bytes: 3
-    type: array
-
-  wheel-button-color7:
-    read: 64
-    write: 63
-    id: [21, 1, 6]
-    bytes: 3
-    type: array
-
-  wheel-button-color8:
-    read: 64
-    write: 63
-    id: [21, 1, 7]
-    bytes: 3
-    type: array
-
-  wheel-button-color9:
-    read: 64
-    write: 63
-    id: [21, 1, 8]
-    bytes: 3
-    type: array
-
-  wheel-button-color10:
-    read: 64
-    write: 63
-    id: [21, 1, 9]
-    bytes: 3
-    type: array
-
-  wheel-flag-color1:
-    read: 64
-    write: 63
-    id: [21, 2, 0]
-    bytes: 3
-    type: array
-
-  wheel-flag-color2:
-    read: 64
-    write: 63
-    id: [21, 2, 1]
-    bytes: 3
-    type: array
-
-  wheel-flag-color3:
-    read: 64
-    write: 63
-    id: [21, 2, 2]
-    bytes: 3
-    type: array
-
-  wheel-flag-color4:
-    read: 64
-    write: 63
-    id: [21, 2, 3]
-    bytes: 3
-    type: array
-
-  wheel-flag-color5:
-    read: 64
-    write: 63
-    id: [21, 2, 4]
-    bytes: 3
-    type: array
-
-  wheel-flag-color6:
-    read: 64
-    write: 63
-    id: [21, 2, 5]
-    bytes: 3
-    type: array
-
-  wheel-flag-color7:
-    read: 64
-    write: 63
-    id: [21, 2, 6]
-    bytes: 3
-    type: array
-
-  wheel-flag-color8:
-    read: 64
-    write: 63
-    id: [21, 2, 7]
-    bytes: 3
-    type: array
-
-  wheel-flag-color9:
-    read: 64
-    write: 63
-    id: [21, 2, 8]
-    bytes: 3
-    type: array
-
-  wheel-flag-color10:
-    read: 64
-    write: 63
-    id: [21, 2, 9]
-    bytes: 3
-    type: array
-
-  wheel-rpm-brightness:
-    read: 64
-    write: 63
-    id: [20, 0]
-    bytes: 1
-    type: int
-
-  wheel-buttons-brightness:
-    read: 64
-    write: 63
-    id: [20, 1]
-    bytes: 1
-    type: int
-
-  wheel-flags-brightness:
-    read: 64
-    write: 63
-    id: [20, 2]
-    bytes: 1
-    type: int
-
-  wheel-rpm-interval:
-    read: 64
-    write: 63
-    id: [22]
-    bytes: 4
-    type: int
-
-  wheel-rpm-mode:
-    read: 64
-    write: 63
-    id: [23]
-    bytes: 1
-    type: int
-
-  wheel-rpm-value1:
-    read: 64
-    write: 63
-    id: [24, 0]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value2:
-    read: 64
-    write: 63
-    id: [24, 1]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value3:
-    read: 64
-    write: 63
-    id: [24, 2]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value4:
-    read: 64
-    write: 63
-    id: [24, 3]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value5:
-    read: 64
-    write: 63
-    id: [24, 4]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value6:
-    read: 64
-    write: 63
-    id: [24, 5]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value7:
-    read: 64
-    write: 63
-    id: [24, 6]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value8:
-    read: 64
-    write: 63
-    id: [24, 7]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value9:
-    read: 64
-    write: 63
-    id: [24, 8]
-    bytes: 2
-    type: int
-
-  wheel-rpm-value10:
-    read: 64
-    write: 63
-    id: [24, 9]
-    bytes: 2
-    type: int
+  wheel:
+    colors:
+      read: -1 # 64
+      write: 63
+      id: [0]
+      bytes: 15
+      type: hex
+
+    brightness:
+      read: 64
+      write: 63
+      id: [1]
+      bytes: 1
+      type: int
+
+    rpm-timings:
+      read: 64
+      write: 63
+      id: [2]
+      bytes: 10
+      type: array
+
+    paddles-mode:
+      read: 64
+      write: 63
+      id: [3]
+      bytes: 1
+      type: int
+
+    indicator-mode:
+      read: 64
+      write: 63
+      id: [4]
+      bytes: 1
+      type: int
+
+    stick-mode:
+      read: 64
+      write: 63
+      id: [5]
+      bytes: 2
+      type: int
+
+    set-display-mode:
+      read: -1
+      write: 63
+      id: [7]
+      bytes: 1
+      type: int
+
+    get-display-mode:
+      read: 64
+      write: -1
+      id: [8]
+      bytes: 1
+      type: int
+
+    clutch-point:
+      read: 64
+      write: 63
+      id: [9]
+      bytes: 1
+      type: int
+
+    knob-mode:
+      read: 64
+      write: 63
+      id: [10]
+      bytes: 1
+      type: int
+
+    paddle-adaptive-mode:
+      read: 64
+      write: 63
+      id: [11]
+      bytes: 1
+      type: int
+
+    paddle-button-mode:
+      read: 64
+      write: 63
+      id: [13]
+      bytes: 1
+      type: int
+
+    rpm-blink-color1:
+      read: -1
+      write: 63
+      id: [15, 0]
+      bytes: 3
+      type: array
+
+    rpm-blink-color2:
+      read: -1
+      write: 63
+      id: [15, 1]
+      bytes: 3
+      type: array
+
+    rpm-blink-color3:
+      read: -1
+      write: 63
+      id: [15, 2]
+      bytes: 3
+      type: array
+
+    rpm-blink-color4:
+      read: -1
+      write: 63
+      id: [15, 3]
+      bytes: 3
+      type: array
+
+    rpm-blink-color5:
+      read: -1
+      write: 63
+      id: [15, 4]
+      bytes: 3
+      type: array
+
+    rpm-blink-color6:
+      read: -1
+      write: 63
+      id: [15, 5]
+      bytes: 3
+      type: array
+
+    rpm-blink-color7:
+      read: -1
+      write: 63
+      id: [15, 6]
+      bytes: 3
+      type: array
+
+    rpm-blink-color8:
+      read: -1
+      write: 63
+      id: [15, 7]
+      bytes: 3
+      type: array
+
+    rpm-blink-color9:
+      read: -1
+      write: 63
+      id: [15, 8]
+      bytes: 3
+      type: array
+
+    rpm-blink-color10:
+      read: -1
+      write: 63
+      id: [15, 9]
+      bytes: 3
+      type: array
+
+    key-combination:
+      read: 64
+      write: 63
+      id: [19]
+      bytes: 4
+      type: array
+
+    rpm-color1:
+      read: 64
+      write: 63
+      id: [21, 0, 0]
+      bytes: 3
+      type: array
+
+    rpm-color2:
+      read: 64
+      write: 63
+      id: [21, 0, 1]
+      bytes: 3
+      type: array
+
+    rpm-color3:
+      read: 64
+      write: 63
+      id: [21, 0, 2]
+      bytes: 3
+      type: array
+
+    rpm-color4:
+      read: 64
+      write: 63
+      id: [21, 0, 3]
+      bytes: 3
+      type: array
+
+    rpm-color5:
+      read: 64
+      write: 63
+      id: [21, 0, 4]
+      bytes: 3
+      type: array
+
+    rpm-color6:
+      read: 64
+      write: 63
+      id: [21, 0, 5]
+      bytes: 3
+      type: array
+
+    rpm-color7:
+      read: 64
+      write: 63
+      id: [21, 0, 6]
+      bytes: 3
+      type: array
+
+    rpm-color8:
+      read: 64
+      write: 63
+      id: [21, 0, 7]
+      bytes: 3
+      type: array
+
+    rpm-color9:
+      read: 64
+      write: 63
+      id: [21, 0, 8]
+      bytes: 3
+      type: array
+
+    rpm-color10:
+      read: 64
+      write: 63
+      id: [21, 0, 9]
+      bytes: 3
+      type: array
+
+    button-color1:
+      read: 64
+      write: 63
+      id: [21, 1, 0]
+      bytes: 3
+      type: array
+
+    button-color2:
+      read: 64
+      write: 63
+      id: [21, 1, 1]
+      bytes: 3
+      type: array
+
+    button-color3:
+      read: 64
+      write: 63
+      id: [21, 1, 2]
+      bytes: 3
+      type: array
+
+    button-color4:
+      read: 64
+      write: 63
+      id: [21, 1, 3]
+      bytes: 3
+      type: array
+
+    button-color5:
+      read: 64
+      write: 63
+      id: [21, 1, 4]
+      bytes: 3
+      type: array
+
+    button-color6:
+      read: 64
+      write: 63
+      id: [21, 1, 5]
+      bytes: 3
+      type: array
+
+    button-color7:
+      read: 64
+      write: 63
+      id: [21, 1, 6]
+      bytes: 3
+      type: array
+
+    button-color8:
+      read: 64
+      write: 63
+      id: [21, 1, 7]
+      bytes: 3
+      type: array
+
+    button-color9:
+      read: 64
+      write: 63
+      id: [21, 1, 8]
+      bytes: 3
+      type: array
+
+    button-color10:
+      read: 64
+      write: 63
+      id: [21, 1, 9]
+      bytes: 3
+      type: array
+
+    flag-color1:
+      read: 64
+      write: 63
+      id: [21, 2, 0]
+      bytes: 3
+      type: array
+
+    flag-color2:
+      read: 64
+      write: 63
+      id: [21, 2, 1]
+      bytes: 3
+      type: array
+
+    flag-color3:
+      read: 64
+      write: 63
+      id: [21, 2, 2]
+      bytes: 3
+      type: array
+
+    flag-color4:
+      read: 64
+      write: 63
+      id: [21, 2, 3]
+      bytes: 3
+      type: array
+
+    flag-color5:
+      read: 64
+      write: 63
+      id: [21, 2, 4]
+      bytes: 3
+      type: array
+
+    flag-color6:
+      read: 64
+      write: 63
+      id: [21, 2, 5]
+      bytes: 3
+      type: array
+
+    flag-color7:
+      read: 64
+      write: 63
+      id: [21, 2, 6]
+      bytes: 3
+      type: array
+
+    flag-color8:
+      read: 64
+      write: 63
+      id: [21, 2, 7]
+      bytes: 3
+      type: array
+
+    flag-color9:
+      read: 64
+      write: 63
+      id: [21, 2, 8]
+      bytes: 3
+      type: array
+
+    flag-color10:
+      read: 64
+      write: 63
+      id: [21, 2, 9]
+      bytes: 3
+      type: array
+
+    rpm-brightness:
+      read: 64
+      write: 63
+      id: [20, 0]
+      bytes: 1
+      type: int
+
+    buttons-brightness:
+      read: 64
+      write: 63
+      id: [20, 1]
+      bytes: 1
+      type: int
+
+    flags-brightness:
+      read: 64
+      write: 63
+      id: [20, 2]
+      bytes: 1
+      type: int
+
+    rpm-interval:
+      read: 64
+      write: 63
+      id: [22]
+      bytes: 4
+      type: int
+
+    rpm-mode:
+      read: 64
+      write: 63
+      id: [23]
+      bytes: 1
+      type: int
+
+    rpm-value1:
+      read: 64
+      write: 63
+      id: [24, 0]
+      bytes: 2
+      type: int
+
+    rpm-value2:
+      read: 64
+      write: 63
+      id: [24, 1]
+      bytes: 2
+      type: int
+
+    rpm-value3:
+      read: 64
+      write: 63
+      id: [24, 2]
+      bytes: 2
+      type: int
+
+    rpm-value4:
+      read: 64
+      write: 63
+      id: [24, 3]
+      bytes: 2
+      type: int
+
+    rpm-value5:
+      read: 64
+      write: 63
+      id: [24, 4]
+      bytes: 2
+      type: int
+
+    rpm-value6:
+      read: 64
+      write: 63
+      id: [24, 5]
+      bytes: 2
+      type: int
+
+    rpm-value7:
+      read: 64
+      write: 63
+      id: [24, 6]
+      bytes: 2
+      type: int
+
+    rpm-value8:
+      read: 64
+      write: 63
+      id: [24, 7]
+      bytes: 2
+      type: int
+
+    rpm-value9:
+      read: 64
+      write: 63
+      id: [24, 8]
+      bytes: 2
+      type: int
+
+    rpm-value10:
+      read: 64
+      write: 63
+      id: [24, 9]
+      bytes: 2
+      type: int
+
+    paddles-calibration:
+      read: -1
+      write: 63
+      id: [8]
+      bytes: 1
+      type: int
+
+    paddles-calibration2:
+      read: -1
+      write: 63
+      id: [8]
+      bytes: 1
+      type: int
+
+    # telemetry stuff
+    send-telemetry:
+      read: -1
+      write: 65
+      id: [253, 222]
+      bytes: 4
+      type: int
 
 # hpattern shifter
-  hpattern-hid-mode:
-    read: 81
-    write: 82
-    id: [1]
-    bytes: 2
-    type: int
+  hpattern:
+    hid-mode:
+      read: 81
+      write: 82
+      id: [1]
+      bytes: 2
+      type: int
 
-  # not a real command
-  # we're checking this so we can discern between
-  # sequential shifter and h-pattern shifter
-  # command has a range of {1,2} so if we get 0
-  # in response, hpattern is connected
-  hpattern-paddle-sync:
-    read: 81
-    write: 82
-    id: [6]
-    bytes: 2
-    type: int
+    # not a real command
+    # we're checking this so we can discern between
+    # sequential shifter and h-pattern shifter
+    # command has a range of {1,2} so if we get 0
+    # in response, hpattern is connected
+    paddle-sync:
+      read: 81
+      write: 82
+      id: [6]
+      bytes: 2
+      type: int
 
-  hpattern-output:
-    read: 83
-    write: -1
-    id: [1]
-    bytes: 2
-    type: int
+    output:
+      read: 83
+      write: -1
+      id: [1]
+      bytes: 2
+      type: int
+
+    start-calibration:
+      read: -1
+      write: 84
+      id: [3]
+      bytes: 2
+      type: int
+
+    stop-calibration:
+      read: -1
+      write: 84
+      id: [4]
+      bytes: 2
+      type: int
 
 # estop
-  estop-set-status:
-    read: -1
-    write: 70
-    id: [0]
-    bytes: 1
-    type: int
+  estop:
+    set-status:
+      read: -1
+      write: 70
+      id: [0]
+      bytes: 1
+      type: int
 
-  estop-get-status:
-    read: 70
-    write: -1
-    id: [1]
-    bytes: 1
-    type: int
+    get-status:
+      read: 70
+      write: -1
+      id: [1]
+      bytes: 1
+      type: int
 
 # Sequential shifter
-  sequential-hid-mode:
-    read: 81
-    write: 82
-    id: [1]
-    bytes: 2
-    type: int
+  sequential:
+    hid-mode:
+      read: 81
+      write: 82
+      id: [1]
+      bytes: 2
+      type: int
 
-  sequential-apply-mode:
-    read: 81
-    write: 82
-    id: [2]
-    bytes: 2
-    type: int
+    apply-mode:
+      read: 81
+      write: 82
+      id: [2]
+      bytes: 2
+      type: int
 
-  sequential-brightness:
-    read: 81
-    write: 82
-    id: [3]
-    bytes: 2
-    type: int
+    brightness:
+      read: 81
+      write: 82
+      id: [3]
+      bytes: 2
+      type: int
 
-  sequential-colors:
-    read: 81
-    write: 82
-    id: [4]
-    bytes: 2
-    type: array
+    colors:
+      read: 81
+      write: 82
+      id: [4]
+      bytes: 2
+      type: array
 
-  sequential-direction:
-    read: 81
-    write: 82
-    id: [5]
-    bytes: 2
-    type: int
+    direction:
+      read: 81
+      write: 82
+      id: [5]
+      bytes: 2
+      type: int
 
-  sequential-paddle-sync:
-    read: 81
-    write: 82
-    id: [6]
-    bytes: 2
-    type: int
+    paddle-sync:
+      read: 81
+      write: 82
+      id: [6]
+      bytes: 2
+      type: int
 
 # Handbrake
-  handbrake-direction:
-    read: 91
-    write: 92
-    id: [1]
-    bytes: 2
-    type: int
+  handbrake:
+    direction:
+      read: 91
+      write: 92
+      id: [1]
+      bytes: 2
+      type: int
 
-  handbrake-min:
-    read: 91
-    write: 92
-    id: [2]
-    bytes: 2
-    type: int
+    min:
+      read: 91
+      write: 92
+      id: [2]
+      bytes: 2
+      type: int
 
-  handbrake-max:
-    read: 91
-    write: 92
-    id: [3]
-    bytes: 2
-    type: int
+    max:
+      read: 91
+      write: 92
+      id: [3]
+      bytes: 2
+      type: int
 
-  handbrake-hid-mode:
-    read: 91
-    write: 92
-    id: [4]
-    bytes: 2
-    type: int
+    hid-mode:
+      read: 91
+      write: 92
+      id: [4]
+      bytes: 2
+      type: int
 
-  handbrake-y1:
-    read: 91
-    write: 92
-    id: [5]
-    bytes: 4
-    type: float
+    y1:
+      read: 91
+      write: 92
+      id: [5]
+      bytes: 4
+      type: float
 
-  handbrake-y2:
-    read: 91
-    write: 92
-    id: [6]
-    bytes: 4
-    type: float
+    y2:
+      read: 91
+      write: 92
+      id: [6]
+      bytes: 4
+      type: float
 
-  handbrake-y3:
-    read: 91
-    write: 92
-    id: [7]
-    bytes: 4
-    type: float
+    y3:
+      read: 91
+      write: 92
+      id: [7]
+      bytes: 4
+      type: float
 
-  handbrake-y4:
-    read: 91
-    write: 92
-    id: [8]
-    bytes: 4
-    type: float
+    y4:
+      read: 91
+      write: 92
+      id: [8]
+      bytes: 4
+      type: float
 
-  handbrake-y5:
-    read: 91
-    write: 92
-    id: [9]
-    bytes: 4
-    type: float
+    y5:
+      read: 91
+      write: 92
+      id: [9]
+      bytes: 4
+      type: float
 
-  handbrake-button-threshold:
-    read: 91
-    write: 92
-    id: [10]
-    bytes: 2
-    type: int
+    button-threshold:
+      read: 91
+      write: 92
+      id: [10]
+      bytes: 2
+      type: int
 
-  handbrake-mode:
-    read: 91
-    write: 92
-    id: [11]
-    bytes: 2
-    type: int
+    mode:
+      read: 91
+      write: 92
+      id: [11]
+      bytes: 2
+      type: int
 
-  handbrake-output:
-    read: 93
-    write: -1
-    id: [1]
-    bytes: 2
-    type: int
+    output:
+      read: 93
+      write: -1
+      id: [1]
+      bytes: 2
+      type: int
+
+    start-calibration:
+      read: -1
+      write: 94
+      id: [3]
+      bytes: 2
+      type: int
+
+    stop-calibration:
+      read: -1
+      write: 94
+      id: [4]
+      bytes: 2
+      type: int
 
 # Hub
-  hub-port1:
-    read: 100
-    write: -1
-    id: [1]
-    bytes: 1
-    type: int
+  hub:
+    port1:
+      read: 100
+      write: -1
+      id: [1]
+      bytes: 1
+      type: int
 
-  hub-port2:
-    read: 100
-    write: -1
-    id: [2]
-    bytes: 1
-    type: int
+    port2:
+      read: 100
+      write: -1
+      id: [2]
+      bytes: 1
+      type: int
 
-  hub-port3:
-    read: 100
-    write: -1
-    id: [3]
-    bytes: 1
-    type: int
+    port3:
+      read: 100
+      write: -1
+      id: [3]
+      bytes: 1
+      type: int
 
-  hub-port4:
-    read: 100
-    write: -1
-    id: [4]
-    bytes: 1
-    type: int
+    port4:
+      read: 100
+      write: -1
+      id: [4]
+      bytes: 1
+      type: int
 
-  hub-pedals:
-    read: 100
-    write: -1
-    id: [5]
-    bytes: 1
-    type: int
-
-# calibration commands
-  # calibration expects 1 as value
-  base-calibration:
-    read: -1
-    write: 42
-    id: [1]
-    bytes: 2
-    type: int
-
-  wheel-paddles-calibration:
-    read: -1
-    write: 63
-    id: [8]
-    bytes: 1
-    type: int
-
-  wheel-paddles-calibration2:
-    read: -1
-    write: 63
-    id: [8]
-    bytes: 1
-    type: int
-
-  pedals-throttle-start-calibration:
-    read: -1
-    write: 38
-    id: [12]
-    bytes: 2
-    type: int
-
-  pedals-brake-start-calibration:
-    read: -1
-    write: 38
-    id: [13]
-    bytes: 2
-    type: int
-
-  pedals-clutch-start-calibration:
-    read: -1
-    write: 38
-    id: [14]
-    bytes: 2
-    type: int
-
-  pedals-throttle-stop-calibration:
-    read: -1
-    write: 38
-    id: [15]
-    bytes: 2
-    type: int
-
-  pedals-brake-stop-calibration:
-    read: -1
-    write: 38
-    id: [16]
-    bytes: 2
-    type: int
-
-  pedals-clutch-stop-calibration:
-    read: -1
-    write: 38
-    id: [17]
-    bytes: 2
-    type: int
-
-  hpattern-start-calibration:
-    read: -1
-    write: 84
-    id: [3]
-    bytes: 2
-    type: int
-
-  hpattern-stop-calibration:
-    read: -1
-    write: 84
-    id: [4]
-    bytes: 2
-    type: int
-
-  handbrake-start-calibration:
-    read: -1
-    write: 94
-    id: [3]
-    bytes: 2
-    type: int
-
-  handbrake-stop-calibration:
-    read: -1
-    write: 94
-    id: [4]
-    bytes: 2
-    type: int
-
-# telemetry stuff
-  wheel-send-telemetry:
-    read: -1
-    write: 65
-    id: [253, 222]
-    bytes: 4
-    type: int
+    pedals:
+      read: 100
+      write: -1
+      id: [5]
+      bytes: 1
+      type: int
