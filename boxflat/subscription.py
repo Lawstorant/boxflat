@@ -1,3 +1,4 @@
+from threading import Event
 class Subscription():
     def __init__(self, callback: callable, *args):
         self._callback = callback
@@ -34,9 +35,22 @@ class SubscriptionList():
         return len(self._subscriptions)
 
 
-    def append(self, callback: callable, *args):
-        if callable(callback):
-            self._subscriptions.append(Subscription(callback, *args))
+    def get(self, index: int) -> Subscription:
+        return self._subscriptions[index]
+
+
+    def append(self, callback: callable, *args) -> Subscription:
+        if not callable(callback):
+            return None
+
+        sub = Subscription(callback, *args)
+        self._subscriptions.append(sub)
+        return sub
+
+
+    def remove(self, sub: Subscription):
+        if sub in self._subscriptions:
+            self._subscriptions.remove(sub)
 
 
     def append_subscription(self, subscription: Subscription):
@@ -136,12 +150,11 @@ class EventDispatcher():
         return True
 
 
-    def subscribe(self, event_name: str, callback: callable, *args) -> bool:
+    def subscribe(self, event_name: str, callback: callable, *args) -> Subscription:
         if not self.__find_event(event_name):
             return False
 
-        self.__events[event_name].append(callback, *args)
-        return True
+        return self.__events[event_name].append(callback, *args)
 
 
     def _clear_event_subscriptions(self, event_name: str) -> bool:
@@ -149,6 +162,13 @@ class EventDispatcher():
             return False
 
         self.__events[event_name].clear()
+
+
+    def _remove_event_subscription(self, event_name: str, sub: Subscription) -> bool:
+        if not self.__find_event(event_name):
+            return False
+
+        self.__events[event_name].remove(sub)
 
 
     def _clear_subscriptions(self, event_names=None):
@@ -203,43 +223,20 @@ class Observable(SimpleEventDispatcher):
         self._value = new_value
 
 
-class Semaphore(EventDispatcher):
-    def __init__(self, maximum: int):
-        super().__init__()
-        self._value = 0
-        self._max = maximum
-        self._register_event("value-changed")
-        self._register_event("quorum-established")
-        self._register_event("quorum-dissolved")
+
+class BlockingValue():
+    def __init__(self):
+        self._value = None
+        self._event = Event()
 
 
-    @property
-    def value(self):
-        return self._value
-
-
-    @value.setter
-    def value(self, new_value: int):
-        if new_value > self._max:
-            return
-
-        if new_value < 0:
-            return
-
-        old_value = self._value
+    def set_value(self, new_value):
         self._value = new_value
-
-        if new_value != old_value:
-            self._dispatch(new_value)
-            if new_value == self._max:
-                self._dispatch("quorum-established")
-            elif old_value == self._max:
-                self._dispatch("quorum-dissolved")
+        self._event.set()
 
 
-    def increment(self):
-        self.value += 1
-
-
-    def decrement(self):
-        self.value -= 1
+    def get_value(self):
+        self._value = None
+        self._event.wait(timeout=0.05)
+        self._event.clear()
+        return self._value

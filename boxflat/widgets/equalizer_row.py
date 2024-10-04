@@ -168,7 +168,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         if self._mute.is_set():
             return
 
-        self._cooldown = 1
+        self._cooldown = 2
         self.set_button_value(-1)
         self._sliders_subs.call_with_value(self.get_sliders_value())
 

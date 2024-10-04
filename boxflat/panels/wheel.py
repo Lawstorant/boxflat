@@ -196,7 +196,7 @@ class WheelSettings(SettingsPanel):
             self._timing_row2.add_labels(f"RPM{i+1}", index=i)
             self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"wheel-rpm-value{i+1}")
             self._cm.subscribe(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
-        # self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
+        self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
 
         self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings)

@@ -73,7 +73,7 @@ class SerialHandler(SimpleEventDispatcher):
                     continue
 
                 payload_length = int().from_bytes(serial.read(1))
-                if payload_length > 10:
+                if payload_length > 11:
                     continue
 
                 self._read_queue.put(serial.read(payload_length + 2))
@@ -90,8 +90,7 @@ class SerialHandler(SimpleEventDispatcher):
             except Empty:
                 continue
 
-            # print(f"Writing: {data.hex(":")}\n")
-
+            # print(f"Writing: {data.hex(":")}")
             try:
                 serial.write(data)
             except SerialException:

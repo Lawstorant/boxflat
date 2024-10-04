@@ -36,29 +36,34 @@ class MozaCommand():
 
 
     @staticmethod
-    def value_from_response(values: bytes, commands_data: dict, device_ids: dict):
+    def value_from_response(values: bytes, commands_data: dict, device_ids: dict) -> tuple:
+        ret = (None, None)
+        if values is None:
+            return ret
+
         group = values[0]
         group_byte = bytes([values[0]])
         device_id = values[1]
         payload = values[2:]
         payload_list = list(payload)
 
-        group = bitwise.unset_bit(group, 8)
+        group = bitwise.unset_bit(group, 7)
         device_id = bitwise.swap_nibbles(device_id)
 
         if device_id not in device_ids:
-            return
+            return ret
 
         device_name = device_ids[device_id]
-        print(device_name)
         for name, values in commands_data[device_name].items():
             if group != values["read"]:
                 continue
 
-            if payload[:len(values["id"])] != values["id"]:
+            if payload_list[:len(values["id"])] != values["id"]:
                 continue
 
-            return f"{device_name}-{name}", self.value_from_data(payload[len(values.id):])
+            ret = f"{device_name}-{name}", MozaCommand.value_from_data(payload[len(values["id"]):], values["type"])
+            break
+        return ret
 
 
     @property

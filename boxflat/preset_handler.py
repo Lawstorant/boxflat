@@ -158,11 +158,11 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
 
     def append_setting(self, setting_name: str):
-        command = MozaCommand(setting_name, self._cm.get_command_data())
-        if command.device_type not in self._settings:
-            self._settings[command.device_type] = []
+        device, name = setting_name.split("-", maxsplit=1)
+        if device not in self._settings:
+            self._settings[device] = []
 
-        self._settings[command.device_type].append(command.name)
+        self._settings[device].append(name)
 
 
     def add_device_settings(self, device: str):

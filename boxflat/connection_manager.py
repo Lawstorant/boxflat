@@ -5,7 +5,7 @@ from serial import Serial
 from threading import Thread, Lock, Event
 import time
 from .hid_handler import MozaHidDevice
-from .subscription import SubscriptionList, EventDispatcher
+from .subscription import SubscriptionList, EventDispatcher, BlockingValue
 from queue import SimpleQueue
 from .serial_handler import SerialHandler
 
@@ -21,16 +21,6 @@ HidDeviceMapping = {
     "estop"      : MozaHidDevice.ESTOP,
     "main"       : None
 }
-
-
-
-class MozaQueueElement():
-    def __init__(self, value=None, command_name=None, device=None, rw=None):
-        self.value = value
-        self.command_name = command_name
-        self.device = device
-        self.rw = rw
-
 
 
 class MozaSerialDevice():
@@ -82,16 +72,12 @@ class MozaConnectionManager(EventDispatcher):
         self._register_events("device-connected", "hid-device-connected")
         self._register_events("shutdown", "no-access")
 
-
         self._serial_lock = Lock()
         self._refresh_cont = Event()
 
         self._connected_subscriptions = {}
         self._connected_thread = None
         self._connected_lock = Lock()
-
-        self._write_queue = SimpleQueue()
-        self._write_thread = None
 
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
@@ -185,16 +171,6 @@ class MozaConnectionManager(EventDispatcher):
             self.refresh_cont(True)
 
 
-    def _receive_data(self, data: bytes):
-        print(f"Received: {data.hex(":")}")
-        value = MozaCommand.value_from_response(data, self._serial_data["commands"], self._serial_data["ids-to-names"])
-        if value is None:
-            return
-        print(f"Value {value}")
-
-        # self._dispatch()
-
-
     def subscribe_connected(self, command: str, callback: callable, *args):
         if not command in self._connected_subscriptions:
             self._connected_subscriptions[command] = SubscriptionList()
@@ -211,14 +187,13 @@ class MozaConnectionManager(EventDispatcher):
 
     def _polling_thread(self):
         while self._refresh_cont.is_set():
-            time.sleep(1)
+            time.sleep(2)
 
             for command in self._polling_list:
                 if self._event_sub_count(command) == 0:
                     continue
-
                 # print("Polling data: " + command)
-                self.get_setting(command)
+                self._get_setting(command)
 
 
     def _device_polling(self):
@@ -231,11 +206,12 @@ class MozaConnectionManager(EventDispatcher):
             self._clear_event_subscriptions("no-access")
             for command, subs in lists.items():
                 value = self.get_setting(command)
+                # value = 1
                 if value is None:
                     value = -1
                 subs.call_with_value(value)
 
-            time.sleep(1)
+            time.sleep(2)
         self._connected_thread = None
 
 
@@ -252,20 +228,9 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def set_write_active(self, *args):
-        if not self._write_thread:
-            self._write_thread = Thread(daemon=True, target=self._write_handler)
-            self._write_thread.start()
-
         if not self._connected_thread:
             self._connected_thread = Thread(daemon=True, target=self._device_polling)
             self._connected_thread.start()
-
-
-    def _write_handler(self):
-        while not self._shutdown.is_set():
-            element = self._write_queue.get()
-            self._handle_setting(element.value, element.command_name, element.device, element.rw)
-        self._write_thread = None
 
 
     def _get_device_id(self, device_type: str) -> int:
@@ -286,6 +251,15 @@ class MozaConnectionManager(EventDispatcher):
                 device_handler = self._serial_devices["base"].serial_handler
 
         return device_handler
+
+
+    def _receive_data(self, data: bytes):
+        # print(f"Received: {data.hex(":")}")
+        command, value = MozaCommand.value_from_response(data, self._serial_data["commands"], self._serial_data["ids-to-names"])
+        if value is None or command is None:
+            return
+
+        self._dispatch(command, value)
 
 
     def _handle_command_v2(self, command_data: MozaCommand, rw: int) -> bytes:
@@ -333,14 +307,26 @@ class MozaConnectionManager(EventDispatcher):
         name, device = self._split_name(command_name)
         if name is None:
             return
-        self._write_queue.put(MozaQueueElement(value, name, device, MOZA_COMMAND_WRITE))
+        self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
 
 
     def get_setting(self, command_name: str):
+        value = BlockingValue()
+
+        sub = self.subscribe(command_name, value.set_value)
+        self._get_setting(command_name)
+
+        response = value.get_value()
+        self._remove_event_subscription(command_name, sub)
+
+        return response
+
+
+    def _get_setting(self, command_name: str):
         name, device = self._split_name(command_name)
         if name is None:
             return
-        self._write_queue.put(MozaQueueElement(1, name, device, MOZA_COMMAND_READ))
+        self._handle_setting(1, name, device, MOZA_COMMAND_READ)
 
 
     def cycle_wheel_id(self) -> int:
