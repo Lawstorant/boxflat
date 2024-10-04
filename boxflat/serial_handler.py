@@ -60,25 +60,30 @@ class SerialHandler(EventDispatcher):
     def _serial_read_handler(self, serial: Serial):
         start = bytes([self._message_start])
 
-        while self._running.is_set():
-            if serial.read(1) != start:
-                continue
+        try:
+            while self._running.is_set():
+                if serial.read(1) != start:
+                    continue
 
-            payload_length = int().from_bytes(serial.read(1))
-            response_group = serial.read(1)
-            device_id = serial.read(1)
-            payload = serial.read(payload_length)
+                payload_length = int().from_bytes(serial.read(1))
+                response_group = serial.read(1)
+                device_id = serial.read(1)
+                payload = serial.read(payload_length)
 
-            response = bytearray()
-            response.append(payload_length)
-            response.extend(response_group)
-            response.extend(device_id)
-            response.extend(payload)
+                response = bytearray()
+                response.append(payload_length)
+                response.extend(response_group)
+                response.extend(device_id)
+                response.extend(payload)
 
-            self._read_queue.put(bytes(response))
-
+                self._read_queue.put(bytes(response))
+        except Exception as error:
+            pass
 
 
     def _serial_write_handler(self, serial: Serial):
-        while self._running.is_set():
-            serial.write(self._write_queue.get())
+        try:
+            while self._running.is_set():
+                serial.write(self._write_queue.get())
+        except Exception as error:
+            pass

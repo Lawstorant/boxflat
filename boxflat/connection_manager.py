@@ -80,7 +80,8 @@ class MozaConnectionManager(EventDispatcher):
 
         self._message_start= int(self._serial_data["message-start"])
         self._magic_value = int(self._serial_data["magic-value"])
-        self._serial_path = "/dev/serial/by-id"
+        # self._serial_path = "/dev/serial/by-id"
+        self._serial_path = "/dev/pts"
 
 
     def shutdown(self, *rest):
@@ -104,7 +105,7 @@ class MozaConnectionManager(EventDispatcher):
 
         serial_devices = {}
         for device in devices:
-            if device.lower().find("base") != -1:
+            if device.lower().find("4") != -1:
                 serial_devices["base"] = device
                 # serial_devices["main"] = device
                 # print("Base found")
@@ -135,7 +136,7 @@ class MozaConnectionManager(EventDispatcher):
             old_devices = self._serial_devices
             self._serial_devices = new_devices
 
-        for device, path in new_devices:
+        for device, path in new_devices.items():
             if device not in old_devices:
                 SerialHandler(path, self._message_start)
                 self._dispatch("device-connected", device)
