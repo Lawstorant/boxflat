@@ -366,21 +366,21 @@ commands:
     throttle-calibration-stop:
       read: -1
       write: 38
-      id: [15]
+      id: [16]
       bytes: 2
       type: int
 
     brake-calibration-stop:
       read: -1
       write: 38
-      id: [16]
+      id: [17]
       bytes: 2
       type: int
 
     clutch-calibration-stop:
       read: -1
       write: 38
-      id: [17]
+      id: [18]
       bytes: 2
       type: int
 

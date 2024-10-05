@@ -275,10 +275,10 @@ class WheelSettings(SettingsPanel):
     def _set_rpm_timings2_preset(self, index):
         # self._timing_row2.set_sliders_value(self._timings2[index], mute=False)
         for i in range(len(self._timings2[index])):
-            self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
-            time.sleep(0.005)
-            self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
-            time.sleep(0.005)
+            self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}", exclusive=True)
+            # time.sleep(0.005)
+            # self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
+            # time.sleep(0.005)
 
 
     def _get_rpm_timings2_preset(self, *args):
@@ -352,10 +352,10 @@ class WheelSettings(SettingsPanel):
     def _wheel_rpm_test(self, *args):
         self._cm.set_setting(0, "wheel-send-telemetry")
         time.sleep(0.2)
-        initial_mode = self._cm.get_setting("wheel-indicator-mode")
-        self._cm.set_setting(1, "wheel-indicator-mode")
+        initial_mode = self._cm.get_setting("wheel-indicator-mode", exclusive=True)
+        self._cm.set_setting(1, "wheel-indicator-mode", exclusive=True)
 
-        t = 0.07
+        t = 0.05
         for j in range(2):
             for i in range(10):
                 val = bit(i)
@@ -400,4 +400,4 @@ class WheelSettings(SettingsPanel):
         self._cm.set_setting(val, "wheel-send-telemetry")
         time.sleep(0.8)
 
-        self._cm.set_setting(initial_mode, "wheel-indicator-mode")
+        self._cm.set_setting(initial_mode, "wheel-indicator-mode", exclusive=True)

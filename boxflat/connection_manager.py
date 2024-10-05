@@ -41,6 +41,8 @@ class MozaConnectionManager(EventDispatcher):
 
         self._serial_devices = {}
         self._devices_lock = Lock()
+        self._exclusive_access = Event()
+        self._exclusive_access.set()
 
         with open(serial_data_path) as stream:
             try:
@@ -197,6 +199,7 @@ class MozaConnectionManager(EventDispatcher):
                     continue
                 # print("Polling data: " + command)
                 self._get_setting(command)
+                time.sleep(0.005)
 
 
     def _device_polling(self):
@@ -279,7 +282,7 @@ class MozaConnectionManager(EventDispatcher):
         device_handler.write_bytes(message)
 
 
-    def _handle_setting(self, value, command_name: str, device_name: str, rw: int) -> bool:
+    def _handle_setting(self, value, command_name: str, device_name: str, rw: int, exclusive=False) -> bool:
         command = MozaCommand()
         command.set_data_from_name(command_name, self._serial_data["commands"], device_name)
         command.device_id = self._get_device_id(command.device_type)
@@ -297,7 +300,17 @@ class MozaConnectionManager(EventDispatcher):
             return
 
         command.set_payload(value)
+
+        self._exclusive_access.wait()
+        if exclusive:
+            self._exclusive_access.clear()
+            time.sleep(0.05)
+
         self._handle_command_v2(command, rw)
+
+        if exclusive:
+            time.sleep(0.05)
+            self._exclusive_access.set()
 
 
     def _split_name(self, command_name: str):
@@ -310,30 +323,30 @@ class MozaConnectionManager(EventDispatcher):
         return command_name, device_name
 
 
-    def set_setting(self, value, command_name: str):
+    def set_setting(self, value, command_name: str, exclusive=False):
         name, device = self._split_name(command_name)
         if name is None:
             return
-        self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
+        self._handle_setting(value, name, device, MOZA_COMMAND_WRITE, exclusive)
 
         # if self.get_setting(command_name) != value:
         #     self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
 
 
-    def get_setting(self, command_name: str):
+    def get_setting(self, command_name: str, exclusive=False):
         value = BlockingValue()
 
         sub = self.subscribe_once(command_name, value.set_value)
-        self._get_setting(command_name)
+        self._get_setting(command_name, exclusive)
 
         return value.get_value_no_clear()
 
 
-    def _get_setting(self, command_name: str):
+    def _get_setting(self, command_name: str, exclusive=False):
         name, device = self._split_name(command_name)
         if name is None:
             return
-        self._handle_setting(1, name, device, MOZA_COMMAND_READ)
+        self._handle_setting(1, name, device, MOZA_COMMAND_READ, exclusive)
 
 
     def cycle_wheel_id(self) -> int:

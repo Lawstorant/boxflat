@@ -28,10 +28,8 @@ class BoxflatCalibrationRow(EventDispatcher, BoxflatButtonRow):
             sleep(4)
 
         self._dispatch("calibration-start", 1)
-        sleep(0.1)
-        self._dispatch("calibration-start", 1)
 
-        for i in reversed(range(3 if self._alternative else 8)):
+        for i in reversed(range(3 if self._alternative else 7)):
             GLib.idle_add(self.set_subtitle, f"{text} {i+1}s")
             sleep(1)
 
@@ -39,9 +37,7 @@ class BoxflatCalibrationRow(EventDispatcher, BoxflatButtonRow):
             GLib.idle_add(self.set_subtitle, "Release paddles")
             sleep(3)
 
-        self._dispatch("calibration-stop", 1)
-        sleep(0.1)
-        self._dispatch("calibration-stop", 1)
+        self._dispatch("calibration-stop", 0)
         print("Calibration stop")
 
         GLib.idle_add(self.set_subtitle, tmp)

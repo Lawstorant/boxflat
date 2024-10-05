@@ -68,8 +68,8 @@ class PedalsSettings(SettingsPanel):
         self._cm.subscribe("pedals-throttle-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress throttle once"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-calibration-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-throttle-calibration-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-calibration-start", True)
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-throttle-calibration-stop", True)
 
         # Brake
         self.add_preferences_page("Brake")
@@ -113,8 +113,8 @@ class PedalsSettings(SettingsPanel):
 
         self._brake_calibration_row = BoxflatCalibrationRow("Calibration", "Fully depress brake once")
         self._add_row(self._brake_calibration_row)
-        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-brake-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-throttle-brake-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-throttle-brake-start", True)
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-throttle-brake-stop", True)
         self._current_row.set_active(False)
 
         # Clutch
@@ -153,8 +153,8 @@ class PedalsSettings(SettingsPanel):
         self._cm.subscribe("pedals-clutch-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", "Fully depress clutch once"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-clutch-calibration-start")
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-clutch-calibration-stop")
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "pedals-clutch-calibration-start", True)
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "pedals-clutch-calibration-stop", True)
 
 
     def _set_curve_preset(self, value: int, pedal: str):
