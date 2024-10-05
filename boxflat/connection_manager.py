@@ -317,7 +317,7 @@ class MozaConnectionManager(EventDispatcher):
         sub = self.subscribe_once(command_name, value.set_value)
         self._get_setting(command_name)
 
-        return value.get_value()
+        return value.get_value_no_clear()
 
 
     def _get_setting(self, command_name: str):

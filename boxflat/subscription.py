@@ -275,7 +275,12 @@ class BlockingValue():
         self._event.set()
 
 
-    def get_value(self, timeout=0.1):
+    def get_value(self, timeout=0.05):
         self._event.wait(timeout)
         self._event.clear()
+        return self._value
+
+
+    def get_value_no_clear(self, timeout=0.05):
+        self._event.wait(timeout)
         return self._value
