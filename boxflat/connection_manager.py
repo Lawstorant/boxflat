@@ -197,6 +197,7 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def _device_polling(self):
+        time.sleep(1)
         while not self._shutdown.is_set():
             self.device_discovery()
 
@@ -341,6 +342,3 @@ class MozaConnectionManager(EventDispatcher):
 
     def get_command_data(self) -> dict:
         return self._serial_data["commands"]
-
-
-# TODO: Rewrite manager so it keeps a read and write connection open constantly.
