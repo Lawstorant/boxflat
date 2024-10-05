@@ -153,9 +153,11 @@ class MozaConnectionManager(EventDispatcher):
 
         for device in new_devices:
             if device not in old_devices:
-                new_devices[device].serial_handler = SerialHandler(new_devices[device].path, self._message_start, device)
-                new_devices[device].serial_handler.subscribe(self._receive_data)
+                new_devices[device].serial_handler = SerialHandler(
+                    new_devices[device].path,
+                    self._message_start, device)
 
+                new_devices[device].serial_handler.subscribe(self._receive_data, device)
                 self._dispatch("device-connected", device)
                 self._dispatch("hid-device-connected", HidDeviceMapping[device])
 
@@ -244,7 +246,6 @@ class MozaConnectionManager(EventDispatcher):
 
     def _get_device_handler(self, device_type: str) -> SerialHandler:
         device_handler = None
-
         with self._devices_lock:
             if device_type in self._serial_devices:
                 device_handler = self._serial_devices[device_type].serial_handler
@@ -255,9 +256,13 @@ class MozaConnectionManager(EventDispatcher):
         return device_handler
 
 
-    def _receive_data(self, data: bytes):
+    def _receive_data(self, data: bytes, device_name: str):
         # print(f"Received: {data.hex(":")}")
-        command, value = MozaCommand.value_from_response(data, self._serial_data["commands"], self._serial_data["ids-to-names"])
+        command, value = MozaCommand.value_from_response(
+            data, device_name,
+            self._serial_data["commands"],
+            self._serial_data["ids-to-names"])
+
         if value is None or command is None:
             return
 
@@ -310,6 +315,9 @@ class MozaConnectionManager(EventDispatcher):
         if name is None:
             return
         self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
+
+        # if self.get_setting(command_name) != value:
+        #     self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
 
 
     def get_setting(self, command_name: str):

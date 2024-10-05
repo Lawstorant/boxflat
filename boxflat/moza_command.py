@@ -36,7 +36,7 @@ class MozaCommand():
 
 
     @staticmethod
-    def value_from_response(values: bytes, commands_data: dict, device_ids: dict) -> tuple:
+    def value_from_response(values: bytes, device_name: str, commands_data: dict, device_ids: dict) -> tuple:
         ret = (None, None)
         if values is None:
             return ret
@@ -53,15 +53,18 @@ class MozaCommand():
         if device_id not in device_ids:
             return ret
 
-        device_name = device_ids[device_id]
+        if device_name == "base":
+            device_name = device_ids[device_id]
+
         for name, values in commands_data[device_name].items():
             if group != values["read"]:
                 continue
 
-            if payload_list[:len(values["id"])] != values["id"]:
+            id_len = len(values["id"])
+            if payload_list[:id_len] != values["id"]:
                 continue
 
-            ret = f"{device_name}-{name}", MozaCommand.value_from_data(payload[len(values["id"]):], values["type"])
+            ret = f"{device_name}-{name}", MozaCommand.value_from_data(payload[id_len:], values["type"])
             break
         return ret
 
@@ -177,7 +180,7 @@ class MozaCommand():
         return self._length
 
 
-    def _calculate_checksum(self, data: bytes, magic_value: int) -> int:
+    def checksum(self, data: bytes, magic_value: int) -> int:
         value = magic_value
         for d in data:
             value += int(d)
@@ -199,6 +202,6 @@ class MozaCommand():
         ret.append(self._device_id)
         ret.extend(self.id_bytes)
         ret.extend(self._payload)
-        ret.append(self._calculate_checksum(ret, magic_value))
+        ret.append(self.checksum(ret, magic_value))
 
         return bytes(ret)
