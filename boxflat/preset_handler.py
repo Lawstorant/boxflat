@@ -202,7 +202,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 while tries < 3:
                     tries += 1
                     replace = setting.replace("set-", "get-")
-                    value = self._cm.get_setting(f"{device}-{replace}")
+                    value = self._cm.get_setting(f"{device}-{replace}", exclusive=True)
                     if value != -1:
                         preset_data[device][setting] = value
                         tries = 3
@@ -232,7 +232,6 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 for setting, value in settings.items():
                     setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                     # print(f"{key}-{setting}: {value}")
-                    self._cm.set_setting(value, f"{key}-{setting}")
-                    sleep(0.1)
+                    self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
 
         self._dispatch()
