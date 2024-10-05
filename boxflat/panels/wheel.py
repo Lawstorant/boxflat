@@ -278,7 +278,6 @@ class WheelSettings(SettingsPanel):
             self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
             time.sleep(0.01)
             self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
-        # for i in range(len(self._timings2[index])):
 
 
     def _get_rpm_timings2_preset(self, *args):
