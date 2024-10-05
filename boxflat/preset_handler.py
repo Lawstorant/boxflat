@@ -4,6 +4,7 @@ import yaml
 import os
 from threading import Thread
 from .subscription import SimpleEventDispatcher
+from time import sleep
 
 MozaDevicePresetSettings = {
     "base" : [
@@ -232,5 +233,6 @@ class MozaPresetHandler(SimpleEventDispatcher):
                     setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                     # print(f"{key}-{setting}: {value}")
                     self._cm.set_setting(value, f"{key}-{setting}")
+                    sleep(0.1)
 
         self._dispatch()

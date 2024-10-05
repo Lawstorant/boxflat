@@ -342,42 +342,42 @@ commands:
       bytes: 2
       type: int
 
-    throttle-start-calibration:
+    throttle-calibration-start:
       read: -1
       write: 38
       id: [12]
       bytes: 2
       type: int
 
-    brake-start-calibration:
+    brake-calibration-start:
       read: -1
       write: 38
       id: [13]
       bytes: 2
       type: int
 
-    clutch-start-calibration:
+    clutch-calibration-start:
       read: -1
       write: 38
       id: [14]
       bytes: 2
       type: int
 
-    throttle-stop-calibration:
+    throttle-calibration-stop:
       read: -1
       write: 38
       id: [15]
       bytes: 2
       type: int
 
-    brake-stop-calibration:
+    brake-calibration-stop:
       read: -1
       write: 38
       id: [16]
       bytes: 2
       type: int
 
-    clutch-stop-calibration:
+    clutch-calibration-stop:
       read: -1
       write: 38
       id: [17]
@@ -1248,14 +1248,14 @@ commands:
       bytes: 2
       type: int
 
-    start-calibration:
+    calibration-start:
       read: -1
       write: 84
       id: [3]
       bytes: 2
       type: int
 
-    stop-calibration:
+    calibration-stop:
       read: -1
       write: 84
       id: [4]
@@ -1408,14 +1408,14 @@ commands:
       bytes: 2
       type: int
 
-    start-calibration:
+    calibration-start:
       read: -1
       write: 94
       id: [3]
       bytes: 2
       type: int
 
-    stop-calibration:
+    calibration-stop:
       read: -1
       write: 94
       id: [4]

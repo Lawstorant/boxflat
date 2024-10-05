@@ -24,7 +24,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels = {}
         self._dry_run = dry_run
 
-        self.set_default_size(0, 800)
+        self.set_default_size(0, 850)
         self.set_title("Boxflat")
 
         # self.search_btn = Gtk.ToggleButton()  # Search Button
