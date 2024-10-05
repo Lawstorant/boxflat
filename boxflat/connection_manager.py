@@ -304,12 +304,12 @@ class MozaConnectionManager(EventDispatcher):
         self._exclusive_access.wait()
         if exclusive:
             self._exclusive_access.clear()
-            time.sleep(0.05)
+            time.sleep(0.005)
 
         self._handle_command_v2(command, rw)
 
         if exclusive:
-            time.sleep(0.05)
+            time.sleep(0.01)
             self._exclusive_access.set()
 
 
