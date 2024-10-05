@@ -313,13 +313,10 @@ class MozaConnectionManager(EventDispatcher):
     def get_setting(self, command_name: str):
         value = BlockingValue()
 
-        sub = self.subscribe(command_name, value.set_value)
+        sub = self.subscribe_once(command_name, value.set_value)
         self._get_setting(command_name)
 
-        response = value.get_value()
-        self._remove_event_subscription(command_name, sub)
-
-        return response
+        return value.get_value()
 
 
     def _get_setting(self, command_name: str):
