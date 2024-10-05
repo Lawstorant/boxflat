@@ -151,17 +151,18 @@ class MozaConnectionManager(EventDispatcher):
         with self._devices_lock:
             old_devices = self._serial_devices
 
-            for device in new_devices:
-                if device not in old_devices:
-                    new_devices[device].serial_handler = SerialHandler(new_devices[device].path, self._message_start, device)
-                    new_devices[device].serial_handler.subscribe(self._receive_data)
+        for device in new_devices:
+            if device not in old_devices:
+                new_devices[device].serial_handler = SerialHandler(new_devices[device].path, self._message_start, device)
+                new_devices[device].serial_handler.subscribe(self._receive_data)
 
-                    self._dispatch("device-connected", device)
-                    self._dispatch("hid-device-connected", HidDeviceMapping[device])
+                self._dispatch("device-connected", device)
+                self._dispatch("hid-device-connected", HidDeviceMapping[device])
 
-                else:
-                    new_devices[device].serial_handler = old_devices[device].serial_handler
+            else:
+                new_devices[device].serial_handler = old_devices[device].serial_handler
 
+        with self._devices_lock:
             self._serial_devices = new_devices
 
         if len(new_devices) == 0 and self._refresh_cont.is_set():
