@@ -322,10 +322,9 @@ class MozaConnectionManager(EventDispatcher):
         name, device = self._split_name(command_name)
         if name is None:
             return
-        self._handle_setting(value, name, device, MOZA_COMMAND_WRITE, exclusive)
+        self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
 
         if exclusive:
-            time.sleep(0.01)
             self._exclusive_access.set()
 
         # if self.get_setting(command_name) != value:
@@ -355,7 +354,7 @@ class MozaConnectionManager(EventDispatcher):
         name, device = self._split_name(command_name)
         if name is None:
             return
-        self._handle_setting(1, name, device, MOZA_COMMAND_READ, exclusive)
+        self._handle_setting(1, name, device, MOZA_COMMAND_READ)
 
 
     def cycle_wheel_id(self) -> int:
