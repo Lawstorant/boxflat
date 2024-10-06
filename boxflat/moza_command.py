@@ -1,24 +1,72 @@
 from sys import byteorder
 from binascii import hexlify
 from struct import pack, unpack
+import boxflat.bitwise as bitwise
 
 MOZA_COMMAND_READ=0
 MOZA_COMMAND_WRITE=1
 MOZA_COMMAND_DEAD=2
 
 class MozaCommand():
-    def __init__(self, name:str, commands_data: object):
-        self.id = list(commands_data[name]["id"])
-        self.read_group = int(commands_data[name]["read"])
-        self.write_group = int(commands_data[name]["write"])
-
-        self._length = int(commands_data[name]["bytes"])
-        self._payload = bytes(self.length)
-
-        self.name = name.split("-", maxsplit=1)[1]
-        self._device_type = name.split("-")[0]
-        self._type = commands_data[name]["type"]
+    def __init__(self):
+        self.id = 0
+        self.read_group = 0
+        self.write_group = 0
+        self._length = 0
+        self._payload = None
+        self._name = None
+        self._type = None
         self._device_id = None
+
+
+    def set_data_from_name(self, name: str, commands_data: dict, device_name: str):
+        self._device_type = device_name
+        commands = commands_data[self._device_type]
+
+        self.id = list(commands[name]["id"])
+        self.read_group = int(commands[name]["read"])
+        self.write_group = int(commands[name]["write"])
+
+        self._length = int(commands[name]["bytes"])
+        self._payload = bytes(self._length)
+
+        self.name = name
+        self._type = commands[name]["type"]
+        self._device_id = None
+
+
+    @staticmethod
+    def value_from_response(values: bytes, device_name: str, commands_data: dict, device_ids: dict) -> tuple:
+        ret = (None, None)
+        if values is None:
+            return ret
+
+        group = values[0]
+        group_byte = bytes([values[0]])
+        device_id = values[1]
+        payload = values[2:]
+        payload_list = list(payload)
+
+        group = bitwise.unset_bit(group, 7)
+        device_id = bitwise.swap_nibbles(device_id)
+
+        if device_id not in device_ids:
+            return ret
+
+        if device_name == "base":
+            device_name = device_ids[device_id]
+
+        for name, values in commands_data[device_name].items():
+            if group != values["read"]:
+                continue
+
+            id_len = len(values["id"])
+            if payload_list[:id_len] != values["id"]:
+                continue
+
+            ret = f"{device_name}-{name}", MozaCommand.value_from_data(payload[id_len:], values["type"])
+            break
+        return ret
 
 
     @property
@@ -104,19 +152,26 @@ class MozaCommand():
         self._payload = data
 
 
-    def get_payload(self, alt_data=None):
-        data = self._payload if alt_data == None else alt_data
-        if self._type == "int":
+    def get_payload(self):
+        return self.value_from_data(self._payload, self._type)
+
+
+    @staticmethod
+    def value_from_data(data: bytes, value_type: str):
+        if  value_type == "int":
             data = int.from_bytes(data)
 
-        elif self._type == "float":
+        elif value_type  == "float":
             data = unpack(">f", data)[0]
 
-        elif self._type == "array":
+        elif value_type  == "array":
             data = list(data)
 
-        elif self._type == "hex":
+        elif value_type  == "hex":
             data = hexlify(data).decode("utf-8")
+
+        else:
+            data = None
 
         return data
 
@@ -125,7 +180,7 @@ class MozaCommand():
         return self._length
 
 
-    def _calculate_checksum(self, data: bytes, magic_value: int) -> int:
+    def checksum(self, data: bytes, magic_value: int) -> int:
         value = magic_value
         for d in data:
             value += int(d)
@@ -147,6 +202,6 @@ class MozaCommand():
         ret.append(self._device_id)
         ret.extend(self.id_bytes)
         ret.extend(self._payload)
-        ret.append(self._calculate_checksum(ret, magic_value))
+        ret.append(self.checksum(ret, magic_value))
 
         return bytes(ret)

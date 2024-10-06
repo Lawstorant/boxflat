@@ -1,3 +1,7 @@
+from threading import Event
+from queue import SimpleQueue
+
+
 class Subscription():
     def __init__(self, callback: callable, *args):
         self._callback = callback
@@ -28,15 +32,39 @@ class Subscription():
 class SubscriptionList():
     def __init__(self):
         self._subscriptions = []
+        self._single_time_subs = SimpleQueue()
 
 
     def count(self) -> int:
-        return len(self._subscriptions)
+        count = len(self._subscriptions)
+        count += self._single_time_subs.qsize()
+        return count
 
 
-    def append(self, callback: callable, *args):
-        if callable(callback):
-            self._subscriptions.append(Subscription(callback, *args))
+    def get(self, index: int) -> Subscription:
+        return self._subscriptions[index]
+
+
+    def append(self, callback: callable, *args) -> Subscription:
+        if not callable(callback):
+            return
+
+        sub = Subscription(callback, *args)
+        self._subscriptions.append(sub)
+        return sub
+
+
+    def append_single(self, callback: callable, *args):
+        if not callable(callback):
+            return
+
+        sub = Subscription(callback, *args)
+        self._single_time_subs.put(sub)
+
+
+    def remove(self, sub: Subscription):
+        if sub in self._subscriptions:
+            self._subscriptions.remove(sub)
 
 
     def append_subscription(self, subscription: Subscription):
@@ -44,35 +72,49 @@ class SubscriptionList():
 
 
     def call(self):
-        """
-        Call all subscribers with default arguments
-        """
         for sub in self._subscriptions:
             sub.call()
+
+        while not self._single_time_subs.empty():
+            self._single_time_subs.get().call()
 
 
     def call_with_value(self, value):
         for sub in self._subscriptions:
             sub.call_with_value(value)
 
+        while not self._single_time_subs.empty():
+            self._single_time_subs.get().call_with_value(value)
+
 
     def call_with_values(self, *values):
         for sub in self._subscriptions:
             sub.call_with_values(*values)
+
+        while not self._single_time_subs.empty():
+            self._single_time_subs.get().call_with_values(*values)
 
 
     def call_without_args(self):
         for sub in self._subscriptions:
             sub.call_without_args()
 
+        while not self._single_time_subs.empty():
+            self._single_time_subs.get().call_without_args()
+
 
     def call_with_custom_args(self, *args):
         for sub in self._subscriptions:
             sub.call_with_custom_args(*args)
 
+        while not self._single_time_subs.empty():
+            self._single_time_subs.get().call_with_custom_args(*args)
+
 
     def clear(self):
         self._subscriptions.clear()
+        while not self._single_time_subs.empty():
+            self._single_time_subs.get()
 
 
 
@@ -121,7 +163,8 @@ class EventDispatcher():
         self.__events.pop(event_name)
         return True
 
-    def _deregister_events(self) -> bool:
+
+    def _deregister_all_events(self) -> bool:
         self.__events = {}
 
 
@@ -136,12 +179,18 @@ class EventDispatcher():
         return True
 
 
-    def subscribe(self, event_name: str, callback: callable, *args) -> bool:
+    def subscribe(self, event_name: str, callback: callable, *args) -> Subscription:
         if not self.__find_event(event_name):
             return False
 
-        self.__events[event_name].append(callback, *args)
-        return True
+        return self.__events[event_name].append(callback, *args)
+
+
+    def subscribe_once(self, event_name: str, callback: callable, *args):
+        if not self.__find_event(event_name):
+            return
+
+        self.__events[event_name].append_single(callback, *args)
 
 
     def _clear_event_subscriptions(self, event_name: str) -> bool:
@@ -149,6 +198,13 @@ class EventDispatcher():
             return False
 
         self.__events[event_name].clear()
+
+
+    def _remove_event_subscription(self, event_name: str, sub: Subscription) -> bool:
+        if not self.__find_event(event_name):
+            return False
+
+        self.__events[event_name].remove(sub)
 
 
     def _clear_subscriptions(self, event_names=None):
@@ -174,6 +230,10 @@ class SimpleEventDispatcher():
 
     def subscribe(self, callback: callable, *args):
         self.__events.append(callback, *args)
+
+
+    def subscribe_once(self, event_name: str, callback: callable, *args):
+        self.__events.append_single(callback, *args)
 
 
     def _clear_subscriptions(self):
@@ -203,43 +263,24 @@ class Observable(SimpleEventDispatcher):
         self._value = new_value
 
 
-class Semaphore(EventDispatcher):
-    def __init__(self, maximum: int):
-        super().__init__()
-        self._value = 0
-        self._max = maximum
-        self._register_event("value-changed")
-        self._register_event("quorum-established")
-        self._register_event("quorum-dissolved")
+
+class BlockingValue():
+    def __init__(self):
+        self._value = None
+        self._event = Event()
 
 
-    @property
-    def value(self):
+    def set_value(self, new_value):
+        self._value = new_value
+        self._event.set()
+
+
+    def get_value(self, timeout=0.05):
+        self._event.wait(timeout)
+        self._event.clear()
         return self._value
 
 
-    @value.setter
-    def value(self, new_value: int):
-        if new_value > self._max:
-            return
-
-        if new_value < 0:
-            return
-
-        old_value = self._value
-        self._value = new_value
-
-        if new_value != old_value:
-            self._dispatch(new_value)
-            if new_value == self._max:
-                self._dispatch("quorum-established")
-            elif old_value == self._max:
-                self._dispatch("quorum-dissolved")
-
-
-    def increment(self):
-        self.value += 1
-
-
-    def decrement(self):
-        self.value -= 1
+    def get_value_no_clear(self, timeout=0.05):
+        self._event.wait(timeout)
+        return self._value

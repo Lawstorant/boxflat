@@ -29,3 +29,9 @@ def unset_bit(value, bit_number: int) -> int:
 
 def bit(bit_number: int) -> int:
     return set_bit(0, bit_number)
+
+
+def swap_nibbles(value: int) -> int:
+    ret = (value & 0x0f) << 4
+    ret |= (value & 0xf0) >> 4
+    return ret

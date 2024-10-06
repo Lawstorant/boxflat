@@ -97,6 +97,20 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.5" date="2024-10-06">
+      <description>
+        <p>Major rewrite pt.2</p>
+        <ul>
+          <li>Fixed pedals calibration (apparently, this was borked for a long time)</li>
+          <li>Asynchronous serial I/O</li>
+          <li>Every serial device gets it's own I/O process</li>
+          <li>Exclusive access mode for get/set commands</li>
+          <li>Subscribtions can now be only single-shot</li>
+          <li>BlockingValue class enables waiting for value read</li>
+          <li>Discover commands from received data</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.19.4" date="2024-10-03">
       <description>
         <p>Reduce disconnection false-positives before serial connection rewrite</p>

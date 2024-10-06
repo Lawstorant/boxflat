@@ -187,7 +187,7 @@ class HidHandler(EventDispatcher):
                     fuzz = 0
 
                 # detect current fuzz. Needed for ABS_HAT axes
-                if device.absinfo(ecode).fuzz > 8:
+                if device.absinfo(ecode).fuzz > fuzz:
                     device.set_absinfo(ecode, fuzz=fuzz)
 
             Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
@@ -236,8 +236,8 @@ class HidHandler(EventDispatcher):
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
-                # elif event.type == EV_KEY:
-                #     self._notify_button(event.code, event.value)
+                elif event.type == EV_KEY:
+                    self._notify_button(event.code, event.value)
 
         except Exception as e:
             # print(e)

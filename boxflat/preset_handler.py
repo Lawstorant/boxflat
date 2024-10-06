@@ -4,6 +4,7 @@ import yaml
 import os
 from threading import Thread
 from .subscription import SimpleEventDispatcher
+from time import sleep
 
 MozaDevicePresetSettings = {
     "base" : [
@@ -158,11 +159,11 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
 
     def append_setting(self, setting_name: str):
-        command = MozaCommand(setting_name, self._cm.get_command_data())
-        if command.device_type not in self._settings:
-            self._settings[command.device_type] = []
+        device, name = setting_name.split("-", maxsplit=1)
+        if device not in self._settings:
+            self._settings[device] = []
 
-        self._settings[command.device_type].append(command.name)
+        self._settings[device].append(name)
 
 
     def add_device_settings(self, device: str):
@@ -201,7 +202,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 while tries < 3:
                     tries += 1
                     replace = setting.replace("set-", "get-")
-                    value = self._cm.get_setting(f"{device}-{replace}")
+                    value = self._cm.get_setting(f"{device}-{replace}", exclusive=True)
                     if value != -1:
                         preset_data[device][setting] = value
                         tries = 3
@@ -231,6 +232,6 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 for setting, value in settings.items():
                     setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                     # print(f"{key}-{setting}: {value}")
-                    self._cm.set_setting(value, f"{key}-{setting}")
+                    self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
 
         self._dispatch()
