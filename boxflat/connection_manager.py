@@ -24,12 +24,25 @@ HidDeviceMapping = {
     "main"       : None
 }
 
+SerialDeviceMapping = {
+    "base"   : "base",
+    "hbp"    : "handbrake",
+    "hgp"    : "hpattern",
+    "sgp"    : "sequential",
+    "pedals" : "pedals"
+}
+
+
 
 class MozaSerialDevice():
-    def __init__(self):
-        self.name = ""
-        self.path = ""
-        self.serial_handler = None
+    name: str
+    path: str
+    serial_handler: SerialHandler
+
+    def __init__(self, name="", path="", handler=None):
+        self.name = name
+        self.path = path
+        self.serial_handler = handler
 
 
 
@@ -96,55 +109,24 @@ class MozaConnectionManager(EventDispatcher):
 
     def device_discovery(self, *args):
         # print("\nDevice discovery...")
-        path = self._serial_path
-
-        if not os.path.exists(path):
+        if not os.path.exists(self._serial_path):
             # print("No devices found!")
             self._handle_devices({})
             return
 
         devices = []
-        for device in os.listdir(path):
+        for device in os.listdir(self._serial_path):
             if device.find("Gudsen_MOZA"):
-                devices.append(os.path.join(path, device))
+                devices.append(os.path.join(self._serial_path, device))
 
         serial_devices = {}
-        for device in devices:
-            if device.lower().find("base") != -1:
-                obj = MozaSerialDevice()
-                obj.path = device
-                obj.name = "base"
-                serial_devices["base"] = obj
-                # serial_devices["main"] = device
-                # print("Base found")
+        for path in devices:
+            for part, name in SerialDeviceMapping.items():
+                if path.lower().find(part) == -1:
+                    continue
 
-            elif device.lower().find("hbp") != -1:
-                obj = MozaSerialDevice()
-                obj.path = device
-                obj.name = "handbrake"
-                serial_devices["handbrake"] = obj
-                # print("Handbrake found")
-
-            elif device.lower().find("hgp") != -1:
-                obj = MozaSerialDevice()
-                obj.path = device
-                obj.name = "hpattern"
-                serial_devices["hpattern"] = obj
-                # print("H-Pattern shifter found")
-
-            elif device.lower().find("sgp") != -1:
-                obj = MozaSerialDevice()
-                obj.path = device
-                obj.name = "sequential"
-                serial_devices["sequential"] = obj
-                # print("Sequential shifter found")
-
-            elif device.lower().find("pedals") != -1:
-                obj = MozaSerialDevice()
-                obj.path = device
-                obj.name = "pedals"
-                serial_devices["pedals"] = obj
-                # print("Pedals found")
+                serial_devices[name] = MozaSerialDevice(name, path)
+                print(f"\"{name}\" found".title())
 
         self._handle_devices(serial_devices)
         # print("Device discovery end\n")

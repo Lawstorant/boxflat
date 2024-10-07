@@ -1,6 +1,6 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
-from threading import Event
+from threading import Thread, Event
 from queue import SimpleQueue
 
 
@@ -33,7 +33,7 @@ class Subscription():
 
 class SubscriptionList():
     def __init__(self):
-        self._subscriptions = []
+        self._subscriptions: list[Subscription] = []
         self._single_time_subs = SimpleQueue()
 
 
@@ -75,7 +75,7 @@ class SubscriptionList():
 
     def call(self):
         for sub in self._subscriptions:
-            sub.call()
+            sub.
 
         while not self._single_time_subs.empty():
             self._single_time_subs.get().call()
@@ -215,6 +215,16 @@ class EventDispatcher():
 
         for event in event_names:
             self._clear_event_subscriptions(event)
+
+
+
+class ThreadedEventDispatcher(EventDispatcher):
+    def __init__(self):
+        super().__init__()
+
+
+    def _dispatch(self, event_name: str, *values):
+        Thread(target=super()._dispatch, args=[event_name, *values], daemon=True).start()
 
 
 
