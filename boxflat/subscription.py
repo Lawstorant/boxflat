@@ -7,7 +7,7 @@ from queue import SimpleQueue
 class Subscription():
     def __init__(self, callback, *args):
         self._callback = callback
-        self._args = args
+        self._args: tuple = args
 
 
     def call(self):
@@ -75,7 +75,7 @@ class SubscriptionList():
 
     def call(self):
         for sub in self._subscriptions:
-            sub.
+            sub.call()
 
         while not self._single_time_subs.empty():
             self._single_time_subs.get().call()
@@ -122,7 +122,7 @@ class SubscriptionList():
 
 class EventDispatcher():
     def __init__(self):
-        self.__events = {}
+        self.__events: dict[str, SubscriptionList] = {}
 
 
     def _event_sub_count(self, event_name: str) -> int:
@@ -167,7 +167,7 @@ class EventDispatcher():
 
 
     def _deregister_all_events(self) -> bool:
-        self.__events = {}
+        self.__events.clear()
 
 
     def _dispatch(self, event_name: str, *values) -> bool:

@@ -112,7 +112,7 @@ class HidHandler(EventDispatcher):
     def __init__(self):
         super().__init__()
 
-        self._axis_values = {}
+        self._axis_values: dict[str, AxisValue] = {}
         for i in range(0, MOZA_BUTTON_COUNT):
             self._register_event(f"button-{i}")
 
@@ -160,7 +160,7 @@ class HidHandler(EventDispatcher):
             return
 
         device = None
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):

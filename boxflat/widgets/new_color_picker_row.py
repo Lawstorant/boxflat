@@ -9,7 +9,7 @@ from boxflat.subscription import EventDispatcher
 MOZA_RPM_LEDS = 10
 MOZA_RGB_BUTTONS = 10
 
-def extract_rgb(rgba: Gdk.RGBA) -> list:
+def extract_rgb(rgba: Gdk.RGBA) -> list[int]:
         rgb = rgba.to_string()[4:-1]
         rgb = list(map(int, rgb.split(",")))
         return rgb
@@ -38,10 +38,10 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
         main_box.append(colors_box)
 
         self._dialog = Gtk.ColorDialog(with_alpha=False)
-        self._blinking_event = []
+        self._blinking_event: list[Event] = []
         self._value_lock = Lock()
 
-        self._colors = []
+        self._colors: list[Gtk.ColorDialogButton] = []
         red = Gdk.RGBA()
         red.parse("rgb(230,60,60)")
         for i in range(MOZA_RPM_LEDS):
@@ -66,7 +66,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
             self._blinking_event.append(Event())
 
 
-    def get_value(self, index: int) -> list:
+    def get_value(self, index: int) -> list[int]:
         if index >= 0 and index < len(self._colors):
             rgba = self._colors[index].get_rgba()
             return extract_rgb(rgba)

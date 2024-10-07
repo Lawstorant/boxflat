@@ -12,7 +12,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
         self._set_widget(box)
         self._box = box
         self._group = None
-        self._buttons = []
+        self._buttons: list[Gtk.ToggleButton] = []
 
         self._box.add_css_class("linked")
 

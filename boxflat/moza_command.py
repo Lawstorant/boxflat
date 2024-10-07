@@ -38,7 +38,7 @@ class MozaCommand():
 
 
     @staticmethod
-    def value_from_response(values: bytes, device_name: str, commands_data: dict, device_ids: dict) -> tuple:
+    def value_from_response(values: bytes, device_name: str, commands_data: dict, device_ids: dict) -> tuple[str]:
         ret = (None, None)
         if values is None:
             return ret

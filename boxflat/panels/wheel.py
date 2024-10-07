@@ -27,14 +27,15 @@ class WheelSettings(SettingsPanel):
         self._timing_row = None
         self._timing_preset_row = None
         self._stick_row = None
-        self._timings = []
-        self._timings.append([65, 69, 72, 75, 78, 80, 83, 85, 88, 91]) # Early
-        self._timings.append([75, 79, 82, 85, 87, 88, 89, 90, 92, 94]) # Normal
-        self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Late
+        self._timings: list[list[int]] = [
+            [65, 69, 72, 75, 78, 80, 83, 85, 88, 91], # Early
+            [75, 79, 82, 85, 87, 88, 89, 90, 92, 94], # Normal
+            [80, 83, 86, 89, 91, 92, 93, 94, 96, 97], # Late
+        ]
         # self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Central
-        self._wheel_combination_data = []
+        self._wheel_combination_data: list[int] = []
 
-        self._timings2 = [
+        self._timings2: list[list[int]] = [
             [5400, 5700, 6000, 6300, 6500, 6700, 6900, 7100, 7300, 7600],
             [6300, 6600, 6800, 7100, 7300, 7300, 7400, 7500, 7700, 7800],
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
@@ -330,7 +331,7 @@ class WheelSettings(SettingsPanel):
         byte1 = values[1]
         byte2 = values[3]
 
-        switch_values = []
+        switch_values: list[int] = []
 
         switch_values.append(test_bit(byte2, 0))
         switch_values.append(test_bit(byte2, 3))

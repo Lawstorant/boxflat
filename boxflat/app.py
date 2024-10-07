@@ -151,8 +151,8 @@ class MainWindow(Adw.ApplicationWindow):
         return self._panels["Home"]
 
 
-    def _panel_buttons(self) -> list:
-        buttons = []
+    def _panel_buttons(self) -> list[Gtk.Button]:
+        buttons: list[Gtk.Button] = []
         for panel in self._panels.values():
             buttons.append(panel.button)
 

@@ -17,7 +17,7 @@ class BoxflatDialogRow(BoxflatRow):
         self._title = title
         self._set_widget(icon)
         self._icon = icon
-        self._switches = []
+        self._switches: list[BoxflatSwitchRow] = []
 
         self._group = Adw.PreferencesGroup()
         self._group.add_css_class("wheel-dialog-setting")
@@ -51,7 +51,7 @@ class BoxflatDialogRow(BoxflatRow):
         row.subscribe(self._notify)
 
 
-    def get_value(self) -> list:
+    def get_value(self) -> list[int]:
         values = []
         for switch in self._switches:
             values.append(switch.get_value())

@@ -54,7 +54,7 @@ class MozaConnectionManager(EventDispatcher):
         self._dry_run = dry_run
         self._shutdown = Event()
 
-        self._serial_devices = {}
+        self._serial_devices: dict[str, MozaSerialDevice] = {}
         self._devices_lock = Lock()
         self._exclusive_access = Event()
         self._exclusive_access.set()
@@ -67,11 +67,11 @@ class MozaConnectionManager(EventDispatcher):
                 self._shutdown.set()
                 quit(1)
 
-        self._device_ids = self._serial_data["device-ids"]
+        self._device_ids: dict[str, int] = self._serial_data["device-ids"]
 
         # register events
-        self._command_list = []
-        self._polling_list = []
+        self._command_list: list[str] = []
+        self._polling_list: list[str] = []
         for device in self._serial_data["commands"]:
             if self._device_ids[device] == -1:
                 continue
@@ -92,7 +92,7 @@ class MozaConnectionManager(EventDispatcher):
         self._serial_lock = Lock()
         self._refresh_cont = Event()
 
-        self._connected_subscriptions = {}
+        self._connected_subscriptions: dict[str, SubscriptionList] = {}
         self._connected_thread = None
         self._connected_lock = Lock()
 
@@ -119,14 +119,14 @@ class MozaConnectionManager(EventDispatcher):
             if device.find("Gudsen_MOZA"):
                 devices.append(os.path.join(self._serial_path, device))
 
-        serial_devices = {}
+        serial_devices: dict[str, MozaSerialDevice] = {}
         for path in devices:
             for part, name in SerialDeviceMapping.items():
                 if path.lower().find(part) == -1:
                     continue
 
                 serial_devices[name] = MozaSerialDevice(name, path)
-                print(f"\"{name}\" found".title())
+                # print(f"\"{name}\" found".title())
 
         self._handle_devices(serial_devices)
         # print("Device discovery end\n")
@@ -354,5 +354,5 @@ class MozaConnectionManager(EventDispatcher):
         return wid
 
 
-    def get_command_data(self) -> dict:
+    def get_command_data(self) -> dict[str, dict]:
         return self._serial_data["commands"]

@@ -13,7 +13,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         super().__init__(title, subtitle)
 
         self._suffix = suffix
-        self._slider_subs_list = []
+        self._slider_subs_list: list[SubscriptionList] = []
         self._sliders_subs = SubscriptionList()
         self._button_row = button_row
         self._draw_marks = draw_marks
@@ -108,7 +108,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             slider.set_size_request(0, height)
 
 
-    def get_sliders_value(self) -> list:
+    def get_sliders_value(self) -> list[int]:
         values = []
         for slider in self._sliders:
             values.append(round(slider.get_value()))

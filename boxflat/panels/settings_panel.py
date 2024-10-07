@@ -20,13 +20,12 @@ class SettingsPanel(EventDispatcher):
         self._cm = connection_manager
         self._hid_handler = hid_handler
 
-        self._current_page = None
-        self._current_group: BoxflatPreferencesGroup=None
-        self._current_stack = None
-        self._current_row: BoxflatRow=None
-        self._header = None
+        self._current_page: Adw.PreferencesPage = None
+        self._current_group: BoxflatPreferencesGroup = None
+        self._current_stack: Adw.ViewStack = None
+        self._current_row: BoxflatRow = None
 
-        self._groups = []
+        self._groups: list[BoxflatPreferencesGroup] = []
 
         self._active = True
         self._shutdown = False
