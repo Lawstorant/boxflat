@@ -23,7 +23,7 @@ class BoxflatToggleButtonRow(BoxflatRow):
             self._buttons.append(button)
             button.connect('toggled', self._notify)
 
-            if self._group == None:
+            if self._group is None:
                 self._group = button
                 # button.set_active(True)
             else:
@@ -32,8 +32,8 @@ class BoxflatToggleButtonRow(BoxflatRow):
 
     def get_value(self) -> int:
         val = 0
-        for i in range(len(self._buttons)):
-            if self._buttons[i].get_active():
+        for i, button in enumerate(self._buttons):
+            if button.get_active():
                 val = i
 
         return round(eval("val" + self._expression))

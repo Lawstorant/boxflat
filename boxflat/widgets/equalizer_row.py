@@ -84,12 +84,15 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
 
     def add_labels(self, *labels: str, index=None):
-        if index != None:
+        if index is not None:
             self._slider_labels[index].set_text(labels[0])
             return
 
-        for i in range(len(labels)):
-            self._slider_labels[i].set_text(labels[i])
+        if len(labels) != len(self._slider_labels):
+            return
+
+        for slider, label in zip(self._slider_labels, labels):
+            slider.set_text(label)
 
 
     def add_buttons(self, *buttons):
@@ -119,8 +122,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         if len(values) > len(self._sliders):
             return
 
-        for i in range(len(values)):
-            self.set_slider_value(values[i], i, mute)
+        for i, value in enumerate(values):
+            self.set_slider_value(value, i, mute)
 
 
     def set_slider_value(self, value: int, index: int, mute=True):

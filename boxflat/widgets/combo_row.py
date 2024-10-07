@@ -18,7 +18,7 @@
 #         return self._row_name
 
 #     def add_combo_row(self, title: str, values: dict, callback=None, subtitle=""):
-#         if self._current_group == None:
+#         if self._current_group is None:
 #             return
 
 #         combo = Adw.ComboRow()
@@ -38,7 +38,7 @@
 #         combo.set_factory(factory)
 
 #         # TODO: connect callback function
-#         if callback != None:
+#         if callback is not None:
 #             pass
 
 #         self._current_group.add(combo)

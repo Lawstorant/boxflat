@@ -274,10 +274,10 @@ class WheelSettings(SettingsPanel):
 
     def _set_rpm_timings2_preset(self, index):
         # self._timing_row2.set_sliders_value(self._timings2[index], mute=False)
-        for i in range(len(self._timings2[index])):
-            self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}", exclusive=True)
+        for i, value in enumerate(self._timings2[index]):
+            self._cm.set_setting(value, f"wheel-rpm-value{i+1}", exclusive=True)
             time.sleep(0.005)
-            self._cm.set_setting(self._timings2[index][i], f"wheel-rpm-value{i+1}")
+            self._cm.set_setting(value, f"wheel-rpm-value{i+1}")
             time.sleep(0.005)
 
 

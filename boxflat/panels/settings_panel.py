@@ -144,14 +144,14 @@ class SettingsPanel(EventDispatcher):
         page = Adw.PreferencesPage()
         self._current_page = page
 
-        if self._current_stack == None:
+        if self._current_stack is None:
             GLib.idle_add(self._content.set_content, page)
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
 
     def add_preferences_group(self, title="", level_bar=False, alt_level_bar=False):
-        if self._current_page == None:
+        if self._current_page is None:
             self.add_preferences_page()
 
         self._current_group = BoxflatPreferencesGroup(title, level_bar, alt_level_bar)
@@ -179,7 +179,7 @@ class SettingsPanel(EventDispatcher):
 
 
     def _add_row(self, row: BoxflatRow):
-        if self._current_group == None:
+        if self._current_group is None:
             self.add_preferences_group()
         self._current_row = row
 

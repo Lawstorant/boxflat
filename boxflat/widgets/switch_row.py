@@ -53,11 +53,11 @@ class BoxflatSwitchRow(BoxflatRow):
         if not change:
             return change
 
-        if off_when_inactive and self._value_store == None:
+        if off_when_inactive and self._value_store is None:
             self._value_store = tmp
             self.set_value(0)
 
-        elif off_when_inactive and self._value_store != None:
+        elif off_when_inactive and self._value_store is not None:
             self.set_value(self._value_store)
             self._value_store = None
 

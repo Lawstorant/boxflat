@@ -165,7 +165,7 @@ class HidHandler(EventDispatcher):
                 print(f"HID device found: " + hid.name)
                 device = hid
 
-        if device != None:
+        if device is not None:
             if pattern == MozaHidDevice.BASE:
                 self._base = device
 
