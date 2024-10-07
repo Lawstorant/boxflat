@@ -3,7 +3,7 @@
 from .button_level_row import *
 
 class BoxflatMinMaxLevelRow(BoxflatButtonLevelRow):
-    def __init__(self, title: str, callback: callable,
+    def __init__(self, title: str, callback,
                  command_prefix: str, subtitle="", max_value=1000):
         super().__init__(title, subtitle, max_value)
 

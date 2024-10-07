@@ -12,7 +12,7 @@ from boxflat.hid_handler import HidHandler, MozaAxis
 from boxflat.subscription import EventDispatcher
 
 class SettingsPanel(EventDispatcher):
-    def __init__(self, title: str, button_callback: callable,
+    def __init__(self, title: str, button_callback,
                  connection_manager: MozaConnectionManager=None,
                  hid_handler: HidHandler=None):
         super().__init__()

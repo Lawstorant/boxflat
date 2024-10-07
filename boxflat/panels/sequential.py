@@ -5,7 +5,7 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 
 class SequentialSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager):
         self._S1 = None
         self._S2 = None
         super().__init__("Sequential Shifter", button_callback, connection_manager)

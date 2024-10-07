@@ -22,7 +22,7 @@ MOZA_TELEMETRY_FLAGS = [
 ]
 
 class WheelSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None

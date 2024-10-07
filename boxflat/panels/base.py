@@ -9,7 +9,7 @@ from boxflat.widgets import *
 import time
 
 class BaseSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
         self._curve_row = None
         self._eq_row = None
 

@@ -8,7 +8,7 @@ from threading import Thread, Event
 from gi.repository import Gtk
 
 class OtherSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, cm: MozaConnectionManager, hid_handler, version: str):
+    def __init__(self, button_callback, cm: MozaConnectionManager, hid_handler, version: str):
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
         self._version = version
         self._register_event("brake-calibration-active")

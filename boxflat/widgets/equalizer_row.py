@@ -146,11 +146,11 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         super().set_value(value, mute)
 
 
-    def subscribe_slider(self, index: int, callback: callable, *args):
+    def subscribe_slider(self, index: int, callback, *args):
         self._slider_subs_list[index].append(callback, *args)
 
 
-    def subscribe_sliders(self, callback: callable, *args):
+    def subscribe_sliders(self, callback, *args):
         self._sliders_subs.append(callback, *args)
 
 

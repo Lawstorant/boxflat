@@ -160,7 +160,7 @@ class MozaConnectionManager(EventDispatcher):
             self.refresh_cont(True)
 
 
-    def subscribe_connected(self, command: str, callback: callable, *args):
+    def subscribe_connected(self, command: str, callback, *args):
         if not command in self._connected_subscriptions:
             self._connected_subscriptions[command] = SubscriptionList()
         self._connected_subscriptions[command].append(callback, *args)

@@ -6,7 +6,7 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis
 
 class PedalsSettings(SettingsPanel):
-    def __init__(self, button_callback: callable, connection_manager: MozaConnectionManager, hid_handler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
         self._brake_calibration_row = None
         self._curve_rows = []
 

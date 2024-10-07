@@ -5,7 +5,7 @@ from queue import SimpleQueue
 
 
 class Subscription():
-    def __init__(self, callback: callable, *args):
+    def __init__(self, callback, *args):
         self._callback = callback
         self._args = args
 
@@ -47,7 +47,7 @@ class SubscriptionList():
         return self._subscriptions[index]
 
 
-    def append(self, callback: callable, *args) -> Subscription:
+    def append(self, callback, *args) -> Subscription:
         if not callable(callback):
             return
 
@@ -56,7 +56,7 @@ class SubscriptionList():
         return sub
 
 
-    def append_single(self, callback: callable, *args):
+    def append_single(self, callback, *args):
         if not callable(callback):
             return
 
@@ -181,14 +181,14 @@ class EventDispatcher():
         return True
 
 
-    def subscribe(self, event_name: str, callback: callable, *args) -> Subscription:
+    def subscribe(self, event_name: str, callback, *args) -> Subscription:
         if not self.__find_event(event_name):
             return False
 
         return self.__events[event_name].append(callback, *args)
 
 
-    def subscribe_once(self, event_name: str, callback: callable, *args):
+    def subscribe_once(self, event_name: str, callback, *args):
         if not self.__find_event(event_name):
             return
 
@@ -240,11 +240,11 @@ class SimpleEventDispatcher():
             self.__events.call_with_values(*values)
 
 
-    def subscribe(self, callback: callable, *args):
+    def subscribe(self, callback, *args):
         self.__events.append(callback, *args)
 
 
-    def subscribe_once(self, event_name: str, callback: callable, *args):
+    def subscribe_once(self, event_name: str, callback, *args):
         self.__events.append_single(callback, *args)
 
 

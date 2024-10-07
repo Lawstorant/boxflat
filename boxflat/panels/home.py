@@ -80,7 +80,7 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_value(round((value - 32768) / 32768 * self._rotation))
 
 
-    def _set_limit(self, fraction_method: callable, command: str, min_max: str):
+    def _set_limit(self, fraction_method, command: str, min_max: str):
         fraction = fraction_method()
 
         current_raw_output = int(self._cm.get_setting(command + "-output")) / 65535 * 100
