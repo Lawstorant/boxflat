@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis, HidHandler

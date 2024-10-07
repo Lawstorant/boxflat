@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from sys import byteorder
 from binascii import hexlify
 from struct import pack, unpack

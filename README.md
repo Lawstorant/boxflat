@@ -102,3 +102,5 @@ $ sudo ./install.sh remove
 <img alt="Sequential shifter panel" src="screens/sequential.png">
 
 <img alt="Handbrake panel" src="screens/handbrake.png">
+
+**© 2024 Tomasz Pakuła Using Arch BTW**

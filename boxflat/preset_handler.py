@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from .connection_manager import MozaConnectionManager
 from .moza_command import MozaCommand
 import yaml

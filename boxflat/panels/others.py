@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.panels import SettingsPanel
 from boxflat.widgets import *

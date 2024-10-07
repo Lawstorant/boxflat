@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from .settings_panel import *
 from .base import *
 from .wheel import *

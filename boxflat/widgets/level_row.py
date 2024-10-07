@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from gi.repository import Gtk, GLib
 from .row import BoxflatRow
 from math import ceil, floor

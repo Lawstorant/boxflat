@@ -1,18 +1,19 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 # MOZA Racing Serial protocol data
-magic-value: 13    # For security byte
-message-start: 126 #"7e"
+magic-value  : 13  # For checksum
+message-start: 126 #"0x7e"
 
 device-ids:
-  main: 18 # base id for devices connected through usb
-  base: 19
-  wheel: 23 # this ID can vary but most wheels are available at ID 23 now.
-  pedals: 25
-  hpattern: 26
+  main      : 18 # base id for devices connected through usb
+  base      : 19
+  wheel     : 23 # this ID can vary but most wheels are available at ID 23 now.
+  pedals    : 25
+  hpattern  : 26
   sequential: 26
-  handbrake: 27
-  hub: -1
-  dash: -1
-  estop: -1
+  handbrake : 27
+  hub       : -1
+  dash      : -1
+  estop     : -1
 
 
 ids-to-names:

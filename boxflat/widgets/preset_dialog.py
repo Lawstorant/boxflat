@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from gi.repository import Gtk, Adw, GLib
 
 from .button_row import BoxflatButtonRow

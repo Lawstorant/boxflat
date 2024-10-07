@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from threading import Thread
 from multiprocessing import Process, Queue, Event
 from multiprocessing.queues import Empty

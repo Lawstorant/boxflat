@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 def test_bit(value, bit_number: int) -> bool:
     if bit_number < 0:
         return

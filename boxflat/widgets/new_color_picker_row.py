@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from gi.repository import Gtk, Gdk, GLib
 from .row import BoxflatRow
 from threading import Thread, Event, Lock

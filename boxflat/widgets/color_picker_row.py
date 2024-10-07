@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from .toggle_button_row import BoxflatToggleButtonRow
 
 PICKER_COLORS=8

@@ -1,3 +1,5 @@
+# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+
 from .row import *
 from .combo_row import *
 from .slider_row import *
