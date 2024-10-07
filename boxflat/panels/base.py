@@ -83,15 +83,6 @@ class BaseSettings(SettingsPanel):
 
         # Basic settings
         self.add_preferences_group("Basic settings")
-        self._sensitivity_row = BoxflatSliderRow("Road Sensitivity", range_end=10)
-        self._add_row(self._sensitivity_row)
-        self._current_row.add_marks(2, 4, 6, 8)
-        self._current_row.set_expression("*4 + 10")
-        self._current_row.set_reverse_expression("/4 - 2.5")
-        self._current_row.subscribe(self._cm.set_setting, "base-road-sensitivity")
-        self._current_row.subscribe(self._set_eq_preset, True)
-        self._cm.subscribe("base-road-sensitivity", self._current_row.set_value)
-
         self._add_row(BoxflatSliderRow("Maximum Wheel Speed", suffix="%", range_end=200))
         self._current_row.add_marks(50, 100, 150)
         self._current_row.set_expression("*10")
@@ -236,7 +227,7 @@ class BaseSettings(SettingsPanel):
     def __prepare_eq(self):
         self.add_preferences_page("Equalizer", "network-cellular-signal-excellent-symbolic")
 
-        self.add_preferences_group("Equalizer")
+        self.add_preferences_group()
         self._eq_row = BoxflatEqRow("FFB Equalizer", 6,
             subtitle="Perfectly balanced, as all things should be", range_end=400, suffix="%", button_row=False)
         self._add_row(self._eq_row)
@@ -247,15 +238,27 @@ class BaseSettings(SettingsPanel):
             self._eq_row.subscribe_slider(i, self._cm.set_setting, f"base-equalizer{i+1}")
             self._cm.subscribe(f"base-equalizer{i+1}", self._eq_row.set_slider_value, i)
 
+        self.add_preferences_group()
+        self._sensitivity_row = BoxflatSliderRow("Road Sensitivity", range_end=10)
+        self._add_row(self._sensitivity_row)
+        self._sensitivity_row.add_marks(2, 4, 6, 8)
+        self._sensitivity_row.set_expression("*4 + 10")
+        self._sensitivity_row.set_reverse_expression("/4 - 2.5")
+        self._sensitivity_row.set_slider_width(350)
+        self._sensitivity_row.subscribe(self._cm.set_setting, "base-road-sensitivity")
+        self._sensitivity_row.subscribe(self._set_eq_preset, True)
+        self._cm.subscribe("base-road-sensitivity", self._sensitivity_row.set_value)
+
 
     def __prepare_curve(self):
         self.add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
 
-        self.add_preferences_group("Base FFB Curve")
+        self.add_preferences_group()
         self._curve_row = BoxflatEqRow("FFB Curve", 5, subtitle="Game FFB to Output FFB ratio", suffix="%")
         self._add_row(self._curve_row)
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
+        self._current_row.set_height(320)
 
         self._current_row.add_buttons("Linear", "S Curve", "Inverted S", "Exponential", "Parabolic")
         self._current_row.set_button_value(-1)

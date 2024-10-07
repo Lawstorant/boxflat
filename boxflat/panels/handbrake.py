@@ -42,23 +42,24 @@ class HandbrakeSettings(SettingsPanel):
         self._cm.subscribe("handbrake-button-threshold", self._current_row.set_value)
         self._current_row.set_active(False)
 
-        self.add_preferences_group("Range settings", level_bar=1)
+        self.add_preferences_group("Handbrake Curve", level_bar=1)
         self._current_group.set_bar_max(65535)
         self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_group.set_bar_level)
 
-        self._curve_row = BoxflatEqRow("Output Curve", 5, suffix="%")
+        self._curve_row = BoxflatEqRow("", 5, suffix="%")
         self._add_row(self._curve_row)
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
         self._current_row.set_height(260)
         self._current_row.add_buttons("Linear", "S Curve", "Exponential", "Parabolic")
         self._current_row.set_button_value(-1)
+        self._current_row.set_height(280)
         self._current_row.subscribe(self._set_curve_preset)
         for i in range(5):
             self._curve_row.subscribe_slider(i, self._set_curve_point, i)
             self._cm.subscribe(f"handbrake-y{i+1}", self._get_curve, i)
 
-
+        self.add_preferences_group("Handbrake Range")
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
@@ -71,7 +72,7 @@ class HandbrakeSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "handbrake-max")
         self._cm.subscribe("handbrake-max", self._current_row.set_value)
 
-        self.add_preferences_group("Calibration")
+        self.add_preferences_group()
         self._add_row(BoxflatCalibrationRow("Handbrake Calibration", "Pull handbrake fully once"))
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "handbrake-calibration-start")
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "handbrake-calibration-stop")

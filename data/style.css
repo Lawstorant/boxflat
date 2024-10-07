@@ -49,12 +49,12 @@ levelbar {
 
 .eq-slider {
     margin-bottom: 4px;
-    padding-left: 7px;
-    padding-right: 7px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .eq-label {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .eq-buttons {

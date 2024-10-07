@@ -97,6 +97,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.6" date="2024-10-07">
+      <description>
+        <p>Visual update</p>
+        <ul>
+          <li>Improved look and feel</li>
+          <li>Improved type hints</li>
+          <li>Added copyright notices</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.19.5" date="2024-10-06">
       <description>
         <p>Major rewrite pt.2</p>

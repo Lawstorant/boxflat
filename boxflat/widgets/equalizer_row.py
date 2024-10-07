@@ -20,7 +20,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         child = self.get_child()
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        main_box.set_margin_top(13)
+        main_box.set_margin_top(8)
         self.set_child(main_box)
 
         sliders_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -68,7 +68,8 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         if button_row:
             self._box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-            self._box.add_css_class("eq-buttons")
+            if title != "":
+                self._box.add_css_class("eq-buttons")
             self._box.add_css_class("linked")
             main_box.append(self._box)
 
@@ -82,7 +83,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         for mark in marks:
             for slider in self._sliders:
-                slider.add_mark(mark, Gtk.PositionType.RIGHT,f"{mark}{self._suffix}")
+                slider.add_mark(mark, Gtk.PositionType.RIGHT,f" {mark}{self._suffix}")
 
 
     def add_labels(self, *labels: str, index=None):

@@ -67,7 +67,9 @@ class WheelSettings(SettingsPanel):
         self.add_view_stack()
         self.add_preferences_page("Wheel")
 
-        self.add_preferences_group("Input settings")
+        self.add_preferences_group("Clutch Paddles")
+        self._cm.subscribe_connected("wheel-paddles-mode", self._current_group.set_present)
+        self._current_group.set_present(0)
 
         paddle_mode = BoxflatToggleButtonRow("Dual Clutch Paddles Mode")
         self._add_row(paddle_mode)
@@ -77,11 +79,9 @@ class WheelSettings(SettingsPanel):
 
         self._current_row.subscribe(self._cm.set_setting, "wheel-paddles-mode")
         self._cm.subscribe("wheel-paddles-mode", self._current_row.set_value)
-        self._cm.subscribe_connected("wheel-paddles-mode", self._current_row.set_present)
-        self._current_row.set_present(False)
 
 
-        level = BoxflatLevelRow("Combined Paddles", max_value=65534)
+        level = BoxflatLevelRow("Combined Paddles", max_value=65_534)
         self._add_row(level)
         self._hid_handler.subscribe(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
         self._cm.subscribe_connected("wheel-paddles-mode", lambda v: level.set_present(v == 2))
@@ -113,8 +113,8 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-clutch-point", self._current_row.set_value)
         self._cm.subscribe("wheel-paddles-mode", lambda v: slider.set_active(v == 2))
         self._cm.subscribe_connected("wheel-clutch-point", self._current_row.set_present)
-        self._current_row.set_present(False)
 
+        self.add_preferences_group("Input")
         self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
         self._current_row.add_buttons("Buttons", "  Knob ")
         self._current_row.subscribe(self._cm.set_setting, "wheel-knob-mode")
@@ -188,7 +188,7 @@ class WheelSettings(SettingsPanel):
 
 
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
-            range_start=2000, range_end=18000, button_row=False, draw_marks=False, increment=100)
+            range_start=2000, range_end=18_000, button_row=False, draw_marks=False, increment=100)
 
         self._add_row(self._timing_row2)
         self._timing_row2.add_buttons("Early", "Normal", "Late")

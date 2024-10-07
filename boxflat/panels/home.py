@@ -36,20 +36,20 @@ class HomeSettings(SettingsPanel):
         self.add_preferences_group("Pedals")
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_active, 1)
 
-        self._add_row(BoxflatMinMaxLevelRow("Throttle input", self._set_limit, "pedals-throttle", max_value=65534))
+        self._add_row(BoxflatMinMaxLevelRow("Throttle input", self._set_limit, "pedals-throttle", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._current_row.set_value)
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
-        self._add_row(BoxflatMinMaxLevelRow("Brake input", self._set_limit, "pedals-brake", max_value=65534))
+        self._add_row(BoxflatMinMaxLevelRow("Brake input", self._set_limit, "pedals-brake", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.BRAKE.name, self._current_row.set_value)
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
-        self._add_row(BoxflatMinMaxLevelRow("Clutch input", self._set_limit, "pedals-clutch", max_value=65534))
+        self._add_row(BoxflatMinMaxLevelRow("Clutch input", self._set_limit, "pedals-clutch", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._current_row.set_value)
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self.add_preferences_group("Handbrake")
-        self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65534))
+        self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
         self._cm.subscribe_connected("handbrake-direction", self._current_group.set_present, 1)
         self._current_group.set_present(False)

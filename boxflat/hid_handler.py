@@ -164,7 +164,7 @@ class HidHandler(EventDispatcher):
 
         for hid in devices:
             if re.search(pattern, hid.name.lower()):
-                print(f"HID device found: " + hid.name)
+                print(f"HID device found: {hid.name}")
                 device = hid
 
         if device is not None:
@@ -228,7 +228,7 @@ class HidHandler(EventDispatcher):
             number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
 
         #print(f"button {number}, state: {state}")
-        self._dispatch("button-" + str(number), state)
+        self._dispatch(f"button-{number}", state)
 
 
     def _hid_read_loop(self, device: evdev.InputDevice):

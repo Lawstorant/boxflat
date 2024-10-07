@@ -202,7 +202,7 @@ class EventDispatcher():
         self.__events[event_name].clear()
 
 
-    def _remove_event_subscription(self, event_name: str, sub: Subscription) -> bool:
+    def _remove_subscription(self, event_name: str, sub: Subscription) -> bool:
         if not self.__find_event(event_name):
             return False
 

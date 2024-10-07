@@ -23,7 +23,7 @@ class MainWindow(Adw.ApplicationWindow):
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
 
-        self._panels = {}
+        self._panels: dict[str, SettingsPanel] = {}
         self._dry_run = dry_run
 
         self.set_default_size(0, 850)
