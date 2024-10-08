@@ -1,9 +1,8 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
-import gi
-gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 from .row import BoxflatRow
+from threading import Event
 
 class BoxflatSliderRow(BoxflatRow):
     def __init__(self, title="", range_start=0,
@@ -29,6 +28,13 @@ class BoxflatSliderRow(BoxflatRow):
         self.add_marks(range_start, range_end)
 
         slider.connect('value-changed', self._notify)
+
+        self._value_block = Event()
+        controller = Gtk.GestureClick()
+        controller.connect("pressed", self._block)
+        controller.connect("released", self._unblock)
+        controller.connect("unpaired-release", self._unblock)
+        slider.add_controller(controller)
 
         if big:
             label = Gtk.Label()
@@ -81,8 +87,22 @@ class BoxflatSliderRow(BoxflatRow):
 
 
     def _set_value(self, value: int):
+        if self._value_block.is_set():
+            return
+
         value = round(eval("value"+self._reverse_expression))
         if value < self._range_start:
             value = self._range_start
 
         self._slider.set_value(value)
+
+
+    def _block(self, *rest):
+        self.mute()
+        self._value_block.set()
+
+
+    def _unblock(self, *rest):
+        self.unmute()
+        self._notify()
+        self._value_block.clear()
