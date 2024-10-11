@@ -19,11 +19,14 @@ device-ids:
 ids-to-names:
   18: main
   19: base
+  21: wheel
   23: wheel
   25: pedals
   26: hpattern
   26: sequential
   27: handbrake
+
+# TODO: save device group ranges for better command discovery
 
 # TODO: EEPROM commands
 # Maybe that's how we update FW?

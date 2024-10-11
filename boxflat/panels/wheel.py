@@ -43,24 +43,21 @@ class WheelSettings(SettingsPanel):
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
         self._cm.subscribe_connected("wheel-indicator-mode", self.active)
+        self.set_banner_title(f"Device disconnected. Trying wheel id: ...")
 
 
     def active(self, value: int):
-        new_id = None
-        if value == -1:
-            new_id = self._cm.cycle_wheel_id()
-
-        if new_id == 21 and self._stick_row:
-            self._stick_row.set_active(0)
-            self._combination_row.set_present(0)
-        elif self._stick_row:
-            self._stick_row.set_active(1)
-            self._combination_row.set_present(1)
-
         super().active(value)
-
         if value == -1:
+            self._cm.cycle_wheel_id()
             self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
+
+        wheel_id = self._cm.get_device_id("wheel")
+        if self._stick_row is not None:
+            self._stick_row.set_active(wheel_id == 23)
+
+        if self._combination_row is not None:
+            self._combination_row.set_active(wheel_id == 23)
 
 
     def prepare_ui(self):
