@@ -34,7 +34,6 @@ class SerialHandler(SimpleEventDispatcher):
     def write_bytes(self, message: bytes):
         if message is None:
             return
-
         self._write_queue.put(message)
 
 
@@ -44,7 +43,6 @@ class SerialHandler(SimpleEventDispatcher):
                 response = self._read_queue.get(timeout=0.5)
             except:
                 continue
-
             self._dispatch(response)
 
 

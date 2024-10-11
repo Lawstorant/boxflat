@@ -97,6 +97,19 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.19.7" date="2024-10-12">
+      <description>
+        <p>
+          This update should fix even more woes with the ES wheel detection.
+          Kudos to GitHub user TimSchmock who helped massively wit hthe debugging
+          as I do not own the ES wheel myself (or a few other Moza devices)
+        </p>
+        <p>
+          Huge thanks to GitHub user pseudex for supporting this project!
+          I'm getting closer to being able to actually buy Moza Universal hub and support it.
+        </p>
+      </description>
+    </release>
     <release version="v1.19.6" date="2024-10-07">
       <description>
         <p>Visual update</p>
