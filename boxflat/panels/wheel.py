@@ -49,7 +49,7 @@ class WheelSettings(SettingsPanel):
     def active(self, value: int):
         super().active(value)
         if value == -1:
-            self._cm.cycle_wheel_id()
+            new_id = self._cm.cycle_wheel_id()
             self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
 
         wheel_id = self._cm.get_device_id("wheel")
