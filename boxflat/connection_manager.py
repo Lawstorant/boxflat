@@ -183,7 +183,7 @@ class MozaConnectionManager(EventDispatcher):
                     continue
                 # print("Polling data: " + command)
                 self._get_setting(command)
-                time.sleep(0.005)
+                time.sleep(0.002)
 
 
     def _device_polling(self):
@@ -224,7 +224,7 @@ class MozaConnectionManager(EventDispatcher):
             self._connected_thread.start()
 
 
-    def _get_device_id(self, device_type: str) -> int:
+    def get_device_id(self, device_type: str) -> int:
         id = int(self._serial_data["device-ids"][device_type])
         if device_type != "base" and device_type in self._serial_devices:
             id = int(self._serial_data["device-ids"]["main"])
@@ -269,7 +269,7 @@ class MozaConnectionManager(EventDispatcher):
     def _handle_setting(self, value, command_name: str, device_name: str, rw: int) -> bool:
         command = MozaCommand()
         command.set_data_from_name(command_name, self._serial_data["commands"], device_name)
-        command.device_id = self._get_device_id(command.device_type)
+        command.device_id = self.get_device_id(command.device_type)
 
         if command.device_id == -1:
             print("Invalid Device ID")
@@ -343,15 +343,15 @@ class MozaConnectionManager(EventDispatcher):
 
     def cycle_wheel_id(self) -> int:
         with self._devices_lock:
-            wid = self._serial_data["device-ids"]["wheel"] - 1
+            wid = self._serial_data["device-ids"]["wheel"] - 2
 
-            if wid == self._serial_data["device-ids"]["base"] + 1:
+            if wid < self._serial_data["device-ids"]["base"]:
                 wid = self._serial_data["device-ids"]["pedals"] - 2
 
             self._serial_data["device-ids"]["wheel"] = wid
 
-        # print(f"Cycling wheel id. New id: {wid}")
-        return wid
+            # print(f"Cycling wheel id. New id: {wid}")
+            return wid
 
 
     def get_command_data(self) -> dict[str, dict]:

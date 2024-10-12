@@ -67,7 +67,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
 
 
     def get_value(self, index: int) -> list[int]:
-        if index >= 0 and index < len(self._colors):
+        if 0 <= index < len(self._colors):
             rgba = self._colors[index].get_rgba()
             return extract_rgb(rgba)
         return []

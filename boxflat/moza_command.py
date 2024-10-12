@@ -58,6 +58,12 @@ class MozaCommand():
         if device_name == "base":
             device_name = device_ids[device_id]
 
+        # Some ES wheels report on main/base IDs for some reason.
+        # TODO: rewrite the db file and index commands by their rw
+        # group first. It's the only stable metric.
+        if 63 <= group <= 66:
+            device_name = "wheel"
+
         for name, values in commands_data[device_name].items():
             if group != values["read"]:
                 continue
