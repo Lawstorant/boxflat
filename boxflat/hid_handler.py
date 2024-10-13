@@ -121,7 +121,7 @@ class HidHandler(EventDispatcher):
             self._register_event(name)
 
         self._running = Event()
-        self._update_rate = 120
+        self._update_rate = 10
         self._base = None
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)

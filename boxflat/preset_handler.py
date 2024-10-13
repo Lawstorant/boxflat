@@ -169,9 +169,11 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
 
     def add_device_settings(self, device: str):
-        if device in MozaDevicePresetSettings:
-            for setting in MozaDevicePresetSettings[device]:
-                self.append_setting(setting)
+        if device not in MozaDevicePresetSettings:
+            return
+
+        for setting in MozaDevicePresetSettings[device]:
+            self.append_setting(setting)
 
 
     # def remove_setting(self, setting_name: str):
@@ -205,12 +207,13 @@ class MozaPresetHandler(SimpleEventDispatcher):
                     tries += 1
                     replace = setting.replace("set-", "get-")
                     value = self._cm.get_setting(f"{device}-{replace}", exclusive=True)
-                    if value != -1:
-                        preset_data[device][setting] = value
-                        tries = 3
+
+                    if value == -1:
+                        continue
+                    preset_data[device][setting] = value
+                    tries = 3
 
         path = os.path.expanduser(self._path)
-
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -225,15 +228,16 @@ class MozaPresetHandler(SimpleEventDispatcher):
             return
 
         preset_data = None
-
         with open(os.path.join(self._path, self._name), "r") as file:
             preset_data = yaml.safe_load(file.read())
 
         for key, settings in preset_data.items():
-            if key in MozaDevicePresetSettings.keys():
-                for setting, value in settings.items():
-                    setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
-                    # print(f"{key}-{setting}: {value}")
-                    self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
+            if key not in MozaDevicePresetSettings.keys():
+                continue
+
+            for setting, value in settings.items():
+                setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
+                # print(f"{key}-{setting}: {value}")
+                self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
 
         self._dispatch()

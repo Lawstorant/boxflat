@@ -7,12 +7,14 @@ from gi.repository import Gtk, Gdk, Adw
 from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
+from boxflat.settings_handler import PersistentSettingsHandler
 import os
 
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, config_path: str, dry_run: bool, custom: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self._settings = PersistentSettingsHandler(config_path)
         self._hid_handler = HidHandler()
         self._config_path = config_path
 
@@ -126,10 +128,10 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm)
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
-        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler, self._version)
-        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._config_path, self._version)
+        self._panels["Other"] = OtherSettings(self.switch_panel, self._cm, self._hid_handler, self._settings, self._version)
+        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings)
 
-        self._panels["Other"].subscribe("brake-calibration-active", self._panels["Pedals"].set_brake_calibration_active)
+        self._panels["Other"].subscribe("brake-calibration-enabled", self._panels["Pedals"].set_brake_calibration_active)
 
         for panel in self._panels.values():
             panel.active(-2)

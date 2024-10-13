@@ -60,9 +60,13 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
 
 
     def set_value(self, value, mute: bool=True):
+        if value is None:
+            return
+
         if self.cooldown():
             # print("Still cooling down")
             return
+
         GLib.idle_add(self.__set_value_helper, value, mute)
 
 
