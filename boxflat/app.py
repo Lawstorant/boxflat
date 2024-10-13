@@ -7,14 +7,14 @@ from gi.repository import Gtk, Gdk, Adw
 from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
-from boxflat.settings_handler import PersistentSettingsHandler
+from boxflat.settings_handler import SettingsHandler
 import os
 
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, data_path: str, config_path: str, dry_run: bool, custom: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._settings = PersistentSettingsHandler(config_path)
+        self._settings = SettingsHandler(config_path)
         self._hid_handler = HidHandler()
         self._config_path = config_path
 
@@ -123,7 +123,7 @@ class MainWindow(Adw.ApplicationWindow):
     def _prepare_settings(self):
         self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run, self._cm, self._hid_handler, self._version)
         self._panels["Base"] = BaseSettings(self.switch_panel, self._cm, self._hid_handler)
-        self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm, self._hid_handler)
+        self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm, self._hid_handler, self._settings)
         self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm, self._settings)
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)

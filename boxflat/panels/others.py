@@ -1,7 +1,7 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
 from boxflat.connection_manager import MozaConnectionManager
-from boxflat.settings_handler import PersistentSettingsHandler
+from boxflat.settings_handler import SettingsHandler
 from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 from boxflat.bitwise import *
@@ -12,7 +12,7 @@ class OtherSettings(SettingsPanel):
     def __init__(self, button_callback,
         cm: MozaConnectionManager,
         hid_handler,
-        settings: PersistentSettingsHandler,
+        settings: SettingsHandler,
         version: str
     ):
         self._version = version

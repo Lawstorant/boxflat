@@ -4,11 +4,11 @@ from .settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 from boxflat.preset_handler import MozaPresetHandler
-from boxflat.settings_handler import PersistentSettingsHandler
+from boxflat.settings_handler import SettingsHandler
 import os
 
 class PresetSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: PersistentSettingsHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler):
         self._settings = settings
 
         self._includes = {}

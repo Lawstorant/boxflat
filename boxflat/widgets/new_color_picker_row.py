@@ -67,10 +67,10 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
 
 
     def get_value(self, index: int) -> list[int]:
-        if 0 <= index < len(self._colors):
-            rgba = self._colors[index].get_rgba()
-            return extract_rgb(rgba)
-        return []
+        if not 0 <= index < len(self._colors):
+            return
+        rgba = self._colors[index].get_rgba()
+        return extract_rgb(rgba)
 
 
     def get_index(self, button: Gtk.ColorDialogButton) -> int:
@@ -78,10 +78,13 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
 
 
     def set_led_value(self, value: list, index: int):
+        if not isinstance(value, list):
+            return
+
         if self._value_lock.locked():
             return
 
-        if index < 0 or index >= len(self._colors):
+        if not 0 <= index < len(self._colors):
             return
 
         if self.cooldown():

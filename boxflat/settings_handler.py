@@ -3,7 +3,7 @@ from os import path, makedirs
 from threading import Lock
 from typing import Any
 
-class PersistentSettingsHandler():
+class SettingsHandler():
     def __init__(self, config_path: str) -> None:
         self._settings_path = path.expanduser(config_path)
         self._settings_file = path.join(self._settings_path, "settings.yml")

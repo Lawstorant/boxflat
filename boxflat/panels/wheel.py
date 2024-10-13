@@ -6,6 +6,7 @@ from boxflat.bitwise import *
 from boxflat.widgets import *
 
 from boxflat.hid_handler import MozaAxis
+from boxflat.settings_handler import SettingsHandler
 
 MOZA_TELEMETRY_FLAGS = [
     "Wheel Spin",
@@ -22,18 +23,22 @@ MOZA_TELEMETRY_FLAGS = [
 ]
 
 class WheelSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
+        self._settings = settings
+        self._blinking_row = None
+
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
         self._stick_row = None
+        self._wheel_combination_data: list[int] = []
+
         self._timings: list[list[int]] = [
             [65, 69, 72, 75, 78, 80, 83, 85, 88, 91], # Early
             [75, 79, 82, 85, 87, 88, 89, 90, 92, 94], # Normal
             [80, 83, 86, 89, 91, 92, 93, 94, 96, 97], # Late
         ]
-        # self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Central
-        self._wheel_combination_data: list[int] = []
+        self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Outside-in
 
         self._timings2: list[list[int]] = [
             [5400, 5700, 6000, 6300, 6500, 6700, 6900, 7100, 7300, 7600],
@@ -51,6 +56,7 @@ class WheelSettings(SettingsPanel):
         if value == -1:
             new_id = self._cm.cycle_wheel_id()
             self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
+            return
 
         wheel_id = self._cm.get_device_id("wheel")
         if self._stick_row is not None:
@@ -58,6 +64,9 @@ class WheelSettings(SettingsPanel):
 
         if self._combination_row is not None:
             self._combination_row.set_active(wheel_id == 23)
+
+        for i in range(MOZA_RPM_LEDS):
+            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):
@@ -177,7 +186,7 @@ class WheelSettings(SettingsPanel):
             button_row=False, draw_marks=False)
 
         self._add_row(self._timing_row)
-        self._timing_row.add_buttons("Early", "Normal", "Late")
+        self._timing_row.add_buttons("Early", "Normal", "Late", "Center")
         self._timing_row.subscribe(self._set_rpm_timings_preset)
         self._timing_row.subscribe_sliders(self._set_rpm_timings)
         for i in range(MOZA_RPM_LEDS):
@@ -225,9 +234,14 @@ class WheelSettings(SettingsPanel):
             self._cm.subscribe(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Blinking")
-        self._add_row(BoxflatNewColorPickerRow())
+        self._current_group.set_description("These colors are not saved on the wheel")
+        self._blinking_row = BoxflatNewColorPickerRow()
+        self._add_row(self._blinking_row)
         for i in range(MOZA_RPM_LEDS):
-            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-blink-color{i+1}")
+            name = f"wheel-rpm-blink-color{i+1}"
+            self._current_row.set_led_value(self._settings.read_setting(name), i)
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, name)
+            self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
 
         self.add_preferences_group("Brightness")
         self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))

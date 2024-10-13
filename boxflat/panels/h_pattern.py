@@ -3,10 +3,10 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
-from boxflat.settings_handler import PersistentSettingsHandler
+from boxflat.settings_handler import SettingsHandler
 
 class HPatternSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: PersistentSettingsHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler):
         self._slider1 = None
         self._slider2 = None
         self._settings = settings
@@ -20,10 +20,8 @@ class HPatternSettings(SettingsPanel):
 
 
     def prepare_ui(self):
-        self.add_preferences_group("Warning")
-        self._add_row(BoxflatRow("These options are not operational", "Work in progress"))
-
         self.add_preferences_group("Shifter Settings")
+        self._current_group.set_description("These options are not operational yet. Work in progress")
 
         row1 = BoxflatSliderRow("Auto Blip Output", 0, 100, increment=10)
         row2 = BoxflatSliderRow("Auto Blip Duration", 0, 1000, subtitle="Miliseconds", increment=50)
@@ -45,6 +43,7 @@ class HPatternSettings(SettingsPanel):
         row2.subscribe(self._settings.write_setting, "hpattern-blip-duration")
 
         self.add_preferences_group()
+        self._current_group.set_description("This one works :)")
         self._add_row(BoxflatCalibrationRow("Device Calibration", "Shift into R > 7th > R > Neutral"))
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "hpattern-calibration-start")
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "hpattern-calibration-stop")
