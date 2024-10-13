@@ -16,7 +16,7 @@ class SettingsHandler():
             open(self._settings_file, "w").close()
 
 
-    def _get_file_contents(self) -> Any:
+    def _get_file_contents(self) -> dict:
         with self._file_lock, open(self._settings_file, "r") as file:
             return yaml.safe_load(file) or {}
 
@@ -37,6 +37,16 @@ class SettingsHandler():
         if setting_name in data:
             return data[setting_name]
         return None
+
+
+    def remove_setting(self, setting_name: str) -> bool:
+        data = self._get_file_contents()
+        if setting_name not in data:
+            return False
+
+        data.pop(setting_name)
+        self._write_to_file(data)
+        return True
 
 
     def get_path(self) -> str:
