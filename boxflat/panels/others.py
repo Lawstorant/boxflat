@@ -17,10 +17,8 @@ class OtherSettings(SettingsPanel):
     ):
         self._version = version
         self._settings = settings
-        self._brake_row: BoxflatSwitchRow = None
+        self._brake_row = None
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
-        self._register_event("brake-calibration-enabled")
-        self._brake_row.set_value(self._settings.read_setting("brake-calibration-enabled"), mute=False)
 
 
     def prepare_ui(self):
@@ -45,20 +43,27 @@ class OtherSettings(SettingsPanel):
 
 
         self.add_preferences_group("Application settings")
-        self._brake_row = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
-        self._add_row(self._brake_row)
-        self._current_row.subscribe(self._dispatch, "brake-calibration-enabled")
-        self._current_row.subscribe(self._settings.write_setting, "brake-calibration-enabled")
+        brake_row = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
+        self._brake_row = brake_row
+        self._add_row(brake_row)
+
+        self._register_event("brake-calibration-enabled")
+        brake_row.subscribe(self._settings.write_setting, "brake-calibration-enabled")
+        brake_row.subscribe(lambda v: self._dispatch("brake-calibration-enabled", v))
+        brake_row.set_value(self._settings.read_setting("brake-calibration-enabled"))
 
         self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
         self._current_row.subscribe(self._cm.device_discovery)
 
         self._add_row(BoxflatSliderRow("HID Update Rate", suffix=" Hz  ", range_start=20, range_end=240, increment=10))
-        self._current_row.add_marks(120)
         self._current_row.subscribe(self._hid_handler.set_update_rate)
-        self._current_row.set_value(120, mute=False)
-        self._current_row.set_value(self._settings.read_setting("hid-update-rate"), mute=False)
+        self._current_row.add_marks(120)
+        self._current_row.set_value(self._settings.read_setting("hid-update-rate") or 120, mute=False)
         self._current_row.subscribe(self._settings.write_setting, "hid-update-rate")
+
+
+    def get_brake_valibration_enabled(self) -> int:
+        return self._settings.read_setting("brake-calibration-enabled")
 
 
     def enable_custom_commands(self):

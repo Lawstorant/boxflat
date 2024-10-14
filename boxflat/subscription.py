@@ -10,23 +10,11 @@ class Subscription():
         self._args: tuple = args
 
 
-    def call(self):
-        self._callback(*self._args)
-
-
-    def call_without_args(self):
-        self._callback()
-
-
-    def call_with_value(self, value):
-        self._callback(value, *self._args)
-
-
-    def call_with_values(self, *values):
+    def call(self, *values):
         self._callback(*values, *self._args)
 
 
-    def call_with_custom_args(self, *args):
+    def call_custom_args(self, *args):
         self._callback(*args)
 
 
@@ -34,7 +22,7 @@ class Subscription():
 class SubscriptionList():
     def __init__(self):
         self._subscriptions: list[Subscription] = []
-        self._single_time_subs = SimpleQueue()
+        self._single_time_subs: SimpleQueue[Subscription] = SimpleQueue()
 
 
     def count(self) -> int:
@@ -73,44 +61,20 @@ class SubscriptionList():
         self._subscriptions.append(subscription)
 
 
-    def call(self):
+    def call(self, *values):
         for sub in self._subscriptions:
-            sub.call()
+            sub.call(*values)
 
         while not self._single_time_subs.empty():
-            self._single_time_subs.get().call()
+            self._single_time_subs.get().call(*values)
 
 
-    def call_with_value(self, value):
+    def call_custom_args(self, *args):
         for sub in self._subscriptions:
-            sub.call_with_value(value)
+            sub.call_custom_args(*args)
 
         while not self._single_time_subs.empty():
-            self._single_time_subs.get().call_with_value(value)
-
-
-    def call_with_values(self, *values):
-        for sub in self._subscriptions:
-            sub.call_with_values(*values)
-
-        while not self._single_time_subs.empty():
-            self._single_time_subs.get().call_with_values(*values)
-
-
-    def call_without_args(self):
-        for sub in self._subscriptions:
-            sub.call_without_args()
-
-        while not self._single_time_subs.empty():
-            self._single_time_subs.get().call_without_args()
-
-
-    def call_with_custom_args(self, *args):
-        for sub in self._subscriptions:
-            sub.call_with_custom_args(*args)
-
-        while not self._single_time_subs.empty():
-            self._single_time_subs.get().call_with_custom_args(*args)
+            self._single_time_subs.get().call_custom_args(*args)
 
 
     def clear(self):
@@ -174,10 +138,7 @@ class EventDispatcher():
         if not self.__find_event(event_name):
             return False
 
-        if len(values) == 0:
-            self.__events[event_name].call()
-        else:
-            self.__events[event_name].call_with_values(*values)
+        self.__events[event_name].call(*values)
         return True
 
 
@@ -230,14 +191,11 @@ class ThreadedEventDispatcher(EventDispatcher):
 
 class SimpleEventDispatcher():
     def __init__(self):
-        self.__events = SubscriptionList()
+        self.__events: SubscriptionList[Subscription] = SubscriptionList()
 
 
     def _dispatch(self, *values):
-        if len(values) == 0:
-            self.__events.call()
-        else:
-            self.__events.call_with_values(*values)
+        self.__events.call(*values)
 
 
     def subscribe(self, callback, *args):

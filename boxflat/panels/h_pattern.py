@@ -23,21 +23,26 @@ class HPatternSettings(SettingsPanel):
         self.add_preferences_group("Shifter Settings")
         self._current_group.set_description("These options are not operational yet. Work in progress")
 
-        row1 = BoxflatSliderRow("Auto Blip Output", 0, 100, increment=10)
+        row1 = BoxflatSliderRow("Auto Blip Output", 0, 100, suffix="% ", increment=10)
         row2 = BoxflatSliderRow("Auto Blip Duration", 0, 1000, subtitle="Miliseconds", increment=50)
 
         self._add_row(BoxflatSwitchRow("Auto Downshift Throttle Blip", subtitle="Easy rev match"))
         self._current_row.subscribe(row1.set_active)
         self._current_row.subscribe(row2.set_active)
+        self._current_row.subscribe(self._settings.write_setting, "hpattern-blip-enabled")
+
+        self._current_row.set_value(self._settings.read_setting("hpattern-blip-enabled"))
+        row1.set_active(self._settings.read_setting("hpattern-blip-enabled"))
+        row2.set_active(self._settings.read_setting("hpattern-blip-enabled"))
 
         self._add_row(row1)
         self._add_row(row2)
 
-        row1.add_marks(50)
+        row1.add_marks(25, 50, 75)
         row2.add_marks(250, 500, 750)
 
-        row1.set_value(self._settings.read_setting("hpattern-blip-level"), mute=False)
-        row2.set_value(self._settings.read_setting("hpattern-blip-duration"), mute=False)
+        row1.set_value(self._settings.read_setting("hpattern-blip-level") or 70, mute=False)
+        row2.set_value(self._settings.read_setting("hpattern-blip-duration") or 400, mute=False)
 
         row1.subscribe(self._settings.write_setting, "hpattern-blip-level")
         row2.subscribe(self._settings.write_setting, "hpattern-blip-duration")

@@ -148,7 +148,7 @@ class HidHandler(EventDispatcher):
 
 
     def set_update_rate(self, rate: int) -> bool:
-        if rate < 0:
+        if not 0 <= rate <= 1000:
             return False
 
         self._update_rate = rate

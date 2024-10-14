@@ -79,7 +79,6 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, f"pedals-{pedal.name}-calibration-stop", True)
         if pedal == MozaAxis.BRAKE:
             self._brake_calibration_row = self._current_row
-            self._current_row.set_active(False)
 
 
     def _set_curve_preset(self, value: int, pedal: str):

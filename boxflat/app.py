@@ -132,6 +132,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings)
 
         self._panels["Other"].subscribe("brake-calibration-enabled", self._panels["Pedals"].set_brake_calibration_active)
+        self._panels["Pedals"].set_brake_calibration_active(self._panels["Other"].get_brake_valibration_enabled())
 
         for panel in self._panels.values():
             panel.active(-2)

@@ -43,7 +43,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
 
         self._colors: list[Gtk.ColorDialogButton] = []
         red = Gdk.RGBA()
-        red.parse("rgb(230,60,60)")
+        red.parse("rgb(255,0,0)")
         for i in range(MOZA_RPM_LEDS):
             color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True)
             color.set_rgba(red)

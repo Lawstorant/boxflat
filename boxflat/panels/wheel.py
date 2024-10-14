@@ -234,7 +234,7 @@ class WheelSettings(SettingsPanel):
             self._cm.subscribe(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("RPM Blinking")
-        self._current_group.set_description("These colors are not saved on the wheel")
+        self._current_group.set_description("These colors are not saved to the wheel")
         self._blinking_row = BoxflatNewColorPickerRow()
         self._add_row(self._blinking_row)
         for i in range(MOZA_RPM_LEDS):
