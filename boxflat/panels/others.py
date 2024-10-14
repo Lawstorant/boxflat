@@ -63,7 +63,7 @@ class OtherSettings(SettingsPanel):
 
 
     def get_brake_valibration_enabled(self) -> int:
-        return self._settings.read_setting("brake-calibration-enabled")
+        return self._settings.read_setting("brake-calibration-enabled") or 0
 
 
     def enable_custom_commands(self):
