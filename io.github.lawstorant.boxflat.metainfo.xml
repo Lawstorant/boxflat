@@ -97,6 +97,20 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.20.0" date="2024-10-14">
+      <description>
+        <p>
+          This release introduces persistent settings. These include:
+        </p>
+        <ul>
+          <li>H-Pattern blip settings</li>
+          <li>HID refresh rate setting</li>
+          <li>Brake calibration active state</li>
+          <li>Devices included in new presets</li>
+          <li>Wheel RPM blinking colors</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.19.7" date="2024-10-12">
       <description>
         <p>
