@@ -32,8 +32,8 @@ class HPatternSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "hpattern-blip-enabled")
 
         self._current_row.set_value(self._settings.read_setting("hpattern-blip-enabled"))
-        row1.set_active(self._settings.read_setting("hpattern-blip-enabled"))
-        row2.set_active(self._settings.read_setting("hpattern-blip-enabled"))
+        row1.set_active(self._settings.read_setting("hpattern-blip-enabled") or 0)
+        row2.set_active(self._settings.read_setting("hpattern-blip-enabled") or 0)
 
         self._add_row(row1)
         self._add_row(row2)
