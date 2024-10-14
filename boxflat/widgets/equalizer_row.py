@@ -167,7 +167,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         index = self._sliders.index(scale)
 
         self.set_button_value(-1)
-        self._slider_subs_list[index].call_with_value(self.get_slider_value(index))
+        self._slider_subs_list[index].call(self.get_slider_value(index))
 
 
     def _notify_sliders(self, scale):
@@ -176,7 +176,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
 
         self._cooldown = 2
         self.set_button_value(-1)
-        self._sliders_subs.call_with_value(self.get_sliders_value())
+        self._sliders_subs.call(self.get_sliders_value())
 
 
     def reconfigure(self, range_start=0, range_end=100, clear_marks=True):

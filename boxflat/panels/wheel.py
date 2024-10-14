@@ -38,7 +38,7 @@ class WheelSettings(SettingsPanel):
             [75, 79, 82, 85, 87, 88, 89, 90, 92, 94], # Normal
             [80, 83, 86, 89, 91, 92, 93, 94, 96, 97], # Late
         ]
-        self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Outside-in
+        #self._timings.append([80, 83, 86, 89, 91, 92, 93, 94, 96, 97]) # Outside-in
 
         self._timings2: list[list[int]] = [
             [5400, 5700, 6000, 6300, 6500, 6700, 6900, 7100, 7300, 7600],
@@ -186,7 +186,8 @@ class WheelSettings(SettingsPanel):
             button_row=False, draw_marks=False)
 
         self._add_row(self._timing_row)
-        self._timing_row.add_buttons("Early", "Normal", "Late", "Center")
+        self._timing_row.add_buttons("Early", "Normal", "Late")
+        # self._timing_row.add_buttons("Center")
         self._timing_row.subscribe(self._set_rpm_timings_preset)
         self._timing_row.subscribe_sliders(self._set_rpm_timings)
         for i in range(MOZA_RPM_LEDS):
