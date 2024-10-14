@@ -73,7 +73,7 @@ class SerialHandler(SimpleEventDispatcher):
                     continue
 
                 payload_length = int().from_bytes(serial.read(1))
-                if payload_length < 2 or payload_length > 11:
+                if not 2 <= payload_length <= 11:
                     continue
 
                 self._read_queue.put(serial.read(payload_length + 2))

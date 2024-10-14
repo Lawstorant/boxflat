@@ -121,7 +121,7 @@ class HidHandler(EventDispatcher):
             self._register_event(name)
 
         self._running = Event()
-        self._update_rate = 120
+        self._update_rate = 10
         self._base = None
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)
@@ -148,7 +148,7 @@ class HidHandler(EventDispatcher):
 
 
     def set_update_rate(self, rate: int) -> bool:
-        if rate < 0:
+        if not 0 <= rate <= 1000:
             return False
 
         self._update_rate = rate
@@ -156,44 +156,53 @@ class HidHandler(EventDispatcher):
 
 
     def add_device(self, pattern: MozaHidDevice):
+        Thread(target=self._add_device, args=[pattern], daemon=True).start()
+
+
+    def _add_device(self, pattern: MozaHidDevice):
         if not pattern:
             return
 
         device = None
-        devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        # devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        for path in evdev.list_devices():
+            hid = evdev.InputDevice(path)
+            if not re.search(pattern, hid.name.lower()):
+                continue
 
-        for hid in devices:
-            if re.search(pattern, hid.name.lower()):
-                print(f"HID device found: {hid.name}")
-                device = hid
+            print(f"HID device found: {hid.name}")
+            device = hid
+            break
 
-        if device is not None:
-            if pattern == MozaHidDevice.BASE:
-                self._base = device
+        if device is None:
+            return
 
-            capabilities = device.capabilities(absinfo=True, verbose=False)
+        if pattern == MozaHidDevice.BASE:
+            self._base = device
 
-            if 3 not in capabilities[0]:
-                capabilities = []
-            else:
-                capabilities = capabilities[3]
+        capabilities = device.capabilities(absinfo=True, verbose=False)
+        if 3 not in capabilities[0]:
+            capabilities = []
+        else:
+            capabilities = capabilities[3]
 
-            for axis in capabilities:
-                ecode = axis[0]
+        for axis in capabilities:
+            ecode = axis[0]
 
-                if device.absinfo(ecode).flat > 0:
-                    device.set_absinfo(ecode, flat=0)
+            if device.absinfo(ecode).flat > 0:
+                device.set_absinfo(ecode, flat=0)
 
-                fuzz = 8
-                if device == self._base and ecode == ABS_X:
-                    fuzz = 0
+            fuzz = 8
+            if device == self._base and ecode == ABS_X:
+                fuzz = 0
 
-                # detect current fuzz. Needed for ABS_HAT axes
-                if device.absinfo(ecode).fuzz > fuzz:
-                    device.set_absinfo(ecode, fuzz=fuzz)
+            # detect current fuzz. Needed for ABS_HAT axes
+            if device.absinfo(ecode).fuzz > fuzz:
+                device.set_absinfo(ecode, fuzz=fuzz)
 
-            Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
-            self._device_count.value += 1
+        self._device_count.value += 1
+        self._hid_read_loop(device)
+        # Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
 
 
     def _axis_data_polling(self):

@@ -4,15 +4,19 @@ from .settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 from boxflat.preset_handler import MozaPresetHandler
+from boxflat.settings_handler import SettingsHandler
 import os
 
 class PresetSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, config_path: str, version: str):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler):
+        self._settings = settings
+
         self._includes = {}
         self._name_row = Adw.EntryRow()
         self._name_row.set_title("Preset Name")
+
         self._save_row = None
-        self._presets_path = os.path.expanduser(os.path.join(config_path, "presets"))
+        self._presets_path = os.path.join(self._settings.get_path(), "presets")
         self._presets_list_group = None
         self._presets = []
         super().__init__("Presets", button_callback, connection_manager)
@@ -29,36 +33,48 @@ class PresetSettings(SettingsPanel):
         row = BoxflatSwitchRow("Base")
         expander.add_row(row)
         row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-base"))
+        row.subscribe(self._settings.write_setting, "presets-include-base")
         self._cm.subscribe_connected("base-limit", row.set_active, 1, True)
         self._includes["base"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel")
         expander.add_row(row)
         row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-wheel"))
+        row.subscribe(self._settings.write_setting, "presets-include-wheel")
         self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel Colors")
         expander.add_row(row)
-        row.set_value(1)
+        row.set_value(0)
+        row.set_value(self._settings.read_setting("presets-include-wheel-colors"))
+        row.subscribe(self._settings.write_setting, "presets-include-wheel-colors")
         self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
         self._includes["wheel-colors"] = row.get_value
 
         row = BoxflatSwitchRow("Pedals")
         expander.add_row(row)
         row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-pedals"))
+        row.subscribe(self._settings.write_setting, "presets-include-pedals")
         self._cm.subscribe_connected("pedals-throttle-dir", row.set_active, 1, True)
         self._includes["pedals"] = row.get_value
 
         row = BoxflatSwitchRow("Sequential Shifter")
         expander.add_row(row)
         row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-sequential"))
+        row.subscribe(self._settings.write_setting, "presets-include-sequential")
         self._cm.subscribe_connected("sequential-paddle-sync", row.set_active, 1, True)
         self._includes["sequential"] = row.get_value
 
         row = BoxflatSwitchRow("Handbrake")
         expander.add_row(row)
         row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-handbrake"))
+        row.subscribe(self._settings.write_setting, "presets-include-handbrake")
         self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
 

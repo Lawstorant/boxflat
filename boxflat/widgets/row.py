@@ -27,6 +27,9 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
 
 
     def set_active(self, value=1, offset=0) -> bool:
+        if value is None:
+            return
+
         value = bool(int(value) + offset > 0)
         if value != self.get_active():
             self._active = value
@@ -60,16 +63,22 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
 
 
     def set_value(self, value, mute: bool=True):
+        if value is None:
+            return
+
         if self.cooldown():
             # print("Still cooling down")
             return
+
         GLib.idle_add(self.__set_value_helper, value, mute)
 
 
     def __set_value_helper(self, value, mute: bool=True):
-        self._mute.set()
+        if mute:
+            self._mute.set()
         self._set_value(value)
-        self._mute.clear()
+        if mute:
+            self._mute.clear()
 
 
     def _set_value(self, value):

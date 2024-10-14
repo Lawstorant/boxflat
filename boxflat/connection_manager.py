@@ -200,7 +200,7 @@ class MozaConnectionManager(EventDispatcher):
                 # value = 1
                 if value is None:
                     value = -1
-                subs.call_with_value(value)
+                subs.call(value)
 
             time.sleep(2)
         self._connected_thread = None
