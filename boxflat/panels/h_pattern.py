@@ -41,8 +41,11 @@ class HPatternSettings(SettingsPanel):
         row1.add_marks(25, 50, 75)
         row2.add_marks(250, 500, 750)
 
-        row1.set_value(self._settings.read_setting("hpattern-blip-level") or 70, mute=False)
-        row2.set_value(self._settings.read_setting("hpattern-blip-duration") or 400, mute=False)
+        row1.set_value(70)
+        row2.set_value(400)
+
+        row1.set_value(self._settings.read_setting("hpattern-blip-level"), mute=False)
+        row2.set_value(self._settings.read_setting("hpattern-blip-duration") , mute=False)
 
         row1.subscribe(self._settings.write_setting, "hpattern-blip-level")
         row2.subscribe(self._settings.write_setting, "hpattern-blip-duration")
