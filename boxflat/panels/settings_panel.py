@@ -31,7 +31,7 @@ class SettingsPanel(EventDispatcher):
         self._shutdown = False
 
         self._banner = self._prepare_banner()
-        self._content = Adw.ToastOverlay()
+        self._content = Adw.ToastOverlay(vexpand=True)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.append(self._banner)
