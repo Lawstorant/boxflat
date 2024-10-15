@@ -30,13 +30,19 @@ class SettingsPanel(EventDispatcher):
         self._active = True
         self._shutdown = False
 
-        self._content = self._prepare_content()
-        self._toast_overlay = Adw.ToastOverlay()
-        self._toast_overlay.set_child(self._content)
-        self._page = Adw.NavigationPage(title=title, child=self._toast_overlay)
+        self._banner = self._prepare_banner()
+        self._content = Adw.ToastOverlay()
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box.append(self._banner)
+        box.append(self._content)
+
+        self._toolbar = self._prepare_toolbar()
+        self._toolbar.set_content(box)
+
+        self._page = Adw.NavigationPage(title=title, child=self._toolbar)
         self._page.set_size_request(720,0)
         self._button = self._prepare_button(title, button_callback)
-        self._banner = self._prepare_banner()
         self.prepare_ui()
 
 
@@ -54,7 +60,7 @@ class SettingsPanel(EventDispatcher):
         return button
 
 
-    def _prepare_content(self) -> Adw.ToolbarView:
+    def _prepare_toolbar(self) -> Adw.ToolbarView:
         content = Adw.ToolbarView()
         self._header = Adw.HeaderBar()
         content.add_top_bar(self._header)
@@ -69,8 +75,7 @@ class SettingsPanel(EventDispatcher):
         banner.set_button_label(label)
         banner.set_revealed(False)
         banner.add_css_class("banner-disconnected")
-        banner.connect("button-clicked", lambda b: self.hide_banner())
-        self._content.add_top_bar(banner)
+        banner.connect("button-clicked", lambda *_: self.hide_banner())
         return banner
 
 
@@ -96,14 +101,14 @@ class SettingsPanel(EventDispatcher):
         self._banner.set_button_label(new_label)
 
     def show_toast(self, title: str, timeout=0):
-        GLib.idle_add(self._toast_overlay.add_toast, Adw.Toast(title=title, timeout=timeout))
+        GLib.idle_add(self._content.add_toast, Adw.Toast(title=title, timeout=timeout))
 
     def apply(self, *arg):
         # self.hide_banner()
         print(f"Applying {self.title} settings...")
 
     @property
-    def content(self) -> Adw.ToolbarView:
+    def content(self) -> Adw.NavigationPage:
         return self._page
 
     @property
@@ -146,7 +151,7 @@ class SettingsPanel(EventDispatcher):
         self._current_page = page
 
         if self._current_stack is None:
-            GLib.idle_add(self._content.set_content, page)
+            self._content.set_child(page)
         else:
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
@@ -170,7 +175,7 @@ class SettingsPanel(EventDispatcher):
 
     def add_view_stack(self):
         stack = Adw.ViewStack()
-        self._content.set_content(stack)
+        self._content.set_child(stack)
         self._current_stack = stack
 
         switcher = Adw.ViewSwitcher()
