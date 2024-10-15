@@ -187,6 +187,9 @@ class SettingsPanel(EventDispatcher):
         if isinstance(row, BoxflatRow):
             row.set_width(620)
 
+        elif isinstance(row, Adw.PreferencesRow):
+            row.set_size_request(620, 0)
+
         GLib.idle_add(self._current_group.add, row)
 
     # def deactivate_hid_subs(self):
