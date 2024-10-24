@@ -30,11 +30,13 @@ def unset_bit(value: int, bit_number: int) -> int:
 
 
 def toggle_bit(value: int, bit_number: int) -> int:
-    return value ^ (1 << bit_number)
+    return value ^ bit(bit_number)
 
 
 def bit(bit_number: int) -> int:
-    return set_bit(0, bit_number)
+    if not 0 <= bit_number <= 63:
+        return 0
+    return 1 << bit_number
 
 
 def swap_nibbles(value: int) -> int:
