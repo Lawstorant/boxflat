@@ -11,9 +11,9 @@ device-ids:
   hpattern  : 26
   sequential: 26
   handbrake : 27
-  hub       : -1
+  estop     : 28
+  hub       : 18
   dash      : -1
-  estop     : -1
 
 
 ids-to-names:
@@ -25,6 +25,7 @@ ids-to-names:
   26: hpattern
   26: sequential
   27: handbrake
+  28: estop
 
 # TODO: save device group ranges for better command discovery
 
@@ -99,14 +100,14 @@ commands:
       bytes: 1
       type: int
 
-    set-ffb-status:
+    set-work-mode:
       read: -1
       write: 31
       id: [51]
       bytes: 1
       type: int
 
-    get-ffb-status:
+    get-work-mode:
       read: 31
       write: -1
       id: [52]
@@ -650,6 +651,13 @@ commands:
       write: -1
       id: [34, 10]
       bytes: 1
+      type: int
+
+    ffb-disable:
+      read: 40
+      write: 41
+      id: [254]
+      bytes: 2
       type: int
 
     state:
@@ -1268,9 +1276,9 @@ commands:
 
 # estop
   estop:
-    set-status:
-      read: -1
-      write: 70
+    receive-status:
+      read: 198
+      write: -1
       id: [0]
       bytes: 1
       type: int

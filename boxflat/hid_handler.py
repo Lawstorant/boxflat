@@ -21,9 +21,8 @@ class MozaHidDevice():
     HANDBRAKE = "hbp handbrake"
     HPATTERN = "hgp shifter"
     SEQUENTIAL = "sgp shifter"
-    ESTOP = "IDK"
+    HUB = "gudsen universal hub"
     STALK = "IDK"
-    HUB = "IDK"
 
 
 class AxisData():
@@ -163,20 +162,17 @@ class HidHandler(EventDispatcher):
         if not pattern:
             return
 
-        device = None
-        # devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
-        for path in evdev.list_devices():
-            hid = evdev.InputDevice(path)
+        devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
+
+        for hid in devices:
             if not re.search(pattern, hid.name.lower()):
                 continue
 
             print(f"HID device found: {hid.name}")
-            device = hid
-            break
+            self._configure_device(hid, pattern)
 
-        if device is None:
-            return
 
+    def _configure_device(self, device: evdev.InputDevice, pattern: str):
         if pattern == MozaHidDevice.BASE:
             self._base = device
 
@@ -201,8 +197,7 @@ class HidHandler(EventDispatcher):
                 device.set_absinfo(ecode, fuzz=fuzz)
 
         self._device_count.value += 1
-        self._hid_read_loop(device)
-        # Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
+        Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
 
 
     def _axis_data_polling(self):

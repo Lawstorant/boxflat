@@ -89,6 +89,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._alert.connect("response", self._handle_udev_dialog)
 
         self._cm.subscribe("no-accesss", self.show_udev_dialog)
+        self._cm.subscribe("estop-receive-status", self._cm.set_setting, "base-ffb-disable")
 
 
     def switch_panel(self, button):

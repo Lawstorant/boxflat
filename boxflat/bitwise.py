@@ -1,13 +1,13 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
-def test_bit(value, bit_number: int) -> bool:
+def test_bit(value: int, bit_number: int) -> bool:
     if bit_number < 0:
         return
 
     return bool(value >> bit_number & 1)
 
 
-def modify_bit(value, bit_number: int, set_bit=True) -> int:
+def modify_bit(value: int, bit_number: int, set_bit=True) -> int:
     if bit_number < 0:
         return
 
@@ -21,12 +21,16 @@ def modify_bit(value, bit_number: int, set_bit=True) -> int:
     return value
 
 
-def set_bit(value, bit_number: int) -> int:
+def set_bit(value: int, bit_number: int) -> int:
     return modify_bit(value, bit_number, set_bit=True)
 
 
-def unset_bit(value, bit_number: int) -> int:
+def unset_bit(value: int, bit_number: int) -> int:
     return modify_bit(value, bit_number, set_bit=False)
+
+
+def toggle_bit(value: int, bit_number: int) -> int:
+    return value ^ (1 << bit_number)
 
 
 def bit(bit_number: int) -> int:

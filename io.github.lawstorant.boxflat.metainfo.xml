@@ -50,8 +50,10 @@
       <li>Wheelbases</li>
       <li>Wheels</li>
       <li>Pedals</li>
-      <li>Handbrakes</li>
-      <li>Sequential/H-Pattern shifters</li>
+      <li>Handbrake</li>
+      <li>Sequential shifter</li>
+      <li>H-Pattern shifter</li>
+      <li>E-Stop</li>
     </ul>
     <p>
       Note: The udev rules found in the GitHub repository need to be installed for the application to work properly.
@@ -97,6 +99,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.21.0" date="2024-10-25">
+      <description>
+        <ul>
+          <li>E-Stop support</li>
+          <li>E-Stop USB support</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.20.1" date="2024-10-14">
       <description>
         <ul>

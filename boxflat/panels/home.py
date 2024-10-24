@@ -18,6 +18,10 @@ class HomeSettings(SettingsPanel):
         self._cm.subscribe("base-limit", self._get_rotation_limit)
 
 
+    def _estop_handler(self, value: int, estop_row: BoxflatLabelRow) -> None:
+        estop_row.set_label("Enabled" if value else "Disabled")
+
+
     def prepare_ui(self):
         self.add_preferences_group("Wheelbase")
         self._cm.subscribe_connected("base-limit", self._current_group.set_active)
@@ -28,6 +32,13 @@ class HomeSettings(SettingsPanel):
         self._steer_row.set_subtitle(f"Limit = {self._rotation*2}°")
         self._hid_handler.subscribe(MozaAxis.STEERING.name, self._set_steering)
         self._current_row.set_value(0)
+
+        self._add_row(BoxflatLabelRow("E-Stop status"))
+        self._current_row.set_label("Disconnected")
+        self._current_row.set_present(0)
+        self._cm.subscribe("estop-get-status", self._estop_handler, self._current_row)
+        self._cm.subscribe("estop-receive-status", self._estop_handler, self._current_row)
+        self._cm.subscribe_connected("estop-get-status", self._current_row.set_present, 1)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(self._cm.set_setting, "base-calibration")
