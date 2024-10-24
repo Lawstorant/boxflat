@@ -19,10 +19,7 @@ class HomeSettings(SettingsPanel):
 
 
     def _estop_handler(self, value: int, estop_row: BoxflatLabelRow) -> None:
-        label = "Disabled"
-        if value:
-            label = "Enabled"
-        estop_row.set_label(label)
+        estop_row.set_label("Enabled" if value else "Disabled")
 
 
     def prepare_ui(self):
