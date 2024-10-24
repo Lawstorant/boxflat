@@ -180,6 +180,9 @@ class MozaConnectionManager(EventDispatcher):
             time.sleep(2)
 
             for command in self._polling_list:
+                if command.startswith("estop-receive"):
+                    continue
+
                 if self._event_sub_count(command) == 0:
                     continue
                 # print("Polling data: " + command)
@@ -245,15 +248,16 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def _receive_data(self, data: bytes, device_name: str):
-        # print(f"Received: {data.hex(":")}")
         command, value = MozaCommand.value_from_response(
             data, device_name,
             self._serial_data["commands"],
             self._serial_data["ids-to-names"])
+        # print(f"received: {data.hex(":")}")
 
         if value is None or command is None:
             return
 
+        # print(f"{command} received: {data.hex(":")}")
         self._dispatch(command, value)
 
 

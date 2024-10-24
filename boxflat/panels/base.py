@@ -52,7 +52,7 @@ class BaseSettings(SettingsPanel):
     def prepare_ui(self):
         self.add_view_stack()
         self.add_preferences_page("Base")
-        self.add_preferences_group("Important settings", alt_level_bar=True)
+        self.add_preferences_group("Core settings", alt_level_bar=True)
         self._current_group.set_bar_max(32767)
         self._current_group.set_offset(-32767)
         self._hid_handler.subscribe(MozaAxis.STEERING.name, self._current_group.set_alt_bar_level)
@@ -73,10 +73,16 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "base-ffb-strength")
         self._cm.subscribe("base-ffb-strength", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Force Feedback Enabled"))
+        self._add_row(BoxflatSwitchRow("Work mode"))
         self._current_row.reverse_values()
-        self._current_row.subscribe(self._cm.set_setting, "main-set-ffb-status")
-        self._cm.subscribe("main-get-ffb-status", self._current_row.set_value)
+        self._current_row.subscribe(self._cm.set_setting, "main-set-work-mode")
+        self._cm.subscribe("main-get-work-mode", self._current_row.set_value)
+
+        self._add_row(BoxflatSwitchRow("Force Feedback", subtitle="E-Stop override"))
+        self._current_row.reverse_values()
+        self._current_row.subscribe(self._cm.set_setting, "base-ffb-disable")
+        self._cm.subscribe("base-ffb-disable", self._current_row.set_value)
+        self._cm.subscribe_connected("estop-get-status", self._current_row.set_present, 1)
 
         self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
         self._current_row.subscribe(self._cm.set_setting, "base-calibration")
@@ -197,7 +203,7 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "main-set-led-status")
         self._cm.subscribe("main-get-led-status", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Default Force Feedback State"))
+        self._add_row(BoxflatSwitchRow("Default Work Mode State"))
         self._current_row.reverse_values()
         self._current_row.subscribe(self._cm.set_setting, "main-set-default-ffb-status")
         self._cm.subscribe("main-get-default-ffb-status", self._current_row.set_value)

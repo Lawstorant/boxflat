@@ -22,5 +22,9 @@ class BoxflatLabelRow(BoxflatRow):
         self._label.set_label(str(value) + self._suffix)
 
 
+    def set_label(self, label):
+        self._label.set_label(str(label) + self._suffix)
+
+
     def set_suffix(self, suffix: str):
         self._suffix = str(suffix)

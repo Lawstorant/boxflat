@@ -49,7 +49,7 @@ class MozaCommand():
         payload = values[2:]
         payload_list = list(payload)
 
-        group = bitwise.unset_bit(group, 7)
+        group = bitwise.toggle_bit(group, 7)
         device_id = bitwise.swap_nibbles(device_id)
 
         if device_id not in device_ids:

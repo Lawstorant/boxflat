@@ -39,8 +39,8 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         return False
 
 
-    def set_present(self, value, additional=0):
-        GLib.idle_add(self.set_visible, int(value) + additional > 0)
+    def set_present(self, value, offset=0):
+        GLib.idle_add(self.set_visible, int(value) + offset > 0)
 
 
     def mute(self, value: bool=True):
