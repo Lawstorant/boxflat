@@ -11,9 +11,9 @@ device-ids:
   hpattern  : 26
   sequential: 26
   handbrake : 27
-  hub       : -1
+  hub       : 18
+  estop     : 30
   dash      : -1
-  estop     : -1
 
 
 ids-to-names:
