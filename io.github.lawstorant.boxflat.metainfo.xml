@@ -99,7 +99,7 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
-    <release version="v1.21.0" date="2024-10-24">
+    <release version="v1.21.0" date="2024-10-25">
       <description>
         <ul>
           <li>E-Stop support</li>
