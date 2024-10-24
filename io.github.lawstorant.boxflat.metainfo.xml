@@ -97,6 +97,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.21.0" date="2024-10-24">
+      <description>
+        <ul>
+          <li>E-Stop support</li>
+          <li>E-Stop USB support</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.20.1" date="2024-10-14">
       <description>
         <ul>
