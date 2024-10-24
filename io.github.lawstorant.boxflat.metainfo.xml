@@ -27,8 +27,8 @@
   </supports>
 
   <branding>
-    <color type="primary" scheme_preference="light">#d9f987</color>
-    <color type="primary" scheme_preference="dark">#94b23f</color>
+    <color type="primary" scheme_preference="light">#91ea68</color>
+    <color type="primary" scheme_preference="dark">#427114</color>
   </branding>
 
   <description>
@@ -97,6 +97,15 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.20.1" date="2024-10-14">
+      <description>
+        <ul>
+          <li>Visual Improvements to Adw.Banner placing</li>
+          <li>Dialogs are now anchored to the application window</li>
+          <li>Fix empty preset panel content width</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.20.1" date="2024-10-14">
       <description>
         <p>

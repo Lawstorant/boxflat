@@ -28,14 +28,11 @@ class BoxflatDialogRow(BoxflatRow):
 
 
     def show_dialog(self, whatever):
-        if self._page.get_parent():
-            return
-
         dialog = Adw.Dialog(title=self._title)
         dialog.set_child(Adw.ToolbarView())
         dialog.get_child().add_top_bar(Adw.HeaderBar())
         dialog.get_child().set_content(self._page)
-        dialog.present()
+        dialog.present(self)
 
 
     def add_switches(self, *switches):
