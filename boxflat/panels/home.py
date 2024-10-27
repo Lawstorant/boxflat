@@ -26,7 +26,6 @@ class HomeSettings(SettingsPanel):
 
     def prepare_ui(self):
         self.add_preferences_group("Wheelbase")
-        self._current_group.set_active(False)
         self._cm.subscribe_connected("base-limit", self._current_group.set_active)
 
         self._steer_row = BoxflatLabelRow("Steering position")
@@ -48,7 +47,6 @@ class HomeSettings(SettingsPanel):
 
 
         self.add_preferences_group("Pedals")
-        self._current_group.set_active(False)
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Throttle input", self._set_limit, "pedals-throttle", max_value=65_534))
@@ -64,7 +62,6 @@ class HomeSettings(SettingsPanel):
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self.add_preferences_group("Handbrake")
-        self._current_group.set_active(False)
         self._current_group.set_vexpand(True)
 
         self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65_534))
