@@ -99,6 +99,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.22.0" date="2024-10-27">
+      <description>
+        <p>Automatic, per-game preset loading</p>
+        <ul>
+          <li>New preset settings dialog</li>
+          <li>Running process selector</li>
+          <li>Preset rename support</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.21.0" date="2024-10-25">
       <description>
         <ul>
