@@ -153,10 +153,13 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
 
     def set_path(self, preset_path: str):
-        self._path = preset_path
+        self._path = os.path.expanduser(preset_path)
 
 
     def set_name(self, name: str):
+        if not name.endswith(".yml"):
+            name += ".yml"
+
         self._name = name
 
 
@@ -192,6 +195,37 @@ class MozaPresetHandler(SimpleEventDispatcher):
         Thread(target=self._load_preset, daemon=True).start()
 
 
+    def _get_preset_data(self) -> dict:
+        if not os.path.exists(self._path):
+            return
+
+        with open(os.path.join(self._path, self._name), "r") as file:
+            return yaml.safe_load(file.read())
+
+
+    def _set_preset_data(self, preset_data: dict) -> None:
+        if not os.path.exists(self._path):
+            os.makedirs(self._path)
+
+        with open(os.path.join(self._path, self._name), "w") as file:
+            file.write(yaml.safe_dump(preset_data))
+
+
+    def get_linked_process(self) -> str:
+        data = self._get_preset_data()
+
+        if not "linked-process" in data:
+            return ""
+
+        return data["linked-process"]
+
+
+    def set_linked_process(self, process_name: str):
+        data = self._get_preset_data()
+        data["linked-process"] = process_name
+        self._set_preset_data(data)
+
+
     def _save_preset(self):
         if not self._path:
             return
@@ -213,13 +247,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
                     preset_data[device][setting] = value
                     tries = 3
 
-        path = os.path.expanduser(self._path)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        with open(os.path.join(path, self._name + ".yml"), "w") as file:
-            file.write(yaml.safe_dump(preset_data))
-
+        self._set_preset_data(preset_data)
         self._dispatch()
 
 
@@ -227,9 +255,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
         if not self._path or not self._name:
             return
 
-        preset_data = None
-        with open(os.path.join(self._path, self._name), "r") as file:
-            preset_data = yaml.safe_load(file.read())
+        preset_data = self._get_preset_data()
 
         for key, settings in preset_data.items():
             if key not in MozaDevicePresetSettings.keys():
@@ -241,3 +267,13 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
 
         self._dispatch()
+
+
+    def copy_preset(self, new_name: str) -> None:
+        data = self._get_preset_data()
+
+        tmp = self._name
+        self.set_name(new_name)
+
+        self._set_preset_data(data)
+        self.set_name(tmp)

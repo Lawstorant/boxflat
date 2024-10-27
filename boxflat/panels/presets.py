@@ -78,6 +78,8 @@ class PresetSettings(SettingsPanel):
         self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
 
+        self._observer = process_handler.ProcessObserver()
+
         if Adw.get_minor_version() >= 6:
             self._save_row = Adw.ButtonRow(title="Save")
             self._save_row.add_css_class("suggested-action")
@@ -123,8 +125,9 @@ class PresetSettings(SettingsPanel):
 
     def _load_preset(self, preset_name: str, *args):
         print(f"Loading preset {preset_name}")
+        preset_name = preset_name.removesuffix(".yml")
 
-        self._name_row.set_text(preset_name.removesuffix(".yml"))
+        self._name_row.set_text(preset_name)
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
@@ -156,14 +159,24 @@ class PresetSettings(SettingsPanel):
         self.add_preferences_group("Preset list")
         self._presets_list_group = self._current_group
 
+        pm = MozaPresetHandler(None)
+        pm.set_path(self._presets_path)
+        self._observer.deregister_all_processes()
+
         for file in files:
             filepath = os.path.join(self._presets_path, file)
             if os.path.isfile(filepath):
-                row = BoxflatButtonRow(file.removesuffix(".yml"))
+                preset_name = file.removesuffix(".yml")
+                row = BoxflatButtonRow(preset_name)
                 row.add_button("Load", self._load_preset, file)
                 row.add_button("Settings", self._show_preset_dialog, file)
                 # row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
                 self._add_row(row)
+
+                pm.set_name(file)
+                process = pm.get_linked_process()
+                self._observer.register_process(process)
+                self._observer.subscribe(process, self._load_preset, preset_name)
 
 
     def _show_preset_dialog(self, file_name: str):
@@ -174,6 +187,6 @@ class PresetSettings(SettingsPanel):
             return
 
         dialog = BoxflatPresetDialog(self._presets_path, file_name)
-        dialog.subscribe("save", print, "Save preset")
+        dialog.subscribe("save", self.list_presets)
         dialog.subscribe("delete", self._delete_preset)
         dialog.present(self._content)

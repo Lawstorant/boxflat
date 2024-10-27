@@ -9,6 +9,7 @@ from .label_row import BoxflatLabelRow
 
 from boxflat.subscription import EventDispatcher
 from boxflat import process_handler
+from boxflat.preset_handler import MozaPresetHandler
 
 class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
     def __init__(self, presets_path: str, file_name: str):
@@ -16,8 +17,13 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         EventDispatcher.__init__(self)
 
         self._process_list_group = None
+        self._preset_handler = MozaPresetHandler(None)
+        self._preset_handler.set_path(presets_path)
+        self._preset_handler.set_name(file_name)
 
         self._register_events("save",  "delete")
+
+        self._initial_name = file_name.removesuffix(".yml")
         preset_name = file_name.removesuffix(".yml")
         self._preset_name = preset_name
         self.set_title("Preset settings")
@@ -27,16 +33,21 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         self._name_row = Adw.EntryRow(title="Preset name")
         self._name_row.set_text(preset_name)
 
+        process_name = self._preset_handler.get_linked_process()
         self._auto_apply = BoxflatSwitchRow("Apply automatically")
         self._auto_apply.set_subtitle("Apply when selected process is running")
 
         self._auto_apply_name = BoxflatLabelRow("Process name")
+        self._auto_apply_name.set_label(process_name)
+        self._auto_apply_name.set_active(False)
         self._auto_apply.subscribe(self._auto_apply_name.set_active)
 
         self._auto_apply_select = BoxflatAdvanceRow("Select running process")
         self._auto_apply_select.set_active(False)
         self._auto_apply_select.subscribe(self._open_process_page)
         self._auto_apply.subscribe(self._auto_apply_select.set_active)
+
+        self._auto_apply.set_value(len(process_name) > 0, mute=False)
 
         # Place rows in logical order
         page = Adw.PreferencesPage()
@@ -56,7 +67,7 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         self._navigation = nav
 
         toolbar_view = Adw.ToolbarView()
-        nav.add(Adw.NavigationPage(title=f"\"{preset_name}\" preset settings", child=toolbar_view))
+        nav.add(Adw.NavigationPage(title=f"Preset settings", child=toolbar_view))
 
         toolbar_view.add_top_bar(Adw.HeaderBar())
         toolbar_view.set_content(page)
@@ -115,6 +126,17 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
 
     def _notify_save(self, *rest):
         self.close()
+
+        process_name = ""
+        if self._auto_apply.get_value():
+            process_name = self._auto_apply_name.get_label()
+        self._preset_handler.set_linked_process(process_name)
+
+        current_name = self._name_row.get_text()
+        if self._initial_name != current_name:
+            self._preset_handler.copy_preset(current_name)
+            self._dispatch("delete", self._preset_name)
+
         self._dispatch("save", self._preset_name)
 
 
@@ -135,9 +157,8 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
             group.add(BoxflatLabelRow("Enter at least two letters"))
             return
 
-        for name in sorted(process_handler.list(name)):
+        for name in sorted(process_handler.list_processes(name)):
             row = BoxflatLabelRow(name)
-            row.subscribe(print, name)
             row.subscribe(self._navigation.pop)
             row.subscribe(self._auto_apply_name.set_label, name)
             row.set_activatable(True)
@@ -155,7 +176,6 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         page = Adw.PreferencesPage()
         page.add(group)
         page.add(self._process_list_group)
-
 
         entry.connect("notify::text-length", lambda *_: self._list_processes(entry, page))
 
