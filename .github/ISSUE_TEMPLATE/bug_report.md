@@ -1,7 +1,6 @@
 ---
 name: Bug report
 about: Use this template to file a bug report
-title: "ISSUE TITLE"
 labels: bug, triage
 assignees: lawstorant
 ---

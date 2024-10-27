@@ -1,7 +1,6 @@
 ---
 name: Feature request
 about: Use this template to request a new feature
-title: "ISSUE TITLE"
 labels: feature
 assignees: lawstorant
 ---
