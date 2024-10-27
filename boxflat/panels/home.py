@@ -120,7 +120,7 @@ class HomeSettings(SettingsPanel):
         dialog.set_license_type(Gtk.License.GPL_3_0)
 
         dialog.set_issue_url(
-            "https://github.com/Lawstorant/boxflat/issues/new?assignees=lawstorant&labels=bug%2C+triage&projects=&template=bug_report.md"
+            f"https://github.com/Lawstorant/boxflat/issues/new?assignees=lawstorant&labels=bug%2C+triage&projects=&template=bug_report.md&title=[{self._version}]"
         )
 
         dialog.set_website("https://github.com/Lawstorant/boxflat")
