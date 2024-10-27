@@ -10,4 +10,4 @@ assignees: lawstorant
 
 
 ### Could you help out in any way?
-<!-- Could you code or help with the developement and debugging? -->
+<!-- Could you code or help with the the development and debugging? -->
