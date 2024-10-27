@@ -127,7 +127,7 @@ class PresetSettings(SettingsPanel):
         print(f"Loading preset \"{preset_name}\"")
         preset_name = preset_name.removesuffix(".yml")
 
-        self._name_row.set_text(preset_name)
+        GLib.idle_add(self._name_row.set_text, preset_name)
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
