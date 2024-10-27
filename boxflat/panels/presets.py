@@ -124,7 +124,7 @@ class PresetSettings(SettingsPanel):
 
 
     def _load_preset(self, preset_name: str, *args):
-        print(f"Loading preset {preset_name}")
+        print(f"Loading preset \"{preset_name}\"")
         preset_name = preset_name.removesuffix(".yml")
 
         self._name_row.set_text(preset_name)
