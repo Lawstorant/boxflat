@@ -13,6 +13,7 @@ class BoxflatLabelRow(BoxflatRow):
         self._set_widget(label)
         self._label = label
         self._suffix = ""
+        self.connect("activated", lambda *_: self._dispatch())
 
 
     def _set_value(self, value: str):
@@ -22,6 +23,10 @@ class BoxflatLabelRow(BoxflatRow):
 
     def set_label(self, label):
         GLib.idle_add(self._label.set_label, str(label) + self._suffix)
+
+
+    def get_label(self) -> str:
+        return self._label.get_label()
 
 
     def set_suffix(self, suffix: str):

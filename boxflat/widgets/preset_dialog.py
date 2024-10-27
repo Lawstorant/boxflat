@@ -5,13 +5,17 @@ from gi.repository import Gtk, Adw, GLib
 from .button_row import BoxflatButtonRow
 from .switch_row import BoxflatSwitchRow
 from .advance_row import BoxflatAdvanceRow
+from .label_row import BoxflatLabelRow
 
 from boxflat.subscription import EventDispatcher
+from boxflat import process_handler
 
 class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
     def __init__(self, presets_path: str, file_name: str):
         Adw.Dialog.__init__(self)
         EventDispatcher.__init__(self)
+
+        self._process_list_group = None
 
         self._register_events("save",  "delete")
         preset_name = file_name.removesuffix(".yml")
@@ -26,9 +30,8 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         self._auto_apply = BoxflatSwitchRow("Apply automatically")
         self._auto_apply.set_subtitle("Apply when selected process is running")
 
-        self._auto_apply_name = Adw.EntryRow(title="Process name")
-        self._auto_apply_name.set_sensitive(False)
-        self._auto_apply.subscribe(self._auto_apply_name.set_sensitive)
+        self._auto_apply_name = BoxflatLabelRow("Process name")
+        self._auto_apply.subscribe(self._auto_apply_name.set_active)
 
         self._auto_apply_select = BoxflatAdvanceRow("Select running process")
         self._auto_apply_select.set_active(False)
@@ -120,11 +123,45 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         self._dispatch("delete", self._preset_name)
 
 
+    def _list_processes(self, entry: Adw.EntryRow, page: Adw.PreferencesPage):
+        group = Adw.PreferencesGroup()
+        name = entry.get_text()
+
+        page.remove(self._process_list_group)
+        page.add(group)
+        self._process_list_group = group
+
+        if len(name) < 2:
+            group.add(BoxflatLabelRow("Enter at least two letters"))
+            return
+
+        for name in sorted(process_handler.list(name)):
+            row = BoxflatLabelRow(name)
+            row.subscribe(print, name)
+            row.subscribe(self._navigation.pop)
+            row.subscribe(self._auto_apply_name.set_label, name)
+            row.set_activatable(True)
+            group.add(row)
+
+
     def _open_process_page(self, *rest):
+        entry = Adw.EntryRow()
+        entry.set_title("Process name")
+
+        group = Adw.PreferencesGroup()
+        group.add(entry)
+        self._process_list_group = Adw.PreferencesGroup(title="Process list")
+
         page = Adw.PreferencesPage()
+        page.add(group)
+        page.add(self._process_list_group)
+
+
+        entry.connect("notify::text-length", lambda *_: self._list_processes(entry, page))
 
         toolbar_view = Adw.ToolbarView()
         toolbar_view.add_top_bar(Adw.HeaderBar())
         toolbar_view.set_content(page)
 
         self._navigation.push(Adw.NavigationPage(title="Find game process", child=toolbar_view))
+        self._list_processes(entry, page)

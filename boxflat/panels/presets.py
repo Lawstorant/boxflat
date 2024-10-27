@@ -161,8 +161,8 @@ class PresetSettings(SettingsPanel):
             if os.path.isfile(filepath):
                 row = BoxflatButtonRow(file.removesuffix(".yml"))
                 row.add_button("Load", self._load_preset, file)
-                # row.add_button("Settings", self._show_preset_dialog, file)
-                row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
+                row.add_button("Settings", self._show_preset_dialog, file)
+                # row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
                 self._add_row(row)
 
 
