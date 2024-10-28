@@ -15,7 +15,7 @@ args = parser.parse_args()
 
 data_path = "/usr/share/boxflat/data"
 config_path = "~/.config/boxflat/"
-os.environ["FLATPAK_EDITION"] = "false"
+os.environ["BOXFLAT_FLATPAK_EDITION"] = "false"
 
 if args.data_path:
     data_path = args.data_path
@@ -26,7 +26,7 @@ if args.local:
 
 if args.flatpak:
     data_path = "/app/share/boxflat/data"
-    os.environ["FLATPAK_EDITION"] = "true"
+    os.environ["BOXFLAT_FLATPAK_EDITION"] = "true"
 
 app.MyApp(data_path,
     config_path,

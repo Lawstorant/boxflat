@@ -156,7 +156,7 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
 
         if len(name) < 2:
             group.add(BoxflatLabelRow("Enter at least two letters"))
-            if environ["FLATPAK_EDITION"] == "true":
+            if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
                 group.add(BoxflatLabelRow("Host Process listing doesn't work with flatpak yet"))
             return
 
