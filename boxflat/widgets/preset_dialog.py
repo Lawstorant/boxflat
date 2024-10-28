@@ -1,6 +1,6 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
-from gi.repository import Gtk, Adw, GLib
+from gi.repository import Gtk, Adw
 
 from .button_row import BoxflatButtonRow
 from .switch_row import BoxflatSwitchRow
@@ -10,6 +10,7 @@ from .label_row import BoxflatLabelRow
 from boxflat.subscription import EventDispatcher
 from boxflat import process_handler
 from boxflat.preset_handler import MozaPresetHandler
+from os import environ
 
 class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
     def __init__(self, presets_path: str, file_name: str):
@@ -155,6 +156,8 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
 
         if len(name) < 2:
             group.add(BoxflatLabelRow("Enter at least two letters"))
+            if environ["FLATPAK_EDITION"] == "true":
+                group.add(BoxflatLabelRow("Host Process listing doesn't work with flatpak yet"))
             return
 
         for name in sorted(process_handler.list_processes(name)):
@@ -167,7 +170,7 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
 
     def _open_process_page(self, *rest):
         entry = Adw.EntryRow()
-        entry.set_title("Process name")
+        entry.set_title("Process name filter")
 
         group = Adw.PreferencesGroup()
         group.add(entry)
