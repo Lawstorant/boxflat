@@ -5,6 +5,8 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis, HidHandler
 from math import ceil, floor
 
+from gi.repository import Gtk, Adw
+
 class HomeSettings(SettingsPanel):
     def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str=""):
         self._test_text = "inactive"
@@ -60,23 +62,20 @@ class HomeSettings(SettingsPanel):
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self.add_preferences_group("Handbrake")
+        self._current_group.set_vexpand(True)
+
         self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
-        self._cm.subscribe_connected("handbrake-direction", self._current_group.set_present, 1)
-        self._current_group.set_present(False)
+        self._cm.subscribe_connected("handbrake-direction", self._current_group.set_active, 1)
 
+        self.add_preferences_group()
 
-        self.add_preferences_group("About")
-        self._add_row(BoxflatLabelRow("Version:", value=self._version))
+        self._add_row(BoxflatAdvanceRow("About"))
+        self._current_row.subscribe(self._show_about_dialog)
+        self._current_row.set_width(0)
 
-        self._add_row(BoxflatButtonRow("Go to the project page", "GitHub", subtitle="Leave a star!"))
-        self._current_row.subscribe(lambda value: self.open_url("https://github.com/Lawstorant/boxflat"))
-
-        self._add_row(BoxflatButtonRow("Go to the universal-pidff driver page", "GitHub", subtitle="FFB Driver"))
-        self._current_row.subscribe(lambda value: self.open_url("https://github.com/JacKeTUs/universal-pidff"))
-
-        # self.add_preferences_group()
-        # self._add_row(BoxflatRow(f"Test mode:  {self._test_text}"))
+        self._current_group.set_margin_start(240)
+        self._current_group.set_margin_end(240)
 
 
     def _get_rotation_limit(self, value: int):
@@ -107,3 +106,35 @@ class HomeSettings(SettingsPanel):
         # print(f"New limit: {new_limit}")
 
         self._cm.set_setting(new_limit, f"{command}-{min_max}")
+
+
+    def _show_about_dialog(self, *_):
+        dialog = Adw.AboutDialog()
+
+        dialog.set_application_name("Boxflat")
+        dialog.set_application_icon("io.github.lawstorant.boxflat")
+
+        dialog.set_version(self._version)
+        dialog.set_developer_name("Tomasz Pakuła")
+        dialog.set_copyright("© 2024 Using Arch BTW\nAll rights reserved")
+        dialog.set_license_type(Gtk.License.GPL_3_0)
+
+        dialog.set_issue_url(
+            f"https://github.com/Lawstorant/boxflat/issues/new?assignees=lawstorant&labels=bug%2C+triage&projects=&template=bug_report.md&title=[{self._version}]"
+        )
+
+        dialog.set_website("https://github.com/Lawstorant/boxflat")
+        dialog.add_link("FFB Driver", "https://github.com/JacKeTUs/universal-pidff")
+        dialog.add_link(
+            "Flatpak udev rule",
+            "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
+        )
+        dialog.add_link(
+            "Request a feature",
+            "https://github.com/Lawstorant/boxflat/issues/new?assignees=lawstorant&labels=feature&projects=&template=feature_request.md"
+        )
+
+        dialog.set_comments("Moza Racing software suite")
+        # dialog.set_debug_info("")
+
+        dialog.present(self._content)

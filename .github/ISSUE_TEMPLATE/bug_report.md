@@ -8,21 +8,25 @@ assignees: lawstorant
 Note: Please search to see if an issue already exists for the bug you encountered.
 -->
 ### Affected version:
-<!--
-Example: v1.17.3
--->
+<!-- Example: v1.17.3 -->
+<!-- Example: v1.20.0-flatpak -->
+
 
 ### Current Behavior:
 <!-- A description of what you're experiencing. -->
 
+
 ### Expected Behavior:
 <!-- A description of what you expected to happen. -->
 
+
 ### Steps To Reproduce:
 <!--
-Example: steps to reproduce the behavior:
-1. In this environment...
-1. With this config...
-1. Run '...'
-1. See error...
+Example:
+1. Open Boxflat
+2. Select Pedals page
+3. Select Brake tab
+4. Scroll down
+5. Click on calibration button
+...
 -->

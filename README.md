@@ -23,13 +23,13 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | H-Pattern      | 100%         | |
 | Sequential     | 100%         | |
 | Handbrake      | 100%         | |
+| E-Stop         | 100%         | |
 | Other settings | 100%         | |
-| Presets        | 80%          | Automatic per-game apply |
+| Presets        | 100%         | |
 
 Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
 
-### WiP
-- Automatic per-game preset selection
+### Ideas
 - Telemetry ingestion through REST API/WebSockets
 - Cammus support
 - PXN Support
@@ -64,6 +64,7 @@ This package depends on:
 
 Python dependencies:
 - pyyaml 6.0.2
+- psutil 6.1.0
 - pyserial 3.5
 - pycairo 1.27.0
 - PyGObject 3.50.0

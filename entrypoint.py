@@ -3,6 +3,7 @@
 
 import boxflat.app as app
 import argparse
+import os
 
 parser = argparse.ArgumentParser("boxflat")
 parser.add_argument("--local", help="Run boxflat from repository folder", action="store_true", required=False)
@@ -14,6 +15,7 @@ args = parser.parse_args()
 
 data_path = "/usr/share/boxflat/data"
 config_path = "~/.config/boxflat/"
+os.environ["FLATPAK_EDITION"] = "false"
 
 if args.data_path:
     data_path = args.data_path
@@ -24,6 +26,7 @@ if args.local:
 
 if args.flatpak:
     data_path = "/app/share/boxflat/data"
+    os.environ["FLATPAK_EDITION"] = "true"
 
 app.MyApp(data_path,
     config_path,

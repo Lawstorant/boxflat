@@ -27,8 +27,8 @@
   </supports>
 
   <branding>
-    <color type="primary" scheme_preference="light">#91ea68</color>
-    <color type="primary" scheme_preference="dark">#427114</color>
+    <color type="primary" scheme_preference="light">#d9f987</color>
+    <color type="primary" scheme_preference="dark">#94b23f</color>
   </branding>
 
   <description>
@@ -99,6 +99,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.22.0" date="2024-10-27">
+      <description>
+        <p>Automatic, per-game preset loading</p>
+        <ul>
+          <li>New preset settings dialog</li>
+          <li>Running process selector</li>
+          <li>Preset rename support</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.21.0" date="2024-10-25">
       <description>
         <ul>
