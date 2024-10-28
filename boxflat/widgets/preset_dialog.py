@@ -154,10 +154,8 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         page.add(group)
         self._process_list_group = group
 
-        if len(name) < 2:
-            group.add(BoxflatLabelRow("Enter at least two letters"))
-            if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-                group.add(BoxflatLabelRow("Host Process listing doesn't work with flatpak yet"))
+        if len(name) < 3:
+            group.add(BoxflatLabelRow("Enter at least three letters"))
             return
 
         for name in sorted(process_handler.list_processes(name)):

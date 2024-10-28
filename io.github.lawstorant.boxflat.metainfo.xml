@@ -99,6 +99,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.22.1" date="2024-10-29">
+      <description>
+        <p>Process listing now works under flatpak. Automatic preset loading possible.</p>
+      </description>
+    </release>
     <release version="v1.22.0" date="2024-10-27">
       <description>
         <p>Automatic, per-game preset loading</p>
