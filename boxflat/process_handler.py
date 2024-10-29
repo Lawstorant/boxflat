@@ -2,8 +2,18 @@ import psutil
 from threading import Thread, Event
 from time import sleep
 from boxflat.subscription import EventDispatcher
+from os import environ, path
+import subprocess
+
 
 def list_processes(filter: str="") -> list[str]:
+    if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+        return _list_process_flatpak(filter)
+
+    return _list_process_native(filter)
+
+
+def _list_process_native(filter: str) -> list[str]:
     processes = []
 
     for p in psutil.process_iter(['name']):
@@ -11,6 +21,25 @@ def list_processes(filter: str="") -> list[str]:
             processes.append(p.name())
 
     return processes
+
+
+def _list_process_flatpak(filter: str) -> list[str]:
+    user = psutil.Process().username()
+    processes = subprocess.check_output(["flatpak-spawn", "--host", "ps", "-wwu", user, "-o", "exe="])
+    processes = processes.decode().split()
+    output = []
+
+    for name in processes:
+        if len(name) < 3:
+            continue
+
+        name = path.basename(name)
+        if not filter.lower() in name.lower():
+            continue
+
+        output.append(name)
+
+    return output
 
 
 class ProcessObserver(EventDispatcher):
