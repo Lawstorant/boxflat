@@ -14,22 +14,25 @@ def list_processes(filter: str="") -> list[str]:
 
 
 def _list_process_native(filter: str) -> list[str]:
-    processes = []
+    output = []
 
     for p in psutil.process_iter(['name']):
-        if filter.lower() in p.name().lower():
-            processes.append(p.name())
+        name = p.name()
+        if not filter.lower() in name.lower():
+            continue
 
-    return processes
+        if name in output:
+            continue
+
+        output.append(name)
+
+    return output
 
 
 def _list_process_flatpak(filter: str) -> list[str]:
-    user = psutil.Process().username()
-    processes = subprocess.check_output(["flatpak-spawn", "--host", "ps", "-wwu", user, "-o", "exe="])
-    processes = processes.decode().split()
     output = []
 
-    for name in processes:
+    for name in _flatpak_ps_comm():
         if len(name) < 3:
             continue
 
@@ -37,9 +40,22 @@ def _list_process_flatpak(filter: str) -> list[str]:
         if not filter.lower() in name.lower():
             continue
 
+        if name in output:
+            continue
+
         output.append(name)
 
     return output
+
+
+def _flatpak_ps_comm() -> list[str]:
+    processes = subprocess.check_output(["flatpak-spawn", "--host", "ps", "-wwu", psutil.Process().username(), "-o", "comm="])
+    return processes.decode().split()
+
+
+def _flatpk_ps_command() -> list[str]:
+    processes = subprocess.check_output(["flatpak-spawn", "--host", "ps", "-wwu", psutil.Process().username(), "-o", "command="])
+    return processes.decode().replace("\\", "/").split("\n")
 
 
 class ProcessObserver(EventDispatcher):
