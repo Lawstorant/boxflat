@@ -41,7 +41,7 @@
       and/or their software. It's 100% independent work based largely on hours of reverse engineering the protocol.
     </p>
     <p>
-      Boxflat supports saving/loading presets. Automatic game detection is coming in the near future.
+      Boxflat supports saving/loading presets and automatic game detection.
     </p>
     <p>
       Supported devices:
