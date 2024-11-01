@@ -10,6 +10,7 @@ from .hid_handler import MozaHidDevice
 from .subscription import SubscriptionList, EventDispatcher, BlockingValue
 from queue import SimpleQueue
 from .serial_handler import SerialHandler
+import re
 
 CM_RETRY_COUNT=1
 
@@ -23,13 +24,13 @@ HidDeviceMapping = {
 }
 
 SerialDeviceMapping = {
-    "base"   : "base",
-    "hbp"    : "handbrake",
-    "hgp"    : "hpattern",
-    "sgp"    : "sequential",
-    "pedals" : "pedals",
-    "gudsen_universal_hub" : "hub",
-    "gudsen_e-stop" : "estop"
+    MozaHidDevice.BASE       : "base",
+    MozaHidDevice.HANDBRAKE  : "handbrake",
+    MozaHidDevice.HPATTERN   : "hpattern",
+    MozaHidDevice.SEQUENTIAL : "sequential",
+    MozaHidDevice.PEDALS     : "pedals",
+    MozaHidDevice.HUB        : "hub",
+    "gudsen_e-stop"          : "estop"
 }
 
 
@@ -122,7 +123,8 @@ class MozaConnectionManager(EventDispatcher):
         serial_devices: dict[str, MozaSerialDevice] = {}
         for path in devices:
             for part, name in SerialDeviceMapping.items():
-                if path.lower().find(part) == -1:
+                part = part.replace(" ", "_")
+                if not re.search(part, path.lower()):
                     continue
 
                 serial_devices[name] = MozaSerialDevice(name, path)

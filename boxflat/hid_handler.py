@@ -16,8 +16,8 @@ KEY_NEXT_FAVORITE = 0x270
 
 
 class MozaHidDevice():
-    BASE = "gudsen moza .* base"
-    PEDALS = "gudsen moza .* pedals"
+    BASE = "gudsen (moza )?r[0-9]{1,2} (base|racing wheel and pedals)"
+    PEDALS = "gudsen moza (srp|sr-p|crp)[0-9]? pedals"
     HANDBRAKE = "hbp handbrake"
     HPATTERN = "hgp shifter"
     SEQUENTIAL = "sgp shifter"
