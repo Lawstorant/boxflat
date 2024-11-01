@@ -5,6 +5,7 @@ import re
 from time import sleep
 
 from evdev.ecodes import *
+from evdev.device import AbsInfo
 from .subscription import EventDispatcher, Observable
 
 from threading import Thread, Lock, Event
@@ -125,6 +126,9 @@ class HidHandler(EventDispatcher):
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)
 
+        self._virtual_devices = {}
+        self._devices = {}
+
 
     def __del__(self):
         self.stop()
@@ -197,7 +201,7 @@ class HidHandler(EventDispatcher):
                 device.set_absinfo(ecode, fuzz=fuzz)
 
         self._device_count.value += 1
-        Thread(daemon=True, target=self._hid_read_loop, args=[device]).start()
+        Thread(daemon=True, target=self._hid_read_loop, args=[device, pattern]).start()
 
 
     def _axis_data_polling(self):
@@ -235,8 +239,10 @@ class HidHandler(EventDispatcher):
         self._dispatch(f"button-{number}", state)
 
 
-    def _hid_read_loop(self, device: evdev.InputDevice):
+    def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
         sleep(0.5)
+        self._devices[pattern] = device
+        self.detection_fix(pattern)
         try:
             for event in device.read_loop():
                 if event.type == EV_ABS:
@@ -244,6 +250,9 @@ class HidHandler(EventDispatcher):
 
                 elif event.type == EV_KEY:
                     self._notify_button(event.code, event.value)
+
+                if pattern in self._virtual_devices:
+                    self._virtual_devices[pattern].write(event.type, event.code, event.value)
 
         except Exception as e:
             # print(e)
@@ -253,3 +262,44 @@ class HidHandler(EventDispatcher):
         self._device_count.value -= 1
         if device == self._base:
             self._base = None
+
+        self._devices.pop(pattern)
+        self.detection_fix(pattern, enabled=False)
+
+
+    # Driver mode stuff
+    def driver_mode_enabled(self, enabled: bool) -> None:
+        pass
+
+
+    def detection_fix(self, pattern: str, enabled: bool=True) -> None:
+        if not enabled:
+            try:
+                self._virtual_devices.pop(pattern).close()
+            except KeyError:
+                pass
+            return
+
+        # Get device capabilities
+        device = self._devices[pattern]
+        cap: dict = device.capabilities()
+
+        # Return if detection fix is unnecessary
+        if EV_ABS in cap and EV_KEY in cap:
+            return
+
+        # Remove unneeded event types
+        cap.pop(EV_SYN)
+        cap.pop(EV_MSC)
+
+        # Add necessary event types
+        if not EV_ABS in cap:
+            cap[EV_ABS] = [(ABS_Z, AbsInfo(0, 0, 255, 8 ,8, 0))]
+
+        if not EV_KEY in cap:
+            cap[EV_KEY] = [BTN_JOYSTICK]
+
+        # Create new device
+        new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
+        device.grab()
+        self._virtual_devices[pattern] = new_device

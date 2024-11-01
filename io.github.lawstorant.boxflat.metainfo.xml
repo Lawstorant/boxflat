@@ -99,6 +99,14 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.22.3" date="2024-11-1">
+      <description>
+        <ul>
+          <li>Automatic game detection fix for shifters and handbrakes</li>
+          <li>Fixes R3 base detection and improved pedals detection</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.22.2" date="2024-10-30">
       <description>
         <p>Fix flatpak process listing</p>

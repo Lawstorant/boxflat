@@ -27,6 +27,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | Other settings | 100%         | |
 | Presets        | 100%         | |
 
+Boxflat automatically detects is a device (shifter/pedals) needs a detection fix and creates a proper virutal device. This fixes game detection.
 Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
 
 ### Ideas
