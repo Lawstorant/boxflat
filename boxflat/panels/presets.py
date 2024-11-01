@@ -7,6 +7,8 @@ from boxflat.preset_handler import MozaPresetHandler
 from boxflat.settings_handler import SettingsHandler
 import os
 
+from gi.repository.Gio import Notification, NotificationPriority
+
 class PresetSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler):
         self._settings = settings
@@ -123,15 +125,24 @@ class PresetSettings(SettingsPanel):
         GLib.idle_add(self._save_row.set_sensitive, True)
 
 
-    def _load_preset(self, preset_name: str, *args):
-        print(f"Loading preset \"{preset_name}\"")
+    def _load_preset(self, preset_name: str, automatic: bool=False):
         preset_name = preset_name.removesuffix(".yml")
+        print(f"Loading preset \"{preset_name}\"")
 
         GLib.idle_add(self._name_row.set_text, preset_name)
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
         pm.load_preset()
+
+        if not automatic:
+            return
+
+        notif = Notification()
+        notif.set_title(f"Detected: {pm.get_linked_process()}")
+        notif.set_body(f"Loading preset: {preset_name}")
+        notif.set_priority(NotificationPriority.NORMAL)
+        self._button.get_root().get_application().send_notification("preset", notif)
 
 
     def _delete_preset(self, preset_name: str, *args):
@@ -176,7 +187,7 @@ class PresetSettings(SettingsPanel):
                 pm.set_name(file)
                 process = pm.get_linked_process()
                 self._observer.register_process(process)
-                self._observer.subscribe(process, self._load_preset, preset_name)
+                self._observer.subscribe(process, self._load_preset, preset_name, True)
 
 
     def _show_preset_dialog(self, file_name: str):
