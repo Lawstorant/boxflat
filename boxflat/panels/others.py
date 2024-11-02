@@ -23,7 +23,6 @@ class OtherSettings(SettingsPanel):
 
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
         self._application = application
-        self._portal = Xdp.Portal()
 
 
     def prepare_ui(self):
@@ -83,9 +82,9 @@ class OtherSettings(SettingsPanel):
         background.subscribe(lambda v: hidden.set_active(v + startup.get_value(), offset=-1))
         startup.subscribe(lambda v: hidden.set_active(v + background.get_value(), offset=-1))
 
-        background.subscribe(lambda v: self._application.hold() if v else self._application.release())
         background.set_value(self._settings.read_setting("background"))
         background.subscribe(self._settings.write_setting, "background")
+        background.subscribe(lambda v: self._application.hold() if v else self._application.release())
 
         startup.subscribe(self._handle_autostart)
         startup.subscribe(self._settings.write_setting, "autostart")
@@ -142,11 +141,15 @@ class OtherSettings(SettingsPanel):
         if not self._button.get_root():
             return
 
-        portal = self._portal
         flag = Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE
-        parent = XdpGtk4.parent_new_gtk(self._button.get_root())
-
-        portal.request_background(None, "Run Boxflat on startup", ["boxflat"], flag, None, self._autostart_results)
+        Xdp.Portal().request_background(
+            None,
+            "Run Boxflat on startup",
+            ["boxflat"],
+            flag,
+            None,
+            self._autostart_results
+        )
 
 
     def _autostart_results(self, portal: Xdp.Portal, task: Gio.Task) -> bool:
