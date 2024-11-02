@@ -6,7 +6,7 @@ from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 from boxflat.bitwise import *
 from threading import Thread, Event
-from gi.repository import Gtk, Gio, Xdp
+from gi.repository import Gtk, Gio, Xdp, XdpGtk4
 
 
 class OtherSettings(SettingsPanel):
@@ -23,6 +23,7 @@ class OtherSettings(SettingsPanel):
 
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
         self._application = application
+        self._portal = Xdp.Portal()
 
 
     def prepare_ui(self):
@@ -138,12 +139,19 @@ class OtherSettings(SettingsPanel):
 
 
     def _handle_autostart(self, enabled: int) -> None:
-        portal = Xdp.Portal()
-        flag = Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE
+        if not self._button.get_root():
+            return
 
-        portal.request_background(None, "Run Boxflat on startup", "boxflat", flag, callback=self._autostart_results)
+        portal = self._portal
+        flag = Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE
+        parent = XdpGtk4.parent_new_gtk(self._button.get_root())
+
+        portal.request_background(parent, "Run Boxflat on startup", "boxflat", flag, callback=self._autostart_results)
 
 
     def _autostart_results(self, portal: Xdp.Portal, task: Gio.Task) -> None:
-        results = portal.request_background_finish(task)
+        print(task)
+        print(task.get_name())
+        print(task.get_completed())
+        results = self._portal.request_background_finish(task)
         print(results)
