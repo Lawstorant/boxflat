@@ -138,17 +138,13 @@ class OtherSettings(SettingsPanel):
 
 
     def _handle_autostart(self, enabled: int) -> None:
-        if not self._button.get_root():
-            return
-
-        flag = Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE
         Xdp.Portal().request_background(
             None,
             "Run Boxflat on startup",
             ["boxflat"],
-            flag,
+            Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE,
             None,
-            self._autostart_results
+            None
         )
 
 
