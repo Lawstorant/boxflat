@@ -141,7 +141,7 @@ class OtherSettings(SettingsPanel):
         Xdp.Portal().request_background(
             None,
             "Run Boxflat on startup",
-            ["boxflat"],
+            ["boxflat", "--autostart"],
             Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE,
             None,
             None
