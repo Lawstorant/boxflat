@@ -139,10 +139,14 @@ class PresetSettings(SettingsPanel):
             return
 
         notif = Notification()
+        app = self._button.get_root().get_application()
+
         notif.set_title(f"Detected: {pm.get_linked_process()}")
         notif.set_body(f"Loading preset: {preset_name}")
         notif.set_priority(NotificationPriority.NORMAL)
-        self._button.get_root().get_application().send_notification("preset", notif)
+        app.send_notification("preset", notif)
+        sleep(10)
+        app.withdraw_notification("preset")
 
 
     def _delete_preset(self, preset_name: str, *args):
