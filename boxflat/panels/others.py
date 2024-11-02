@@ -146,12 +146,10 @@ class OtherSettings(SettingsPanel):
         flag = Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE
         parent = XdpGtk4.parent_new_gtk(self._button.get_root())
 
-        portal.request_background(parent, "Run Boxflat on startup", ["boxflat"], flag, callback=self._autostart_results)
+        portal.request_background(None, "Run Boxflat on startup", ["boxflat"], flag, None, self._autostart_results)
 
 
     def _autostart_results(self, portal: Xdp.Portal, task: Gio.Task) -> None:
-        print(task)
-        print(task.get_name())
         print(task.get_completed())
-        results = self._portal.request_background_finish(task)
+        results = portal.request_background_finish(task)
         print(results)
