@@ -6,7 +6,7 @@ from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 from boxflat.bitwise import *
 from threading import Thread, Event
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio, Xdp
 
 
 class OtherSettings(SettingsPanel):
@@ -66,7 +66,7 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "hid-update-rate")
 
 
-
+        # Autostart and background stuff
         hidden = BoxflatSwitchRow("Start hidden")
         hidden.set_value(self._settings.read_setting("autostart-hidden") or 0)
         hidden.subscribe(self._settings.write_setting, "autostart-hidden")
@@ -88,6 +88,8 @@ class OtherSettings(SettingsPanel):
 
         startup.set_value(self._settings.read_setting("autostart") or 0, mute=False)
         startup.subscribe(self._settings.write_setting, "autostart")
+        startup.subscribe(self._handle_autostart)
+
 
         self.add_preferences_group("Background settings")
         self._add_row(background)
@@ -133,3 +135,15 @@ class OtherSettings(SettingsPanel):
         com = self._command.get_text()
         val = eval(self._value.get_text())
         self._cm.set_setting(val, com)
+
+
+    def _handle_autostart(self, enabled: int) -> None:
+        portal = Xdp.Portal()
+        flag = Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE
+
+        portal.request_background(None, "Run Boxflat on startup", "boxflat", flag, callback=self._autostart_results)
+
+
+    def _autostart_results(self, portal: Xdp.Portal, task: Gio.Task) -> None:
+        results = portal.request_background_finish(task)
+        print(results)

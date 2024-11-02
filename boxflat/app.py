@@ -3,6 +3,8 @@
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
+gi.require_version("Xdp", "1.0")
+
 from gi.repository import Gtk, Gdk, Adw
 from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
@@ -199,8 +201,3 @@ class MyApp(Adw.Application):
             buttons.append(panel.button)
 
         return buttons
-
-
-    def enable_autostart(self, enable=True):
-        if enable:
-            shu
