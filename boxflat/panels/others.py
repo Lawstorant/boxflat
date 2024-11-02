@@ -152,7 +152,7 @@ class OtherSettings(SettingsPanel):
     def _autostart_results(self, portal: Xdp.Portal, task: Gio.Task) -> bool:
         try:
             return portal.request_background_finish(task)
-        except Exception:
-            pass
+        except e:
+            print(e)
 
         return False
