@@ -19,6 +19,7 @@ class SettingsPanel(EventDispatcher):
 
         self._cm = connection_manager
         self._hid_handler = hid_handler
+        self._application = None
 
         self._current_page: Adw.PreferencesPage = None
         self._current_group: BoxflatPreferencesGroup = None
@@ -87,6 +88,9 @@ class SettingsPanel(EventDispatcher):
 
     def get_setting(self) -> int:
         return 0
+
+    def set_application(self, application: Adw.Application) -> None:
+        self._application = application
 
     def show_banner(self, value: bool=True):
         GLib.idle_add(self._banner.set_revealed, value)

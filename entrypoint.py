@@ -11,6 +11,7 @@ parser.add_argument("--dry-run", help="Don't send any data to the serial devices
 parser.add_argument("--data-path", help="Use arbitrary data path", type=str, required=False)
 parser.add_argument("--flatpak", help="for flatpak usage", action="store_true", required=False)
 parser.add_argument("--custom", help="Enable custom commands entry", action="store_true", required=False)
+parser.add_argument("--autostart", help="For the autostart handling", action="store_true", required=False)
 args = parser.parse_args()
 
 data_path = "/usr/share/boxflat/data"
@@ -32,5 +33,6 @@ app.MyApp(data_path,
     config_path,
     args.dry_run,
     args.custom,
+    args.autostart,
     application_id="io.github.lawstorant.boxflat"
 ).run()

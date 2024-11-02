@@ -139,11 +139,12 @@ class PresetSettings(SettingsPanel):
             return
 
         notif = Notification()
-        app = self._button.get_root().get_application()
+        app = self._application
 
         notif.set_title(f"Detected: {pm.get_linked_process()}")
         notif.set_body(f"Loading preset: {preset_name}")
         notif.set_priority(NotificationPriority.NORMAL)
+
         app.send_notification("preset", notif)
         sleep(10)
         app.withdraw_notification("preset")

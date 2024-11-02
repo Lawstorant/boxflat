@@ -8,17 +8,21 @@ from boxflat.bitwise import *
 from threading import Thread, Event
 from gi.repository import Gtk
 
+
 class OtherSettings(SettingsPanel):
     def __init__(self, button_callback,
         cm: MozaConnectionManager,
         hid_handler,
         settings: SettingsHandler,
-        version: str
+        version: str,
+        application: Adw.Application
     ):
         self._version = version
         self._settings = settings
         self._brake_row = None
+
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
+        self._application = application
 
 
     def prepare_ui(self):
@@ -60,6 +64,35 @@ class OtherSettings(SettingsPanel):
         self._current_row.add_marks(120)
         self._current_row.set_value(self._settings.read_setting("hid-update-rate") or 120, mute=False)
         self._current_row.subscribe(self._settings.write_setting, "hid-update-rate")
+
+
+
+        hidden = BoxflatSwitchRow("Start hidden")
+        hidden.set_value(self._settings.read_setting("autostart-hidden") or 0)
+        hidden.subscribe(self._settings.write_setting, "autostart-hidden")
+        hidden.set_active(False)
+
+
+        if self._settings.read_setting("background") == None:
+            self._settings.write_setting(1, "background")
+
+        background = BoxflatSwitchRow("Run in background")
+        startup = BoxflatSwitchRow("Run on startup")
+
+        background.subscribe(lambda v: hidden.set_active(v + startup.get_value(), offset=-1))
+        startup.subscribe(lambda v: hidden.set_active(v + background.get_value(), offset=-1))
+
+        background.subscribe(lambda v: self._application.hold() if v else self._application.release())
+        background.set_value(self._settings.read_setting("background"))
+        background.subscribe(self._settings.write_setting, "background")
+
+        startup.set_value(self._settings.read_setting("autostart") or 0, mute=False)
+        startup.subscribe(self._settings.write_setting, "autostart")
+
+        self.add_preferences_group("Background settings")
+        self._add_row(background)
+        self._add_row(startup)
+        self._add_row(hidden)
 
 
     def get_brake_valibration_enabled(self) -> int:
