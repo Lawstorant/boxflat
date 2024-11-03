@@ -88,7 +88,6 @@ class MozaConnectionManager(EventDispatcher):
 
         self._register_events(*self._polling_list)
         self._register_events("device-connected", "hid-device-connected")
-        self._register_events("shutdown", "no-access")
 
         self._serial_lock = Lock()
         self._refresh_cont = Event()
@@ -200,7 +199,6 @@ class MozaConnectionManager(EventDispatcher):
             with self._connected_lock:
                 lists = self._connected_subscriptions.copy()
 
-            self._clear_event_subscriptions("no-access")
             for command, subs in lists.items():
                 value = self.get_setting(command)
                 # value = 1
@@ -210,11 +208,6 @@ class MozaConnectionManager(EventDispatcher):
 
             time.sleep(2)
         self._connected_thread = None
-
-
-    def _notify_no_access(self):
-        self._dispatch("no-access")
-        self._clear_event_subscriptions("no-access")
 
 
     def set_cont_active(self, active: bool):
