@@ -7,6 +7,9 @@ from boxflat.widgets import *
 from boxflat.bitwise import *
 from threading import Thread, Event
 from gi.repository import Gtk, Gio, Xdp, XdpGtk4
+from os import remove, environ
+from os.path import join, expanduser
+from shutil import copy2
 
 
 class OtherSettings(SettingsPanel):
@@ -15,11 +18,13 @@ class OtherSettings(SettingsPanel):
         hid_handler,
         settings: SettingsHandler,
         version: str,
-        application: Adw.Application
+        application: Adw.Application,
+        data_path: str
     ):
         self._version = version
         self._settings = settings
         self._brake_row = None
+        self._data_path = data_path
 
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
         self._application = application
@@ -138,20 +143,30 @@ class OtherSettings(SettingsPanel):
 
 
     def _handle_autostart(self, enabled: int) -> None:
+        if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            self._autostart_flatpak(enabled)
+            return
+
+        self._autostart_native(enabled)
+
+
+    def _autostart_native(self, enabled: bool) -> None:
+        autostart_path = expanduser("~/.config/autostart/boxflat.desktop")
+        if enabled:
+            copy2(join(self._data_path, "autostart.desktop"), autostart_path)
+        else:
+            try:
+                remove(autostart_path)
+            except:
+                pass
+
+
+    def _autostart_flatpak(self, enabled: bool) -> None:
         Xdp.Portal().request_background(
             None,
             "Run Boxflat on startup",
             ["boxflat", "--autostart"],
             Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE,
             None,
-            None
+            lambda p, t: p.request_background_finish(t)
         )
-
-
-    def _autostart_results(self, portal: Xdp.Portal, task: Gio.Task) -> bool:
-        try:
-            return portal.request_background_finish(task)
-        except Exception as e:
-            print(e)
-
-        return False
