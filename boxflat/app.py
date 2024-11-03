@@ -24,17 +24,14 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def check_udev(self, data_path: str) -> None:
-        command = ["ls" ,"/etc/udev/rules.d"]
+        check = self._check_native
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-            command = ["flatpak-spawn", "--host", *command]
+            check = self._check_flatpak
 
-        rules = subprocess.check_output(command).decode()
-
-        if "99-boxflat.rules" in rules:
+        if check():
             return
 
         udev_alert_body = "alert"
-
         with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
             udev_alert_body = "\n" + file.read().strip()
 
@@ -54,16 +51,44 @@ class MainWindow(Adw.ApplicationWindow):
 
         alert.choose(self)
 
-        subprocess.check_output(command).decode()
 
-        # subprocess.call(["sudo", "ls", "/etc"])
+    def _check_native(self) -> bool:
+        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
 
 
-    def _handle_udev_dialog(self, dialog, response):
-        if response != "install":
-            return
-        url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
-        Gtk.UriLauncher(uri=url).launch()
+    def _check_flatpak(self) -> bool:
+        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
+        rules = subprocess.check_output(command).decode()
+
+        if "99-boxflat.rules" in rules:
+            return True
+        return False
+
+
+    def _handle_udev_dialog(self, dialog, response) -> None:
+        if response == "install":
+            self._show_install_dialog()
+        # url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
+        # Gtk.UriLauncher(uri=url).launch()
+
+
+    def _show_install_dialog(self) -> None:
+        entry = Adw.PasswordEntryRow(title="sudo password")
+        button = Adw.ButtonRow(title="Install")
+        button.set_end_icon_name("document-save-symbolic")
+
+        group = Adw.PreferencesGroup()
+        group.add(entry)
+        group.add(button)
+
+        page = Adw.PreferencesPage()
+        page.add(group)
+
+        dialog = Adw.Dialog()
+        dialog.add(page)
+        dialog.set_title("Provide sudo password")
+        dialog.set_size_request(0, 0)
+        dialog.present(self)
 
 
 class MyApp(Adw.Application):
