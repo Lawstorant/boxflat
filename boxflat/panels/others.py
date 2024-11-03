@@ -6,10 +6,17 @@ from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 from boxflat.bitwise import *
 from threading import Thread, Event
-from gi.repository import Gtk, Gio, Xdp, XdpGtk4
+from gi.repository import Gtk, Gio
 from os import remove, environ
 from os.path import join, expanduser
 from shutil import copy2
+
+# Portal stuff for flatpak autostart
+if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+    import gi
+    gi.require_version("Xdp", "1.0")
+    gi.require_version("XdpGtk4", "1.0")
+    from gi.repository import Xdp, XdpGtk4
 
 
 class OtherSettings(SettingsPanel):
