@@ -99,6 +99,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.23.0" date="2024-11-3">
+      <description>
+        <ul>
+          <li>Support running in background</li>
+          <li>Add option to add application to autostart (works on both native and flatpak installations)</li>
+          <li>Add option to hide application when autostarted</li>
+          <li>Push system notification when autoloading a preset</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.22.3" date="2024-11-1">
       <description>
         <ul>
