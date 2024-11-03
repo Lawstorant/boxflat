@@ -39,9 +39,6 @@ class MyApp(Adw.Application):
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
 
-        if self._settings.read_setting("background"):
-            self.hold()
-
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
 
@@ -117,6 +114,7 @@ class MyApp(Adw.Application):
         background = self._settings.read_setting("background") or 0
 
         if autostart and hidden and background:
+            self.hold()
             return
 
         win = MainWindow(self.navigation)
