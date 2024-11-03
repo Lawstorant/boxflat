@@ -240,7 +240,7 @@ class HidHandler(EventDispatcher):
 
 
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
-        sleep(0.5)
+        sleep(0.3)
         self._devices[pattern] = device
         self.detection_fix(pattern)
         try:

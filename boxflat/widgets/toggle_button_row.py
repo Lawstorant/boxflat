@@ -1,7 +1,5 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
-import gi
-gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 from .row import BoxflatRow
 

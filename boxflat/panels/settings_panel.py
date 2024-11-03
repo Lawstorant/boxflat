@@ -1,10 +1,6 @@
 # Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
 
 from boxflat.widgets import *
-
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 
 from boxflat.connection_manager import MozaConnectionManager
@@ -19,6 +15,7 @@ class SettingsPanel(EventDispatcher):
 
         self._cm = connection_manager
         self._hid_handler = hid_handler
+        self._application = None
 
         self._current_page: Adw.PreferencesPage = None
         self._current_group: BoxflatPreferencesGroup = None
@@ -87,6 +84,9 @@ class SettingsPanel(EventDispatcher):
 
     def get_setting(self) -> int:
         return 0
+
+    def set_application(self, application: Adw.Application) -> None:
+        self._application = application
 
     def show_banner(self, value: bool=True):
         GLib.idle_add(self._banner.set_revealed, value)

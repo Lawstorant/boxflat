@@ -6,19 +6,35 @@ from boxflat.panels import SettingsPanel
 from boxflat.widgets import *
 from boxflat.bitwise import *
 from threading import Thread, Event
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio
+from os import remove, environ
+from os.path import join, expanduser
+from shutil import copy2
+
+# Portal stuff for flatpak autostart
+if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+    import gi
+    gi.require_version("Xdp", "1.0")
+    gi.require_version("XdpGtk4", "1.0")
+    from gi.repository import Xdp, XdpGtk4
+
 
 class OtherSettings(SettingsPanel):
     def __init__(self, button_callback,
         cm: MozaConnectionManager,
         hid_handler,
         settings: SettingsHandler,
-        version: str
+        version: str,
+        application: Adw.Application,
+        data_path: str
     ):
         self._version = version
         self._settings = settings
         self._brake_row = None
+        self._data_path = data_path
+
         super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
+        self._application = application
 
 
     def prepare_ui(self):
@@ -62,6 +78,37 @@ class OtherSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "hid-update-rate")
 
 
+        # Autostart and background stuff
+        hidden = BoxflatSwitchRow("Start hidden")
+        hidden.set_value(self._settings.read_setting("autostart-hidden") or 0)
+        hidden.subscribe(self._settings.write_setting, "autostart-hidden")
+        hidden.set_active(False)
+
+
+        if self._settings.read_setting("background") == None:
+            self._settings.write_setting(1, "background")
+
+        background = BoxflatSwitchRow("Run in background")
+        startup = BoxflatSwitchRow("Run on startup")
+
+        background.subscribe(lambda v: hidden.set_active(v + startup.get_value(), offset=-1))
+        startup.subscribe(lambda v: hidden.set_active(v + background.get_value(), offset=-1))
+
+        background.set_value(self._settings.read_setting("background"))
+        background.subscribe(self._settings.write_setting, "background")
+        background.subscribe(lambda v: self._application.hold() if v else self._application.release())
+
+        startup.subscribe(self._handle_autostart)
+        startup.subscribe(self._settings.write_setting, "autostart")
+        startup.set_value(self._settings.read_setting("autostart") or 0, mute=False)
+
+
+        self.add_preferences_group("Background settings")
+        self._add_row(background)
+        self._add_row(startup)
+        self._add_row(hidden)
+
+
     def get_brake_valibration_enabled(self) -> int:
         return self._settings.read_setting("brake-calibration-enabled") or 0
 
@@ -100,3 +147,33 @@ class OtherSettings(SettingsPanel):
         com = self._command.get_text()
         val = eval(self._value.get_text())
         self._cm.set_setting(val, com)
+
+
+    def _handle_autostart(self, enabled: int) -> None:
+        if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            self._autostart_flatpak(enabled)
+            return
+
+        self._autostart_native(enabled)
+
+
+    def _autostart_native(self, enabled: bool) -> None:
+        autostart_path = expanduser("~/.config/autostart/boxflat.desktop")
+        if enabled:
+            copy2(join(self._data_path, "autostart.desktop"), autostart_path)
+        else:
+            try:
+                remove(autostart_path)
+            except:
+                pass
+
+
+    def _autostart_flatpak(self, enabled: bool) -> None:
+        Xdp.Portal().request_background(
+            None,
+            "Run Boxflat on startup",
+            ["boxflat", "--autostart"],
+            Xdp.BackgroundFlags.AUTOSTART if enabled else Xdp.BackgroundFlags.NONE,
+            None,
+            lambda p, t: p.request_background_finish(t)
+        )
