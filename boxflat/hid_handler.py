@@ -9,7 +9,8 @@ from evdev.device import AbsInfo
 from .subscription import EventDispatcher, Observable
 
 from threading import Thread, Lock, Event
-
+from collections import namedtuple
+from typing import Self
 
 BTN_JOYSTICK = 0x120
 BTN_DEAD = 0x12f
@@ -81,7 +82,16 @@ MOZA_AXIS_BASE_CODES = {
 }
 
 
+_HpatternButtons = namedtuple("HpatternButtons", "base hpattern")
+_ButtonsSpecifier = namedtuple("ButtonsSpecifier", "start end range")
+
 MOZA_BUTTON_COUNT = 128
+MOZA_GEARS = 7
+MOZA_HPATTERN_BUTTONS = _HpatternButtons(
+    _ButtonsSpecifier(114, 120, [i for i in range(114, 120+1)]),
+    _ButtonsSpecifier(6, 12, [i for i in range(6, 12+1)])
+)
+
 
 
 class AxisValue():
@@ -108,17 +118,36 @@ class AxisValue():
         return self.name, self.value
 
 
+
+class BlipData():
+    def __init__(self) -> None:
+        self.enabled = False
+        self.duration = 0
+        self.level = 0
+
+
+    def copy(self, data: Self) -> None:
+        self.enabled = data.enabled
+        self.duration = data.duration
+        self.level = data.level
+
+
+
 class HidHandler(EventDispatcher):
     def __init__(self):
         super().__init__()
 
         self._axis_values: dict[str, AxisValue] = {}
-        for i in range(0, MOZA_BUTTON_COUNT):
-            self._register_event(f"button-{i}")
+        for i in range(MOZA_BUTTON_COUNT):
+            self._register_event(f"button-{i+1}")
 
         for name in MOZA_AXIS_LIST:
             self._axis_values[name] = AxisValue(name)
             self._register_event(name)
+
+        for i in range(MOZA_GEARS):
+            self._register_event(f"gear-{i+1}")
+            self.subscribe(f"gear-{i+1}", print, f"gear {i+1} yeah")
 
         self._running = Event()
         self._update_rate = 10
@@ -128,6 +157,8 @@ class HidHandler(EventDispatcher):
 
         self._virtual_devices = {}
         self._devices = {}
+        self._blip = BlipData()
+        self._last_gear = 0
 
 
     def __del__(self):
@@ -229,7 +260,7 @@ class HidHandler(EventDispatcher):
         self._axis_values[name].value = value
 
 
-    def _notify_button(self, number: int, state: int):
+    def _notify_button(self, number: int, state: int, pattern: str):
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
@@ -237,6 +268,12 @@ class HidHandler(EventDispatcher):
 
         #print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
+
+        if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
+            self._dispatch(f"gear-{number - MOZA_HPATTERN_BUTTONS.base.start + 1}")
+
+        elif pattern == MozaHidDevice.HPATTERN and number in MOZA_HPATTERN_BUTTONS.hpattern.range:
+            self._dispatch(f"gear-{number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1}")
 
 
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
@@ -246,13 +283,13 @@ class HidHandler(EventDispatcher):
         try:
             for event in device.read_loop():
                 if pattern in self._virtual_devices:
-                    self._virtual_devices[pattern].write(event.type, event.code, event.value)
+                    self._virtual_devices[pattern].write_event(event)
 
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
                 elif event.type == EV_KEY:
-                    self._notify_button(event.code, event.value)
+                    self._notify_button(event.code, event.value, pattern)
 
         except Exception as e:
             # print(e)
@@ -303,3 +340,34 @@ class HidHandler(EventDispatcher):
         new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
         device.grab()
         self._virtual_devices[pattern] = new_device
+
+
+    def update_blip_data(data: BlipData) -> None:
+        self._blip.copy(data)
+
+
+    def _blip_handler(self) -> None:
+        if not self._blip.enabled:
+            return
+
+        device: evdev.InputDevice = None
+        axis = None
+
+        if MozaHidDevice.PEDALS in self._devices:
+            device = self._devices[MozaHidDevice.PEDALS]
+            axis = ABS_RX
+
+        elif MozaHidDevice.BASE in self._devices:
+            device = self._devices[MozaHidDevice.BASE]
+            axis = ABS_Z
+
+        if not device:
+            return
+
+        device.write(EV_ABS, axis, self._blip.level)
+        device.write(EV_SYN, SYN_REPORT, 0)
+
+        sleep(self._blip.duration/1000)
+
+        device.write(EV_ABS, axis, 0)
+        device.write(EV_SYN, SYN_REPORT, 0)
