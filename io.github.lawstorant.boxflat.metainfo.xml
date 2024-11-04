@@ -101,7 +101,7 @@
   <releases>
     <release version="v1.23.2" date="2024-11-4">
       <description>
-        <p>Install udev rules for convinience</p>
+        <p>Install udev rules for convinience if pkexec found</p>
       </description>
     </release>
     <release version="v1.23.1" date="2024-11-4">
