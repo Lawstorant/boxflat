@@ -28,14 +28,14 @@ class MainWindow(Adw.ApplicationWindow):
 
     def check_udev(self, data_path: str) -> None:
         self._data_path = data_path
-        check = self._check_native
+        udev_exists = self._check_native
         is_flatpak = False
 
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
             is_flatpak = True
-            check = self._check_flatpak
+            udev_exists = self._check_flatpak
 
-        if check():
+        if udev_exists():
             return
 
         pkexec_found = self._check_pkexec(is_flatpak)
@@ -47,7 +47,7 @@ class MainWindow(Adw.ApplicationWindow):
         alert = Adw.AlertDialog()
         alert.set_body(udev_alert_body)
 
-        if self._check_pkexec(is_flatpak):
+        if pkexec_found:
             alert.add_response("install", "Install")
             alert.set_response_appearance("install", Adw.ResponseAppearance.SUGGESTED)
         else:
@@ -55,7 +55,7 @@ class MainWindow(Adw.ApplicationWindow):
             alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
 
         alert.add_response("close", "Close")
-        alert.set_size_request(420, 0)
+        alert.set_size_request(460, 0)
 
         alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
         alert.set_close_response("close")
