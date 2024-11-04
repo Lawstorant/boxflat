@@ -1,3 +1,5 @@
-<span>Access to <span bgcolor="#242424"><tt>/dev/ttyACM*</tt></span> Moza devices is required and Boxflat didn't detect udev rules on your system. You probably installed Boxflat through flatpak.</span>
+<span>Access to <span bgcolor="#242424"><tt>/dev/ttyACM*</tt></span> Moza devices is required and Boxflat didn't detect necessary udev rules on your system. You probably installed Boxflat through flatpak.</span>
 
-<span>Boxflat can install these rules for you if your account has admin access. Just provide sudo password!</span>
+<span>Boxflat can install these rules for you if your account has admin access.</span>
+
+<span>Remember to unplug and plug back in your devices after rules installation (or restart your computer).</span>

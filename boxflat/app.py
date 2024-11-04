@@ -55,7 +55,7 @@ class MainWindow(Adw.ApplicationWindow):
             alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
 
         alert.add_response("close", "Close")
-        alert.set_size_request(450, 0)
+        alert.set_size_request(420, 0)
 
         alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
         alert.set_close_response("close")
@@ -94,7 +94,6 @@ class MainWindow(Adw.ApplicationWindow):
             udev = file.read().strip().split("\n")[-1]
 
         command = ["pkexec", "tee", "/etc/udev/rules.d/99-boxflat.rules"]
-        command = [*command, "&&", "udevadm", "trigger", "--attr-match=subsystem=tty"]
         if is_flatpak:
             command = [*self._spawn, *command]
 
@@ -103,7 +102,7 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _check_pkexec(self, is_flatpak: bool) -> bool:
-        command = ["whereis", "-b", "pkxec"]
+        command = ["whereis", "-b", "pkexec"]
         if is_flatpak:
             command = [*self._spawn, *command]
 
