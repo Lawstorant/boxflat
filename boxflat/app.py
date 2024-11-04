@@ -10,6 +10,7 @@ from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
+from threading import Thread
 
 import os
 import subprocess
@@ -30,8 +31,8 @@ class MainWindow(Adw.ApplicationWindow):
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
             check = self._check_flatpak
 
-        if check():
-            return
+        # if check():
+        #     return
 
         udev_alert_body = "alert"
         with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
@@ -69,69 +70,21 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _handle_udev_dialog(self, dialog, response) -> None:
         if response == "install":
-            self._show_install_dialog()
+            Thread(target=self._install_rules, daemon=True).start()
         # url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
         # Gtk.UriLauncher(uri=url).launch()
 
 
-    def _show_install_dialog(self) -> None:
-        dialog = Adw.Dialog(title="Install udev rules")
-        entry = Adw.PasswordEntryRow(title="sudo password")
-
-        page = Adw.PreferencesPage()
-        group = Adw.PreferencesGroup()
-        group.add(entry)
-        page.add(group)
-
-        toolbar_view = Adw.ToolbarView()
-        toolbar_view.add_top_bar(Adw.HeaderBar())
-        toolbar_view.set_content(page)
-
-        # Decide which button style to use
-        if Adw.get_minor_version() >= 6:
-            button = Adw.ButtonRow(title="Install")
-            button.add_css_class("suggested-action")
-            button.set_end_icon_name("document-save-symbolic")
-            button.connect("activated", lambda *_: self._install_rules(entry.get_text()))
-            button.connect("activated", lambda *_: dialog.close())
-
-            group = Adw.PreferencesGroup(margin_start=100, margin_end=100)
-            group.add(button)
-            page.add(group)
-
-        # compatibility with libadwaita older than 1.6
-        else:
-            button = Gtk.Button(label="Install", hexpand=True)
-            button.add_css_class("suggested-action")
-            button.add_css_class("square")
-            button.connect("clicked", lambda *_: self._install_rules(entry.get_text()))
-            button.connect("clicked", lambda *_: dialog.close())
-
-            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-            box.append(button)
-            box.add_css_class("linked")
-
-            toolbar_view.add_bottom_bar(box)
-
-        dialog.set_child(toolbar_view)
-        dialog.set_size_request(350,0)
-        dialog.present(self)
-
-
-    def _install_rules(self, password: str) -> None:
+    def _install_rules(self) -> None:
         with open(os.path.join(self._data_path, "../udev/99-boxflat.rules"), "r") as file:
             udev = file.read().strip().split("\n")[-1]
 
-        command = ["sudo", "-S", "tee", "/etc/udev/rules.d/99-boxflat.rules", "<<<", f"'{udev}'"]
-        command2 = ["sudo", "-S", "udevadm", "trigger", "--attr-match=subsystem=tty"]
-
+        command = ["pkexec", "tee", "/etc/udev/rules.d/99-boxflat.rules"]
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-            command = f"flatpak-spawn --host \"{command}\""
-            command2 = f"flatpak-spawn --host \"{command2}\""
+            command = ["flatpak-spawn", "--host", *command]
 
-        sudo_pass = subprocess.Popen(['echo', password], stdout=subprocess.PIPE)
-        subprocess.Popen(command, stdin=sudo_pass.stdout)
-        subprocess.Popen(command2, stdin=sudo_pass.stdout)
+        echo = subprocess.Popen(["echo", udev], stdout=subprocess.PIPE)
+        subprocess.call(command, stdin=echo.stdout)
 
 
 
