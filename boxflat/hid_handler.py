@@ -145,9 +145,8 @@ class HidHandler(EventDispatcher):
             self._axis_values[name] = AxisValue(name)
             self._register_event(name)
 
-        for i in range(MOZA_GEARS):
-            self._register_event(f"gear-{i+1}")
-            self.subscribe(f"gear-{i+1}", print, f"gear {i+1} yeah")
+        self._register_event("gear")
+        self.subscribe("gear", self._blip_handler)
 
         self._running = Event()
         self._update_rate = 10
@@ -264,16 +263,23 @@ class HidHandler(EventDispatcher):
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
-            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
+            if pattern == MozaHidDevice.BASE:
+                number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
+            else:
+                number -= BTN_TRIGGER_HAPPY - (BTN_DEAD - BTN_JOYSTICK) - 2
 
         #print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
-            self._dispatch(f"gear-{number - MOZA_HPATTERN_BUTTONS.base.start + 1}")
+            gear = number - MOZA_HPATTERN_BUTTONS.base.start + 1
+            self._blip_handler(gear, state)
+            self._dispatch("gear", gear, state)
 
         elif pattern == MozaHidDevice.HPATTERN and number in MOZA_HPATTERN_BUTTONS.hpattern.range:
-            self._dispatch(f"gear-{number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1}")
+            gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1
+            self._blip_handler(gear, state)
+            self._dispatch("gear", gear, state)
 
 
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
@@ -346,10 +352,14 @@ class HidHandler(EventDispatcher):
         self._blip.copy(data)
 
 
-    def _blip_handler(self) -> None:
+    def _blip_handler(self, gear: int, state: int) -> None:
         if not self._blip.enabled:
             return
 
+        if gear >= self._last_gear or state != 1:
+            return
+
+        self._last_gear = gear
         device: evdev.InputDevice = None
         axis = None
 
