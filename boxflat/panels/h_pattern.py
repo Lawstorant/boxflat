@@ -21,7 +21,7 @@ class HPatternSettings(SettingsPanel):
 
 
     def prepare_ui(self):
-        self.add_preferences_group("Shifter Settings")
+        self.add_preferences_group("Throttle blip")
 
         row1 = BoxflatSliderRow("Auto Blip Output", 0, 100, suffix="% ", increment=10)
         row2 = BoxflatSliderRow("Auto Blip Duration", 0, 1000, subtitle="Miliseconds", increment=50)
@@ -51,7 +51,6 @@ class HPatternSettings(SettingsPanel):
         row2.subscribe(self._settings.write_setting, "hpattern-blip-duration")
 
         self.add_preferences_group()
-        self._current_group.set_description("This one works :)")
         self._add_row(BoxflatCalibrationRow("Device Calibration", "Shift into R > 7th > R > Neutral"))
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "hpattern-calibration-start")
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "hpattern-calibration-stop")
