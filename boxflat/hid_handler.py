@@ -122,14 +122,14 @@ class AxisValue():
 class BlipData():
     def __init__(self) -> None:
         self.enabled = False
-        self.duration = 0
         self.level = 0
+        self.duration = 0
 
 
     def copy(self, data: Self) -> None:
         self.enabled = data.enabled
-        self.duration = data.duration
         self.level = data.level
+        self.duration = data.duration
 
 
 
@@ -157,6 +157,9 @@ class HidHandler(EventDispatcher):
         self._virtual_devices = {}
         self._devices = {}
         self._blip = BlipData()
+        self._blip.enabled = True
+        self._blip.level = 80
+        self._blip.duration = 400
         self._last_gear = 0
 
 
@@ -348,18 +351,38 @@ class HidHandler(EventDispatcher):
         self._virtual_devices[pattern] = new_device
 
 
-    def update_blip_data(data: BlipData) -> None:
+    def copy_blip_data(data: BlipData) -> None:
         self._blip.copy(data)
+
+
+    def update_blip_data(self, enabled: bool=None, level: int=None, duration: int=None) -> None:
+        if enabled is not None:
+            self._blip.enabled = enabled
+
+        if level is not None:
+            if 0 <= level <= 100:
+                self._level = level
+
+        if duration is not None:
+            if 0 <= duration <= 1000:
+                self._duration = duration
 
 
     def _blip_handler(self, gear: int, state: int) -> None:
         if not self._blip.enabled:
             return
 
-        if gear >= self._last_gear or state != 1:
+        if state != 1:
             return
 
+        last_gear = self._last_gear
         self._last_gear = gear
+        print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
+
+        if gear + 1 != last_gear:
+            return
+
+        print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
         device: evdev.InputDevice = None
         axis = None
 
@@ -373,6 +396,9 @@ class HidHandler(EventDispatcher):
 
         if not device:
             return
+
+        info = device.absinfo(axis)
+        level = (self._blip.level / 100) * (info.max - info.min) + info.min
 
         device.write(EV_ABS, axis, self._blip.level)
         device.write(EV_SYN, SYN_REPORT, 0)
