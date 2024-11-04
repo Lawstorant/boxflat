@@ -99,6 +99,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.23.1" date="2024-11-4">
+      <description>
+        <p>Fix missing udev rules detection</p>
+      </description>
+    </release>
     <release version="v1.23.0" date="2024-11-3">
       <description>
         <ul>

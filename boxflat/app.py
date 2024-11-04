@@ -87,6 +87,54 @@ class MainWindow(Adw.ApplicationWindow):
         subprocess.call(command, stdin=echo.stdout)
 
 
+    def check_udev(self, data_path: str) -> None:
+        check = self._check_native
+        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            check = self._check_flatpak
+
+        if check():
+            return
+
+        udev_alert_body = "alert"
+        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
+            udev_alert_body = "\n" + file.read().strip()
+
+        alert = Adw.AlertDialog()
+        alert.set_body(udev_alert_body)
+        alert.add_response("guide", "Guide")
+        alert.add_response("close", "Close")
+        alert.set_size_request(400, 0)
+
+        alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
+        alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
+        alert.set_close_response("close")
+
+        alert.set_heading("No udev rules detected!")
+        alert.set_body_use_markup(True)
+        alert.connect("response", self._handle_udev_dialog)
+
+        alert.choose(self)
+
+
+    def _check_native(self) -> bool:
+        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
+
+
+    def _check_flatpak(self) -> bool:
+        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
+        rules = subprocess.check_output(command).decode()
+
+        if "99-boxflat.rules" in rules:
+            return True
+        return False
+
+
+    def _handle_udev_dialog(self, dialog, response):
+        if response != "guide":
+            return
+        url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
+        Gtk.UriLauncher(uri=url).launch()
+
 
 class MyApp(Adw.Application):
     def __init__(self, data_path: str, config_path: str, dry_run: bool, custom: bool, autostart: bool,**kwargs):
@@ -111,14 +159,6 @@ class MyApp(Adw.Application):
         self._panels: dict[str, SettingsPanel] = {}
         self._dry_run = dry_run
         self._autostart = autostart
-
-        # self.search_btn = Gtk.ToggleButton()  # Search Button
-        # self.search_btn.set_icon_name("edit-find-symbolic")
-        # self.search_btn.bind_property("active", self.searchbar, "search-mode-enabled",
-        #                               GObject.BindingFlags.BIDIRECTIONAL)
-        # self.search_btn.set_valign(Gtk.Align.CENTER)
-        # self.search_btn.add_css_class("image-button")
-        # left_header.pack_start(self.search_btn)
 
         navigation = Adw.NavigationSplitView()
         navigation.set_max_sidebar_width(178)
