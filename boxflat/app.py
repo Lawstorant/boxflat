@@ -10,7 +10,7 @@ from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
-from threading import Thread
+from threading import Thread, Event
 
 import os
 import subprocess
@@ -113,6 +113,54 @@ class MainWindow(Adw.ApplicationWindow):
         return False
 
 
+    def check_udev(self, data_path: str) -> None:
+        check = self._check_native
+        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            check = self._check_flatpak
+
+        if check():
+            return
+
+        udev_alert_body = "alert"
+        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
+            udev_alert_body = "\n" + file.read().strip()
+
+        alert = Adw.AlertDialog()
+        alert.set_body(udev_alert_body)
+        alert.add_response("guide", "Guide")
+        alert.add_response("close", "Close")
+        alert.set_size_request(400, 0)
+
+        alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
+        alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
+        alert.set_close_response("close")
+
+        alert.set_heading("No udev rules detected!")
+        alert.set_body_use_markup(True)
+        alert.connect("response", self._handle_udev_dialog)
+
+        alert.choose(self)
+
+
+    def _check_native(self) -> bool:
+        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
+
+
+    def _check_flatpak(self) -> bool:
+        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
+        rules = subprocess.check_output(command).decode()
+
+        if "99-boxflat.rules" in rules:
+            return True
+        return False
+
+
+    def _handle_udev_dialog(self, dialog, response):
+        if response != "guide":
+            return
+        url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
+        Gtk.UriLauncher(uri=url).launch()
+
 
 class MyApp(Adw.Application):
     def __init__(self, data_path: str, config_path: str, dry_run: bool, custom: bool, autostart: bool,**kwargs):
@@ -127,6 +175,7 @@ class MyApp(Adw.Application):
         self._hid_handler = HidHandler()
         self._config_path = config_path
         self._data_path = data_path
+        self._held = Event()
 
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
@@ -172,6 +221,22 @@ class MyApp(Adw.Application):
         self._cm.subscribe("estop-receive-status", self._cm.set_setting, "base-ffb-disable")
 
 
+    def hold(self) -> None:
+        if self._held.is_set():
+            return
+
+        self._held.set()
+        super().hold()
+
+
+    def release(self) -> None:
+        if not self._held.is_set():
+            return
+
+        self._held.clear()
+        super().release()
+
+
     def on_activate(self, app):
         autostart = self._autostart
         self._autostart = False
@@ -179,14 +244,36 @@ class MyApp(Adw.Application):
         hidden = self._settings.read_setting("autostart-hidden") or 0
         background = self._settings.read_setting("background") or 0
 
-        if autostart and hidden and background:
+        if background:
             self.hold()
+
+        if autostart and hidden and background:
             return
 
         win = MainWindow(self.navigation)
         win.set_application(app)
+        win.connect("close-request", lambda *_: Thread(target=self._show_bg_notification, daemon=True).start())
         win.present()
         win.check_udev(self._data_path)
+
+
+    def _show_bg_notification(self, *_) -> None:
+        if self._settings.read_setting("background-notified") == 1:
+            return
+
+        if not self._settings.read_setting("background"):
+            return
+
+        self._settings.write_setting(1, "background-notified")
+        notif = Notification()
+
+        notif.set_title(f"Running in the background")
+        notif.set_body(f"You can disable this behavior in Other settings")
+        notif.set_priority(NotificationPriority.NORMAL)
+
+        self.send_notification("background", notif)
+        sleep(10)
+        self.withdraw_notification("background")
 
 
     def switch_panel(self, button):
@@ -208,7 +295,7 @@ class MyApp(Adw.Application):
         self._panels["Base"] = BaseSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm, self._hid_handler, self._settings)
         self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm, self._hid_handler)
-        self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm, self._settings)
+        self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm, self._settings, self._hid_handler)
         self._panels["Sequential Shifter"] = SequentialSettings(self.switch_panel, self._cm)
         self._panels["Handbrake"] = HandbrakeSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["Other"] = OtherSettings(

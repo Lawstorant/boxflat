@@ -3,6 +3,7 @@
 import evdev
 import re
 from time import sleep
+from math import ceil
 
 from evdev.ecodes import *
 from evdev.device import AbsInfo
@@ -122,14 +123,18 @@ class AxisValue():
 class BlipData():
     def __init__(self) -> None:
         self.enabled = False
-        self.duration = 0
         self.level = 0
+        self.duration = 0
 
 
     def copy(self, data: Self) -> None:
         self.enabled = data.enabled
-        self.duration = data.duration
         self.level = data.level
+        self.duration = data.duration
+
+
+    def check(self) -> bool:
+        return self.enabled and self.level > 0 and self.duration > 0
 
 
 
@@ -145,9 +150,8 @@ class HidHandler(EventDispatcher):
             self._axis_values[name] = AxisValue(name)
             self._register_event(name)
 
-        for i in range(MOZA_GEARS):
-            self._register_event(f"gear-{i+1}")
-            self.subscribe(f"gear-{i+1}", print, f"gear {i+1} yeah")
+        self._register_event("gear")
+        self.subscribe("gear", self._blip_handler)
 
         self._running = Event()
         self._update_rate = 10
@@ -264,16 +268,23 @@ class HidHandler(EventDispatcher):
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
-            number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
+            if pattern == MozaHidDevice.BASE:
+                number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
+            else:
+                number -= BTN_TRIGGER_HAPPY - (BTN_DEAD - BTN_JOYSTICK) - 2
 
         #print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
-            self._dispatch(f"gear-{number - MOZA_HPATTERN_BUTTONS.base.start + 1}")
+            gear = number - MOZA_HPATTERN_BUTTONS.base.start + 1
+            self._blip_handler(gear, state)
+            self._dispatch("gear", gear, state)
 
         elif pattern == MozaHidDevice.HPATTERN and number in MOZA_HPATTERN_BUTTONS.hpattern.range:
-            self._dispatch(f"gear-{number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1}")
+            gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1
+            self._blip_handler(gear, state)
+            self._dispatch("gear", gear, state)
 
 
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
@@ -342,14 +353,44 @@ class HidHandler(EventDispatcher):
         self._virtual_devices[pattern] = new_device
 
 
-    def update_blip_data(data: BlipData) -> None:
+    def copy_blip_data(data: BlipData) -> None:
         self._blip.copy(data)
 
 
-    def _blip_handler(self) -> None:
-        if not self._blip.enabled:
+    def update_blip_data(self, enabled: bool=None, level: int=None, duration: int=None) -> None:
+        if enabled is not None:
+            self._blip.enabled = enabled
+
+        if level is not None:
+            if 0 <= level <= 100:
+                self._blip.level = level
+
+        if duration is not None:
+            if 0 <= duration <= 1000:
+                self._blip.duration = duration
+
+
+
+
+    def _blip_handler(self, gear: int, state: int) -> None:
+        Thread(target=self._blip_handler_worker, args=[gear, state], daemon=True).start()
+
+
+    def _blip_handler_worker(self, gear: int, state: int) -> None:
+        if not self._blip.check():
             return
 
+        if state != 1:
+            return
+
+        last_gear = self._last_gear
+        self._last_gear = gear
+        # print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
+
+        if gear + 1 != last_gear:
+            return
+
+        # print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
         device: evdev.InputDevice = None
         axis = None
 
@@ -364,13 +405,15 @@ class HidHandler(EventDispatcher):
         if not device:
             return
 
-        device.write(EV_ABS, axis, self._blip.level)
+
+        info = device.absinfo(axis)
+        level = ceil((self._blip.level / 100) * (info.max - info.min) + info.min)
+        # print(f"Computed level: {level} ({info.min}:{info.max})")
+
+        device.write(EV_ABS, axis, level)
         device.write(EV_SYN, SYN_REPORT, 0)
 
         sleep(self._blip.duration/1000)
 
-        device.write(EV_ABS, axis, 0)
+        device.write(EV_ABS, axis, info.min)
         device.write(EV_SYN, SYN_REPORT, 0)
-
-
-

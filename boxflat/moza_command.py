@@ -72,7 +72,12 @@ class MozaCommand():
             if payload_list[:id_len] != values["id"]:
                 continue
 
-            ret = f"{device_name}-{name}", MozaCommand.value_from_data(payload[id_len:], values["type"])
+            value = MozaCommand.value_from_data(payload[id_len:], values["type"])
+            if name == "paddle-sync" and value == 0:
+                device_name = "hpattern"
+
+            ret = f"{device_name}-{name}", value
+
             break
         return ret
 
