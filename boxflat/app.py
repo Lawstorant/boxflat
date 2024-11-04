@@ -50,7 +50,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         alert.set_heading("No udev rules detected!")
         alert.set_body_use_markup(True)
-        alert.connect("response", self._handle_udev_dialog)
+        alert.connect("response", self._handle_udev_dialog, "ASD")
 
         alert.choose(self)
 
@@ -85,55 +85,6 @@ class MainWindow(Adw.ApplicationWindow):
 
         echo = subprocess.Popen(["echo", udev], stdout=subprocess.PIPE)
         subprocess.call(command, stdin=echo.stdout)
-
-
-    def check_udev(self, data_path: str) -> None:
-        check = self._check_native
-        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-            check = self._check_flatpak
-
-        if check():
-            return
-
-        udev_alert_body = "alert"
-        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
-            udev_alert_body = "\n" + file.read().strip()
-
-        alert = Adw.AlertDialog()
-        alert.set_body(udev_alert_body)
-        alert.add_response("guide", "Guide")
-        alert.add_response("close", "Close")
-        alert.set_size_request(400, 0)
-
-        alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
-        alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
-        alert.set_close_response("close")
-
-        alert.set_heading("No udev rules detected!")
-        alert.set_body_use_markup(True)
-        alert.connect("response", self._handle_udev_dialog)
-
-        alert.choose(self)
-
-
-    def _check_native(self) -> bool:
-        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
-
-
-    def _check_flatpak(self) -> bool:
-        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
-        rules = subprocess.check_output(command).decode()
-
-        if "99-boxflat.rules" in rules:
-            return True
-        return False
-
-
-    def _handle_udev_dialog(self, dialog, response):
-        if response != "guide":
-            return
-        url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
-        Gtk.UriLauncher(uri=url).launch()
 
 
 class MyApp(Adw.Application):
