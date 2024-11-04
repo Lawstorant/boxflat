@@ -24,17 +24,14 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def check_udev(self, data_path: str) -> None:
-        command = ["ls" ,"/etc/udev/rules.d"]
+        check = self._check_native
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-            command = ["flatpak-spawn", "--host", *command]
+            check = self._check_flatpak
 
-        rules = subprocess.check_output(command).decode()
-
-        if "99-boxflat.rules" in rules:
+        if check():
             return
 
         udev_alert_body = "alert"
-
         with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
             udev_alert_body = "\n" + file.read().strip()
 
@@ -54,9 +51,18 @@ class MainWindow(Adw.ApplicationWindow):
 
         alert.choose(self)
 
-        subprocess.check_output(command).decode()
 
-        # subprocess.call(["sudo", "ls", "/etc"])
+    def _check_native(self) -> bool:
+        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
+
+
+    def _check_flatpak(self) -> bool:
+        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
+        rules = subprocess.check_output(command).decode()
+
+        if "99-boxflat.rules" in rules:
+            return True
+        return False
 
 
     def _handle_udev_dialog(self, dialog, response):
