@@ -368,7 +368,12 @@ class HidHandler(EventDispatcher):
                 self._duration = duration
 
 
+
     def _blip_handler(self, gear: int, state: int) -> None:
+        Thread(target=self._blip_handler_worker, args=[gear, state], daemon=True).start()
+
+
+    def _blip_handler_worker(self, gear: int, state: int) -> None:
         if not self._blip.enabled:
             return
 
