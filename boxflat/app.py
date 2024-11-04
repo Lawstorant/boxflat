@@ -10,7 +10,7 @@ from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
-from threading import Thread
+from threading import Thread, Event
 
 import os
 import subprocess
@@ -175,6 +175,7 @@ class MyApp(Adw.Application):
         self._hid_handler = HidHandler()
         self._config_path = config_path
         self._data_path = data_path
+        self._held = Event()
 
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
@@ -220,6 +221,22 @@ class MyApp(Adw.Application):
         self._cm.subscribe("estop-receive-status", self._cm.set_setting, "base-ffb-disable")
 
 
+    def hold(self) -> None:
+        if self._held.is_set():
+            return
+
+        self._held.set()
+        super().hold()
+
+
+    def release(self) -> None:
+        if not self._held.is_set():
+            return
+
+        self._held.clear()
+        super().release()
+
+
     def on_activate(self, app):
         autostart = self._autostart
         self._autostart = False
@@ -227,14 +244,36 @@ class MyApp(Adw.Application):
         hidden = self._settings.read_setting("autostart-hidden") or 0
         background = self._settings.read_setting("background") or 0
 
-        if autostart and hidden and background:
+        if background:
             self.hold()
+
+        if autostart and hidden and background:
             return
 
         win = MainWindow(self.navigation)
         win.set_application(app)
+        win.connect("close-request", lambda *_: Thread(target=self._show_bg_notification, daemon=True).start())
         win.present()
         win.check_udev(self._data_path)
+
+
+    def _show_bg_notification(self, *_) -> None:
+        if self._settings.read_setting("background-notified") == 1:
+            return
+
+        if not self._settings.read_setting("background"):
+            return
+
+        self._settings.write_setting(1, "background-notified")
+        notif = Notification()
+
+        notif.set_title(f"Running in the background")
+        notif.set_body(f"You can disable this behavior in Other settings")
+        notif.set_priority(NotificationPriority.NORMAL)
+
+        self.send_notification("background", notif)
+        sleep(10)
+        self.withdraw_notification("background")
 
 
     def switch_panel(self, button):
