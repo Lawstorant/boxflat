@@ -40,11 +40,11 @@ class MainWindow(Adw.ApplicationWindow):
 
         alert = Adw.AlertDialog()
         alert.set_body(udev_alert_body)
-        alert.add_response("install", "Install")
+        alert.add_response("guide", "Guide")
         alert.add_response("close", "Close")
-        alert.set_size_request(450, 0)
+        alert.set_size_request(400, 0)
 
-        alert.set_response_appearance("install", Adw.ResponseAppearance.SUGGESTED)
+        alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
         alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
         alert.set_close_response("close")
 
@@ -60,7 +60,7 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _handle_udev_dialog(self, dialog, response):
-        if response != "install":
+        if response != "guide":
             return
         url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
         Gtk.UriLauncher(uri=url).launch()
@@ -89,14 +89,6 @@ class MyApp(Adw.Application):
         self._panels: dict[str, SettingsPanel] = {}
         self._dry_run = dry_run
         self._autostart = autostart
-
-        # self.search_btn = Gtk.ToggleButton()  # Search Button
-        # self.search_btn.set_icon_name("edit-find-symbolic")
-        # self.search_btn.bind_property("active", self.searchbar, "search-mode-enabled",
-        #                               GObject.BindingFlags.BIDIRECTIONAL)
-        # self.search_btn.set_valign(Gtk.Align.CENTER)
-        # self.search_btn.add_css_class("image-button")
-        # left_header.pack_start(self.search_btn)
 
         navigation = Adw.NavigationSplitView()
         navigation.set_max_sidebar_width(178)
