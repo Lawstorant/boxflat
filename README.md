@@ -58,10 +58,12 @@ https://aur.archlinux.org/packages/boxflat-git
 
 ## Manual:
 This package depends on:
-- python3
+- python >= 3.11
 - gtk4
-- libadwaita 1.6
+- libadwaita >= 1.6
 - cairo 1.18
+- gobject-introspection
+- pkexec (optional)
 
 Python dependencies:
 - pyyaml 6.0.2

@@ -1,3 +1,3 @@
 <span>Access to <span bgcolor="#242424"><tt>/dev/ttyACM*</tt></span> Moza devices is required and Boxflat didn't detect udev rules on your system. You probably installed Boxflat through flatpak.</span>
 
-<span>Sadly, flatpak version can't install these rules for you. Check out the manual installation gude on GitHub (it's very easy!)</span>
+<span>Sadly, flatpak version can't install these rules for you as <span bgcolor="#242424"><tt>pkexec</tt></span> wasn't found. Check out the manual installation gude on GitHub (it's very easy!)</span>

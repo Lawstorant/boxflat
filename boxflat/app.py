@@ -10,6 +10,7 @@ from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
+from threading import Thread
 
 import os
 import subprocess
@@ -21,33 +22,47 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_default_size(0, 850)
         self.set_title("Boxflat")
         self.set_content(navigation)
+        self._data_path = None
+        self._spawn = ["flatpak-spawn", "--host"]
 
 
     def check_udev(self, data_path: str) -> None:
-        check = self._check_native
-        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-            check = self._check_flatpak
+        self._data_path = data_path
+        udev_exists = self._check_native
+        is_flatpak = False
 
-        if check():
+        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            is_flatpak = True
+            udev_exists = self._check_flatpak
+
+        if udev_exists():
             return
 
+        pkexec_found = self._check_pkexec(is_flatpak)
+
         udev_alert_body = "alert"
-        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
+        with open(os.path.join(data_path, "udev-warning-install.txt" if pkexec_found else "udev-warning-guide.txt"), "r") as file:
             udev_alert_body = "\n" + file.read().strip()
 
         alert = Adw.AlertDialog()
         alert.set_body(udev_alert_body)
-        alert.add_response("guide", "Guide")
-        alert.add_response("close", "Close")
-        alert.set_size_request(400, 0)
 
-        alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
+        if pkexec_found:
+            alert.add_response("install", "Install")
+            alert.set_response_appearance("install", Adw.ResponseAppearance.SUGGESTED)
+        else:
+            alert.add_response("guide", "Guide")
+            alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
+
+        alert.add_response("close", "Close")
+        alert.set_size_request(460, 0)
+
         alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
         alert.set_close_response("close")
 
         alert.set_heading("No udev rules detected!")
         alert.set_body_use_markup(True)
-        alert.connect("response", self._handle_udev_dialog)
+        alert.connect("response", self._handle_udev_dialog, is_flatpak)
 
         alert.choose(self)
 
@@ -57,7 +72,7 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _check_flatpak(self) -> bool:
-        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
+        command = [*self._spawn, "ls" ,"/etc/udev/rules.d"]
         rules = subprocess.check_output(command).decode()
 
         if "99-boxflat.rules" in rules:
@@ -65,11 +80,38 @@ class MainWindow(Adw.ApplicationWindow):
         return False
 
 
-    def _handle_udev_dialog(self, dialog, response):
-        if response != "guide":
-            return
-        url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
-        Gtk.UriLauncher(uri=url).launch()
+    def _handle_udev_dialog(self, dialog, response: str, is_flatpak: bool) -> None:
+        if response == "install":
+            Thread(target=self._install_rules, args=[is_flatpak], daemon=True).start()
+
+        elif response == "guide":
+            url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
+            Gtk.UriLauncher(uri=url).launch()
+
+
+    def _install_rules(self, is_flatpak: bool) -> None:
+        with open(os.path.join(self._data_path, "../udev/99-boxflat.rules"), "r") as file:
+            udev = file.read().strip().split("\n")[-1]
+
+        command = ["pkexec", "tee", "/etc/udev/rules.d/99-boxflat.rules"]
+        if is_flatpak:
+            command = [*self._spawn, *command]
+
+        echo = subprocess.Popen(["echo", udev], stdout=subprocess.PIPE)
+        subprocess.call(command, stdin=echo.stdout)
+
+
+    def _check_pkexec(self, is_flatpak: bool) -> bool:
+        command = ["whereis", "-b", "pkexec"]
+        if is_flatpak:
+            command = [*self._spawn, *command]
+
+        version = subprocess.check_output(command).decode().strip().split()
+
+        if len(version) > 1:
+            return True
+        return False
+
 
 
 class MyApp(Adw.Application):
