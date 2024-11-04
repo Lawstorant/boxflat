@@ -94,6 +94,7 @@ class MainWindow(Adw.ApplicationWindow):
             udev = file.read().strip().split("\n")[-1]
 
         command = ["pkexec", "tee", "/etc/udev/rules.d/99-boxflat.rules"]
+        command = [*command, "&&", "udevadm", "trigger", "--attr-match=subsystem=tty"]
         if is_flatpak:
             command = [*self._spawn, *command]
 
@@ -102,7 +103,7 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _check_pkexec(self, is_flatpak: bool) -> bool:
-        command = ["whereis", "-b", "pkexec"]
+        command = ["whereis", "-b", "pkxec"]
         if is_flatpak:
             command = [*self._spawn, *command]
 
