@@ -149,6 +149,10 @@ class EventDispatcher():
         return self.__events[event_name].append(callback, *args)
 
 
+    def unsubscribe(self, event_name: str, subscribtion: Subscription) -> None:
+        self._remove_subscription(event_name, subscribtion)
+
+
     def subscribe_once(self, event_name: str, callback, *args):
         if not self.__find_event(event_name):
             return
@@ -164,10 +168,16 @@ class EventDispatcher():
 
 
     def _remove_subscription(self, event_name: str, sub: Subscription) -> bool:
+        if not event_name or not sub:
+            return
+
         if not self.__find_event(event_name):
             return False
 
-        self.__events[event_name].remove(sub)
+        try:
+            self.__events[event_name].remove(sub)
+        except KeyError:
+            pass
 
 
     def _clear_subscriptions(self, event_names=None):

@@ -47,7 +47,12 @@ class SerialHandler(SimpleEventDispatcher):
 
 
     def _thread_spawner(self):
-        serial = Serial(self._serial_path, baudrate=115200, exclusive=False, timeout=0.5)
+        try:
+            serial = Serial(self._serial_path, baudrate=115200, exclusive=False, timeout=0.5)
+        except:
+            self.stop()
+            return
+
         print(f"\"{self._device_name}\" connected")
         serial.reset_output_buffer()
         serial.reset_input_buffer()

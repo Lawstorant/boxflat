@@ -10,7 +10,9 @@ from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
+
 import os
+import subprocess
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -20,6 +22,54 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_title("Boxflat")
         self.set_content(navigation)
 
+
+    def check_udev(self, data_path: str) -> None:
+        check = self._check_native
+        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            check = self._check_flatpak
+
+        if check():
+            return
+
+        udev_alert_body = "alert"
+        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
+            udev_alert_body = "\n" + file.read().strip()
+
+        alert = Adw.AlertDialog()
+        alert.set_body(udev_alert_body)
+        alert.add_response("guide", "Guide")
+        alert.add_response("close", "Close")
+        alert.set_size_request(400, 0)
+
+        alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
+        alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
+        alert.set_close_response("close")
+
+        alert.set_heading("No udev rules detected!")
+        alert.set_body_use_markup(True)
+        alert.connect("response", self._handle_udev_dialog)
+
+        alert.choose(self)
+
+
+    def _check_native(self) -> bool:
+        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
+
+
+    def _check_flatpak(self) -> bool:
+        command = ["flatpak-spawn", "--host", "ls" ,"/etc/udev/rules.d"]
+        rules = subprocess.check_output(command).decode()
+
+        if "99-boxflat.rules" in rules:
+            return True
+        return False
+
+
+    def _handle_udev_dialog(self, dialog, response):
+        if response != "guide":
+            return
+        url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
+        Gtk.UriLauncher(uri=url).launch()
 
 
 class MyApp(Adw.Application):
@@ -45,14 +95,6 @@ class MyApp(Adw.Application):
         self._panels: dict[str, SettingsPanel] = {}
         self._dry_run = dry_run
         self._autostart = autostart
-
-        # self.search_btn = Gtk.ToggleButton()  # Search Button
-        # self.search_btn.set_icon_name("edit-find-symbolic")
-        # self.search_btn.bind_property("active", self.searchbar, "search-mode-enabled",
-        #                               GObject.BindingFlags.BIDIRECTIONAL)
-        # self.search_btn.set_valign(Gtk.Align.CENTER)
-        # self.search_btn.add_css_class("image-button")
-        # left_header.pack_start(self.search_btn)
 
         navigation = Adw.NavigationSplitView()
         navigation.set_max_sidebar_width(178)
@@ -85,24 +127,6 @@ class MyApp(Adw.Application):
 
         navigation.set_content(self._activate_default().content)
 
-        udev_alert_body = "alert"
-
-        with open(os.path.join(data_path, "udev-warning.txt"), "r") as file:
-            udev_alert_body = "\n" + file.read().strip()
-
-        self._alert = Adw.AlertDialog()
-        self._alert.set_body(udev_alert_body)
-        self._alert.add_response("guide", "Guide")
-        self._alert.add_response("close", "Close")
-
-        self._alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
-        self._alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
-        self._alert.set_close_response("close")
-        self._alert.set_heading("No udev rules detected!")
-        self._alert.set_body_use_markup(True)
-        self._alert.connect("response", self._handle_udev_dialog)
-
-        self._cm.subscribe("no-accesss", self.show_udev_dialog)
         self._cm.subscribe("estop-receive-status", self._cm.set_setting, "base-ffb-disable")
 
 
@@ -120,6 +144,7 @@ class MyApp(Adw.Application):
         win = MainWindow(self.navigation)
         win.set_application(app)
         win.present()
+        win.check_udev(self._data_path)
 
 
     def switch_panel(self, button):
@@ -134,21 +159,6 @@ class MyApp(Adw.Application):
 
     def set_content_title(self, title: str):
         self.navigation.get_content().set_title(title)
-
-
-    def show_udev_dialog(self):
-        self._alert.choose()
-
-
-    def _handle_udev_dialog(self, dialog, response):
-        if response == "guide":
-            self.open_url("https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak")
-
-
-    def open_url(self, url: str):
-        launcher = Gtk.UriLauncher()
-        launcher.set_uri(url)
-        launcher.launch()
 
 
     def _prepare_settings(self):
