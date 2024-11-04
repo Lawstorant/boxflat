@@ -245,14 +245,14 @@ class HidHandler(EventDispatcher):
         self.detection_fix(pattern)
         try:
             for event in device.read_loop():
+                if pattern in self._virtual_devices:
+                    self._virtual_devices[pattern].write(event.type, event.code, event.value)
+
                 if event.type == EV_ABS:
                     self._update_axis(device, event.code, event.value)
 
                 elif event.type == EV_KEY:
                     self._notify_button(event.code, event.value)
-
-                if pattern in self._virtual_devices:
-                    self._virtual_devices[pattern].write(event.type, event.code, event.value)
 
         except Exception as e:
             # print(e)
