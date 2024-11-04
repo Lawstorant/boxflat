@@ -3,6 +3,7 @@
 import evdev
 import re
 from time import sleep
+from math import ceil
 
 from evdev.ecodes import *
 from evdev.device import AbsInfo
@@ -132,6 +133,10 @@ class BlipData():
         self.duration = data.duration
 
 
+    def check(self) -> bool:
+        return self.enabled and self.level > 0 and self.duration > 0
+
+
 
 class HidHandler(EventDispatcher):
     def __init__(self):
@@ -157,9 +162,6 @@ class HidHandler(EventDispatcher):
         self._virtual_devices = {}
         self._devices = {}
         self._blip = BlipData()
-        self._blip.enabled = True
-        self._blip.level = 80
-        self._blip.duration = 400
         self._last_gear = 0
 
 
@@ -361,11 +363,12 @@ class HidHandler(EventDispatcher):
 
         if level is not None:
             if 0 <= level <= 100:
-                self._level = level
+                self._blip.level = level
 
         if duration is not None:
             if 0 <= duration <= 1000:
-                self._duration = duration
+                self._blip.duration = duration
+
 
 
 
@@ -374,7 +377,7 @@ class HidHandler(EventDispatcher):
 
 
     def _blip_handler_worker(self, gear: int, state: int) -> None:
-        if not self._blip.enabled:
+        if not self._blip.check():
             return
 
         if state != 1:
@@ -402,13 +405,15 @@ class HidHandler(EventDispatcher):
         if not device:
             return
 
-        info = device.absinfo(axis)
-        level = (self._blip.level / 100) * (info.max - info.min) + info.min
 
-        device.write(EV_ABS, axis, self._blip.level)
+        info = device.absinfo(axis)
+        level = ceil((self._blip.level / 100) * (info.max - info.min) + info.min)
+        print(f"Computed level: {level}/({info.min}:{info.max})")
+
+        device.write(EV_ABS, axis, level)
         device.write(EV_SYN, SYN_REPORT, 0)
 
         sleep(self._blip.duration/1000)
 
-        device.write(EV_ABS, axis, 0)
+        device.write(EV_ABS, axis, info.min)
         device.write(EV_SYN, SYN_REPORT, 0)
