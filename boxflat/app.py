@@ -21,9 +21,11 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_default_size(0, 850)
         self.set_title("Boxflat")
         self.set_content(navigation)
+        self._data_path = None
 
 
     def check_udev(self, data_path: str) -> None:
+        self._data_path = data_path
         check = self._check_native
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
             check = self._check_flatpak
@@ -73,22 +75,64 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _show_install_dialog(self) -> None:
+        dialog = Adw.Dialog(title="Install udev rules")
         entry = Adw.PasswordEntryRow(title="sudo password")
-        button = Adw.ButtonRow(title="Install")
-        button.set_end_icon_name("document-save-symbolic")
-
-        group = Adw.PreferencesGroup()
-        group.add(entry)
-        group.add(button)
 
         page = Adw.PreferencesPage()
+        group = Adw.PreferencesGroup()
+        group.add(entry)
         page.add(group)
 
-        dialog = Adw.Dialog()
-        dialog.add(page)
-        dialog.set_title("Provide sudo password")
-        dialog.set_size_request(0, 0)
+        toolbar_view = Adw.ToolbarView()
+        toolbar_view.add_top_bar(Adw.HeaderBar())
+        toolbar_view.set_content(page)
+
+        # Decide which button style to use
+        if Adw.get_minor_version() >= 6:
+            button = Adw.ButtonRow(title="Install")
+            button.add_css_class("suggested-action")
+            button.set_end_icon_name("document-save-symbolic")
+            button.connect("activated", lambda *_: self._install_rules(entry.get_text()))
+            button.connect("activated", lambda *_: dialog.close())
+
+            group = Adw.PreferencesGroup(margin_start=100, margin_end=100)
+            group.add(button)
+            page.add(group)
+
+        # compatibility with libadwaita older than 1.6
+        else:
+            button = Gtk.Button(label="Install", hexpand=True)
+            button.add_css_class("suggested-action")
+            button.add_css_class("square")
+            button.connect("clicked", lambda *_: self._install_rules(entry.get_text()))
+            button.connect("clicked", lambda *_: dialog.close())
+
+            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            box.append(button)
+            box.add_css_class("linked")
+
+            toolbar_view.add_bottom_bar(box)
+
+        dialog.set_child(toolbar_view)
+        dialog.set_size_request(350,0)
         dialog.present(self)
+
+
+    def _install_rules(self, password: str) -> None:
+        with open(os.path.join(self._data_path, "../udev/99-boxflat.rules"), "r") as file:
+            udev = file.read().strip().split("\n")[-1]
+
+        command = ["sudo", "-S", "tee", "/etc/udev/rules.d/99-boxflat.rules", "<<<", f"'{udev}'"]
+        command2 = ["sudo", "-S", "udevadm", "trigger", "--attr-match=subsystem=tty"]
+
+        if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
+            command = f"flatpak-spawn --host \"{command}\""
+            command2 = f"flatpak-spawn --host \"{command2}\""
+
+        sudo_pass = subprocess.Popen(['echo', password], stdout=subprocess.PIPE)
+        subprocess.Popen(command, stdin=sudo_pass.stdout)
+        subprocess.Popen(command2, stdin=sudo_pass.stdout)
+
 
 
 class MyApp(Adw.Application):
