@@ -25,6 +25,8 @@ class HPatternSettings(SettingsPanel):
 
         row1 = BoxflatSliderRow("Auto Blip Output", 0, 100, suffix="% ", increment=10)
         row2 = BoxflatSliderRow("Auto Blip Duration", 0, 1000, subtitle="Miliseconds", increment=50)
+        row1.set_active(0)
+        row2.set_active(0)
 
         self._add_row(BoxflatSwitchRow("Auto Downshift Throttle Blip", subtitle="Easy rev match"))
         self._current_row.subscribe(row1.set_active)

@@ -385,12 +385,12 @@ class HidHandler(EventDispatcher):
 
         last_gear = self._last_gear
         self._last_gear = gear
-        print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
+        # print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
 
         if gear + 1 != last_gear:
             return
 
-        print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
+        # print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
         device: evdev.InputDevice = None
         axis = None
 
@@ -408,7 +408,7 @@ class HidHandler(EventDispatcher):
 
         info = device.absinfo(axis)
         level = ceil((self._blip.level / 100) * (info.max - info.min) + info.min)
-        print(f"Computed level: {level}/({info.min}:{info.max})")
+        # print(f"Computed level: {level} ({info.min}:{info.max})")
 
         device.write(EV_ABS, axis, level)
         device.write(EV_SYN, SYN_REPORT, 0)

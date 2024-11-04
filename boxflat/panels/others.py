@@ -87,7 +87,7 @@ class OtherSettings(SettingsPanel):
         if self._settings.read_setting("background") == None:
             self._settings.write_setting(1, "background")
 
-        background = BoxflatSwitchRow("Run in background")
+        background = BoxflatSwitchRow("Run in the background")
         startup = BoxflatSwitchRow("Run on startup")
 
         background.subscribe(lambda v: hidden.set_active(v + startup.get_value(), offset=-1))
