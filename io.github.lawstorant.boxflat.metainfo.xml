@@ -99,6 +99,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.24.1" date="2024-11-5">
+      <description>
+        <p>Fix mangled udev code...</p>
+      </description>
+    </release>
     <release version="v1.24.0" date="2024-11-4">
       <description>
         <p>H-Pattern downshift throttle blip operational</p>
