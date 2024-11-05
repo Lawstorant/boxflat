@@ -152,6 +152,10 @@ class MozaConnectionManager(EventDispatcher):
             else:
                 new_devices[device].serial_handler = old_devices[device].serial_handler
 
+        for name, device in old_devices.items():
+            if name not in new_devices:
+                device.serial_handler.stop()
+
         with self._devices_lock:
             self._serial_devices = new_devices
 

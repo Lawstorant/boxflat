@@ -202,6 +202,9 @@ class MyApp(Adw.Application):
         if autostart and hidden and background:
             return
 
+        if self.navigation.get_root() != None:
+            return
+
         win = MainWindow(self.navigation)
         win.set_application(app)
         win.connect("close-request", lambda *_: Thread(target=self._show_bg_notification, daemon=True).start())
