@@ -89,8 +89,8 @@ _ButtonsSpecifier = namedtuple("ButtonsSpecifier", "start end range")
 MOZA_BUTTON_COUNT = 128
 MOZA_GEARS = 7
 MOZA_HPATTERN_BUTTONS = _HpatternButtons(
-    _ButtonsSpecifier(114, 120, [i for i in range(114, 120+1)]),
-    _ButtonsSpecifier(6, 12, [i for i in range(6, 12+1)])
+    _ButtonsSpecifier(113, 120, [i for i in range(113, 120+1)]),
+    _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)])
 )
 
 
@@ -282,12 +282,12 @@ class HidHandler(EventDispatcher):
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
-            gear = number - MOZA_HPATTERN_BUTTONS.base.start + 1
+            gear = number - MOZA_HPATTERN_BUTTONS.base.start
             self._blip_handler(gear, state)
             self._dispatch("gear", gear, state)
 
         elif pattern == MozaHidDevice.HPATTERN and number in MOZA_HPATTERN_BUTTONS.hpattern.range:
-            gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1
+            gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start
             self._blip_handler(gear, state)
             self._dispatch("gear", gear, state)
 
@@ -398,7 +398,7 @@ class HidHandler(EventDispatcher):
         if not self._blip.check():
             return
 
-        if state != 1:
+        if state != 1 or gear < 1:
             return
 
         last_gear = self._last_gear
