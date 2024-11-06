@@ -132,7 +132,6 @@ class MyApp(Adw.Application):
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
         self._cm.subscribe("hid-device-disconnected", self._hid_handler.remove_device)
-        self._cm.subscribe("hid-device-disconnected", print)
 
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
