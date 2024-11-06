@@ -213,6 +213,13 @@ class HidHandler(EventDispatcher):
             self._configure_device(hid, pattern)
 
 
+    def remove_device(self, pattern: MozaHidDevice) -> None:
+        if pattern not in self._shutdowns:
+            return
+
+        self._shutdowns[pattern].set()
+
+
     def _configure_device(self, device: evdev.InputDevice, pattern: str):
         if pattern == MozaHidDevice.BASE:
             self._base = device
@@ -249,15 +256,11 @@ class HidHandler(EventDispatcher):
                 self._dispatch(*axis.data)
 
 
-    def _update_axis(self, device: evdev.InputDevice, code: int, value: int):
-        axis_min = device.absinfo(code).min
+    def _update_axis(self, code: int, value: int, offset: int, pattern: str):
         code = evdev.ecodes.ABS[code]
         name = ""
 
-        if axis_min < 0:
-            value += abs(axis_min)
-
-        if device == self._base:
+        if pattern == MozaHidDevice.BASE:
             name = MOZA_AXIS_BASE_CODES[code]
         else:
             name = MOZA_AXIS_CODES[code]
@@ -289,6 +292,13 @@ class HidHandler(EventDispatcher):
             self._dispatch("gear", gear, state)
 
 
+    def _try_open(self, device_path: str) -> evdev.InputDevice:
+        try:
+            return evdev.InputDevice(device_path)
+        except:
+            pass
+
+
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
         sleep(0.3)
         self._devices[pattern] = device
@@ -297,29 +307,33 @@ class HidHandler(EventDispatcher):
 
         self.detection_fix(pattern)
         device_path = device.path
+        name = device.name
 
         while not shutdown.is_set():
+            if device is None:
+                sleep(0.3)
+                device = self._try_open(device_path)
+                continue
+
             try:
                 for event in device.read_loop():
                     if pattern in self._virtual_devices:
                         self._virtual_devices[pattern].write_event(event)
 
                     if event.type == EV_ABS:
-                        self._update_axis(device, event.code, event.value)
+                        offset = -device.absinfo(event.code).min
+                        self._update_axis(event.code, event.value + offset, pattern)
 
                     elif event.type == EV_KEY:
                         self._notify_button(event.code, event.value, pattern)
 
             except:
                 device.close()
-                sleep(0.2)
-                device = evdev.InputDevice(device_path)
+                device = None
 
 
-        print(f"HID device disconnected: " + device.name)
+        print(f"HID device disconnected: " + name)
         self._device_count.value -= 1
-        if device == self._base:
-            self._base = None
 
         self._devices.pop(pattern)
         self._shutdowns.pop(pattern)
@@ -347,10 +361,10 @@ class HidHandler(EventDispatcher):
         cap.pop(EV_MSC)
 
         # Add necessary event types
-        if not EV_ABS in cap:
+        if EV_ABS not in cap:
             cap[EV_ABS] = [(ABS_Z, AbsInfo(0, 0, 255, 8 ,8, 0))]
 
-        if not EV_KEY in cap:
+        if EV_KEY not in cap:
             cap[EV_KEY] = [BTN_JOYSTICK]
 
         # Create new device

@@ -88,6 +88,7 @@ class MozaConnectionManager(EventDispatcher):
 
         self._register_events(*self._polling_list)
         self._register_events("device-connected", "hid-device-connected")
+        self._register_events("device-disconnected", "hid-device-disconnected")
 
         self._serial_lock = Lock()
         self._refresh_cont = Event()
@@ -138,23 +139,29 @@ class MozaConnectionManager(EventDispatcher):
         with self._devices_lock:
             old_devices = self._serial_devices
 
-        for device in new_devices:
-            if device not in old_devices:
-                new_devices[device].serial_handler = SerialHandler(
-                    new_devices[device].path,
-                    self._message_start, device)
+        for name in new_devices:
+            if name in old_devices:
+                new_devices[name].serial_handler = old_devices[name].serial_handler
+                continue
 
-                new_devices[device].serial_handler.subscribe(self._receive_data, device)
-                self._dispatch("device-connected", device)
-                if device in HidDeviceMapping:
-                    self._dispatch("hid-device-connected", HidDeviceMapping[device])
+            new_devices[name].serial_handler = SerialHandler(
+                new_devices[name].path,
+                self._message_start, name)
 
-            else:
-                new_devices[device].serial_handler = old_devices[device].serial_handler
+            new_devices[name].serial_handler.subscribe(self._receive_data, name)
+            self._dispatch("device-connected", name)
+            if name in HidDeviceMapping:
+                self._dispatch("hid-device-connected", HidDeviceMapping[name])
 
         for name, device in old_devices.items():
-            if name not in new_devices:
-                device.serial_handler.stop()
+            if name in new_devices:
+                continue
+
+            device.serial_handler.stop()
+            self._dispatch("device-disconnected", name)
+            if name in HidDeviceMapping:
+                self._dispatch("hid-device-disconnected", HidDeviceMapping[name])
+
 
         with self._devices_lock:
             self._serial_devices = new_devices

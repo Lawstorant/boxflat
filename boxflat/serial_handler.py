@@ -56,7 +56,7 @@ class SerialHandler(SimpleEventDispatcher):
         while self._serial is None and not self._shutdown.is_set():
             try:
                 self._serial = Serial(self._serial_path, baudrate=115200, exclusive=False, timeout=0.5)
-                print(f"Serial conection established for {self._device_name}")
+                # print(f"Serial connection established for {self._device_name}")
             except:
                 self._serial = None
                 sleep(0.2)
@@ -79,7 +79,11 @@ class SerialHandler(SimpleEventDispatcher):
 
         p1.join()
         p2.join()
-        self._serial.close()
+
+        try:
+            self._serial.close()
+        except:
+            pass
         print(f"\"{self._device_name}\" disconnected")
 
 
