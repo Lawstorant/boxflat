@@ -99,6 +99,12 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.24.2" date="2024-11-7">
+      <description>
+        <p>Fix silent device disconnections</p>
+        <p>Fix device disconnections when waking up from sleep</p>
+      </description>
+    </release>
     <release version="v1.24.1" date="2024-11-5">
       <description>
         <p>Fix mangled udev code...</p>
