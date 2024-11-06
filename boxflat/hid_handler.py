@@ -159,8 +159,10 @@ class HidHandler(EventDispatcher):
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)
 
-        self._virtual_devices = {}
-        self._devices = {}
+        self._virtual_devices: dict[evdev.UInput] = {}
+        self._devices: dict[evdev.InputDevice] = {}
+        self._shutdowns: dict[Event] = {}
+
         self._blip = BlipData()
         self._last_gear = 0
 
@@ -216,10 +218,10 @@ class HidHandler(EventDispatcher):
             self._base = device
 
         capabilities = device.capabilities(absinfo=True, verbose=False)
-        if 3 not in capabilities[0]:
+        if EV_ABS not in capabilities[0]:
             capabilities = []
         else:
-            capabilities = capabilities[3]
+            capabilities = capabilities[EV_ABS]
 
         for axis in capabilities:
             ecode = axis[0]
@@ -290,21 +292,29 @@ class HidHandler(EventDispatcher):
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
         sleep(0.3)
         self._devices[pattern] = device
+        shutdown = Event()
+        self._shutdowns[pattern] = shutdown
+
         self.detection_fix(pattern)
-        try:
-            for event in device.read_loop():
-                if pattern in self._virtual_devices:
-                    self._virtual_devices[pattern].write_event(event)
+        device_path = device.path
 
-                if event.type == EV_ABS:
-                    self._update_axis(device, event.code, event.value)
+        while not shutdown.is_set():
+            try:
+                for event in device.read_loop():
+                    if pattern in self._virtual_devices:
+                        self._virtual_devices[pattern].write_event(event)
 
-                elif event.type == EV_KEY:
-                    self._notify_button(event.code, event.value, pattern)
+                    if event.type == EV_ABS:
+                        self._update_axis(device, event.code, event.value)
 
-        except Exception as e:
-            # print(e)
-            pass
+                    elif event.type == EV_KEY:
+                        self._notify_button(event.code, event.value, pattern)
+
+            except:
+                device.close()
+                sleep(0.2)
+                device = evdev.InputDevice(device_path)
+
 
         print(f"HID device disconnected: " + device.name)
         self._device_count.value -= 1
@@ -312,12 +322,8 @@ class HidHandler(EventDispatcher):
             self._base = None
 
         self._devices.pop(pattern)
+        self._shutdowns.pop(pattern)
         self.detection_fix(pattern, enabled=False)
-
-
-    # Driver mode stuff
-    def driver_mode_enabled(self, enabled: bool) -> None:
-        pass
 
 
     def detection_fix(self, pattern: str, enabled: bool=True) -> None:
@@ -368,8 +374,6 @@ class HidHandler(EventDispatcher):
         if duration is not None:
             if 0 <= duration <= 1000:
                 self._blip.duration = duration
-
-
 
 
     def _blip_handler(self, gear: int, state: int) -> None:
