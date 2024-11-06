@@ -11,6 +11,8 @@ class HPatternSettings(SettingsPanel):
         self._slider1 = None
         self._slider2 = None
         self._settings = settings
+        self._gear_row = BoxflatLabelRow("Current Gear")
+
         super().__init__("H-Pattern Shifter", button_callback, connection_manager, hid)
         self._cm.subscribe_connected("hpattern-paddle-sync", self.active)
 
@@ -18,6 +20,8 @@ class HPatternSettings(SettingsPanel):
     def active(self, value: int):
         value = -1 if value != 0 else value
         super().active(value)
+        if not self._active:
+            self._update_gear(0, 0)
 
 
     def prepare_ui(self):
@@ -50,7 +54,23 @@ class HPatternSettings(SettingsPanel):
         row1.subscribe(self._settings.write_setting, "hpattern-blip-level")
         row2.subscribe(self._settings.write_setting, "hpattern-blip-duration")
 
-        self.add_preferences_group()
+        self.add_preferences_group("Misc")
+        self._add_row(self._gear_row)
+        self._update_gear(0, 0)
+        self._hid_handler.subscribe("gear", self._update_gear)
+
         self._add_row(BoxflatCalibrationRow("Device Calibration", "Shift into R > 7th > R > Neutral"))
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "hpattern-calibration-start")
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "hpattern-calibration-stop")
+
+
+    def _update_gear(self, gear: int, state: int) -> None:
+        label = "R"
+
+        if state != 1:
+            label = "N"
+
+        elif gear > 0:
+            label = str(gear)
+
+        self._gear_row.set_label(label)

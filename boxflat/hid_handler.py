@@ -89,8 +89,8 @@ _ButtonsSpecifier = namedtuple("ButtonsSpecifier", "start end range")
 MOZA_BUTTON_COUNT = 128
 MOZA_GEARS = 7
 MOZA_HPATTERN_BUTTONS = _HpatternButtons(
-    _ButtonsSpecifier(114, 120, [i for i in range(114, 120+1)]),
-    _ButtonsSpecifier(6, 12, [i for i in range(6, 12+1)])
+    _ButtonsSpecifier(113, 120, [i for i in range(113, 120+1)]),
+    _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)])
 )
 
 
@@ -159,8 +159,10 @@ class HidHandler(EventDispatcher):
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)
 
-        self._virtual_devices = {}
-        self._devices = {}
+        self._virtual_devices: dict[evdev.UInput] = {}
+        self._devices: dict[evdev.InputDevice] = {}
+        self._shutdowns: dict[Event] = {}
+
         self._blip = BlipData()
         self._last_gear = 0
 
@@ -211,15 +213,22 @@ class HidHandler(EventDispatcher):
             self._configure_device(hid, pattern)
 
 
+    def remove_device(self, pattern: MozaHidDevice) -> None:
+        if pattern not in self._shutdowns:
+            return
+
+        self._shutdowns[pattern].set()
+
+
     def _configure_device(self, device: evdev.InputDevice, pattern: str):
         if pattern == MozaHidDevice.BASE:
             self._base = device
 
         capabilities = device.capabilities(absinfo=True, verbose=False)
-        if 3 not in capabilities[0]:
+        if EV_ABS not in capabilities[0]:
             capabilities = []
         else:
-            capabilities = capabilities[3]
+            capabilities = capabilities[EV_ABS]
 
         for axis in capabilities:
             ecode = axis[0]
@@ -247,15 +256,11 @@ class HidHandler(EventDispatcher):
                 self._dispatch(*axis.data)
 
 
-    def _update_axis(self, device: evdev.InputDevice, code: int, value: int):
-        axis_min = device.absinfo(code).min
+    def _update_axis(self, code: int, value: int, offset: int, pattern: str):
         code = evdev.ecodes.ABS[code]
         name = ""
 
-        if axis_min < 0:
-            value += abs(axis_min)
-
-        if device == self._base:
+        if pattern == MozaHidDevice.BASE:
             name = MOZA_AXIS_BASE_CODES[code]
         else:
             name = MOZA_AXIS_CODES[code]
@@ -277,47 +282,62 @@ class HidHandler(EventDispatcher):
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
-            gear = number - MOZA_HPATTERN_BUTTONS.base.start + 1
+            gear = number - MOZA_HPATTERN_BUTTONS.base.start
             self._blip_handler(gear, state)
             self._dispatch("gear", gear, state)
 
         elif pattern == MozaHidDevice.HPATTERN and number in MOZA_HPATTERN_BUTTONS.hpattern.range:
-            gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start + 1
+            gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start
             self._blip_handler(gear, state)
             self._dispatch("gear", gear, state)
+
+
+    def _try_open(self, device_path: str) -> evdev.InputDevice:
+        try:
+            return evdev.InputDevice(device_path)
+        except:
+            pass
 
 
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
         sleep(0.3)
         self._devices[pattern] = device
+        shutdown = Event()
+        self._shutdowns[pattern] = shutdown
+
         self.detection_fix(pattern)
-        try:
-            for event in device.read_loop():
-                if pattern in self._virtual_devices:
-                    self._virtual_devices[pattern].write_event(event)
+        device_path = device.path
+        name = device.name
 
-                if event.type == EV_ABS:
-                    self._update_axis(device, event.code, event.value)
+        while not shutdown.is_set():
+            if device is None:
+                sleep(0.3)
+                device = self._try_open(device_path)
+                continue
 
-                elif event.type == EV_KEY:
-                    self._notify_button(event.code, event.value, pattern)
+            try:
+                for event in device.read_loop():
+                    if pattern in self._virtual_devices:
+                        self._virtual_devices[pattern].write_event(event)
 
-        except Exception as e:
-            # print(e)
-            pass
+                    if event.type == EV_ABS:
+                        offset = -device.absinfo(event.code).min
+                        self._update_axis(event.code, event.value + offset, pattern)
 
-        print(f"HID device disconnected: " + device.name)
+                    elif event.type == EV_KEY:
+                        self._notify_button(event.code, event.value, pattern)
+
+            except:
+                device.close()
+                device = None
+
+
+        print(f"HID device disconnected: " + name)
         self._device_count.value -= 1
-        if device == self._base:
-            self._base = None
 
         self._devices.pop(pattern)
+        self._shutdowns.pop(pattern)
         self.detection_fix(pattern, enabled=False)
-
-
-    # Driver mode stuff
-    def driver_mode_enabled(self, enabled: bool) -> None:
-        pass
 
 
     def detection_fix(self, pattern: str, enabled: bool=True) -> None:
@@ -341,10 +361,10 @@ class HidHandler(EventDispatcher):
         cap.pop(EV_MSC)
 
         # Add necessary event types
-        if not EV_ABS in cap:
+        if EV_ABS not in cap:
             cap[EV_ABS] = [(ABS_Z, AbsInfo(0, 0, 255, 8 ,8, 0))]
 
-        if not EV_KEY in cap:
+        if EV_KEY not in cap:
             cap[EV_KEY] = [BTN_JOYSTICK]
 
         # Create new device
@@ -370,8 +390,6 @@ class HidHandler(EventDispatcher):
                 self._blip.duration = duration
 
 
-
-
     def _blip_handler(self, gear: int, state: int) -> None:
         Thread(target=self._blip_handler_worker, args=[gear, state], daemon=True).start()
 
@@ -380,7 +398,7 @@ class HidHandler(EventDispatcher):
         if not self._blip.check():
             return
 
-        if state != 1:
+        if state != 1 or gear < 1:
             return
 
         last_gear = self._last_gear

@@ -99,6 +99,15 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.24.2" date="2024-11-7">
+      <description>
+        <ul>
+          <li>Show current gear in H-Pattern settings</li>
+          <li>Fix silent device disconnections</li>
+          <li>Fix device disconnections when waking up from sleep</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.24.1" date="2024-11-5">
       <description>
         <p>Fix mangled udev code...</p>
