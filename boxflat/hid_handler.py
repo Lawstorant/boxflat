@@ -256,7 +256,7 @@ class HidHandler(EventDispatcher):
                 self._dispatch(*axis.data)
 
 
-    def _update_axis(self, code: int, value: int, offset: int, pattern: str):
+    def _update_axis(self, code: int, value: int, pattern: str):
         code = evdev.ecodes.ABS[code]
         name = ""
 
@@ -322,12 +322,12 @@ class HidHandler(EventDispatcher):
 
                     if event.type == EV_ABS:
                         offset = -device.absinfo(event.code).min
-                        self._update_axis(event.code, event.value + offset, pattern)
+                        self._update_axis(event.code, int(event.value) + offset, pattern)
 
                     elif event.type == EV_KEY:
                         self._notify_button(event.code, event.value, pattern)
 
-            except:
+            except evdev.EvdevError:
                 device.close()
                 device = None
 
