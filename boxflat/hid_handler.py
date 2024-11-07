@@ -327,7 +327,7 @@ class HidHandler(EventDispatcher):
                     elif event.type == EV_KEY:
                         self._notify_button(event.code, event.value, pattern)
 
-            except evdev.EvdevError:
+            except:
                 device.close()
                 device = None
 
