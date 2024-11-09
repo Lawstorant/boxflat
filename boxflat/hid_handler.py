@@ -13,9 +13,7 @@ from threading import Thread, Lock, Event
 from collections import namedtuple
 from typing import Self
 
-BTN_JOYSTICK = 0x120
-BTN_DEAD = 0x12f
-KEY_NEXT_FAVORITE = 0x270
+JOYSTICK_RANGE = (BTN_DEAD - BTN_JOYSTICK) - 1
 
 
 class MozaHidDevice():
@@ -83,13 +81,14 @@ MOZA_AXIS_BASE_CODES = {
 }
 
 
-_HpatternButtons = namedtuple("HpatternButtons", "base hpattern")
+_HpatternButtons = namedtuple("HpatternButtons", "base hpattern hub")
 _ButtonsSpecifier = namedtuple("ButtonsSpecifier", "start end range")
 
 MOZA_BUTTON_COUNT = 128
 MOZA_GEARS = 7
 MOZA_HPATTERN_BUTTONS = _HpatternButtons(
     _ButtonsSpecifier(113, 120, [i for i in range(113, 120+1)]),
+    _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)]),
     _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)])
 )
 
@@ -155,7 +154,6 @@ class HidHandler(EventDispatcher):
 
         self._running = Event()
         self._update_rate = 10
-        self._base = None
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)
 
@@ -214,16 +212,15 @@ class HidHandler(EventDispatcher):
 
 
     def remove_device(self, pattern: MozaHidDevice) -> None:
-        if pattern not in self._shutdowns:
-            return
+        if pattern in self._shutdowns:
+            self._shutdowns[pattern].set()
 
-        self._shutdowns[pattern].set()
+        pattern = f"{pattern}_2"
+        if pattern in self._shutdowns:
+            self._shutdowns[pattern].set()
 
 
     def _configure_device(self, device: evdev.InputDevice, pattern: str):
-        if pattern == MozaHidDevice.BASE:
-            self._base = device
-
         capabilities = device.capabilities(absinfo=True, verbose=False)
         if EV_ABS not in capabilities[0]:
             capabilities = []
@@ -237,7 +234,7 @@ class HidHandler(EventDispatcher):
                 device.set_absinfo(ecode, flat=0)
 
             fuzz = 8
-            if device == self._base and ecode == ABS_X:
+            if pattern == MozaHidDevice.BASE and ecode == ABS_X:
                 fuzz = 0
 
             # detect current fuzz. Needed for ABS_HAT axes
@@ -260,12 +257,12 @@ class HidHandler(EventDispatcher):
         code = evdev.ecodes.ABS[code]
         name = ""
 
-        if pattern == MozaHidDevice.BASE:
+        if pattern in (MozaHidDevice.BASE, MozaHidDevice.HUB):
             name = MOZA_AXIS_BASE_CODES[code]
         else:
             name = MOZA_AXIS_CODES[code]
 
-        # print(f"axis {name} ({code}), value: {value}, min: {axis_min}")
+        print(f"axis {name} ({code}), value: {value}")
         self._axis_values[name].value = value
 
 
@@ -274,22 +271,27 @@ class HidHandler(EventDispatcher):
             number -= BTN_JOYSTICK - 1
         else:
             if pattern == MozaHidDevice.BASE:
-                number -= KEY_NEXT_FAVORITE - (BTN_DEAD - BTN_JOYSTICK) - 2
+                number -= KEY_NEXT_FAVORITE - JOYSTICK_RANGE - 1
             else:
-                number -= BTN_TRIGGER_HAPPY - (BTN_DEAD - BTN_JOYSTICK) - 2
+                number -= BTN_TRIGGER_HAPPY - JOYSTICK_RANGE - 1
 
-        #print(f"button {number}, state: {state}")
+        # print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
             gear = number - MOZA_HPATTERN_BUTTONS.base.start
-            self._blip_handler(gear, state)
-            self._dispatch("gear", gear, state)
 
         elif pattern == MozaHidDevice.HPATTERN and number in MOZA_HPATTERN_BUTTONS.hpattern.range:
             gear = number - MOZA_HPATTERN_BUTTONS.hpattern.start
-            self._blip_handler(gear, state)
-            self._dispatch("gear", gear, state)
+
+        elif MozaHidDevice.HUB in pattern and number in MOZA_HPATTERN_BUTTONS.hub.range:
+            gear = number - MOZA_HPATTERN_BUTTONS.hub.start
+
+        else:
+            return
+
+        self._blip_handler(gear, state)
+        self._dispatch("gear", gear, state)
 
 
     def _try_open(self, device_path: str) -> evdev.InputDevice:
@@ -301,6 +303,9 @@ class HidHandler(EventDispatcher):
 
     def _hid_read_loop(self, device: evdev.InputDevice, pattern: str):
         sleep(0.3)
+        if pattern in self._devices:
+            pattern = f"{pattern}_2"
+
         self._devices[pattern] = device
         shutdown = Event()
         self._shutdowns[pattern] = shutdown
@@ -403,12 +408,12 @@ class HidHandler(EventDispatcher):
 
         last_gear = self._last_gear
         self._last_gear = gear
-        # print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
+        print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
 
         if gear + 1 != last_gear:
             return
 
-        # print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
+        print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
         device: evdev.InputDevice = None
         axis = None
 
@@ -416,13 +421,16 @@ class HidHandler(EventDispatcher):
             device = self._devices[MozaHidDevice.PEDALS]
             axis = ABS_RX
 
+        elif MozaHidDevice.HUB in self._devices:
+            device = self._devices[MozaHidDevice.HUB]
+            axis = ABS_Z
+
         elif MozaHidDevice.BASE in self._devices:
             device = self._devices[MozaHidDevice.BASE]
             axis = ABS_Z
 
         if not device:
             return
-
 
         info = device.absinfo(axis)
         level = ceil((self._blip.level / 100) * (info.max - info.min) + info.min)

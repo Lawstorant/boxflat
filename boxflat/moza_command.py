@@ -55,7 +55,7 @@ class MozaCommand():
         if device_id not in device_ids:
             return ret
 
-        if device_name == "base":
+        if device_name == "base" or device_name == "hub":
             device_name = device_ids[device_id]
 
         # Some ES wheels report on main/base IDs for some reason.
@@ -63,6 +63,10 @@ class MozaCommand():
         # group first. It's the only stable metric.
         if 63 <= group <= 66:
             device_name = "wheel"
+
+        # Hub reports on main ID
+        if group == 142:
+            device_name = "hub"
 
         for name, values in commands_data[device_name].items():
             if group != values["read"]:

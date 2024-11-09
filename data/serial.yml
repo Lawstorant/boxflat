@@ -1440,33 +1440,33 @@ commands:
       read: 100
       write: -1
       id: [1]
-      bytes: 1
+      bytes: 2
       type: int
 
     port2:
       read: 100
       write: -1
       id: [2]
-      bytes: 1
+      bytes: 2
       type: int
 
     port3:
       read: 100
       write: -1
       id: [3]
-      bytes: 1
+      bytes: 2
       type: int
 
     port4:
       read: 100
       write: -1
       id: [4]
-      bytes: 1
+      bytes: 2
       type: int
 
     pedals:
       read: 100
       write: -1
       id: [5]
-      bytes: 1
+      bytes: 2
       type: int

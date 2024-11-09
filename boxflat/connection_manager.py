@@ -247,7 +247,12 @@ class MozaConnectionManager(EventDispatcher):
             if device_type in self._serial_devices:
                 device_handler = self._serial_devices[device_type].serial_handler
 
-            elif device_type != "hub" and "base" in self._serial_devices:
+            elif "hub" in self._serial_devices:
+                # print(f"Redirect {device_type} to hub")
+                device_handler = self._serial_devices["hub"].serial_handler
+
+            elif "base" in self._serial_devices:
+                # print(f"Redirect {device_type} to base")
                 device_handler = self._serial_devices["base"].serial_handler
 
         return device_handler
@@ -258,7 +263,6 @@ class MozaConnectionManager(EventDispatcher):
             data, device_name,
             self._serial_data["commands"],
             self._serial_data["ids-to-names"])
-        # print(f"received: {data.hex(":")}")
 
         if value is None or command is None:
             return
