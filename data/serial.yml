@@ -1464,7 +1464,7 @@ commands:
       bytes: 2
       type: int
 
-    pedals:
+    pedals1:
       read: 100
       write: -1
       id: [6]

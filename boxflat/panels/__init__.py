@@ -10,3 +10,4 @@ from .sequential import *
 from .handbrake import *
 from .others import *
 from .presets import *
+from .hub import HubSettings
