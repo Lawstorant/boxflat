@@ -20,6 +20,7 @@ class HPatternSettings(SettingsPanel):
     def active(self, value: int):
         value = -1 if value != 0 else value
         super().active(value)
+        self._hid_handler.hpattern_connected(self._active)
         if not self._active:
             self._update_gear(0, 0)
 

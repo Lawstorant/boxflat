@@ -136,6 +136,9 @@ class BlipData():
         return self.enabled and self.level > 0 and self.duration > 0
 
 
+BlipTarget = namedtuple("BlipTarget", "device axis min max")
+
+
 
 class HidHandler(EventDispatcher):
     def __init__(self):
@@ -163,6 +166,7 @@ class HidHandler(EventDispatcher):
 
         self._blip = BlipData()
         self._last_gear = 0
+        self._hpattern_connected = Event()
 
 
     def __del__(self):
@@ -262,7 +266,7 @@ class HidHandler(EventDispatcher):
         else:
             name = MOZA_AXIS_CODES[code]
 
-        print(f"axis {name} ({code}), value: {value}")
+        # print(f"axis {name} ({code}), value: {value}")
         self._axis_values[name].value = value
 
 
@@ -277,6 +281,9 @@ class HidHandler(EventDispatcher):
 
         # print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
+
+        if not self._hpattern_connected.is_set():
+            return
 
         if pattern == MozaHidDevice.BASE and number in MOZA_HPATTERN_BUTTONS.base.range:
             gear = number - MOZA_HPATTERN_BUTTONS.base.start
@@ -395,6 +402,10 @@ class HidHandler(EventDispatcher):
                 self._blip.duration = duration
 
 
+    def hpattern_connected(self, connected: bool) -> None:
+        self._hpattern_connected.set() if connected else self._hpattern_connected.clear()
+
+
     def _blip_handler(self, gear: int, state: int) -> None:
         Thread(target=self._blip_handler_worker, args=[gear, state], daemon=True).start()
 
@@ -408,38 +419,45 @@ class HidHandler(EventDispatcher):
 
         last_gear = self._last_gear
         self._last_gear = gear
-        print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
+        # print(f"Last gear: {last_gear}, Gear: {gear}, state: {state}")
 
         if gear + 1 != last_gear:
             return
 
-        print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
+        # print(f"BLIP! Level {self._blip.level}%, Duration: {self._blip.duration}ms")
         device: evdev.InputDevice = None
         axis = None
 
-        if MozaHidDevice.PEDALS in self._devices:
-            device = self._devices[MozaHidDevice.PEDALS]
-            axis = ABS_RX
+        targets = []
+        devices = [
+            (MozaHidDevice.PEDALS, ABS_RX),
+            (MozaHidDevice.HUB, ABS_Z),
+            (MozaHidDevice.BASE, ABS_Z)
+        ]
 
-        elif MozaHidDevice.HUB in self._devices:
-            device = self._devices[MozaHidDevice.HUB]
-            axis = ABS_Z
+        for pattern, axis in devices:
+            if pattern not in self._devices:
+                continue
 
-        elif MozaHidDevice.BASE in self._devices:
-            device = self._devices[MozaHidDevice.BASE]
-            axis = ABS_Z
+            info = self._devices[pattern].absinfo(axis)
+            targets.append(BlipTarget(
+                self._devices[pattern],
+                axis,
+                info.min,
+                info.max
+            ))
 
-        if not device:
+        if len(targets) < 1:
             return
 
-        info = device.absinfo(axis)
-        level = ceil((self._blip.level / 100) * (info.max - info.min) + info.min)
-        # print(f"Computed level: {level} ({info.min}:{info.max})")
-
-        device.write(EV_ABS, axis, level)
-        device.write(EV_SYN, SYN_REPORT, 0)
+        for target in targets:
+            level = ceil((self._blip.level / 100) * (target.max - target.min) + target.min)
+            # print(f"Computed level: {level} ({info.min}:{info.max})"
+            target.device.write(EV_ABS, target.axis, level)
+            target.device.write(EV_SYN, SYN_REPORT, 0)
 
         sleep(self._blip.duration/1000)
 
-        device.write(EV_ABS, axis, info.min)
-        device.write(EV_SYN, SYN_REPORT, 0)
+        for target in targets:
+            target.device.write(EV_ABS, target.axis, target.min)
+            target.device.write(EV_SYN, SYN_REPORT, 0)
