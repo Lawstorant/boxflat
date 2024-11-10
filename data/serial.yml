@@ -1436,37 +1436,51 @@ commands:
 
 # Hub
   hub:
-    port1:
-      read: 100
-      write: -1
-      id: [1]
-      bytes: 2
-      type: int
-
-    port2:
+    base:
       read: 100
       write: -1
       id: [2]
       bytes: 2
       type: int
 
-    port3:
+    port1:
       read: 100
       write: -1
       id: [3]
       bytes: 2
       type: int
 
-    port4:
+    port2:
       read: 100
       write: -1
       id: [4]
       bytes: 2
       type: int
 
-    pedals:
+    port3:
       read: 100
       write: -1
       id: [5]
+      bytes: 2
+      type: int
+
+    pedals:
+      read: 100
+      write: -1
+      id: [6]
+      bytes: 2
+      type: int
+
+    pedals2:
+      read: 100
+      write: -1
+      id: [7]
+      bytes: 2
+      type: int
+
+    pedals3:
+      read: 100
+      write: -1
+      id: [8]
       bytes: 2
       type: int

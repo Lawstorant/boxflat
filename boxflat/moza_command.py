@@ -65,8 +65,9 @@ class MozaCommand():
             device_name = "wheel"
 
         # Hub reports on main ID
-        if group == 142:
+        if group == 228:
             device_name = "hub"
+            group = 100
 
         for name, values in commands_data[device_name].items():
             if group != values["read"]:
