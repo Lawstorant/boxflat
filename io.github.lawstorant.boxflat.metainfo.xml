@@ -54,6 +54,7 @@
       <li>Sequential shifter</li>
       <li>H-Pattern shifter</li>
       <li>E-Stop</li>
+      <li>Universal Hub</li>
     </ul>
     <p>
       Note: The udev rules found in the GitHub repository need to be installed for the application to work properly.

@@ -19,7 +19,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | Wheel          | 100%         | |
 | Pedals         | 100%         | |
 | Dashboard      | 0%           | Dashboard settings |
-| Hub            | 0%           | Rows with connection status |
+| Universal Hub  | 100%         | |
 | H-Pattern      | 100%         | |
 | Sequential     | 100%         | |
 | Handbrake      | 100%         | |
@@ -27,20 +27,23 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | Other settings | 100%         | |
 | Presets        | 100%         | |
 
-Boxflat automatically detects is a device (shifter/pedals) needs a detection fix and creates a proper virutal device. This fixes game detection.
-Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
-
 ### Ideas
 - Telemetry ingestion through REST API/WebSockets
 - Cammus support
 - PXN Support
 - Simagic support
+- Detection fix for arbitrary HID joysticks
+- H-Pattern and Sequential settings available for arbitrary HID devices
 
 ### Firmware upgrades
 There are some EEPROM functions available, but I need to do more testing to make sure I won't brick anything. For now, just use Pit House on Windows if you can, as FW upgrade support is not coming in the near future.
 
 ## Compatibility
 Moza commands and their protocol is hardware agnostic, so any implemented feature should work with any wheelbase, wheel, pedal set etc. Some Wheel settings are device-specific (FSR Wheel dashboard for example)
+
+Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
+
+Boxflat automatically detects is a device (shifter/pedals) needs a detection fix and creates a proper virutal device. This fixes game detection.
 
 # Installation
 ## Flatpak
