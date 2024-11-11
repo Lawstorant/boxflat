@@ -99,6 +99,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.25.0" date="2024-11-11">
+      <description>
+        <p>Add support for Universal Hub</p>
+      </description>
+    </release>
     <release version="v1.24.4" date="2024-11-7">
       <description>
         <p>Add support for CRP2 pedals</p>
