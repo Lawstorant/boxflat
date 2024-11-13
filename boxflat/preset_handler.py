@@ -199,7 +199,11 @@ class MozaPresetHandler(SimpleEventDispatcher):
         if not os.path.exists(self._path):
             return
 
-        with open(os.path.join(self._path, self._name), "r") as file:
+        path = os.path.join(self._path, self._name)
+        if not os.path.isfile(path):
+            return
+
+        with open(path, "r") as file:
             return yaml.safe_load(file.read())
 
 
@@ -213,6 +217,9 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
     def get_linked_process(self) -> str:
         data = self._get_preset_data()
+
+        if data is None:
+            return ""
 
         if not "linked-process" in data:
             return ""
@@ -247,7 +254,12 @@ class MozaPresetHandler(SimpleEventDispatcher):
                     preset_data[device][setting] = value
                     tries = 3
 
+        process_name = self.get_linked_process()
         self._set_preset_data(preset_data)
+
+        if process_name is not None:
+            self.set_linked_process(process_name)
+
         self._dispatch()
 
 
