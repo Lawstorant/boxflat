@@ -19,7 +19,6 @@ import subprocess
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, navigation: Adw.NavigationSplitView):
         super().__init__()
-        self.set_default_size(0, 850)
         self.set_title("Boxflat")
         self.set_content(navigation)
         self._data_path = None
@@ -206,11 +205,36 @@ class MyApp(Adw.Application):
         if self.navigation.get_root() != None:
             return
 
+
         win = MainWindow(self.navigation)
         win.set_application(app)
         win.connect("close-request", lambda *_: Thread(target=self._show_bg_notification, daemon=True).start())
+        win.connect("close-request", self._save_window_info)
+
         win.present()
         win.check_udev(self._data_path)
+
+        saved_state = self._settings.read_setting("window_state")
+
+        if not saved_state:
+            win.set_default_size(0, 850)
+            return
+
+        win.set_default_size(saved_state["width"], saved_state["height"])
+        if saved_state["maximized"]:
+            win.maximize()
+
+        if saved_state["fullscreen"]:
+            win.fullscreen()
+
+
+    def _save_window_info(self, window: Adw.ApplicationWindow) -> None:
+        self._settings.write_setting({
+            "width"      : window.get_default_size().width,
+            "height"     : window.get_default_size().height,
+            "maximized"  : window.is_maximized(),
+            "fullscreen" : window.is_fullscreen()
+        }, "window_state")
 
 
     def _show_bg_notification(self, *_) -> None:

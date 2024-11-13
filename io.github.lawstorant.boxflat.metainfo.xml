@@ -100,6 +100,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.25.2" date="2024-11-13">
+      <description>
+        <p>Save window size when closed</p>
+      </description>
+    </release>
     <release version="v1.25.1" date="2024-11-13">
       <description>
         <p>Keep the linked process while overwriting a preset</p>
