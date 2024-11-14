@@ -100,6 +100,8 @@ $ sudo ./install.sh remove
 ```
 
 # Some more screenshots
+<img alt="Home panel" src="screens/home.png">
+
 <img alt="Wheel panel" src="screens/wheel.png">
 
 <img alt="Pedals panel" src="screens/pedals.png">
@@ -108,6 +110,6 @@ $ sudo ./install.sh remove
 
 <img alt="Sequential shifter panel" src="screens/sequential.png">
 
-<img alt="Handbrake panel" src="screens/handbrake.png">
+<img alt="Presets panel" src="screens/presets.png">
 
 **© 2024 Tomasz Pakuła Using Arch BTW**

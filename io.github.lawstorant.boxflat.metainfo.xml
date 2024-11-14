@@ -41,7 +41,10 @@
       and/or their software. It's 100% independent work based largely on hours of reverse engineering the protocol.
     </p>
     <p>
-      Boxflat supports saving/loading presets and automatic game detection.
+      Boxflat supports saving/loading presets and automatic per-game application.
+    </p>
+    <p>
+      If a device misses an axis an/or a button, an automatic game detection fix will be applied. No need for other software/SDL hints to make them work.
     </p>
     <p>
       Supported devices:
@@ -70,8 +73,8 @@
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/base.png</image>
     </screenshot>
     <screenshot>
-      <caption>FFB Equalizer settings</caption>
-      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/ffb-eq.png</image>
+      <caption>Home screen</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/home.png</image>
     </screenshot>
     <screenshot>
       <caption>Wheel settings</caption>
@@ -86,8 +89,12 @@
       <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/sequential.png</image>
     </screenshot>
     <screenshot>
-      <caption>Handbrake settings</caption>
-      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/handbrake.png</image>
+      <caption>H-Pattern settings</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/hpattern.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Preset screen</caption>
+      <image>https://github.com/Lawstorant/boxflat/raw/main/screens/flathub/presets.png</image>
     </screenshot>
   </screenshots>
 

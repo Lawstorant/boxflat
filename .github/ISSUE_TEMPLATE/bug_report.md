@@ -11,6 +11,10 @@ Note: Please search to see if an issue already exists for the bug you encountere
 <!-- Example: v1.17.3 -->
 <!-- Example: v1.20.0-flatpak -->
 
+### Are your devices running the latest firmware?:
+<!--
+Yes/No. You can add the current firmware version of the affected device
+-->
 
 ### Current Behavior:
 <!-- A description of what you're experiencing. -->
