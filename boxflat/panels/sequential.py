@@ -9,12 +9,11 @@ class SequentialSettings(SettingsPanel):
         self._S1 = None
         self._S2 = None
         super().__init__("Sequential Shifter", button_callback, connection_manager)
-        self._cm.subscribe_connected("sequential-paddle-sync", self.active)
+        self._cm.subscribe_connected("sequential-output-y", self.active)
 
 
     def active(self, value: int):
-        value = -1 if value < 1 else value
-        super().active(value)
+        super().active(-1 if value != 0 else value)
 
 
     def prepare_ui(self):

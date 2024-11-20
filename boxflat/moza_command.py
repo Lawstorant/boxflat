@@ -78,11 +78,10 @@ class MozaCommand():
                 continue
 
             value = MozaCommand.value_from_data(payload[id_len:], values["type"])
-            if name == "paddle-sync" and value == 0:
+            if device_name == "sequential" and name == "output-x":
                 device_name = "hpattern"
 
             ret = f"{device_name}-{name}", value
-
             break
         return ret
 

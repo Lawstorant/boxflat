@@ -1241,11 +1241,20 @@ commands:
       bytes: 2
       type: int
 
-    # not a real command
-    # we're checking this so we can discern between
-    # sequential shifter and h-pattern shifter
-    # command has a range of {1,2} so if we get 0
-    # in response, hpattern is connected
+    shifter-type:
+      read: 81
+      write: 82
+      id: [2]
+      bytes: 2
+      type: int
+
+    direction:
+      read: 81
+      write: 82
+      id: [5]
+      bytes: 2
+      type: int
+
     paddle-sync:
       read: 81
       write: 82
@@ -1253,10 +1262,17 @@ commands:
       bytes: 2
       type: int
 
-    output:
+    output-x:
       read: 83
       write: -1
       id: [1]
+      bytes: 2
+      type: int
+
+    output-y:
+      read: 83
+      write: -1
+      id: [2]
       bytes: 2
       type: int
 
@@ -1299,7 +1315,7 @@ commands:
       bytes: 2
       type: int
 
-    apply-mode:
+    shifter-type:
       read: 81
       write: 82
       id: [2]
@@ -1331,6 +1347,20 @@ commands:
       read: 81
       write: 82
       id: [6]
+      bytes: 2
+      type: int
+
+    output-x:
+      read: 83
+      write: -1
+      id: [1]
+      bytes: 2
+      type: int
+
+    output-y:
+      read: 83
+      write: -1
+      id: [2]
       bytes: 2
       type: int
 

@@ -14,11 +14,12 @@ class HPatternSettings(SettingsPanel):
         self._gear_row = BoxflatLabelRow("Current Gear")
 
         super().__init__("H-Pattern Shifter", button_callback, connection_manager, hid)
-        self._cm.subscribe_connected("hpattern-paddle-sync", self.active)
+        self._cm.subscribe_connected("hpattern-output-x", self.active)
 
 
     def active(self, value: int):
-        value = -1 if value != 0 else value
+        if value < 10:
+            value = -1
         super().active(value)
         self._hid_handler.hpattern_connected(self._active)
         if not self._active:
