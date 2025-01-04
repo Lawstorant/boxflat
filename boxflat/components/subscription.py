@@ -11,7 +11,7 @@ class Subscription():
 
 
     def call(self, *values):
-        self._callback(*values, *self._args)
+        self._callback(*self._args, *values)
 
 
     def call_custom_args(self, *args):

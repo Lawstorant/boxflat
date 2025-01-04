@@ -4,14 +4,12 @@ from threading import Thread
 from multiprocessing import Process, Queue, Event
 from multiprocessing.queues import Empty
 from serial import Serial, SerialException
-from boxflat.subscription import SimpleEventDispatcher
+from .subscription import SimpleEventDispatcher
 from time import sleep
 
-from boxflat.moza_command import MozaCommand
 
-
-class SerialHandler(SimpleEventDispatcher):
-    def __init__(self, serial_path: str, msg_start: str, device_name: str):
+class SerialDevice(SimpleEventDispatcher):
+    def __init__(self, serial_path: str, device_name: str, baud_rate: int=11520):
         super().__init__()
         self._read_queue = Queue()
         self._text_read_queue = Queue()
@@ -21,9 +19,9 @@ class SerialHandler(SimpleEventDispatcher):
         self._shutdown = Event()
 
         self._serial_path = serial_path
-        self._message_start = msg_start
         self._device_name = device_name
         self._serial = None
+        self._baud_rate = 11520
 
         Thread(target=self._notification_handler, daemon=True).start()
         Process(target=self._thread_spawner, daemon=True).start()
@@ -55,7 +53,7 @@ class SerialHandler(SimpleEventDispatcher):
 
         while self._serial is None and not self._shutdown.is_set():
             try:
-                self._serial = Serial(self._serial_path, baudrate=115200, exclusive=False, timeout=0.5)
+                self._serial = Serial(self._serial_path, baudrate=self._baud_rate, exclusive=False, timeout=0.5)
                 # print(f"Serial connection established for {self._device_name}")
             except:
                 self._serial = None
@@ -88,21 +86,12 @@ class SerialHandler(SimpleEventDispatcher):
 
 
     def _serial_read_handler(self):
-        start = bytes([self._message_start])
-
         while not self._shutdown.is_set():
             if not self._serial_available.wait(timeout=0.1):
                 continue
 
             try:
-                if self._serial.read(1) != start:
-                    continue
-
-                payload_length = int().from_bytes(self._serial.read(1))
-                if not 2 <= payload_length <= 11:
-                    continue
-
-                self._read_queue.put(self._serial.read(payload_length + 2))
+                self._read_queue.put(self._serial.read(1))
 
             except:
                 pass

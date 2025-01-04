@@ -15,18 +15,6 @@ device-ids:
   hub       : 18
   dash      : -1
 
-
-ids-to-names:
-  18: main
-  19: base
-  21: wheel
-  23: wheel
-  25: pedals
-  26: hpattern
-  26: sequential
-  27: handbrake
-  28: estop
-
 # TODO: save device group ranges for better command discovery
 
 # TODO: EEPROM commands
