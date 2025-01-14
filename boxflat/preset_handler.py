@@ -9,6 +9,9 @@ from .subscription import SimpleEventDispatcher
 from time import sleep
 
 MozaDevicePresetSettings = {
+    "main" : [
+        "set-interpolation"
+    ],
     "base" : [
         "base-limit",
         "base-max-angle",

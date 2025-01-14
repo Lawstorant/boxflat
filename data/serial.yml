@@ -128,6 +128,20 @@ commands:
       bytes: 1
       type: int
 
+    set-interpolation:
+      read: -1
+      write: 31
+      id: [76]
+      bytes: 1
+      type: int
+
+    get-interpolation:
+      read: 31
+      write: -1
+      id: [77]
+      bytes: 1
+      type: int
+
 # Pedals
   pedals:
     throttle-dir:
