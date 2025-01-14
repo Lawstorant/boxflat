@@ -256,13 +256,13 @@ class BaseSettings(SettingsPanel):
         self._cm.subscribe("base-road-sensitivity", self._sensitivity_row.set_value)
 
         self._add_row(BoxflatSliderRow("FFB interpolation", 0, 10, subtitle="\"Inreases\" detail"))
-        self._current_row.add_marks(5)
-        self._sensitivity_row.set_slider_width(350)
+        self._current_row.add_marks(2,4,6,8)
+        self._current_row.set_slider_width(350)
         self._current_row.set_expression("*10")
         self._current_row.set_reverse_expression("/10")
         self._current_row.subscribe(self._cm.set_setting, "main-set-interpolation")
         self._cm.subscribe("main-get-interpolation", self._current_row.set_value)
-        self._cm.subscribe_connected("main-get-interpolation", self._current_row.set_present)
+        self._cm.subscribe_connected("main-get-interpolation", self._current_row.set_present, 1)
 
 
     def __prepare_curve(self):
