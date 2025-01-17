@@ -110,6 +110,7 @@
     <release version="v1.27.0" date="2025-01-17">
       <description>
         <p>Add support for Multi-function stalks</p>
+        <p>Compatibility mode for games without cancel binding</p>
       </description>
     </release>
     <release version="v1.26.0" date="2025-01-14">

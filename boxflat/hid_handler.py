@@ -500,7 +500,7 @@ class HidHandler(EventDispatcher):
         if button == MOZA_SIGNAL_CANCEL and self._stalks_current_signal is not None:
             device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
             self._turnsignal_compat_worker_active = True
-            # print(f"Cancelling turn signal: {self._stalks_current_signal}")
+            # print(f"Canceling turn signal: {self._stalks_current_signal}")
 
             try:
                 device.write(EV_KEY, self._stalks_current_signal, 1)
