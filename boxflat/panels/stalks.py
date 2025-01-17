@@ -13,12 +13,12 @@ class StalksSettings(SettingsPanel):
         self._settings = settings
         super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler)
 
-        self._cm.subscribe("device-connected", self._parse_connected, 1)
-        self._cm.subscribe("device-disconnected", self._parse_connected, 0)
+        self._cm.subscribe("hid-device-connected", self._parse_connected, 1)
+        self._cm.subscribe("hid-device-disconnected", self._parse_connected, -1)
 
 
     def _parse_connected(self, name: str, connected: bool) -> None:
-        if name != MozaHidDevice.SEQUENTIAL:
+        if name != MozaHidDevice.STALKS:
             return
 
         self.active(connected)

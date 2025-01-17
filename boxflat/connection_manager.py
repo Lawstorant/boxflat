@@ -36,7 +36,6 @@ SerialDeviceMapping = {
 }
 
 
-
 class MozaSerialDevice():
     name: str
     path: str
