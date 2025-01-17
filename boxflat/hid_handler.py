@@ -13,7 +13,7 @@ from threading import Thread, Lock, Event
 from collections import namedtuple
 from typing import Self
 
-JOYSTICK_RANGE = (BTN_DEAD - BTN_JOYSTICK) - 1
+JOYSTICK_RANGE = (BTN_DEAD - BTN_JOYSTICK) + 1
 
 
 class MozaHidDevice():

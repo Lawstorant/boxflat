@@ -107,6 +107,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.26.0" date="2025-01-14">
+      <description>
+        <p>Support new FFB Interpolation setting</p>
+      </description>
+    </release>
+    <release version="v1.25.4" date="2024-12-27">
+      <description>
+        <p>Fix button numbering above the joystick range</p>
+      </description>
+    </release>
     <release version="v1.25.3" date="2024-11-20">
       <description>
         <p>Fix shifter detection with newest firmware</p>
