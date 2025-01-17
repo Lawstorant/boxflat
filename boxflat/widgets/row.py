@@ -73,6 +73,13 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         GLib.idle_add(self.__set_value_helper, value, mute)
 
 
+    def set_value_directly(self, value):
+        if value is None:
+            return
+
+        self.__set_value_helper(value, mute=False)
+
+
     def __set_value_helper(self, value, mute: bool=True):
         if mute:
             self._mute.set()
