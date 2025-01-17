@@ -20,7 +20,8 @@ HidDeviceMapping = {
     "hpattern"   : MozaHidDevice.HPATTERN,
     "sequential" : MozaHidDevice.SEQUENTIAL,
     "pedals"     : MozaHidDevice.PEDALS,
-    "hub"        : MozaHidDevice.HUB
+    "hub"        : MozaHidDevice.HUB,
+    "stalks"     : MozaHidDevice.STALKS
 }
 
 SerialDeviceMapping = {
@@ -30,7 +31,8 @@ SerialDeviceMapping = {
     MozaHidDevice.SEQUENTIAL : "sequential",
     MozaHidDevice.PEDALS     : "pedals",
     MozaHidDevice.HUB        : "hub",
-    "gudsen_e-stop"          : "estop"
+    "gudsen_e-stop"          : "estop",
+    MozaHidDevice.STALKS     : "stalks"
 }
 
 

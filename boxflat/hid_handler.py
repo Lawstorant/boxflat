@@ -23,7 +23,7 @@ class MozaHidDevice():
     HPATTERN = "hgp shifter"
     SEQUENTIAL = "sgp shifter"
     HUB = "gudsen universal hub"
-    STALK = "IDK"
+    STALKS = "moza multi-function stalk"
 
 
 class AxisData():
