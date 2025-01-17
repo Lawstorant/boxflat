@@ -9,15 +9,16 @@ from boxflat.settings_handler import SettingsHandler
 class StalksSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager,
                  hid_handler, settings: SettingsHandler):
-        super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler)
 
         self._settings = settings
+        super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler)
+
         self._cm.subscribe("device-connected", self._parse_connected, 1)
         self._cm.subscribe("device-disconnected", self._parse_connected, 0)
 
 
     def _parse_connected(self, name: str, connected: bool) -> None:
-        if name != MozaHidDevice.STALKS:
+        if name != MozaHidDevice.SEQUENTIAL:
             return
 
         self.active(connected)
