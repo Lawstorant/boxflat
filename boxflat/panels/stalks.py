@@ -26,6 +26,21 @@ class StalksSettings(SettingsPanel):
 
     def prepare_ui(self):
         self.add_preferences_group("Stalks settings")
-        self._add_row(BoxflatSwitchRow("Legacy Compatibility Mode", "Use your stalks with games that lack cancel binding"))
-        self._current_row.set_value(self._settings.read_setting("stalks-legacy-mode") or 0, mute=False)
-        self._current_row.subscribe(self._settings.write_setting, "stalks-legacy-mode")
+
+        self._add_row(BoxflatSwitchRow("Turn Signal Compatibility Mode", "Use turn signals with games that lack cancel binding"))
+        self._current_row.subscribe(self._settings.write_setting, "stalks-signal-compatibility")
+        self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
+        self._current_row.set_value(self._settings.read_setting("stalks-signal-compatibility") or 0, mute=False)
+
+        self._add_row(BoxflatSwitchRow("Headlights Compatibility Mode", "Use your stalks with games that lack Cancel binding"))
+        self._current_row.subscribe(self._settings.write_setting, "stalks-headlights-compatibility")
+        self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
+        self._current_row.set_value(self._settings.read_setting("stalks-headlights-compatibility") or 0, mute=False)
+        self._current_row.set_active(0)
+
+        self._add_row(BoxflatSwitchRow("Wipers Compatibility Mode", "Use your stalks with games that lack Cancel binding"))
+        self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compatibility")
+        self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
+        self._current_row.set_value(self._settings.read_setting("stalks-wipers-compatibility") or 0, mute=False)
+        self._current_row.set_active(0)
+

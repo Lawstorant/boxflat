@@ -91,8 +91,14 @@ MOZA_HPATTERN_BUTTONS = _HpatternButtons(
     _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)]),
     _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)])
 )
+MOZA_SIGNAL_LEFT   = 10
+MOZA_SIGNAL_RIGHT  = 8
+MOZA_SIGNAL_CANCEL = 9
 
-
+# Testing with sequential shifter :D
+# MOZA_SIGNAL_LEFT   = 11
+# MOZA_SIGNAL_RIGHT  = 12
+# MOZA_SIGNAL_CANCEL = 15
 
 class AxisValue():
     def __init__(self, name: str):
@@ -167,6 +173,13 @@ class HidHandler(EventDispatcher):
         self._blip = BlipData()
         self._last_gear = 0
         self._hpattern_connected = Event()
+
+        self._stalks_turnsignal_compat = False
+        self._stalks_current_signal: int = None
+        self._turnsignal_compat_worker_active = False
+
+        self._stalks_headlights_compat = False
+        self._stalks_wiper_compat = False
 
 
     def __del__(self):
@@ -271,6 +284,8 @@ class HidHandler(EventDispatcher):
 
 
     def _notify_button(self, number: int, state: int, pattern: str):
+        usage = number
+
         if number <= BTN_DEAD:
             number -= BTN_JOYSTICK - 1
         else:
@@ -281,6 +296,10 @@ class HidHandler(EventDispatcher):
 
         # print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
+
+        if pattern == MozaHidDevice.STALKS and self._stalks_turnsignal_compat:
+            self._turnsignal_compat_handler(number, state, usage)
+            return
 
         if not self._hpattern_connected.is_set():
             return
@@ -463,3 +482,41 @@ class HidHandler(EventDispatcher):
         for target in targets:
             target.device.write(EV_ABS, target.axis, target.min)
             target.device.write(EV_SYN, SYN_REPORT, 0)
+
+
+    def stalks_turnsignal_compat_active(self, active: bool) -> None:
+        # print(f"Legacy mode setting: {active}")
+        self._stalks_turnsignal_compat = bool(active)
+
+
+    def _turnsignal_compat_handler(self, button: int, state: int, usage: int) -> None:
+        Thread(daemon=True, target=self._turnsignal_compat_worker, args=[button, state, usage]).start()
+
+
+    def _turnsignal_compat_worker(self, button: int, state: int, usage: int) -> None:
+        if state != 1:
+            return
+
+        if button == MOZA_SIGNAL_CANCEL and self._stalks_current_signal is not None:
+            device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
+            self._turnsignal_compat_worker_active = True
+            # print(f"Cancelling turn signal: {self._stalks_current_signal}")
+
+            try:
+                device.write(EV_KEY, self._stalks_current_signal, 1)
+                device.write(EV_SYN, SYN_REPORT, 0)
+                sleep(0.05)
+
+                device.write(EV_KEY, self._stalks_current_signal, 0)
+                device.write(EV_SYN, SYN_REPORT, 0)
+                sleep(0.01)
+            except:
+                pass
+
+            self._stalks_current_signal = None
+            self._turnsignal_compat_worker_active = False
+            return
+
+        if button in (MOZA_SIGNAL_LEFT, MOZA_SIGNAL_RIGHT) and not self._turnsignal_compat_worker_active:
+            self._stalks_current_signal = usage
+            # print(f"Current turn signal: {usage}")
