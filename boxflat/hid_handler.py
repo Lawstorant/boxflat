@@ -366,6 +366,7 @@ class HidHandler(EventDispatcher):
 
         # Return if detection fix is unnecessary
         if EV_ABS in cap and EV_KEY in cap:
+            print(f"Detection fix not needed for {device.name}")
             return
 
         # Remove unneeded event types
@@ -383,6 +384,7 @@ class HidHandler(EventDispatcher):
         new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
         device.grab()
         self._virtual_devices[pattern] = new_device
+        print(f"Detection fix applied for {device.name}")
 
 
     def copy_blip_data(data: BlipData) -> None:
