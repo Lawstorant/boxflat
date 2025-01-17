@@ -17,7 +17,7 @@ class SequentialSettings(SettingsPanel):
 
 
     def prepare_ui(self):
-        self.add_preferences_group("Shifter Settings")
+        self.add_preferences_group("Shift Settings")
         self._add_row(BoxflatSwitchRow("Reverse Shift Direction"))
         self._current_row.subscribe(self._cm.set_setting, "sequential-direction")
         self._cm.subscribe("sequential-direction", self._current_row.set_value)
@@ -28,8 +28,8 @@ class SequentialSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "sequential-paddle-sync")
         self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
 
-        self.add_preferences_group("Buttons")
-        self._add_row(BoxflatSliderRow("Button Brightness", 0, 10))
+        self.add_preferences_group("Lights")
+        self._add_row(BoxflatSliderRow("Buttons Brightness", 0, 10))
         self._current_row.add_marks(5)
         self._current_row.set_slider_width(294)
         self._current_row.subscribe(self._cm.set_setting, "sequential-brightness")
