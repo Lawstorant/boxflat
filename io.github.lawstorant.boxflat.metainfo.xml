@@ -107,6 +107,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.27.0" date="2025-01-17">
+      <description>
+        <p>Add support for Multi-function stalks</p>
+      </description>
+    </release>
     <release version="v1.26.0" date="2025-01-14">
       <description>
         <p>Support new FFB Interpolation setting</p>
