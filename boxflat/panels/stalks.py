@@ -39,7 +39,7 @@ class StalksSettings(SettingsPanel):
         self._current_row.set_value(self._settings.read_setting("stalks-headlights-compat") or 0, mute=False)
 
         self._wipers1 = BoxflatSwitchRow("Wipers", "Cycling instead of discrete buttons")
-        self._wipers2 = BoxflatSwitchRow("Wipers alternative (WIP)", "Up/Down instead of discrete buttons")
+        self._wipers2 = BoxflatSwitchRow("Wipers alternative", "Up/Down instead of discrete buttons")
 
         self.add_preferences_group()
         self._add_row(self._wipers1)
