@@ -33,22 +33,20 @@ class StalksSettings(SettingsPanel):
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat") or 0, mute=False)
 
         self.add_preferences_group()
-        self._add_row(BoxflatSwitchRow("Headlights (WIP)", "Cycling instead of discrete buttons"))
+        self._add_row(BoxflatSwitchRow("Headlights", "Cycling instead of discrete buttons"))
         self._current_row.subscribe(self._settings.write_setting, "stalks-headlights-compat")
-        self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
+        self._current_row.subscribe(self._hid_handler.stalks_headlights_compat_active)
         self._current_row.set_value(self._settings.read_setting("stalks-headlights-compat") or 0, mute=False)
-        self._current_row.set_active(0)
 
-        self._wipers1 = BoxflatSwitchRow("Wipers (WIP)", "Cycling instead of discrete buttons")
+        self._wipers1 = BoxflatSwitchRow("Wipers", "Cycling instead of discrete buttons")
         self._wipers2 = BoxflatSwitchRow("Wipers alternative (WIP)", "Up/Down instead of discrete buttons")
 
         self.add_preferences_group()
         self._add_row(self._wipers1)
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat")
-        self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
+        self._current_row.subscribe(self._hid_handler.stalks_wipers_compat_active)
         self._current_row.subscribe(lambda v: self._wipers2.set_value_directly(0) if v == 1 else ...)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat") or 0, mute=False)
-        self._current_row.set_active(0)
 
         self._add_row(self._wipers2)
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat-alt")

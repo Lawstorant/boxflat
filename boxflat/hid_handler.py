@@ -95,6 +95,13 @@ MOZA_SIGNAL_LEFT   = 10
 MOZA_SIGNAL_RIGHT  = 8
 MOZA_SIGNAL_CANCEL = 9
 
+MOZA_HEADLIGHTS_RANGE = [i for i in range(1, 3)]
+MOZA_HEADLIGHTS_CYCLE = 30
+
+MOZA_WIPERS_RANGE = [i for i in range(20, 24)]
+MOZA_WIPERS_UP    = 31
+MOZA_WIPERS_DOWN  = 32
+
 # Testing with sequential shifter :D
 # MOZA_SIGNAL_LEFT   = 11
 # MOZA_SIGNAL_RIGHT  = 12
@@ -179,7 +186,11 @@ class HidHandler(EventDispatcher):
         self._turnsignal_compat_worker_active = False
 
         self._stalks_headlights_compat = False
-        self._stalks_wiper_compat = False
+        self._stalks_wipers_compat = False
+        self._stalks_current_wiper: int = 0
+
+        self._last_headlight_button = 0
+        self._last_wiper_button = 0
 
 
     def __del__(self):
@@ -297,9 +308,18 @@ class HidHandler(EventDispatcher):
         # print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
 
-        if pattern == MozaHidDevice.STALKS and self._stalks_turnsignal_compat:
-            self._turnsignal_compat_handler(number, state, usage)
+        if pattern == MozaHidDevice.STALKS:
+            if self._stalks_turnsignal_compat:
+                self._turnsignal_compat_handler(number, state, usage)
+
+            if self._stalks_headlights_compat:
+                self._wipers_compat_handler(button, state, headlights=True)
+
+            if self._stalks_wipers_compat:
+                self._wipers_compat_handler(button, state)
+
             return
+
 
         if not self._hpattern_connected.is_set():
             return
@@ -485,18 +505,32 @@ class HidHandler(EventDispatcher):
 
 
     def stalks_turnsignal_compat_active(self, active: bool) -> None:
-        # print(f"Legacy mode setting: {active}")
         self._stalks_turnsignal_compat = bool(active)
 
 
+    def stalks_headlights_compat_active(self, active: bool) -> None:
+        self._stalks_headlights_compat = bool(active)
+
+
+    def stalks_wipers_compat_active(self, active: bool) -> None:
+        self._stalks_wipers_compat = bool(active)
+
+
     def _turnsignal_compat_handler(self, button: int, state: int, usage: int) -> None:
-        Thread(daemon=True, target=self._turnsignal_compat_worker, args=[button, state, usage]).start()
-
-
-    def _turnsignal_compat_worker(self, button: int, state: int, usage: int) -> None:
         if state != 1:
             return
 
+        Thread(daemon=True, target=self._turnsignal_compat_worker, args=[button, state, usage]).start()
+
+
+    def _wipers_compat_handler(self, button: int, state: int, headlights=False) -> None:
+        if state != 1:
+            return
+
+        Thread(daemon=True, target=self._wipers_compat_worker, args=[button, state, headlights]).start()
+
+
+    def _turnsignal_compat_worker(self, button: int, state: int, usage: int) -> None:
         if button == MOZA_SIGNAL_CANCEL and self._stalks_current_signal is not None:
             device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
             self._turnsignal_compat_worker_active = True
@@ -520,3 +554,33 @@ class HidHandler(EventDispatcher):
         if button in (MOZA_SIGNAL_LEFT, MOZA_SIGNAL_RIGHT) and not self._turnsignal_compat_worker_active:
             self._stalks_current_signal = usage
             # print(f"Current turn signal: {usage}")
+
+
+    def _wipers_compat_worker(self, button: int, state: int, headlights=False) -> None:
+        button_range = MOZA_HEADLIGHTS_RANGE if headlights else MOZA_WIPERS_RANGE
+        button_cycle = MOZA_HEADLIGHTS_CYCLE if headlights else MOZA_WIPERS_UP
+        last = self._last_headlight_button if headlights else self._last_wiper_button
+
+        if button not in button_range:
+            return
+
+        if button != button_range[0] and button <= last:
+            return
+
+        device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
+        if not device:
+            return
+
+        keycode = device.capabilities()
+        keycode = keycode[1][button_cycle-1]
+
+        try:
+            device.write(EV_KEY, keycode, 1)
+            device.write(EV_SYN, SYN_REPORT, 0)
+            sleep(0.05)
+
+            device.write(EV_KEY, keycode, 0)
+            device.write(EV_SYN, SYN_REPORT, 0)
+            sleep(0.01)
+        except:
+            pass
