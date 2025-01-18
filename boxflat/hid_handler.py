@@ -349,10 +349,7 @@ class HidHandler(EventDispatcher):
         if pattern == MozaHidDevice.STALKS and event.type == EV_KEY:
             button = self._button_number(event.code, pattern)
 
-            if self._stalks_turnsignal_compat and button in MOZA_SIGNAL_RANGE:
-                return
-
-            elif self._stalks_headlights_compat and button in MOZA_HEADLIGHTS_RANGE:
+            if self._stalks_headlights_compat and button in MOZA_HEADLIGHTS_RANGE:
                 return
 
             elif self._stalks_wipers_compat and button in MOZA_WIPERS_RANGE:
