@@ -622,6 +622,7 @@ class HidHandler(EventDispatcher):
         button_range = MOZA_WIPERS_RANGE
         button_down = button_range[0]
         button_up = button_range[1]
+        pattern = MozaHidDevice.STALKS
 
         with self._stalks_wipers_compat_active:
             last = self._last_wiper_button
@@ -634,7 +635,7 @@ class HidHandler(EventDispatcher):
 
             repeat = 1
             button_cycle = button_up
-            if button < last:
+            if button < last or button == button_range[0]:
                 button_cycle = button_down
 
             if button == button_range[0]:
@@ -642,11 +643,11 @@ class HidHandler(EventDispatcher):
 
             self._last_wiper_button = button
 
-            if MozaHidDevice.STALKS not in self._virtual_devices:
+            if pattern not in self._virtual_devices:
                 return
 
-            device: evdev.InputDevice = self._virtual_devices[MozaHidDevice.STALKS]
-            keycode = self._keycode(button_cycle, MozaHidDevice.STALKS)
+            device: evdev.InputDevice = self._virtual_devices[pattern]
+            keycode = self._keycode(button_cycle, pattern)
 
             for i in range(repeat):
                 device.write(EV_KEY, keycode, 1)
