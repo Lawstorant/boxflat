@@ -95,10 +95,10 @@ MOZA_SIGNAL_LEFT   = 10
 MOZA_SIGNAL_RIGHT  = 8
 MOZA_SIGNAL_CANCEL = 9
 
-MOZA_HEADLIGHTS_RANGE = [i for i in range(1, 3)]
+MOZA_HEADLIGHTS_RANGE = [1, 2, 3]
 MOZA_HEADLIGHTS_CYCLE = 30
 
-MOZA_WIPERS_RANGE = [i for i in range(20, 24)]
+MOZA_WIPERS_RANGE = [20, 21, 22, 23]
 MOZA_WIPERS_UP    = 31
 MOZA_WIPERS_DOWN  = 32
 
@@ -297,13 +297,8 @@ class HidHandler(EventDispatcher):
     def _notify_button(self, number: int, state: int, pattern: str):
         usage = number
 
-        if number <= BTN_DEAD:
-            number -= BTN_JOYSTICK - 1
-        else:
-            if pattern == MozaHidDevice.BASE:
-                number -= KEY_NEXT_FAVORITE - JOYSTICK_RANGE - 1
-            else:
-                number -= BTN_TRIGGER_HAPPY - JOYSTICK_RANGE - 1
+        keys: list = self._devices[pattern].capabilities()[1]
+        number = int(keys.index(usage)) + 1
 
         # print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
@@ -313,12 +308,10 @@ class HidHandler(EventDispatcher):
                 self._turnsignal_compat_handler(number, state, usage)
 
             if self._stalks_headlights_compat:
-                self._wipers_compat_handler(button, state, headlights=True)
+                self._wipers_compat_handler(number, state, True)
 
             if self._stalks_wipers_compat:
-                self._wipers_compat_handler(button, state)
-
-            return
+                self._wipers_compat_handler(number, state)
 
 
         if not self._hpattern_connected.is_set():
@@ -567,14 +560,23 @@ class HidHandler(EventDispatcher):
         if button != button_range[0] and button <= last:
             return
 
+        repeat = 1
+        if button == button_range[0] and last in button_range[1:]:
+            repeat = len(button_range) - button_range.index(last)
+
+        if headlights:
+            self._last_headlight_button = button
+        else:
+            self._last_wiper_button = button
+
+
         device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
         if not device:
             return
 
-        keycode = device.capabilities()
-        keycode = keycode[1][button_cycle-1]
+        keycode = device.capabilities()[1][button_cycle-1]
 
-        try:
+        for i in range(repeat):
             device.write(EV_KEY, keycode, 1)
             device.write(EV_SYN, SYN_REPORT, 0)
             sleep(0.05)
@@ -582,5 +584,3 @@ class HidHandler(EventDispatcher):
             device.write(EV_KEY, keycode, 0)
             device.write(EV_SYN, SYN_REPORT, 0)
             sleep(0.01)
-        except:
-            pass
