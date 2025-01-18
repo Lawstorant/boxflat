@@ -111,6 +111,11 @@
     <release version="v1.27.1" date="2025-01-18">
       <description>
         <p>More compatibility modes for Multi-function stalks</p>
+        <ul>
+          <li>Headlights compatibility mode</li>
+          <li>Wipers compatibility modes</li>
+          <li>Quick wipe emulation</li>
+        </ul>
       </description>
     </release>
     <release version="v1.27.0" date="2025-01-17">
