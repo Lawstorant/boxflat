@@ -46,10 +46,30 @@ class StalksSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat")
         self._current_row.subscribe(self._hid_handler.stalks_wipers_compat_active)
         self._current_row.subscribe(lambda v: self._wipers2.set_value_directly(0) if v == 1 else ...)
+        self._current_row.subscribe(self._handle_quick_wipe)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat") or 0, mute=False)
 
         self._add_row(self._wipers2)
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat2")
         self._current_row.subscribe(self._hid_handler.stalks_wipers_compat2_active)
         self._current_row.subscribe(lambda v: self._wipers1.set_value_directly(0) if v == 1 else ...)
+        self._current_row.subscribe(self._handle_quick_wipe)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat2") or 0, mute=False)
+
+        self._quick_wipe = BoxflatSwitchRow("Quick wipe emulation", "One and done")
+        self._add_row(self._quick_wipe)
+        self._current_row.set_active(0)
+        self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-quick")
+        # self._current_row.subscribe(self._hid_handler.stalks_wipers_compat2_active)
+        self._current_row.set_value(self._settings.read_setting("stalks-wipers-quick") or 0, mute=False)
+
+
+    def _handle_quick_wipe(self, *_) -> None:
+        row1 = self._wipers1.get_value()
+        row2 = self._wipers2.get_value()
+
+        if row1 or row2:
+            self._quick_wipe.set_active(1)
+            return
+
+        self._quick_wipe.set_active(0)
