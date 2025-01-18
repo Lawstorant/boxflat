@@ -115,7 +115,7 @@ class HomeSettings(SettingsPanel):
 
         dialog.set_version(self._version)
         dialog.set_developer_name("Tomasz Pakuła")
-        dialog.set_copyright("© 2024 Using Arch BTW\nAll rights reserved")
+        dialog.set_copyright("© 2025 Using Arch BTW\nAll rights reserved")
         dialog.set_license_type(Gtk.License.GPL_3_0)
 
         dialog.set_issue_url(
