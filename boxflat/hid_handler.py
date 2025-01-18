@@ -99,10 +99,6 @@ MOZA_SIGNAL_RANGE = [MOZA_SIGNAL_RIGHT, MOZA_SIGNAL_CANCEL, MOZA_SIGNAL_LEFT]
 MOZA_HEADLIGHTS_RANGE = [1, 2, 3]
 MOZA_WIPERS_RANGE     = [20, 21, 22, 23]
 
-# Testing with sequential shifter :D
-# MOZA_SIGNAL_LEFT   = 11
-# MOZA_SIGNAL_RIGHT  = 12
-# MOZA_SIGNAL_CANCEL = 15
 
 class AxisValue():
     def __init__(self, name: str):
@@ -590,6 +586,9 @@ class HidHandler(EventDispatcher):
         if button not in button_range:
             return
 
+        if button == last:
+            return
+
         repeat = 1
         if button < last:
             repeat = len(button_range) - 1
@@ -600,11 +599,12 @@ class HidHandler(EventDispatcher):
             self._last_wiper_button = button
 
 
-        device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
-        if not device:
+        if MozaHidDevice.STALKS not in self._virtual_devices:
             return
 
+        device: evdev.InputDevice = self._virtual_devices[MozaHidDevice.STALKS]
         keycode = self._keycode(button_cycle, MozaHidDevice.STALKS)
+
         for i in range(repeat):
             device.write(EV_KEY, keycode, 1)
             device.write(EV_SYN, SYN_REPORT, 0)
@@ -637,12 +637,12 @@ class HidHandler(EventDispatcher):
 
         self._last_wiper_button = button
 
-
-        device: evdev.InputDevice = self._devices[MozaHidDevice.STALKS]
-        if not device:
+        if MozaHidDevice.STALKS not in self._virtual_devices:
             return
 
+        device: evdev.InputDevice = self._virtual_devices[MozaHidDevice.STALKS]
         keycode = self._keycode(button_cycle, MozaHidDevice.STALKS)
+
         for i in range(repeat):
             device.write(EV_KEY, keycode, 1)
             device.write(EV_SYN, SYN_REPORT, 0)
@@ -650,4 +650,4 @@ class HidHandler(EventDispatcher):
 
             device.write(EV_KEY, keycode, 0)
             device.write(EV_SYN, SYN_REPORT, 0)
-            sleep(0.01)
+            sleep(0.05)
