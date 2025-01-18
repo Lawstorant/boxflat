@@ -533,12 +533,14 @@ class HidHandler(EventDispatcher):
 
 
     def stalks_wipers_compat_active(self, active: bool) -> None:
-        self._stalks_wipers_compat2 = not bool(active)
+        if active:
+            self._stalks_wipers_compat2 = False
         self._stalks_wipers_compat = bool(active)
 
 
     def stalks_wipers_compat2_active(self, active: bool) -> None:
-        self._stalks_wipers_compat = not bool(active)
+        if active:
+            self._stalks_wipers_compat = False
         self._stalks_wipers_compat2 = bool(active)
 
 
