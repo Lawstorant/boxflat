@@ -49,8 +49,7 @@ class StalksSettings(SettingsPanel):
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat") or 0, mute=False)
 
         self._add_row(self._wipers2)
-        self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat-alt")
-        self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
+        self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat2")
+        self._current_row.subscribe(self._hid_handler.stalks_wipers_compat2_active)
         self._current_row.subscribe(lambda v: self._wipers1.set_value_directly(0) if v == 1 else ...)
-        self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat-alt") or 0, mute=False)
-        self._current_row.set_active(0)
+        self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat2") or 0, mute=False)
