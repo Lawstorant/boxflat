@@ -98,6 +98,7 @@ MOZA_SIGNAL_RANGE = [MOZA_SIGNAL_RIGHT, MOZA_SIGNAL_CANCEL, MOZA_SIGNAL_LEFT]
 
 MOZA_HEADLIGHTS_RANGE = [1, 2, 3]
 MOZA_WIPERS_RANGE     = [21, 22, 23, 24]
+MOZA_WIPERS_QUICK     = 19
 
 
 class AxisValue():
@@ -188,6 +189,8 @@ class HidHandler(EventDispatcher):
 
         self._last_wiper_button = 0
         self._stalks_wipers_compat_active = Lock()
+
+        self._stalks_wipers_quick = False
 
 
     def __del__(self):
@@ -306,17 +309,20 @@ class HidHandler(EventDispatcher):
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.STALKS and state == 1:
-            if self._stalks_turnsignal_compat:
+            if self._stalks_turnsignal_compat and number in MOZA_SIGNAL_RANGE:
                 self._turnsignal_compat_handler(number)
 
-            if self._stalks_headlights_compat:
+            if self._stalks_headlights_compat and number in MOZA_HEADLIGHTS_RANGE:
                 self._wipers_compat_handler(number, headlights=True)
 
-            if self._stalks_wipers_compat:
+            if self._stalks_wipers_compat and number in MOZA_WIPERS_RANGE:
                 self._wipers_compat_handler(number)
 
-            if self._stalks_wipers_compat2:
+            if self._stalks_wipers_compat2 and number in MOZA_WIPERS_RANGE:
                 self._wipers_compat2_handler(number)
+
+            if self._stalks_wipers_quick and number == MOZA_WIPERS_QUICK:
+                self._wipers_quick_handler(number)
 
 
         if not self._hpattern_connected.is_set():
@@ -540,12 +546,19 @@ class HidHandler(EventDispatcher):
         self._stalks_wipers_compat2 = bool(active)
 
 
+    def stalks_wipers_quick_active(self, active: bool) -> None:
+        self._stalks_wipers_quick = bool(active)
+
+
     def _turnsignal_compat_handler(self, button: int) -> None:
         Thread(daemon=True, target=self._turnsignal_compat_worker, args=[button]).start()
 
 
     def _wipers_compat_handler(self, button: int, headlights=False) -> None:
         last = self._last_headlight_button if headlights else self._last_wiper_button
+        if button == last:
+            return
+
         Thread(daemon=True, target=self._wipers_compat_worker, args=[button, last, headlights]).start()
 
         if headlights:
@@ -555,8 +568,15 @@ class HidHandler(EventDispatcher):
 
 
     def _wipers_compat2_handler(self, button: int) -> None:
+        if button == self._last_wiper_button:
+            return
+
         Thread(daemon=True, target=self._wipers_compat2_worker, args=[button, self._last_wiper_button]).start()
         self._last_wiper_button = button
+
+
+    def _wipers_quick_handler(self, button: int) -> None:
+        Thread(daemon=True, target=self._wipers_quick_worker, args=[button]).start()
 
 
     def _turnsignal_compat_worker(self, button: int) -> None:
@@ -591,12 +611,6 @@ class HidHandler(EventDispatcher):
         compat_lock: Lock = self._stalks_headlights_compat_active if  headlights else self._stalks_wipers_compat_active
         pattern = MozaHidDevice.STALKS
 
-        if button not in button_range:
-            return
-
-        if button == last:
-            return
-
         repeat = 1
         if button < last:
             repeat = len(button_range) - 1
@@ -619,24 +633,17 @@ class HidHandler(EventDispatcher):
 
 
     def _wipers_compat2_worker(self, button: int, last: int) -> None:
-        button_range = MOZA_WIPERS_RANGE
-        button_down = button_range[0]
-        button_up = button_range[1]
+        button_down = MOZA_WIPERS_RANGE[0]
+        button_up = MOZA_WIPERS_RANGE[1]
         pattern = MozaHidDevice.STALKS
-
-        if button not in button_range:
-            return
-
-        if button == last:
-            return
 
         repeat = 1
         button_cycle = button_up
-        if button < last or button == button_range[0]:
+        if button < last or button == MOZA_WIPERS_RANGE[0]:
             button_cycle = button_down
 
-        if button == button_range[0]:
-            repeat = len(button_range) - 1
+        if button == MOZA_WIPERS_RANGE[0]:
+            repeat = len(MOZA_WIPERS_RANGE) - 1
 
         if pattern not in self._virtual_devices:
             return
@@ -645,6 +652,50 @@ class HidHandler(EventDispatcher):
         keycode = self._keycode(button_cycle, pattern)
 
         with self._stalks_wipers_compat_active:
+            for i in range(repeat):
+                device.write(EV_KEY, keycode, 1)
+                device.write(EV_SYN, SYN_REPORT, 0)
+                sleep(0.05)
+
+                device.write(EV_KEY, keycode, 0)
+                device.write(EV_SYN, SYN_REPORT, 0)
+                sleep(0.05)
+
+
+    def _quick_wipe_handler(self, button: int) -> None:
+        button_down = MOZA_WIPERS_RANGE[0]
+        button_up = MOZA_WIPERS_RANGE[1]
+        pattern = MozaHidDevice.STALKS
+
+        if not self._stalks_wipers_compat and not self._stalks_wipers_compat2:
+            return
+
+        if button != MOZA_WIPERS_QUICK:
+            return
+
+        button_back = button_down
+        repeat = 1
+        if self._stalks_wipers_compat:
+            button_back = button_down
+            repeat = 3
+
+        if pattern not in self._virtual_devices:
+            return
+
+        device: evdev.InputDevice = self._virtual_devices[pattern]
+        keycode = self._keycode(button_up, pattern)
+
+        with self._stalks_wipers_compat_active:
+            device.write(EV_KEY, keycode, 1)
+            device.write(EV_SYN, SYN_REPORT, 0)
+            sleep(0.05)
+
+            device.write(EV_KEY, keycode, 0)
+            device.write(EV_SYN, SYN_REPORT, 0)
+            sleep(0.05)
+
+            keycode = self._keycode(button_back, pattern)
+
             for i in range(repeat):
                 device.write(EV_KEY, keycode, 1)
                 device.write(EV_SYN, SYN_REPORT, 0)
