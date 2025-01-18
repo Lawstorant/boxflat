@@ -98,7 +98,7 @@ MOZA_SIGNAL_RANGE = [MOZA_SIGNAL_RIGHT, MOZA_SIGNAL_CANCEL, MOZA_SIGNAL_LEFT]
 
 MOZA_HEADLIGHTS_RANGE = [1, 2, 3]
 MOZA_WIPERS_RANGE     = [21, 22, 23, 24]
-MOZA_WIPERS_QUICK     = 19
+MOZA_WIPERS_QUICK     = 20
 
 
 class AxisValue():
@@ -367,6 +367,9 @@ class HidHandler(EventDispatcher):
             elif self._stalks_wipers_compat2 and button in MOZA_WIPERS_RANGE:
                 return
 
+            elif self._stalks_wipers_quick and button == MOZA_WIPERS_QUICK:
+                return
+
         self._virtual_devices[pattern].write_event(event)
 
 
@@ -400,7 +403,8 @@ class HidHandler(EventDispatcher):
                     elif event.type == EV_KEY:
                         self._notify_button(event.code, event.value, pattern)
 
-            except:
+            except Exception as e:
+                print(e)
                 device.close()
                 device = None
 
@@ -662,7 +666,7 @@ class HidHandler(EventDispatcher):
                 sleep(0.05)
 
 
-    def _quick_wipe_handler(self, button: int) -> None:
+    def _wipers_quick_handler(self, button: int) -> None:
         button_down = MOZA_WIPERS_RANGE[0]
         button_up = MOZA_WIPERS_RANGE[1]
         pattern = MozaHidDevice.STALKS
@@ -676,7 +680,7 @@ class HidHandler(EventDispatcher):
         button_back = button_down
         repeat = 1
         if self._stalks_wipers_compat:
-            button_back = button_down
+            button_back = button_up
             repeat = 3
 
         if pattern not in self._virtual_devices:
@@ -692,10 +696,9 @@ class HidHandler(EventDispatcher):
 
             device.write(EV_KEY, keycode, 0)
             device.write(EV_SYN, SYN_REPORT, 0)
-            sleep(0.05)
+            sleep(0.3)
 
             keycode = self._keycode(button_back, pattern)
-
             for i in range(repeat):
                 device.write(EV_KEY, keycode, 1)
                 device.write(EV_SYN, SYN_REPORT, 0)

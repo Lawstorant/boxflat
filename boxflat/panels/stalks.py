@@ -60,7 +60,7 @@ class StalksSettings(SettingsPanel):
         self._add_row(self._quick_wipe)
         self._current_row.set_active(0)
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-quick")
-        # self._current_row.subscribe(self._hid_handler.stalks_wipers_compat2_active)
+        self._current_row.subscribe(self._hid_handler.stalks_wipers_quick_active)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-quick") or 0, mute=False)
 
 
