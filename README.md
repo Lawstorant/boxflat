@@ -24,7 +24,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 | Sequential     | 100%         | |
 | Handbrake      | 100%         | |
 | E-Stop         | 100%         | |
-| Stalks         | 50%          | Legacy mode |
+| Stalks         | 100%         | |
 | Other settings | 100%         | |
 | Presets        | 100%         | |
 
