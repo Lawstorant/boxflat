@@ -545,11 +545,18 @@ class HidHandler(EventDispatcher):
 
 
     def _wipers_compat_handler(self, button: int, headlights=False) -> None:
-        Thread(daemon=True, target=self._wipers_compat_worker, args=[button, headlights]).start()
+        last = self._last_headlight_button if headlights else self._last_wiper_button
+        Thread(daemon=True, target=self._wipers_compat_worker, args=[button, last, headlights]).start()
+
+        if headlights:
+            self._last_headlight_button = button
+        else:
+            self._last_wiper_button = button
 
 
     def _wipers_compat2_handler(self, button: int) -> None:
-        Thread(daemon=True, target=self._wipers_compat2_worker, args=[button]).start()
+        Thread(daemon=True, target=self._wipers_compat2_worker, args=[button, self._last_wiper_button]).start()
+        self._last_wiper_button = button
 
 
     def _turnsignal_compat_worker(self, button: int) -> None:
@@ -578,36 +585,29 @@ class HidHandler(EventDispatcher):
             # print(f"Current turn signal: {usage}")
 
 
-    def _wipers_compat_worker(self, button: int, headlights=False) -> None:
+    def _wipers_compat_worker(self, button: int, last: int, headlights=False) -> None:
         button_range = MOZA_HEADLIGHTS_RANGE if headlights else MOZA_WIPERS_RANGE
         button_cycle = button_range[1]
         compat_lock: Lock = self._stalks_headlights_compat_active if  headlights else self._stalks_wipers_compat_active
+        pattern = MozaHidDevice.STALKS
+
+        if button not in button_range:
+            return
+
+        if button == last:
+            return
+
+        repeat = 1
+        if button < last:
+            repeat = len(button_range) - 1
+
+        if pattern not in self._virtual_devices:
+            return
+
+        device: evdev.InputDevice = self._virtual_devices[pattern]
+        keycode = self._keycode(button_cycle, pattern)
 
         with compat_lock:
-            last = self._last_headlight_button if headlights else self._last_wiper_button
-
-            if button not in button_range:
-                return
-
-            if button == last:
-                return
-
-            repeat = 1
-            if button < last:
-                repeat = len(button_range) - 1
-
-            if headlights:
-                self._last_headlight_button = button
-            else:
-                self._last_wiper_button = button
-
-
-            if MozaHidDevice.STALKS not in self._virtual_devices:
-                return
-
-            device: evdev.InputDevice = self._virtual_devices[MozaHidDevice.STALKS]
-            keycode = self._keycode(button_cycle, MozaHidDevice.STALKS)
-
             for i in range(repeat):
                 device.write(EV_KEY, keycode, 1)
                 device.write(EV_SYN, SYN_REPORT, 0)
@@ -618,37 +618,33 @@ class HidHandler(EventDispatcher):
                 sleep(0.05)
 
 
-    def _wipers_compat2_worker(self, button: int) -> None:
+    def _wipers_compat2_worker(self, button: int, last: int) -> None:
         button_range = MOZA_WIPERS_RANGE
         button_down = button_range[0]
         button_up = button_range[1]
         pattern = MozaHidDevice.STALKS
 
+        if button not in button_range:
+            return
+
+        if button == last:
+            return
+
+        repeat = 1
+        button_cycle = button_up
+        if button < last or button == button_range[0]:
+            button_cycle = button_down
+
+        if button == button_range[0]:
+            repeat = len(button_range) - 1
+
+        if pattern not in self._virtual_devices:
+            return
+
+        device: evdev.InputDevice = self._virtual_devices[pattern]
+        keycode = self._keycode(button_cycle, pattern)
+
         with self._stalks_wipers_compat_active:
-            last = self._last_wiper_button
-
-            if button not in button_range:
-                return
-
-            if button == last:
-                return
-
-            repeat = 1
-            button_cycle = button_up
-            if button < last or button == button_range[0]:
-                button_cycle = button_down
-
-            if button == button_range[0]:
-                repeat = len(button_range) - 1
-
-            self._last_wiper_button = button
-
-            if pattern not in self._virtual_devices:
-                return
-
-            device: evdev.InputDevice = self._virtual_devices[pattern]
-            keycode = self._keycode(button_cycle, pattern)
-
             for i in range(repeat):
                 device.write(EV_KEY, keycode, 1)
                 device.write(EV_SYN, SYN_REPORT, 0)
