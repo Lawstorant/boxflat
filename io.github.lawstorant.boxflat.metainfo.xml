@@ -108,6 +108,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.27.3" date="2025-01-20">
+      <description>
+        <p>Improve turn signal compatibility robustness</p>
+      </description>
+    </release>
     <release version="v1.27.2" date="2025-01-19">
       <description>
         <p>Fix wheel paddles calibration</p>
