@@ -311,7 +311,7 @@ class WheelSettings(SettingsPanel):
         self._timing_row2.set_present(value >= 1)
 
 
-    def _calibrate_paddles(self, value: int):
+    def _calibrate_paddles(self, value: int, *_):
         if value == 0:
             self._cm.set_setting(5, "wheel-paddles-calibration")
 
