@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+# Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 # MOZA Racing Serial protocol data
 magic-value  : 13  # For checksum
 message-start: 126 #"0x7e"

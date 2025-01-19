@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+# Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager

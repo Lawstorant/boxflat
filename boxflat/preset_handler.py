@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+# Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 from .connection_manager import MozaConnectionManager
 from .moza_command import MozaCommand

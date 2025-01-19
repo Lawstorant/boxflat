@@ -1,5 +1,5 @@
 #! /usr/bin/env sh
-# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+# Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 COMMAND="python3 /usr/share/boxflat/entrypoint.py"
 

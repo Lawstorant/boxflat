@@ -113,4 +113,4 @@ $ sudo ./install.sh remove
 
 <img alt="Presets panel" src="screens/presets.png">
 
-**© 2024 Tomasz Pakuła Using Arch BTW**
+**© 2025 Tomasz Pakuła Using Arch BTW**

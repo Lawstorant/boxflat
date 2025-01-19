@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-# Copyright (c) 2024, Tomasz Pakuła Using Arch BTW
+# Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 PREFIX=""
 if [[ $1 == "add-prefix" ]]; then
