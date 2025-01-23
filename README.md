@@ -7,6 +7,7 @@ Boxflat for Moza Racing. Control your Moza gear settings!
     <img alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
 </a>
 
+#### Linux Simracing Community channel on [Matrix](https://matrix.to/#/#simracing:matrix.org)
 #### For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
 #### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
 
