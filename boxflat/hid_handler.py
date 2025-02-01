@@ -177,6 +177,8 @@ class HidHandler(EventDispatcher):
         self._hpattern_connected = Event()
 
         self._stalks_turnsignal_compat = False
+        self._stalks_turnsignal_compat_constant = False
+        self._turnsignal_last_button: int = MOZA_SIGNAL_CANCEL
         self._turnsignal_queue = Queue()
         self._turnsignal_compat_worker_active = Lock()
 
@@ -310,8 +312,11 @@ class HidHandler(EventDispatcher):
         self._dispatch(f"button-{number}", state)
 
         if pattern == MozaHidDevice.STALKS and state == 1:
-            if self._stalks_turnsignal_compat and number in MOZA_SIGNAL_RANGE:
-                self._turnsignal_compat_handler(number)
+            if number in MOZA_SIGNAL_RANGE:
+                if self._stalks_turnsignal_compat_constant:
+                    self._turnsignal_compat_constant_handler(number)
+                elif self._stalks_turnsignal_compat:
+                    self._turnsignal_compat_handler(number)
 
             if self._stalks_headlights_compat and number in MOZA_HEADLIGHTS_RANGE:
                 self._wipers_compat_handler(number, headlights=True)
@@ -372,6 +377,9 @@ class HidHandler(EventDispatcher):
                 return
 
             elif self._stalks_turnsignal_compat and button in MOZA_SIGNAL_RANGE:
+                return
+
+            elif self._stalks_turnsignal_compat_constant and button in MOZA_SIGNAL_RANGE:
                 return
 
         self._virtual_devices[pattern].write_event(event)
@@ -537,6 +545,9 @@ class HidHandler(EventDispatcher):
     def stalks_turnsignal_compat_active(self, active: bool) -> None:
         self._stalks_turnsignal_compat = bool(active)
 
+    def stalks_turnsignal_compat_constant_active(self, active: bool) -> None:
+        self._stalks_turnsignal_compat_constant = bool(active)
+
 
     def stalks_headlights_compat_active(self, active: bool) -> None:
         self._stalks_headlights_compat = bool(active)
@@ -564,6 +575,13 @@ class HidHandler(EventDispatcher):
 
         Thread(daemon=True, target=self._turnsignal_compat_worker, args=[button]).start()
 
+    def _turnsignal_compat_constant_handler(self, button: int) -> None:
+        if self._turnsignal_last_button != button:
+            Thread(daemon=True, target=self._turnsignal_compat_constant_worker, args=[
+                self._turnsignal_last_button, button, self._stalks_turnsignal_compat
+            ]).start()
+
+            self._turnsignal_last_button = button
 
     def _wipers_compat_handler(self, button: int, headlights=False) -> None:
         last = self._last_headlight_button if headlights else self._last_wiper_button
@@ -613,6 +631,33 @@ class HidHandler(EventDispatcher):
             device.write(EV_SYN, SYN_REPORT, 0)
             sleep(0.05)
 
+    def _turnsignal_compat_constant_worker(self, prev_button: int, button: int, blip: bool = False) -> None:
+        with self._turnsignal_compat_worker_active:
+            try:
+                device = self._virtual_devices[MozaHidDevice.STALKS]
+            except KeyError:
+                return
+
+            if prev_button != MOZA_SIGNAL_CANCEL:
+                code = self._keycode(prev_button, MozaHidDevice.STALKS)
+                device.write(EV_KEY, code, 0)
+                device.write(EV_SYN, SYN_REPORT, 0)
+                sleep(0.05)
+
+                if blip:
+                    device.write(EV_KEY, code, 1)
+                    device.write(EV_SYN, SYN_REPORT, 0)
+                    sleep(0.05)
+
+                    device.write(EV_KEY, code, 0)
+                    device.write(EV_SYN, SYN_REPORT, 0)
+                    sleep(0.05)
+
+            if button != MOZA_SIGNAL_CANCEL:
+                code = self._keycode(button, MozaHidDevice.STALKS)
+                device.write(EV_KEY, code, 1)
+                device.write(EV_SYN, SYN_REPORT, 0)
+                sleep(0.05)
 
     def _wipers_compat_worker(self, button: int, last: int, headlights=False) -> None:
         button_range = MOZA_HEADLIGHTS_RANGE if headlights else MOZA_WIPERS_RANGE
