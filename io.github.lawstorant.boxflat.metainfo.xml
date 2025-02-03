@@ -108,6 +108,13 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+	<release version="v1.27.4" date="2025-02-3">
+      <description>
+        <p>Add new turn signal compatibility mode - hold</p>
+        <p>This keeps the button pressed as long as turn signal is active</p>
+        <p>Huge thanks to Mon-Ouie for providing this!</p>
+      </description>
+    </release>
     <release version="v1.27.3" date="2025-01-20">
       <description>
         <p>Improve turn signal compatibility robustness</p>
