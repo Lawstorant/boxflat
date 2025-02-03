@@ -315,6 +315,7 @@ class HidHandler(EventDispatcher):
             if number in MOZA_SIGNAL_RANGE:
                 if self._stalks_turnsignal_compat_constant:
                     self._turnsignal_compat_constant_handler(number)
+
                 elif self._stalks_turnsignal_compat:
                     self._turnsignal_compat_handler(number)
 
@@ -545,6 +546,7 @@ class HidHandler(EventDispatcher):
     def stalks_turnsignal_compat_active(self, active: bool) -> None:
         self._stalks_turnsignal_compat = bool(active)
 
+
     def stalks_turnsignal_compat_constant_active(self, active: bool) -> None:
         if not active:
             self._turnsignal_compat_constant_handler(MOZA_SIGNAL_CANCEL)
@@ -578,6 +580,7 @@ class HidHandler(EventDispatcher):
 
         Thread(daemon=True, target=self._turnsignal_compat_worker, args=[button]).start()
 
+
     def _turnsignal_compat_constant_handler(self, button: int) -> None:
         if self._turnsignal_last_button != button:
             Thread(daemon=True, target=self._turnsignal_compat_constant_worker, args=[
@@ -585,6 +588,7 @@ class HidHandler(EventDispatcher):
             ]).start()
 
             self._turnsignal_last_button = button
+
 
     def _wipers_compat_handler(self, button: int, headlights=False) -> None:
         last = self._last_headlight_button if headlights else self._last_wiper_button
@@ -634,6 +638,7 @@ class HidHandler(EventDispatcher):
             device.write(EV_SYN, SYN_REPORT, 0)
             sleep(0.05)
 
+
     def _turnsignal_compat_constant_worker(self, prev_button: int, button: int, blip: bool = False) -> None:
         with self._turnsignal_compat_worker_active:
             try:
@@ -661,6 +666,7 @@ class HidHandler(EventDispatcher):
                 device.write(EV_KEY, code, 1)
                 device.write(EV_SYN, SYN_REPORT, 0)
                 sleep(0.05)
+
 
     def _wipers_compat_worker(self, button: int, last: int, headlights=False) -> None:
         button_range = MOZA_HEADLIGHTS_RANGE if headlights else MOZA_WIPERS_RANGE
