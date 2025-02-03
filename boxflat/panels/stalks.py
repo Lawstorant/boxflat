@@ -27,12 +27,12 @@ class StalksSettings(SettingsPanel):
     def prepare_ui(self):
         self.add_preferences_group("Compatibility modes")
 
-        self._add_row(BoxflatSwitchRow("Turn Signals (toggle)", "Press button again when canceling"))
+        self._add_row(BoxflatSwitchRow("Turn Signals toggle", "Press button again when canceling"))
         self._current_row.subscribe(self._settings.write_setting, "stalks-turnsignal-compat")
         self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat") or 0, mute=False)
 
-        self._add_row(BoxflatSwitchRow("Turn Signals (hold)", "Hold button as long as signal is active"))
+        self._add_row(BoxflatSwitchRow("Turn Signals hold", "Hold button as long as signal is active"))
         self._current_row.subscribe(self._settings.write_setting, "stalks-turnsignal-compat-constant")
         self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_constant_active)
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat-constant") or 0, mute=False)
