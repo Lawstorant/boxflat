@@ -546,6 +546,9 @@ class HidHandler(EventDispatcher):
         self._stalks_turnsignal_compat = bool(active)
 
     def stalks_turnsignal_compat_constant_active(self, active: bool) -> None:
+        if not active:
+            self._turnsignal_compat_constant_handler(MOZA_SIGNAL_CANCEL)
+
         self._stalks_turnsignal_compat_constant = bool(active)
 
 
