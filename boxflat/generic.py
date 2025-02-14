@@ -5,8 +5,9 @@ from evdev.ecodes import *
 from time import sleep
 from evdev.device import AbsInfo
 from threading import Thread, Event
+from boxflat.subscription import SimpleEventDispatcher
 
-class GenericDevice():
+class GenericDevice(SimpleEventDispatcher):
     def __init__(self, entry: dict):
         super().__init__()
         self._entry = entry
@@ -28,7 +29,6 @@ class GenericDevice():
         for tmp in devices:
             if tmp.name == self._name:
                 device = tmp
-                print(tmp.name)
                 break
 
         if device is None:
@@ -51,6 +51,7 @@ class GenericDevice():
 
         while not self._shutdown.is_set():
             if self._device is None:
+                self._dispatch(self._name, False)
                 self._device = self._try_open()
 
                 if self._device is None:
@@ -59,6 +60,7 @@ class GenericDevice():
                     continue
 
                 sleep_time = 0.5
+                self._dispatch(self._name, True)
                 if new_device is None:
                     new_device = self.detection_fix(self._device)
 

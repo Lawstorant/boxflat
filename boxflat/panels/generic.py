@@ -16,7 +16,7 @@ class GenericSettings(SettingsPanel):
         self._device_list: BoxflatPreferencesGroup = None
         self._candidates_list: BoxflatPreferencesGroup = None
         self._back: BoxflatPreferencesGroup = None
-        self._listed_devices = []
+        self._listed_devices = {}
         self._fixed_devices = {}
         self._candidates = []
         super().__init__("Generic Devices", button_callback)
@@ -52,23 +52,23 @@ class GenericSettings(SettingsPanel):
         self._back.set_present(False)
         self._candidates_list.set_present(False)
 
-        for entry in self._listed_devices:
+        for entry in self._listed_devices.values():
             self._device_list.remove(entry)
 
-        self._listed_devices = []
+        self._listed_devices = {}
         self._current_group = self._device_list
         devices = self._settings.read_setting("generic-devices") or []
 
         if len(devices) < 1:
             row = BoxflatLabelRow("No configured devices")
             self._add_row(row)
-            self._listed_devices.append(row)
+            self._listed_devices["empty"] = row
 
         for device in devices:
             row = BoxflatButtonRow(device["name"], "Remove")
             row.subscribe(self.remove_device, device)
             self._add_row(row)
-            self._listed_devices.append(row)
+            self._listed_devices[device["name"]] = row
 
         self._device_list.set_present(True)
 
@@ -172,3 +172,20 @@ class GenericSettings(SettingsPanel):
                 continue
 
             self._fixed_devices[name] = GenericDevice(device)
+            self._fixed_devices[name].subscribe(self._change_device_state)
+
+
+    def _change_device_state(self, name: str, state: bool) -> None:
+        if name not in self._listed_devices.keys():
+            return
+
+        text = " (disconnected)"
+        label: str = self._listed_devices[name].get_title()
+
+        if state:
+            label = label.removesuffix(text)
+
+        elif text not in label:
+            label += text
+
+        self._listed_devices[name].set_title(label)
