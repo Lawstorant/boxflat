@@ -47,15 +47,18 @@ class GenericDevice():
 
         new_device = None
         name = self._name
+        sleep_time = 0.5
 
         while not self._shutdown.is_set():
             if self._device is None:
                 self._device = self._try_open()
 
                 if self._device is None:
-                    sleep(5)
+                    sleep(sleep_time)
+                    sleep_time = 5
                     continue
 
+                sleep_time = 0.5
                 if new_device is None:
                     new_device = self.detection_fix(self._device)
 
