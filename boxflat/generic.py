@@ -51,9 +51,9 @@ class GenericDevice():
         while not self._shutdown.is_set():
             if self._device is None:
                 self._device = self._try_open()
-                sleep(5)
 
                 if self._device is None:
+                    sleep(5)
                     continue
 
                 if new_device is None:
