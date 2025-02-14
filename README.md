@@ -1,5 +1,5 @@
 # Boxflat
-Boxflat for Moza Racing. Control your Moza gear settings!
+Boxflat for Moza Racing. Control your Moza gear settings... and more!
 
 <img alt="Wheelbase panel" src="screens/base.png">
 
@@ -13,28 +13,28 @@ Boxflat for Moza Racing. Control your Moza gear settings!
 
 ## Functionality
 
-| Device         | Completeness | WIP |
-| :------------: | :----------: | :-- |
-| Home page      | 100%         | |
-| Base           | 100%         | |
-| Wheel          | 100%         | |
-| Pedals         | 100%         | |
-| Dashboard      | 0%           | Dashboard settings |
-| Universal Hub  | 100%         | |
-| H-Pattern      | 100%         | |
-| Sequential     | 100%         | |
-| Handbrake      | 100%         | |
-| E-Stop         | 100%         | |
-| Stalks         | 100%         | |
-| Other settings | 100%         | |
-| Presets        | 100%         | |
+| Device          | Completeness | WIP |
+| :-------------: | :----------: | :-- |
+| Home page       | 100%         | |
+| Base            | 100%         | |
+| Wheel           | 100%         | |
+| Pedals          | 100%         | |
+| Dashboard       | 0%           | Dashboard settings |
+| Universal Hub   | 100%         | |
+| H-Pattern       | 100%         | |
+| Sequential      | 100%         | |
+| Handbrake       | 100%         | |
+| E-Stop          | 100%         | |
+| Stalks          | 100%         | |
+| Other settings  | 100%         | |
+| Presets         | 100%         | |
+| Generic devices | Detection fix | |
 
 ### Ideas
 - Telemetry ingestion through REST API/WebSockets
 - Cammus support
 - PXN Support
 - Simagic support
-- Detection fix for arbitrary HID joysticks
 - H-Pattern and Sequential settings available for arbitrary HID devices
 
 ### Firmware upgrades
@@ -46,6 +46,8 @@ Moza commands and their protocol is hardware agnostic, so any implemented featur
 Wheel indicator blinking colors can't be read from the wheel. This is a limitation of the current firmware.
 
 Boxflat automatically detects is a device (shifter/pedals) needs a detection fix and creates a proper virutal device. This fixes game detection.
+
+Detection fix can be applied to any HID device as well (pedals, shifters, button boxes).
 
 # Installation
 ## Flatpak
