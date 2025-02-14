@@ -1,58 +1,81 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 import evdev
+from evdev.ecodes import *
 from time import sleep
 from evdev.device import AbsInfo
-from threading import Event
+from threading import Thread, Event
 
-class GenericDevice(EventDispatcher):
-    def __init__(self, path: str):
+class GenericDevice():
+    def __init__(self, entry: dict):
         super().__init__()
-        self._path = path
+        self._entry = entry
+        self._name = entry["name"]
         self._shutdown = Event()
+        self._device = None
+
+        Thread(daemon=True, target=self._hid_read_loop).start()
 
 
     def shutdown(self):
         self._shutdown.set()
 
 
-    def _try_open(self, device_path: str) -> evdev.InputDevice:
-        try:
-            return evdev.InputDevice(device_path)
-        except:
-            sleep(1)
+    def _try_open(self) -> evdev.InputDevice:
+        devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        device = None
 
+        for tmp in devices:
+            if tmp.name == self._name:
+                device = tmp
+                print(tmp.name)
+                break
 
-    def _hid_read_loop(self, device: evdev.InputDevice, shut_event: event):
-        sleep(0.3)
-
-        new_device = self.detection_fix(device)
-        if new_device is None:
+        if device is None:
             return
 
-        device_path = device.path
-        name = device.name
+        try:
+            device.grab()
+        except:
+            pass
+
+        return device
+
+
+    def _hid_read_loop(self):
+        sleep(0.3)
+
+        new_device = None
+        name = self._name
 
         while not self._shutdown.is_set():
-            if device is None:
-                sleep(0.3)
-                device = self._try_open(device_path)
-                continue
+            if self._device is None:
+                self._device = self._try_open()
+                sleep(5)
+
+                if self._device is None:
+                    continue
+
+                if new_device is None:
+                    new_device = self.detection_fix(self._device)
 
             try:
-                for event in device.read_loop():
+                for event in self._device.read_loop():
                     new_device.write_event(event)
+                    if self._shutdown.is_set():
+                        break
 
             except Exception as e:
                 print(e)
-                device.close()
-                device = None
+                self._device = None
+                new_device.close()
+                new_device = None
 
-        if device is not None:
-            device.ungrab()
-
-
-        print(f"HID device disconnected: " + name)
+        new_device.close()
+        try:
+            self._device.ungrab()
+        except:
+            pass
 
 
     def detection_fix(self, device: evdev.InputDevice) -> evdev.UInput:
@@ -60,9 +83,9 @@ class GenericDevice(EventDispatcher):
         cap: dict = device.capabilities()
 
         # Return if detection fix is unnecessary
-        if EV_ABS in cap and EV_KEY in cap:
-            print(f"Detection fix not needed for {device.name}")
-            return
+        # if EV_ABS in cap and EV_KEY in cap:
+        #     print(f"Detection fix not needed for {device.name}")
+        #     return
 
         # Remove unneeded event types
         cap.pop(EV_SYN)
@@ -77,7 +100,5 @@ class GenericDevice(EventDispatcher):
 
         # Create new device
         new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
-        device.grab()
         print(f"Detection fix applied for {device.name}")
-
         return new_device

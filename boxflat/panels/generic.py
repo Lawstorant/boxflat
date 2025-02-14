@@ -3,11 +3,12 @@
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.widgets import *
 from boxflat.settings_handler import SettingsHandler
+from boxflat.hid_handler import is_moza_device
+from boxflat.generic import GenericDevice
 
 import evdev
 from evdev import ecodes
 from binascii import hexlify
-from boxflat.hid_handler import is_moza_device
 
 class GenericSettings(SettingsPanel):
     def __init__(self, button_callback, settings: SettingsHandler):
@@ -16,6 +17,7 @@ class GenericSettings(SettingsPanel):
         self._candidates_list: BoxflatPreferencesGroup = None
         self._back: BoxflatPreferencesGroup = None
         self._listed_devices = []
+        self._fixed_devices = {}
         self._candidates = []
         super().__init__("Generic Devices", button_callback)
 
@@ -43,6 +45,7 @@ class GenericSettings(SettingsPanel):
         self._current_group.set_size_request(620, 0)
 
         self.list_configured_devices()
+        self.fix_devices()
 
 
     def list_configured_devices(self, *_) -> None:
@@ -141,6 +144,7 @@ class GenericSettings(SettingsPanel):
 
         if refresh:
             self.list_configured_devices()
+            self.fix_devices()
 
 
     def remove_device(self, state: int, device: dict) -> None:
@@ -149,3 +153,22 @@ class GenericSettings(SettingsPanel):
         self._settings.write_setting(devices, "generic-devices")
 
         self.list_configured_devices()
+        self.fix_devices()
+
+
+    def fix_devices(self, *_) -> None:
+        to_fix = self._settings.read_setting("generic-devices") or []
+        names = [device["name"] for device in to_fix]
+
+        fixed_names = list(self._fixed_devices.keys())
+
+        for name in fixed_names:
+            self._fixed_devices[name].shutdown()
+            self._fixed_devices.pop(name)
+
+        for device in to_fix:
+            name = device["name"]
+            if name in self._fixed_devices:
+                continue
+
+            self._fixed_devices[name] = GenericDevice(device)
