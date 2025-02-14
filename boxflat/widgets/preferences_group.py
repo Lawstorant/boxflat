@@ -2,10 +2,13 @@
 
 from gi.repository import Gtk, Adw, GLib
 from threading import Lock
+from boxflat.subscription import SimpleEventDispatcher
 
-class BoxflatPreferencesGroup(Adw.PreferencesGroup):
-    def __init__(self, title="", level_bar=False, alt_level_bar=False):
-        super().__init__()
+class BoxflatPreferencesGroup(Adw.PreferencesGroup, SimpleEventDispatcher):
+    def __init__(self, title="", level_bar=False, alt_level_bar=False, suffix=False):
+        Adw.PreferencesGroup.__init__(self)
+        SimpleEventDispatcher.__init__(self)
+
         self._bar = None
         self._bar1 = None
         self._bar2 = None
@@ -14,6 +17,13 @@ class BoxflatPreferencesGroup(Adw.PreferencesGroup):
 
         self._max_value = 1000
         self._offset = 0
+
+        if suffix:
+            suffix = Gtk.Button()
+            suffix.set_icon_name("list-add-symbolic")
+            suffix.add_css_class("flat")
+            suffix.connect('clicked', self._dispatch)
+            self.set_header_suffix(suffix)
 
         if level_bar:
             bar = Gtk.LevelBar()

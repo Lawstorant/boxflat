@@ -156,11 +156,11 @@ class SettingsPanel(EventDispatcher):
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
 
-    def add_preferences_group(self, title="", level_bar=False, alt_level_bar=False):
+    def add_preferences_group(self, title="", level_bar=False, alt_level_bar=False, suffix=None):
         if self._current_page is None:
             self.add_preferences_page()
 
-        self._current_group = BoxflatPreferencesGroup(title, level_bar, alt_level_bar)
+        self._current_group = BoxflatPreferencesGroup(title, level_bar, alt_level_bar, suffix)
         self._current_group.set_bar_width(290)
         self._current_page.add(self._current_group)
         self._groups.append(self._current_group)
