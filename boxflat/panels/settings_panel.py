@@ -156,7 +156,7 @@ class SettingsPanel(EventDispatcher):
             self._current_stack.add_titled_with_icon(page, name, name, icon)
 
 
-    def add_preferences_group(self, title="", level_bar=False, alt_level_bar=False, suffix=None):
+    def add_preferences_group(self, title="", level_bar=False, alt_level_bar=False, suffix=False):
         if self._current_page is None:
             self.add_preferences_page()
 

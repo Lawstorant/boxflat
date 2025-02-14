@@ -27,6 +27,23 @@ class MozaHidDevice():
     STALKS = "moza multi-function stalk"
 
 
+def is_moza_device(name: str):
+    patterns = []
+
+    patterns.append(MozaHidDevice.BASE)
+    patterns.append(MozaHidDevice.PEDALS)
+    patterns.append(MozaHidDevice.HANDBRAKE)
+    patterns.append(MozaHidDevice.HPATTERN)
+    patterns.append(MozaHidDevice.SEQUENTIAL)
+    patterns.append(MozaHidDevice.HUB)
+    patterns.append(MozaHidDevice.STALKS)
+
+    for pattern in patterns:
+        if re.search(pattern, name.lower()):
+            return True
+
+    return False
+
 class AxisData():
     def __init__(self, name: str, device: str):
         self.name = name
