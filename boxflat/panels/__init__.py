@@ -1,6 +1,6 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
-from .settings_panel import	SettingsPanel
+from .settings_panel import SettingsPanel
 from .base import BaseSettings
 from .wheel import WheelSettings
 from .home import HomeSettings
