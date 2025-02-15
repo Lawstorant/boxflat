@@ -285,6 +285,7 @@ class MyApp(Adw.Application):
 
         self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings)
         self._panels["Presets"].set_application(self)
+        self._panels["Generic Devices"] = GenericSettings(self.switch_panel, self._settings)
 
         self._panels["Other"].subscribe("brake-calibration-enabled", self._panels["Pedals"].set_brake_calibration_active)
         self._panels["Pedals"].set_brake_calibration_active(self._panels["Other"].get_brake_valibration_enabled())
