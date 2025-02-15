@@ -117,7 +117,7 @@
         <p>Thank you jay0woo for supporting Boxflat</p>
       </description>
     </release>
-	  <release version="v1.27.4" date="2025-02-3">
+    <release version="v1.27.4" date="2025-02-3">
       <description>
         <p>Add new turn signal compatibility mode - hold</p>
         <p>This keeps the button pressed as long as turn signal is active</p>
