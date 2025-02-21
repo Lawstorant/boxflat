@@ -101,11 +101,7 @@ class GenericSettings(SettingsPanel):
             if not axes and not keys:
                 continue
 
-            if keys 
-                ecodes.BTN_JOYSTICK not in capabilities[ecodes.EV_KEY]:
-                continue
-
-            if keys
+            if keys:
                 joystick = ecodes.BTN_JOYSTICK not in capabilities[ecodes.EV_KEY]
                 gamepad = ecodes.BTN_GAMEPAD not in capabilities[ecodes.EV_KEY]
                 if joystick and gamepad:
