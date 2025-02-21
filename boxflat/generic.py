@@ -103,6 +103,9 @@ class GenericDevice(SimpleEventDispatcher):
         if EV_KEY not in cap:
             cap[EV_KEY] = [BTN_JOYSTICK]
 
+        elif BTN_JOYSTICK not in cap[EV_KEY]:
+            cap[EV_KEY].append(BTN_JOYSTICK)
+
         # Create new device
         new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
         print(f"Detection fix applied for {device.name}")
