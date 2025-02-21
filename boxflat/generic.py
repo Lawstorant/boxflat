@@ -93,8 +93,11 @@ class GenericDevice(SimpleEventDispatcher):
         #     return
 
         # Remove unneeded event types
-        cap.pop(EV_SYN)
-        cap.pop(EV_MSC)
+        if EV_SYN in cap:
+            cap.pop(EV_SYN)
+
+        if EV_MSC in cap:
+            cap.pop(EV_MSC)
 
         # Add necessary event types
         if EV_ABS not in cap:
