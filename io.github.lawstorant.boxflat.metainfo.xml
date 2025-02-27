@@ -110,6 +110,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.28.3" date="2025-02-27">
+      <description>
+        <p>Don't remove settings of not available devices from presets</p>
+      </description>
+    </release>
     <release version="v1.28.2" date="2025-02-21">
       <description>
         <p>Fix detection fix for devices without buttons</p>

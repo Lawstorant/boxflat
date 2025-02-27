@@ -240,11 +240,13 @@ class MozaPresetHandler(SimpleEventDispatcher):
         if not self._path:
             return
 
-        preset_data = {}
+        preset_data = self._get_preset_data() or {}
         preset_data["BoxflatPresetVersion"] = "1"
 
         for device, settings in self._settings.items():
-            preset_data[device] = {}
+            if device not in preset_data.keys():
+                preset_data[device] = {}
+                
             for setting in settings:
                 tries = 0
                 while tries < 3:
@@ -271,6 +273,8 @@ class MozaPresetHandler(SimpleEventDispatcher):
             return
 
         preset_data = self._get_preset_data()
+        if preset_data is None:
+            return
 
         for key, settings in preset_data.items():
             if key not in MozaDevicePresetSettings.keys():
