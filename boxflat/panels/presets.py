@@ -27,6 +27,7 @@ class PresetSettings(SettingsPanel):
 
     def prepare_ui(self):
         self.add_preferences_group("Saving")
+        self._current_group.set_description("Doesn't overwrite unavailable devices")
         self._add_row(self._name_row)
 
         expander = Adw.ExpanderRow(title="Include Devices")
