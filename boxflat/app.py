@@ -17,38 +17,50 @@ import subprocess
 
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, navigation: Adw.NavigationSplitView):
+    def __init__(self, navigation: Adw.NavigationSplitView, settings: SettingsHandler):
         super().__init__()
         self.set_title("Boxflat")
         self.set_content(navigation)
         self._data_path = None
         self._spawn = ["flatpak-spawn", "--host"]
+        self._settings: SettingsHandler = settings
 
 
     def check_udev(self, data_path: str) -> None:
         self._data_path = data_path
         udev_exists = self._check_native
         is_flatpak = False
+        rules_version = self._settings.read_setting("rules-version") or 0
 
         if os.environ["BOXFLAT_FLATPAK_EDITION"] == "true":
             is_flatpak = True
             udev_exists = self._check_flatpak
 
-        if udev_exists():
+        udev_exists = udev_exists()
+
+        if udev_exists and rules_version >= 2:
             return
 
         pkexec_found = self._check_pkexec(is_flatpak)
 
         udev_alert_body = "alert"
-        with open(os.path.join(data_path, "udev-warning-install.txt" if pkexec_found else "udev-warning-guide.txt"), "r") as file:
-            udev_alert_body = "\n" + file.read().strip()
+        install_button_label = "Install"
+        if not udev_exists:
+            with open(os.path.join(data_path, "udev-warning-install.txt" if pkexec_found else "udev-warning-guide.txt"), "r") as file:
+                udev_alert_body = "\n" + file.read().strip()
+
+        else:
+            udev_alert_body = "\nBoxflat needs to update udev rules.\n"
+            udev_alert_body += "Restart your PC if you encounter any issues with detection fixes.\n"
+            install_button_label = "Update"
 
         alert = Adw.AlertDialog()
         alert.set_body(udev_alert_body)
 
         if pkexec_found:
-            alert.add_response("install", "Install")
+            alert.add_response("install", install_button_label)
             alert.set_response_appearance("install", Adw.ResponseAppearance.SUGGESTED)
+
         else:
             alert.add_response("guide", "Guide")
             alert.set_response_appearance("guide", Adw.ResponseAppearance.SUGGESTED)
@@ -59,7 +71,11 @@ class MainWindow(Adw.ApplicationWindow):
         alert.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
         alert.set_close_response("close")
 
-        alert.set_heading("No udev rules detected!")
+        if not udev_exists:
+            alert.set_heading("No udev rules detected!")
+        else:
+            alert.set_heading("Rules update")
+
         alert.set_body_use_markup(True)
         alert.connect("response", self._handle_udev_dialog, is_flatpak)
 
@@ -86,18 +102,20 @@ class MainWindow(Adw.ApplicationWindow):
         elif response == "guide":
             url = "https://github.com/Lawstorant/boxflat?tab=readme-ov-file#udev-rule-installation-for-flatpak"
             Gtk.UriLauncher(uri=url).launch()
+            self._settings.write_setting(2, "rules-version")
 
 
     def _install_rules(self, is_flatpak: bool) -> None:
         with open(os.path.join(self._data_path, "../udev/99-boxflat.rules"), "r") as file:
-            udev = file.read().strip().split("\n")[-1]
+            udev = file.read().strip()
 
         command = ["pkexec", "tee", "/etc/udev/rules.d/99-boxflat.rules"]
         if is_flatpak:
             command = [*self._spawn, *command]
 
         echo = subprocess.Popen(["echo", udev], stdout=subprocess.PIPE)
-        subprocess.call(command, stdin=echo.stdout)
+        if not subprocess.call(command, stdin=echo.stdout):
+            self._settings.write_setting(2, "rules-version")
 
 
     def _check_pkexec(self, is_flatpak: bool) -> bool:
@@ -206,7 +224,7 @@ class MyApp(Adw.Application):
             return
 
 
-        win = MainWindow(self.navigation)
+        win = MainWindow(self.navigation, self._settings)
         win.set_application(app)
         win.connect("close-request", lambda *_: Thread(target=self._show_bg_notification, daemon=True).start())
         win.connect("close-request", self._save_window_info)
