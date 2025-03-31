@@ -181,7 +181,7 @@ class HidHandler(EventDispatcher):
         self.subscribe("gear", self._blip_handler)
 
         self._running = Event()
-        self._update_rate = 10
+        self._update_rate = 120
         self._device_count = Observable(0)
         self._device_count.subscribe(self._device_count_changed)
 

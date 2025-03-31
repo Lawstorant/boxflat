@@ -68,16 +68,6 @@ class OtherSettings(SettingsPanel):
         brake_row.subscribe(lambda v: self._dispatch("brake-calibration-enabled", v))
         brake_row.set_value(self._settings.read_setting("brake-calibration-enabled"))
 
-        self._add_row(BoxflatButtonRow("Refresh Devices", "Refresh", subtitle="Not necessary normally"))
-        self._current_row.subscribe(self._cm.device_discovery)
-
-        self._add_row(BoxflatSliderRow("HID Update Rate", suffix=" Hz  ", range_start=20, range_end=240, increment=10))
-        self._current_row.subscribe(self._hid_handler.set_update_rate)
-        self._current_row.add_marks(120)
-        self._current_row.set_value(self._settings.read_setting("hid-update-rate") or 120, mute=False)
-        self._current_row.subscribe(self._settings.write_setting, "hid-update-rate")
-
-
         # Autostart and background stuff
         hidden = BoxflatSwitchRow("Start hidden")
         hidden.set_value(self._settings.read_setting("autostart-hidden") or 0)
