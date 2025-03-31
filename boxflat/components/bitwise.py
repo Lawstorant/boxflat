@@ -34,7 +34,7 @@ def toggle_bit(value: int, bit_number: int) -> int:
 
 
 def bit(bit_number: int) -> int:
-    return set_bit(0, bit_number)
+    return 1 << bit_number
 
 
 def swap_nibbles(value: int) -> int:

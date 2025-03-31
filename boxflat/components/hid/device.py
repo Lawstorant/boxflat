@@ -61,7 +61,7 @@ class HidDevice(EventDispatcher):
                 self._axis_values[axis] = AxisValue(name)
                 self._register_event(name)
 
-        i = 1;
+        i = 1
         self._button_map = {}
         self._reverse_button_list = []
         if EV_KEY in cap:
@@ -69,7 +69,7 @@ class HidDevice(EventDispatcher):
                 self._button_map[key] = i
                 self._reverse_button_list.append(key)
                 self._register_event(f"button-{i}")
-                i += 1;
+                i += 1
 
         Thread(daemon=True, target=self._hid_read_loop).start()
 

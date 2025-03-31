@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 class DeviceType(Enum):
-    BASE       = auto()
+    WHEELBASE  = auto()
     PEDALS     = auto()
     SEQUENTIAL = auto()
     HPATTERN   = auto()
