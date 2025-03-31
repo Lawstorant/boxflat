@@ -110,6 +110,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.28.5" date="2025-03-31">
+      <description>
+        <p>HGP detection fix</p>
+      </description>
+    </release>
     <release version="v1.28.4" date="2025-03-07">
       <description>
         <p>Udev rules update</p>
