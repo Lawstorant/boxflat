@@ -14,7 +14,7 @@ class HPatternSettings(SettingsPanel):
         self._gear_row = BoxflatLabelRow("Current Gear")
 
         super().__init__("H-Pattern Shifter", button_callback, connection_manager, hid)
-        self._cm.subscribe_connected("hpattern-output-x", self.active)
+        self._cm.subscribe_connected("hpattern-output-y", self.active)
 
 
     def active(self, value: int):
