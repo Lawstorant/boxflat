@@ -53,7 +53,7 @@ class BoxflatLevelRow(BoxflatRow):
 
 
     def set_offset(self, value: int):
-        value = ceil((value / 100) * self._max_value)
+        value = ceil((value / 100) * self._max_value) + 1
         self._bar.add_offset_value("level-offset", value)
 
 
