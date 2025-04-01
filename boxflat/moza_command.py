@@ -65,7 +65,7 @@ class MozaCommand():
             device_name = "wheel"
 
         # Hub reports on main ID
-        if group == 228:
+        if group == 228 or group == 100:
             device_name = "hub"
             group = 100
 
