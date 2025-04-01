@@ -12,28 +12,24 @@ class SequentialSettings(SettingsPanel):
         self._cm.subscribe_connected("sequential-output-y", self.active)
 
 
-    def active(self, value: int):
-        super().active(-1 if value != 0 else value)
-
-
     def prepare_ui(self):
         self.add_preferences_group("Shift Settings")
         self._add_row(BoxflatSwitchRow("Reverse Shift Direction"))
         self._current_row.subscribe(self._cm.set_setting, "sequential-direction")
-        self._cm.subscribe("sequential-direction", self._current_row.set_value)
+        self._cm.subscribe("sequential-direction", self._filter_data, self._current_row)
 
         self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Use the same buttons as paddle shifters"))
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(self._cm.set_setting, "sequential-paddle-sync")
-        self._cm.subscribe("sequential-paddle-sync", self._current_row.set_value)
+        self._cm.subscribe("sequential-paddle-sync", self._filter_data, self._current_row)
 
         self.add_preferences_group("Lights")
         self._add_row(BoxflatSliderRow("Buttons Brightness", 0, 10))
         self._current_row.add_marks(5)
         self._current_row.set_slider_width(294)
         self._current_row.subscribe(self._cm.set_setting, "sequential-brightness")
-        self._cm.subscribe("sequential-brightness", self._current_row.set_value)
+        self._cm.subscribe("sequential-brightness", self._filter_data, self._current_row)
 
         self._S1 = BoxflatColorPickerRow("S1 Color")
         self._add_row(self._S1)
@@ -51,5 +47,14 @@ class SequentialSettings(SettingsPanel):
 
 
     def _get_colors(self, value: list):
+        if not self._active:
+            return
+
         self._S1.set_value(int(value[0]))
         self._S2.set_value(int(value[1]))
+
+
+    def _filter_data(self, value, row: BoxflatRow):
+        if not self._active:
+            return
+        row.set_value(value)

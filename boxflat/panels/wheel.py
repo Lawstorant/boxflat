@@ -87,7 +87,7 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-paddles-mode", self._current_row.set_value)
 
 
-        level = BoxflatLevelRow("Combined Paddles", max_value=65_534)
+        level = BoxflatLevelRow("Combined Paddles", max_value=65535)
         self._add_row(level)
         self._hid_handler.subscribe(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
         self._cm.subscribe_connected("wheel-paddles-mode", lambda v: level.set_present(v == 2))
@@ -95,13 +95,13 @@ class WheelSettings(SettingsPanel):
         paddle_mode.subscribe(lambda v: level.set_present(v == 2, skip_cooldown=True))
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
-        self._add_row(BoxflatLevelRow("Left Paddle", max_value=65534))
+        self._add_row(BoxflatLevelRow("Left Paddle", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
         self._cm.subscribe_connected("wheel-paddles-mode", self._current_row.set_present, -2)
         paddle_mode.subscribe(self._current_row.set_present, -2, True)
         self._current_row.set_present(0, skip_cooldown=True, trigger_cooldown=False)
 
-        self._add_row(BoxflatLevelRow("Right Paddle", max_value=65534))
+        self._add_row(BoxflatLevelRow("Right Paddle", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.RIGHT_PADDLE.name, self._current_row.set_value)
         self._cm.subscribe_connected("wheel-paddles-mode", self._current_row.set_present, -2)
         paddle_mode.subscribe(self._current_row.set_present, -2, True)
