@@ -78,7 +78,7 @@ class MozaCommand():
                 continue
 
             value = MozaCommand.value_from_data(payload[id_len:], values["type"])
-            if device_name == "sequential" and name == "output-x":
+            if name == "output-y" and value > 100:
                 device_name = "hpattern"
 
             ret = f"{device_name}-{name}", value
