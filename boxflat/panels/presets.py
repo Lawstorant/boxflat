@@ -41,6 +41,14 @@ class PresetSettings(SettingsPanel):
         self._cm.subscribe_connected("base-limit", row.set_active, 1, True)
         self._includes["base"] = row.get_value
 
+        row = BoxflatSwitchRow("Dash")
+        expander.add_row(row)
+        row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-dash"))
+        row.subscribe(self._settings.write_setting, "presets-include-dash")
+        self._cm.subscribe_connected("dash-rpm-indicator-mode", row.set_active, 1, True)
+        self._includes["dash"] = row.get_value
+
         row = BoxflatSwitchRow("Wheel")
         expander.add_row(row)
         row.set_value(1)

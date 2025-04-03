@@ -6,8 +6,9 @@ from threading import Thread, Event, Lock
 from time import sleep
 from boxflat.subscription import EventDispatcher
 
-MOZA_RPM_LEDS = 10
+MOZA_RPM_LEDS    = 10
 MOZA_RGB_BUTTONS = 10
+MOZA_FLAG_LEDS   = 6
 
 def extract_rgb(rgba: Gdk.RGBA) -> list[int]:
         rgb = rgba.to_string()[4:-1]
@@ -16,11 +17,11 @@ def extract_rgb(rgba: Gdk.RGBA) -> list[int]:
 
 
 class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
-    def __init__(self, title="", subtitle="", blinking=False):
+    def __init__(self, title="", subtitle="", blinking=False, pickers=10):
         BoxflatRow.__init__(self, title, subtitle)
         EventDispatcher.__init__(self)
 
-        for i in range(MOZA_RPM_LEDS):
+        for i in range(pickers):
             self._register_event(f"color{i}")
 
         child = self.get_child()
@@ -44,7 +45,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
         self._colors: list[Gtk.ColorDialogButton] = []
         red = Gdk.RGBA()
         red.parse("rgb(255,0,0)")
-        for i in range(MOZA_RPM_LEDS):
+        for i in range(pickers):
             color = Gtk.ColorDialogButton(dialog=self._dialog, hexpand=True)
             color.set_rgba(red)
             color.set_valign(Gtk.Align.CENTER)

@@ -21,7 +21,7 @@ HidDeviceMapping = {
     "sequential" : MozaHidDevice.SEQUENTIAL,
     "pedals"     : MozaHidDevice.PEDALS,
     "hub"        : MozaHidDevice.HUB,
-    "stalks"     : MozaHidDevice.STALKS
+    "stalks"     : MozaHidDevice.STALKS,
 }
 
 SerialDeviceMapping = {
@@ -32,7 +32,8 @@ SerialDeviceMapping = {
     MozaHidDevice.PEDALS     : "pedals",
     MozaHidDevice.HUB        : "hub",
     "gudsen_e-stop"          : "estop",
-    MozaHidDevice.STALKS     : "stalks"
+    MozaHidDevice.STALKS     : "stalks",
+    "moza_.*_digital_dash"   : "dash",
 }
 
 
@@ -271,7 +272,7 @@ class MozaConnectionManager(EventDispatcher):
         if value is None or command is None:
             return
 
-        # print(f"{command} received: {data.hex(":")}")
+        print(f"{command} received: {data.hex(":")}")
         self._dispatch(command, value)
 
 
@@ -364,7 +365,7 @@ class MozaConnectionManager(EventDispatcher):
 
     def cycle_wheel_id(self) -> int:
         with self._devices_lock:
-            wid = self._serial_data["device-ids"]["wheel"] - 2
+            wid = self._serial_data["device-ids"]["wheel"] - 1
 
             if wid < self._serial_data["device-ids"]["base"]:
                 wid = self._serial_data["device-ids"]["pedals"] - 2
