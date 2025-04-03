@@ -44,6 +44,44 @@ MozaDevicePresetSettings = {
         "base-ffb-curve-y5",
         "base-ffb-reverse"
     ],
+    "dash" : [
+        "dash-rpm-timings",
+        "dash-rpm-indicator-mode",
+        "dash-flags-indicator-mode",
+        "dash-rpm-display-mode",
+        "dash-rpm-interval",
+        "dash-rpm-mode",
+        "dash-rpm-value1",
+        "dash-rpm-value2",
+        "dash-rpm-value3",
+        "dash-rpm-value4",
+        "dash-rpm-value5",
+        "dash-rpm-value6",
+        "dash-rpm-value7",
+        "dash-rpm-value8",
+        "dash-rpm-value9",
+        "dash-rpm-value10"
+    ],
+    "dash-colors" : [
+        "dash-rpm-color1",
+        "dash-rpm-color2",
+        "dash-rpm-color3",
+        "dash-rpm-color4",
+        "dash-rpm-color5",
+        "dash-rpm-color6",
+        "dash-rpm-color7",
+        "dash-rpm-color8",
+        "dash-rpm-color9",
+        "dash-rpm-color10",
+        "dash-flag-color1",
+        "dash-flag-color2",
+        "dash-flag-color3",
+        "dash-flag-color4",
+        "dash-flag-color5",
+        "dash-flag-color6",
+        "dash-rpm-brightness",
+        "dash-flags-brightness"
+    ],
     "wheel" : [
         "wheel-rpm-timings",
         "wheel-paddles-mode",
@@ -246,7 +284,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
         for device, settings in self._settings.items():
             if device not in preset_data.keys():
                 preset_data[device] = {}
-                
+
             for setting in settings:
                 tries = 0
                 while tries < 3:

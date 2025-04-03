@@ -77,7 +77,7 @@ class MozaCommand():
             if payload_list[:id_len] != values["id"]:
                 continue
 
-            value = MozaCommand.value_from_data(payload[id_len:], values["type"])
+            value = MozaCommand.value_from_data(payload[id_len:], values["type"], values["bytes"])
             if name == "output-y" and value > 100:
                 device_name = "hpattern"
 
@@ -157,7 +157,7 @@ class MozaCommand():
 
             elif self._type == "array":
                 if isinstance(value, list):
-                    data = bytes(value)
+                    data = bytes(value[0:self._length])
                 else:
                     data = bytes(self._length)
 
@@ -174,7 +174,7 @@ class MozaCommand():
 
 
     @staticmethod
-    def value_from_data(data: bytes, value_type: str):
+    def value_from_data(data: bytes, value_type: str, bytes: int):
         if  value_type == "int":
             data = int.from_bytes(data)
 
@@ -182,7 +182,7 @@ class MozaCommand():
             data = unpack(">f", data)[0]
 
         elif value_type  == "array":
-            data = list(data)
+            data = list(data)[0:bytes]
 
         elif value_type  == "hex":
             data = hexlify(data).decode("utf-8")

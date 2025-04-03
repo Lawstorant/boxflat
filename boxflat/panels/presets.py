@@ -49,6 +49,14 @@ class PresetSettings(SettingsPanel):
         self._cm.subscribe_connected("dash-rpm-indicator-mode", row.set_active, 1, True)
         self._includes["dash"] = row.get_value
 
+        row = BoxflatSwitchRow("Dash Colors")
+        expander.add_row(row)
+        row.set_value(1)
+        row.set_value(self._settings.read_setting("presets-include-dash-color"))
+        row.subscribe(self._settings.write_setting, "presets-include-dash-color")
+        self._cm.subscribe_connected("dash-rpm-indicator-mode", row.set_active, 1, True)
+        self._includes["dash-colors"] = row.get_value
+
         row = BoxflatSwitchRow("Wheel")
         expander.add_row(row)
         row.set_value(1)
