@@ -160,6 +160,10 @@ class DashSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "dash-flags-brightness")
         self._cm.subscribe("dash-flags-brightness", self._current_row.set_value)
 
+        self._add_row(BoxflatButtonRow("Test flag", "test"))
+
+        self._current_row.subscribe(lambda v: self._cm.set_setting([0,0,255,0,255,0,255,0,0,255,0,0,0,255,0,0,0,255], "dash-flag-colors"))
+
         # self.add_preferences_group("Telemetry flag")
         # self._add_row(BoxflatNewColorPickerRow(""))
         # for i in range(MOZA_RPM_LEDS):
@@ -218,19 +222,19 @@ class DashSettings(SettingsPanel):
         self._cm.set_setting(0, "dash-send-telemetry")
         time.sleep(0.2)
         initial_mode = self._cm.get_setting("dash-rpm-indicator-mode", exclusive=True)
+        initial_flag_mode = self._cm.get_setting("dash-flags-indicator-mode", exclusive=True)
         self._cm.set_setting(1, "dash-rpm-indicator-mode", exclusive=True)
 
-        t = 0.1
-        for j in range(2):
-            for i in range(10):
-                val = bit(i)
-                self._cm.set_setting(val, "dash-send-telemetry")
-                time.sleep(t)
+        t = 0.08
+        for i in range(10):
+            val = bit(i)
+            self._cm.set_setting(val, "dash-send-telemetry")
+            time.sleep(t)
 
-            for i in reversed(range(1,9)):
-                val = bit(i)
-                self._cm.set_setting(val, "dash-send-telemetry")
-                time.sleep(t)
+        for i in reversed(range(1,9)):
+            val = bit(i)
+            self._cm.set_setting(val, "dash-send-telemetry")
+            time.sleep(t)
 
         val = 0
         self._cm.set_setting(val, "dash-send-telemetry")
@@ -250,20 +254,23 @@ class DashSettings(SettingsPanel):
             self._cm.set_setting(val, "dash-send-telemetry")
             time.sleep(t)
 
-        for i in reversed(range(1,10)):
-            val = unset_bit(val, i)
-            self._cm.set_setting(val, "dash-send-telemetry")
-            time.sleep(t)
-
-        for i in range(1,10):
-            val = set_bit(val, i)
-            self._cm.set_setting(val, "dash-send-telemetry")
-            time.sleep(t)
-
         time.sleep(0.2)
         val = modify_bit(0,15)
-        for i in range(1,3):
+        for i in range(1,2):
             self._cm.set_setting(val, "dash-send-telemetry")
             time.sleep(.8)
 
+        self._cm.set_setting(0, "dash-send-telemetry")
+        self._cm.set_setting([255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0], "dash-flag-colors")
+        time.sleep(.9)
+
+        self._cm.set_setting(0, "dash-send-telemetry")
+        self._cm.set_setting([0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0], "dash-flag-colors")
+        time.sleep(.9)
+
+        self._cm.set_setting(0, "dash-send-telemetry")
+        self._cm.set_setting([0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255], "dash-flag-colors")
+        time.sleep(.9)
+
         self._cm.set_setting(initial_mode, "dash-rpm-indicator-mode", exclusive=True)
+        self._cm.set_setting(initial_mode, "dash-flags-indicator-mode", exclusive=True)

@@ -733,6 +733,13 @@ commands:
       bytes: 1
       type: int
 
+    flag-colors:
+      read: -1
+      write: 50
+      id: [8, 0]
+      bytes: 18
+      type: array
+
     rpm-blink-color1:
       read: -1
       write: 50
