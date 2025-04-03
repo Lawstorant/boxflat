@@ -110,6 +110,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.29.0" date="2025-04-04">
+      <description>
+        <p>Initial Dash CM2 support</p>
+      </description>
+    </release>
     <release version="v1.28.6" date="2025-04-01">
       <description>
         <p>HGP detection fix (for real)</p>

@@ -121,10 +121,6 @@ class DashSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-interval")
         self._cm.subscribe("dash-rpm-interval", self._current_row.set_value)
 
-        self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Dash indicator test", "Test"))
-        self._current_row.subscribe(self.start_test)
-
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("RPM Colors")
@@ -143,8 +139,9 @@ class DashSettings(SettingsPanel):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, name)
             self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
 
-        self.add_preferences_group("Flag Colors")
-        self._add_row(BoxflatNewColorPickerRow(pickers=6, blinking=True))
+        self.add_preferences_group("Flag Default Colors")
+        self._current_group.set_description("More to come...")
+        self._add_row(BoxflatNewColorPickerRow(pickers=6))
         for i in range(MOZA_FLAG_LEDS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"dash-flag-color{i+1}")
             self._cm.subscribe(f"dash-flag-color{i+1}", self._current_row.set_led_value, i)
@@ -160,9 +157,9 @@ class DashSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "dash-flags-brightness")
         self._cm.subscribe("dash-flags-brightness", self._current_row.set_value)
 
-        self._add_row(BoxflatButtonRow("Test flag", "test"))
-
-        self._current_row.subscribe(lambda v: self._cm.set_setting([0,0,255,0,255,0,255,0,0,255,0,0,0,255,0,0,0,255], "dash-flag-colors"))
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Dash indicator test", "Test"))
+        self._current_row.subscribe(self.start_test)
 
         # self.add_preferences_group("Telemetry flag")
         # self._add_row(BoxflatNewColorPickerRow(""))
@@ -223,7 +220,9 @@ class DashSettings(SettingsPanel):
         time.sleep(0.2)
         initial_mode = self._cm.get_setting("dash-rpm-indicator-mode", exclusive=True)
         initial_flag_mode = self._cm.get_setting("dash-flags-indicator-mode", exclusive=True)
+
         self._cm.set_setting(1, "dash-rpm-indicator-mode", exclusive=True)
+        self._cm.set_setting(1, "dash-flags-indicator-mode", exclusive=True)
 
         t = 0.08
         for i in range(10):
