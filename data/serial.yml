@@ -936,6 +936,76 @@ commands:
       bytes: 1
       type: int
 
+    rpm-value1:
+      read: 51
+      write: 50
+      id: [14, 0]
+      bytes: 4
+      type: int
+
+    rpm-value2:
+      read: 51
+      write: 50
+      id: [14, 1]
+      bytes: 4
+      type: int
+
+    rpm-value3:
+      read: 51
+      write: 50
+      id: [14, 2]
+      bytes: 4
+      type: int
+
+    rpm-value4:
+      read: 51
+      write: 50
+      id: [14, 3]
+      bytes: 4
+      type: int
+
+    rpm-value5:
+      read: 51
+      write: 50
+      id: [14, 4]
+      bytes: 4
+      type: int
+
+    rpm-value6:
+      read: 51
+      write: 50
+      id: [14, 5]
+      bytes: 4
+      type: int
+
+    rpm-value7:
+      read: 51
+      write: 50
+      id: [14, 6]
+      bytes: 4
+      type: int
+
+    rpm-value8:
+      read: 51
+      write: 50
+      id: [14, 7]
+      bytes: 4
+      type: int
+
+    rpm-value9:
+      read: 51
+      write: 50
+      id: [14, 8]
+      bytes: 4
+      type: int
+
+    rpm-value10:
+      read: 51
+      write: 50
+      id: [14, 9]
+      bytes: 4
+      type: int
+
     rpm-indicator-mode:
       read: 51
       write: 50

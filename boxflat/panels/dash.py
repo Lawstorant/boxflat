@@ -30,8 +30,6 @@ class DashSettings(SettingsPanel):
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
-        self._stick_row = None
-        self._wheel_combination_data: list[int] = []
 
         self._timings: list[list[int]] = [
             [65, 69, 72, 75, 78, 80, 83, 85, 88, 91], # Early
@@ -48,7 +46,13 @@ class DashSettings(SettingsPanel):
 
         super().__init__("Dash", button_callback, connection_manager, hid_handler)
         self._cm.subscribe_connected("dash-rpm-indicator-mode", self.active)
-        self.set_banner_title(f"Device disconnected. Trying wheel id: ...")
+
+
+    def active(self, value: int):
+        super().active(value)
+        for i in range(MOZA_RPM_LEDS):
+            self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
+            self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):

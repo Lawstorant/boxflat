@@ -67,6 +67,7 @@ class WheelSettings(SettingsPanel):
 
         for i in range(MOZA_RPM_LEDS):
             self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
+            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):

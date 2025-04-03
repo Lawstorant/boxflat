@@ -365,7 +365,7 @@ class MozaConnectionManager(EventDispatcher):
 
     def cycle_wheel_id(self) -> int:
         with self._devices_lock:
-            wid = self._serial_data["device-ids"]["wheel"] - 1
+            wid = self._serial_data["device-ids"]["wheel"] - 2
 
             if wid < self._serial_data["device-ids"]["base"]:
                 wid = self._serial_data["device-ids"]["pedals"] - 2
