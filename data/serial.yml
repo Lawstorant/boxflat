@@ -887,6 +887,48 @@ commands:
       bytes: 3
       type: array
 
+    flag-color1:
+      read: 51
+      write: 50
+      id: [11, 2, 0]
+      bytes: 3
+      type: array
+
+    flag-color2:
+      read: 51
+      write: 50
+      id: [11, 2, 1]
+      bytes: 3
+      type: array
+
+    flag-color3:
+      read: 51
+      write: 50
+      id: [11, 2, 2]
+      bytes: 3
+      type: array
+
+    flag-color4:
+      read: 51
+      write: 50
+      id: [11, 2, 3]
+      bytes: 3
+      type: array
+
+    flag-color5:
+      read: 51
+      write: 50
+      id: [11, 2, 4]
+      bytes: 3
+      type: array
+
+    flag-color6:
+      read: 51
+      write: 50
+      id: [11, 2, 5]
+      bytes: 3
+      type: array
+
     rpm-mode:
       read: 51
       write: 50
@@ -904,7 +946,7 @@ commands:
     rpm-interval:
       read: 51
       write: 50
-      id: [22]
+      id: [12]
       bytes: 4
       type: int
 
@@ -1265,34 +1307,6 @@ commands:
       read: 64
       write: 63
       id: [21, 2, 5]
-      bytes: 3
-      type: array
-
-    flag-color7:
-      read: 64
-      write: 63
-      id: [21, 2, 6]
-      bytes: 3
-      type: array
-
-    flag-color8:
-      read: 64
-      write: 63
-      id: [21, 2, 7]
-      bytes: 3
-      type: array
-
-    flag-color9:
-      read: 64
-      write: 63
-      id: [21, 2, 8]
-      bytes: 3
-      type: array
-
-    flag-color10:
-      read: 64
-      write: 63
-      id: [21, 2, 9]
       bytes: 3
       type: array
 

@@ -55,7 +55,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
             self._colors.append(color)
             colors_box.append(color)
             size = color.get_preferred_size()[1]
-            color.set_size_request(0, size.width - 2)
+            color.set_size_request(0, size.width - 1)
 
             if not blinking:
                 continue
