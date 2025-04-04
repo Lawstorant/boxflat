@@ -291,6 +291,7 @@ class MyApp(Adw.Application):
     def _prepare_settings(self):
         self._panels["Home"] = HomeSettings(self.switch_panel, self._dry_run, self._cm, self._hid_handler, self._version)
         self._panels["Base"] = BaseSettings(self.switch_panel, self._cm, self._hid_handler)
+        self._panels["Dash"] = DashSettings(self.switch_panel, self._cm, self._hid_handler, self._settings)
         self._panels["Wheel"] = WheelSettings(self.switch_panel, self._cm, self._hid_handler, self._settings)
         self._panels["Pedals"] = PedalsSettings(self.switch_panel, self._cm, self._hid_handler)
         self._panels["H-Pattern Shifter"] = HPatternSettings(self.switch_panel, self._cm, self._settings, self._hid_handler)

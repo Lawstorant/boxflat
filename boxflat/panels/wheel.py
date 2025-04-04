@@ -67,6 +67,7 @@ class WheelSettings(SettingsPanel):
 
         for i in range(MOZA_RPM_LEDS):
             self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
+            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):
@@ -149,9 +150,6 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_switch("Set Wheel Center Point", "Press both paddles and Button 1")
         self._current_row.subscribe(self._set_combination_settings)
         self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
-
-        self._add_row(BoxflatButtonRow("Wheel RPM test", "Test"))
-        self._current_row.subscribe(self.start_test)
 
         calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
         self._add_row(calibration)
@@ -255,6 +253,10 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-brightness")
         self._cm.subscribe("wheel-rpm-brightness", self._current_row.set_value)
+
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
+        self._current_row.subscribe(self.start_test)
 
         # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
         # self._current_row.add_marks(5, 10)
@@ -370,7 +372,7 @@ class WheelSettings(SettingsPanel):
         initial_mode = self._cm.get_setting("wheel-indicator-mode", exclusive=True)
         self._cm.set_setting(1, "wheel-indicator-mode", exclusive=True)
 
-        t = 0.05
+        t = 0.1
         for j in range(2):
             for i in range(10):
                 val = bit(i)
@@ -413,6 +415,39 @@ class WheelSettings(SettingsPanel):
         time.sleep(0.2)
         val = modify_bit(0,15)
         self._cm.set_setting(val, "wheel-send-telemetry")
-        time.sleep(0.8)
+        time.sleep(0.9)
+
+        self._cm.set_setting(val, "wheel-send-telemetry")
+        time.sleep(0.9)
+
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._cm.set_setting([255, 0, 0] * 7, "wheel-flag-colors1")
+        self._cm.set_setting([255, 0, 0] * 3, "wheel-flag-colors2")
+        time.sleep(0.9)
+
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._cm.set_setting([255, 0, 0] * 7, "wheel-flag-colors1")
+        self._cm.set_setting([255, 0, 0] * 3, "wheel-flag-colors2")
+        time.sleep(0.9)
+
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._cm.set_setting([0, 255, 0] * 7, "wheel-flag-colors1")
+        self._cm.set_setting([0, 255, 0] * 3, "wheel-flag-colors2")
+        time.sleep(0.9)
+
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._cm.set_setting([0, 255, 0] * 7, "wheel-flag-colors1")
+        self._cm.set_setting([0, 255, 0] * 3, "wheel-flag-colors2")
+        time.sleep(0.9)
+
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._cm.set_setting([0, 0, 255] * 7, "wheel-flag-colors1")
+        self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
+        time.sleep(0.9)
+
+        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._cm.set_setting([0, 0, 255] * 7, "wheel-flag-colors1")
+        self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
+        time.sleep(0.9)
 
         self._cm.set_setting(initial_mode, "wheel-indicator-mode", exclusive=True)

@@ -6,6 +6,7 @@ message-start: 126 #"0x7e"
 device-ids:
   main      : 18 # base id for devices connected through usb
   base      : 19
+  dash      : 20
   wheel     : 23 # this ID can vary but most wheels are available at ID 23 now.
   pedals    : 25
   hpattern  : 26
@@ -13,12 +14,12 @@ device-ids:
   handbrake : 27
   estop     : 28
   hub       : 18
-  dash      : -1
 
 
 ids-to-names:
   18: main
   19: base
+  20: dash
   21: wheel
   23: wheel
   25: pedals
@@ -718,32 +719,327 @@ commands:
 
 # Dashboard
   dash:
-    dash-brightness:
+    rpm-timings:
       read: 51
       write: 50
-      id: [0]
+      id: [5]
+      bytes: 10
+      type: array
+
+    rpm-display-mode:
+      read: 51
+      write: 50
+      id: [7]
       bytes: 1
       type: int
 
-    dash-ui-index:
+    flag-colors:
+      read: -1
+      write: 50
+      id: [8, 0]
+      bytes: 18
+      type: array
+
+    rpm-blink-color1:
+      read: -1
+      write: 50
+      id: [9, 0]
+      bytes: 3
+      type: array
+
+    rpm-blink-color2:
+      read: -1
+      write: 50
+      id: [9, 1]
+      bytes: 3
+      type: array
+
+    rpm-blink-color3:
+      read: -1
+      write: 50
+      id: [9, 2]
+      bytes: 3
+      type: array
+
+    rpm-blink-color4:
+      read: -1
+      write: 50
+      id: [9, 3]
+      bytes: 3
+      type: array
+
+    rpm-blink-color5:
+      read: -1
+      write: 50
+      id: [9, 4]
+      bytes: 3
+      type: array
+
+    rpm-blink-color6:
+      read: -1
+      write: 50
+      id: [9, 5]
+      bytes: 3
+      type: array
+
+    rpm-blink-color7:
+      read: -1
+      write: 50
+      id: [9, 6]
+      bytes: 3
+      type: array
+
+    rpm-blink-color8:
+      read: -1
+      write: 50
+      id: [9, 7]
+      bytes: 3
+      type: array
+
+    rpm-blink-color9:
+      read: -1
+      write: 50
+      id: [9, 8]
+      bytes: 3
+      type: array
+
+    rpm-blink-color10:
+      read: -1
+      write: 50
+      id: [9, 9]
+      bytes: 3
+      type: array
+
+    rpm-brightness:
       read: 51
       write: 50
-      id: [1]
+      id: [10, 0]
       bytes: 1
       type: int
 
-    dash-speed-unit:
+    flags-brightness:
       read: 51
       write: 50
-      id: [2]
+      id: [10, 2]
       bytes: 1
       type: int
 
-    dash-temp-unit:
+    rpm-color1:
       read: 51
       write: 50
-      id: [3]
+      id: [11, 0, 0]
+      bytes: 3
+      type: array
+
+    rpm-color2:
+      read: 51
+      write: 50
+      id: [11, 0, 1]
+      bytes: 3
+      type: array
+
+    rpm-color3:
+      read: 51
+      write: 50
+      id: [11, 0, 2]
+      bytes: 3
+      type: array
+
+    rpm-color4:
+      read: 51
+      write: 50
+      id: [11, 0, 3]
+      bytes: 3
+      type: array
+
+    rpm-color5:
+      read: 51
+      write: 50
+      id: [11, 0, 4]
+      bytes: 3
+      type: array
+
+    rpm-color6:
+      read: 51
+      write: 50
+      id: [11, 0, 5]
+      bytes: 3
+      type: array
+
+    rpm-color7:
+      read: 51
+      write: 50
+      id: [11, 0, 6]
+      bytes: 3
+      type: array
+
+    rpm-color8:
+      read: 51
+      write: 50
+      id: [11, 0, 7]
+      bytes: 3
+      type: array
+
+    rpm-color9:
+      read: 51
+      write: 50
+      id: [11, 0, 8]
+      bytes: 3
+      type: array
+
+    rpm-color10:
+      read: 51
+      write: 50
+      id: [11, 0, 9]
+      bytes: 3
+      type: array
+
+    flag-color1:
+      read: 51
+      write: 50
+      id: [11, 2, 0]
+      bytes: 3
+      type: array
+
+    flag-color2:
+      read: 51
+      write: 50
+      id: [11, 2, 1]
+      bytes: 3
+      type: array
+
+    flag-color3:
+      read: 51
+      write: 50
+      id: [11, 2, 2]
+      bytes: 3
+      type: array
+
+    flag-color4:
+      read: 51
+      write: 50
+      id: [11, 2, 3]
+      bytes: 3
+      type: array
+
+    flag-color5:
+      read: 51
+      write: 50
+      id: [11, 2, 4]
+      bytes: 3
+      type: array
+
+    flag-color6:
+      read: 51
+      write: 50
+      id: [11, 2, 5]
+      bytes: 3
+      type: array
+
+    rpm-mode:
+      read: 51
+      write: 50
+      id: [13]
       bytes: 1
+      type: int
+
+    rpm-value1:
+      read: 51
+      write: 50
+      id: [14, 0]
+      bytes: 4
+      type: int
+
+    rpm-value2:
+      read: 51
+      write: 50
+      id: [14, 1]
+      bytes: 4
+      type: int
+
+    rpm-value3:
+      read: 51
+      write: 50
+      id: [14, 2]
+      bytes: 4
+      type: int
+
+    rpm-value4:
+      read: 51
+      write: 50
+      id: [14, 3]
+      bytes: 4
+      type: int
+
+    rpm-value5:
+      read: 51
+      write: 50
+      id: [14, 4]
+      bytes: 4
+      type: int
+
+    rpm-value6:
+      read: 51
+      write: 50
+      id: [14, 5]
+      bytes: 4
+      type: int
+
+    rpm-value7:
+      read: 51
+      write: 50
+      id: [14, 6]
+      bytes: 4
+      type: int
+
+    rpm-value8:
+      read: 51
+      write: 50
+      id: [14, 7]
+      bytes: 4
+      type: int
+
+    rpm-value9:
+      read: 51
+      write: 50
+      id: [14, 8]
+      bytes: 4
+      type: int
+
+    rpm-value10:
+      read: 51
+      write: 50
+      id: [14, 9]
+      bytes: 4
+      type: int
+
+    rpm-indicator-mode:
+      read: 51
+      write: 50
+      id: [17, 0]
+      bytes: 1
+      type: int
+
+    rpm-interval:
+      read: 51
+      write: 50
+      id: [12]
+      bytes: 4
+      type: int
+
+    flags-indicator-mode:
+      read: 51
+      write: 50
+      id: [17, 2]
+      bytes: 1
+      type: int
+
+    # telemetry stuff
+    send-telemetry:
+      read: -1
+      write: 65
+      id: [253, 222]
+      bytes: 4
       type: int
 
 # Steering wheel
@@ -831,6 +1127,20 @@ commands:
       id: [13]
       bytes: 1
       type: int
+
+    flag-colors1:
+      read: -1
+      write: 63
+      id: [14, 0]
+      bytes: 21
+      type: array
+
+    flag-colors2:
+      read: -1
+      write: 63
+      id: [14, 1]
+      bytes: 9
+      type: array
 
     rpm-blink-color1:
       read: -1
@@ -1088,34 +1398,6 @@ commands:
       read: 64
       write: 63
       id: [21, 2, 5]
-      bytes: 3
-      type: array
-
-    flag-color7:
-      read: 64
-      write: 63
-      id: [21, 2, 6]
-      bytes: 3
-      type: array
-
-    flag-color8:
-      read: 64
-      write: 63
-      id: [21, 2, 7]
-      bytes: 3
-      type: array
-
-    flag-color9:
-      read: 64
-      write: 63
-      id: [21, 2, 8]
-      bytes: 3
-      type: array
-
-    flag-color10:
-      read: 64
-      write: 63
-      id: [21, 2, 9]
       bytes: 3
       type: array
 

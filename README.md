@@ -7,27 +7,32 @@ Boxflat for Moza Racing. Control your Moza gear settings... and more!
     <img alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
 </a>
 
-#### Linux Simracing Community channel on [Matrix](https://matrix.to/#/#simracing:matrix.org)
-#### For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
-#### For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
+> [!NOTE]
+> [Sim Racing On Linux](https://simracingonlinux.com/)
+
+> [!WARNING]
+>For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
+
+> [!TIP]
+> For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
 
 ## Functionality
 
-| Device          | Completeness | WIP |
-| :-------------: | :----------: | :-- |
-| Home page       | 100%         | |
-| Base            | 100%         | |
-| Wheel           | 100%         | |
-| Pedals          | 100%         | |
-| Dashboard       | 0%           | Dashboard settings |
-| Universal Hub   | 100%         | |
-| H-Pattern       | 100%         | |
-| Sequential      | 100%         | |
-| Handbrake       | 100%         | |
-| E-Stop          | 100%         | |
-| Stalks          | 100%         | |
-| Other settings  | 100%         | |
-| Presets         | 100%         | |
+| Device          | Completeness  | WIP |
+| :-------------: | :-----------: | :-- |
+| Home page       | 100%          | |
+| Base            | 100%          | |
+| Wheel           | 100%          | |
+| Pedals          | 100%          | |
+| Dashboard       | LED control   | Display Settings |
+| Universal Hub   | 100%          | |
+| H-Pattern       | 100%          | |
+| Sequential      | 100%          | |
+| Handbrake       | 100%          | |
+| E-Stop          | 100%          | |
+| Stalks          | 100%          | |
+| Other settings  | 100%          | |
+| Presets         | 100%          | |
 | Generic devices | Detection fix | |
 
 ### Ideas
@@ -47,10 +52,11 @@ Wheel indicator blinking colors can't be read from the wheel. This is a limitati
 
 Boxflat automatically detects is a device (shifter/pedals) needs a detection fix and creates a proper virutal device. This fixes game detection.
 
-Detection fix can be applied to any HID device as well (pedals, shifters, button boxes).
+> [!TIP]
+> Detection fix can be applied to any HID device as well (pedals, shifters, button boxes).
 
 # Installation
-## Flatpak
+## Flatpak (preferred method)
 Boxflat is available on **[Flathub](https://flathub.org/apps/io.github.lawstorant.boxflat)**
 
 ### Udev rule installation for flatpak
@@ -58,7 +64,9 @@ Copy this into terminal and execute with root permissions
 ```bash
 sudo tee /etc/udev/rules.d/99-boxflat.rules <<< 'SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{idVendor}=="346e", ACTION=="add", MODE="0666", TAG+="uaccess"'
 ```
-Unplug and plug in your deivce to trigger this new rules. Alternatively, you can reboot your system.
+
+> [!IMPORTANT]
+> Unplug and plug in your deivce to trigger these new rules. Alternatively, you can reboot your system.
 
 ## Arch Linux:
 https://aur.archlinux.org/packages/boxflat-git
@@ -86,9 +94,6 @@ Python dependencies:
 $ ./entrypoint.py --local
 # or
 $ python3 entrypoint.py --local
-
-# use `--dry-run` argument to disable serial communication
-$ ./entrypoint --local --dry-run
 ```
 Installation:
 ```bash
