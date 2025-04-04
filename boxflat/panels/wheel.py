@@ -226,6 +226,13 @@ class WheelSettings(SettingsPanel):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+1}")
             self._cm.subscribe(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
+        # TSW Buttons
+        self._add_row(BoxflatNewColorPickerRow(blinking=True))
+        for i in range(4):
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
+            self._cm.subscribe(f"wheel-button-color{i+11}", self._current_row.set_led_value, i)
+
+
         self.add_preferences_group("RPM Colors")
         self._add_row(BoxflatNewColorPickerRow())
         for i in range(MOZA_RPM_LEDS):
