@@ -255,20 +255,34 @@ class DashSettings(SettingsPanel):
 
         time.sleep(0.2)
         val = modify_bit(0,15)
-        for i in range(1,2):
-            self._cm.set_setting(val, "dash-send-telemetry")
-            time.sleep(.8)
+        self._cm.set_setting(val, "dash-send-telemetry")
+        time.sleep(.8)
+
+        self._cm.set_setting(val, "dash-send-telemetry")
+        time.sleep(.8)
 
         self._cm.set_setting(0, "dash-send-telemetry")
-        self._cm.set_setting([255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0], "dash-flag-colors")
+        self._cm.set_setting([255,0,0] * 6, "dash-flag-colors")
         time.sleep(.9)
 
         self._cm.set_setting(0, "dash-send-telemetry")
-        self._cm.set_setting([0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0], "dash-flag-colors")
+        self._cm.set_setting([255,0,0] * 6, "dash-flag-colors")
         time.sleep(.9)
 
         self._cm.set_setting(0, "dash-send-telemetry")
-        self._cm.set_setting([0,0,255,0,0,255,0,0,255,0,0,255,0,0,255,0,0,255], "dash-flag-colors")
+        self._cm.set_setting([0,255,0] * 6, "dash-flag-colors")
+        time.sleep(.9)
+
+        self._cm.set_setting(0, "dash-send-telemetry")
+        self._cm.set_setting([0,255,0] * 6, "dash-flag-colors")
+        time.sleep(.9)
+
+        self._cm.set_setting(0, "dash-send-telemetry")
+        self._cm.set_setting([0,0,255] * 6, "dash-flag-colors")
+        time.sleep(.9)
+
+        self._cm.set_setting(0, "dash-send-telemetry")
+        self._cm.set_setting([0,0,255] * 6, "dash-flag-colors")
         time.sleep(.9)
 
         self._cm.set_setting(initial_mode, "dash-rpm-indicator-mode", exclusive=True)
