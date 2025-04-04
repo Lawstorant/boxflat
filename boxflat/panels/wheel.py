@@ -227,7 +227,7 @@ class WheelSettings(SettingsPanel):
             self._cm.subscribe(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
         # TSW Buttons
-        self._add_row(BoxflatNewColorPickerRow(blinking=True))
+        self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4))
         for i in range(4):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
             self._cm.subscribe(f"wheel-button-color{i+11}", self._current_row.set_led_value, i)
