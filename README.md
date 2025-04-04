@@ -64,7 +64,9 @@ Copy this into terminal and execute with root permissions
 ```bash
 sudo tee /etc/udev/rules.d/99-boxflat.rules <<< 'SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{idVendor}=="346e", ACTION=="add", MODE="0666", TAG+="uaccess"'
 ```
-Unplug and plug in your deivce to trigger this new rules. Alternatively, you can reboot your system.
+
+> [!IMPORTANT]
+> Unplug and plug in your deivce to trigger these new rules. Alternatively, you can reboot your system.
 
 ## Arch Linux:
 https://aur.archlinux.org/packages/boxflat-git
@@ -92,9 +94,6 @@ Python dependencies:
 $ ./entrypoint.py --local
 # or
 $ python3 entrypoint.py --local
-
-# use `--dry-run` argument to disable serial communication
-$ ./entrypoint --local --dry-run
 ```
 Installation:
 ```bash
