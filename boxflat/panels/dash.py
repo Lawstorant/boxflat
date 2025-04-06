@@ -60,15 +60,15 @@ class DashSettings(SettingsPanel):
         self.add_preferences_page("Dash")
         self.add_preferences_group("Indicator modes")
 
-        self._add_row(BoxflatToggleButtonRow("Flags Indicator"))
-        self._current_row.add_buttons("Off", "Flags", "On ")
-        self._current_row.subscribe(self._cm.set_setting, "dash-flags-indicator-mode")
-        self._cm.subscribe("dash-flags-indicator-mode", self._current_row.set_value)
-
         self._add_row(BoxflatToggleButtonRow("RPM Indicator Mode"))
         self._current_row.add_buttons("Off", " RPM ", "On ")
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-indicator-mode")
         self._cm.subscribe("dash-rpm-indicator-mode", self._current_row.set_value)
+
+        self._add_row(BoxflatToggleButtonRow("Flags Indicator"))
+        self._current_row.add_buttons("Off", "Flags", "On ")
+        self._current_row.subscribe(self._cm.set_setting, "dash-flags-indicator-mode")
+        self._cm.subscribe("dash-flags-indicator-mode", self._current_row.set_value)
 
 
         self.add_preferences_group("RPM settings")
