@@ -151,6 +151,10 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(self._set_combination_settings)
         self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
 
+        tsw_buttons_active = BoxflatSwitchRow("TSW button colors", "Show additional row of color pickers")
+        tsw_buttons_active.subscribe(self._settings.write_setting, "tsw-button-colors")
+        self._add_row(tsw_buttons_active)
+
         calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
         self._add_row(calibration)
         calibration.subscribe("calibration-start", self._calibrate_paddles, 0)
@@ -228,8 +232,8 @@ class WheelSettings(SettingsPanel):
 
         # TSW Buttons
         self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4))
-        self._current_row.set_active(0)
-        self._cm.subscribe_connected("wheel-button-color14", self._current_row.set_active, 1)
+        self._current_row.set_present(0)
+        tsw_buttons_active.subscribe(self._current_row.set_present)
         for i in range(4):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
             self._cm.subscribe(f"wheel-button-color{i+11}", self._current_row.set_led_value, i)
@@ -276,6 +280,8 @@ class WheelSettings(SettingsPanel):
         # self._add_row(BoxflatNewColorPickerRow(""))
         # for i in range(MOZA_RPM_LEDS):
         #     self._cm.subscribe(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
+
+        tsw_buttons_active.set_value(self._settings.read_setting("tsw-button-colors") or False, mute=False)
 
 
     def _set_rpm_timings(self, timings: list):
