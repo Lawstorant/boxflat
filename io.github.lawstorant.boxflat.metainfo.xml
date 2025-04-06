@@ -111,6 +111,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.29.1" date="2025-04-04">
+      <description>
+        <p>Some fixes:</p>
+        <ul>
+          <li>Support 4 additional button colors on TSW wheel</li>
+          <li>Reduce spam with rpm blink color commands</li>
+          <li>Try to reduce device disconnection false-positives</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.29.0" date="2025-04-04">
       <description>
         <p>Initial Dash CM2 support</p>
