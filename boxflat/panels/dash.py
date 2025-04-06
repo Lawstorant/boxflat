@@ -49,7 +49,13 @@ class DashSettings(SettingsPanel):
 
 
     def active(self, value: int):
+        initial = self._active
         super().active(value)
+
+        # only set blink colors if dash freshly connected
+        if not self._active or initial:
+            return
+
         for i in range(MOZA_RPM_LEDS):
             self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
             self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
