@@ -52,6 +52,8 @@ class WheelSettings(SettingsPanel):
 
 
     def active(self, value: int):
+        initial = self._active
+
         super().active(value)
         if value == -1:
             new_id = self._cm.cycle_wheel_id()
@@ -64,6 +66,10 @@ class WheelSettings(SettingsPanel):
 
         if self._combination_row is not None:
             self._combination_row.set_active(wheel_id == 23)
+
+        # only set blink colors if wheel freshly connected
+        if not self._active or initial:
+            return
 
         for i in range(MOZA_RPM_LEDS):
             self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
