@@ -1359,6 +1359,34 @@ commands:
       bytes: 3
       type: array
 
+    button-color11:
+      read: 64
+      write: 63
+      id: [21, 1, 10]
+      bytes: 3
+      type: array
+
+    button-color12:
+      read: 64
+      write: 63
+      id: [21, 1, 11]
+      bytes: 3
+      type: array
+
+    button-color13:
+      read: 64
+      write: 63
+      id: [21, 1, 12]
+      bytes: 3
+      type: array
+
+    button-color14:
+      read: 64
+      write: 63
+      id: [21, 1, 13]
+      bytes: 3
+      type: array
+
     flag-color1:
       read: 64
       write: 63
