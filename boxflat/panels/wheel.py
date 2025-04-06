@@ -221,13 +221,15 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("Colors")
         self.add_preferences_group("Buttons")
         self._add_row(BoxflatNewColorPickerRow(blinking=True))
-        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, +1)
+        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
         for i in range(MOZA_RGB_BUTTONS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+1}")
             self._cm.subscribe(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
         # TSW Buttons
         self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4))
+        self._current_row.set_active(0)
+        self._cm.subscribe_connected("wheel-button-color14", self._current_row.set_active, 1)
         for i in range(4):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
             self._cm.subscribe(f"wheel-button-color{i+11}", self._current_row.set_led_value, i)
