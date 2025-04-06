@@ -214,7 +214,8 @@ class MozaConnectionManager(EventDispatcher):
 
             for command, subs in lists.items():
                 value = self.get_setting(command)
-                # value = 1
+                if value is None:
+                    value = self.get_setting(command)
                 if value is None:
                     value = -1
                 subs.call(value)
