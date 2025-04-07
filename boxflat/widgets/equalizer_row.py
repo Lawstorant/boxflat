@@ -166,7 +166,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self._cooldown = 2
         index = self._sliders.index(scale)
 
-        self.set_button_value(-1)
+        self.set_value_directly(-1)
         self._slider_subs_list[index].call(self.get_slider_value(index))
 
 
@@ -175,7 +175,7 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
             return
 
         self._cooldown = 2
-        self.set_button_value(-1)
+        self.set_value_directly(-1)
         self._sliders_subs.call(self.get_sliders_value())
 
 

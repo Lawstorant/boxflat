@@ -4,6 +4,7 @@ from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.bitwise import *
 from boxflat.widgets import *
+from .wheel import SHARED_SETTINGS, indicator_mode_map
 
 from boxflat.hid_handler import MozaAxis
 from boxflat.settings_handler import SettingsHandler
@@ -127,6 +128,11 @@ class DashSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-interval")
         self._cm.subscribe("dash-rpm-interval", self._current_row.set_value)
 
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Sync settings with wheel", "Sync"))
+        self._current_row.subscribe(lambda v: Thread(target=self._sync_from_wheel, daemon=True).start())
+        self._cm.subscribe_connected("wheel-rpm-indicator-mode", self._current_group.set_present, 1)
+
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("RPM Colors")
@@ -215,6 +221,23 @@ class DashSettings(SettingsPanel):
     def _reconfigure_timings(self, value: int):
         self._timing_row.set_present(value < 1)
         self._timing_row2.set_present(value >= 1)
+
+
+    def _sync_from_wheel(self, *args):
+        for setting in SHARED_SETTINGS:
+            setting_wheel = setting
+            if setting == "rpm-display-mode":
+                setting_wheel = f"get-{setting}"
+            setting_wheel = f"wheel-{setting_wheel}"
+
+            value = self._cm.get_setting(setting_wheel, exclusive=True)
+            if value is None:
+                value = self._cm.get_setting(setting_wheel, exclusive=True)
+
+            if setting == "rpm-indicator-mode":
+                value = indicator_mode_map.index(value)
+
+            self._cm.set_setting(value, f"dash-{setting}")
 
 
     def start_test(self, *args):

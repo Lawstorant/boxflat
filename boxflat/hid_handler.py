@@ -455,6 +455,9 @@ class HidHandler(EventDispatcher):
                 pass
             return
 
+        if pattern is MozaHidDevice.BASE:
+            return
+
         # Get device capabilities
         device = self._devices[pattern]
         cap: dict = device.capabilities()

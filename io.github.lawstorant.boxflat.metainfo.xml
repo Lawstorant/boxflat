@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.29.2" date="2025-04-07">
+      <description>
+        <p>Option to sync wheel and dash settings if both are present</p>
+      </description>
+    </release>
     <release version="v1.29.1" date="2025-04-04">
       <description>
         <p>Some fixes:</p>

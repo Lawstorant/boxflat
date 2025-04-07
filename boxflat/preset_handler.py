@@ -85,9 +85,9 @@ MozaDevicePresetSettings = {
     "wheel" : [
         "wheel-rpm-timings",
         "wheel-paddles-mode",
-        "wheel-indicator-mode",
+        "wheel-rpm-indicator-mode",
         "wheel-stick-mode",
-        "wheel-set-display-mode",
+        "wheel-set-rpm-display-mode",
         "wheel-clutch-point",
         "wheel-knob-mode",
         "wheel-rpm-interval",
@@ -323,6 +323,8 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 continue
 
             for setting, value in settings.items():
+                if setting == "indicator-mode":
+                    setting = "rpm-indicator-mode"
                 setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                 # print(f"{key}-{setting}: {value}")
                 self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)

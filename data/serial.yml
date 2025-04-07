@@ -1072,7 +1072,7 @@ commands:
       bytes: 1
       type: int
 
-    indicator-mode:
+    rpm-indicator-mode:
       read: 64
       write: 63
       id: [4]
@@ -1086,14 +1086,14 @@ commands:
       bytes: 2
       type: int
 
-    set-display-mode:
+    set-rpm-display-mode:
       read: -1
       write: 63
       id: [7]
       bytes: 1
       type: int
 
-    get-display-mode:
+    get-rpm-display-mode:
       read: 64
       write: -1
       id: [8]

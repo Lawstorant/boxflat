@@ -62,7 +62,7 @@ class PresetSettings(SettingsPanel):
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-wheel"))
         row.subscribe(self._settings.write_setting, "presets-include-wheel")
-        self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
+        self._cm.subscribe_connected("wheel-rpm-indicator-mode", row.set_active, 1, True)
         self._includes["wheel"] = row.get_value
 
         row = BoxflatSwitchRow("Wheel Colors")
@@ -70,7 +70,7 @@ class PresetSettings(SettingsPanel):
         row.set_value(0)
         row.set_value(self._settings.read_setting("presets-include-wheel-colors"))
         row.subscribe(self._settings.write_setting, "presets-include-wheel-colors")
-        self._cm.subscribe_connected("wheel-indicator-mode", row.set_active, 1, True)
+        self._cm.subscribe_connected("wheel-rpm-indicator-mode", row.set_active, 1, True)
         self._includes["wheel-colors"] = row.get_value
 
         row = BoxflatSwitchRow("Pedals")
