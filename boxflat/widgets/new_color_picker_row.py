@@ -78,7 +78,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
         return self._colors.index(button)
 
 
-    def set_led_value(self, value: list, index: int):
+    def set_led_value(self, value: list, index: int, mute=True):
         if not isinstance(value, list):
             return
 
@@ -94,13 +94,15 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
 
         rgba = Gdk.RGBA()
         rgba.parse(f"rgb({value[0]},{value[1]},{value[2]})")
-        GLib.idle_add(self._set_led_value, rgba, index)
+        GLib.idle_add(self._set_led_value, rgba, index, mute)
 
 
-    def _set_led_value(self, rgba, index):
-        self._mute.set()
+    def _set_led_value(self, rgba, index, mute):
+        if mute:
+            self._mute.set()
         self._colors[index].set_rgba(rgba)
-        self._mute.clear()
+        if mute:
+            self._mute.clear()
 
 
     def _notify(self, button: Gtk.ColorDialogButton, *param, alt_value=None):

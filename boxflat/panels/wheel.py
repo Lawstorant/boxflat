@@ -437,6 +437,12 @@ class WheelSettings(SettingsPanel):
 
             self._cm.set_setting(value, f"wheel-{setting}")
 
+        for i in range(MOZA_RPM_LEDS):
+            color = self._settings.read_setting(f"dash-rpm-blink-color{i+1}")
+            self._blinking_row.set_led_value(color, i, mute=False)
+            self._blinking_row.set_led_value(color, i, mute=False)
+
+
     def _wheel_rpm_test(self, *args):
         self._cm.set_setting(0, "wheel-send-telemetry")
         time.sleep(0.2)

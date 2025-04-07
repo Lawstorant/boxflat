@@ -239,6 +239,11 @@ class DashSettings(SettingsPanel):
 
             self._cm.set_setting(value, f"dash-{setting}")
 
+        for i in range(MOZA_RPM_LEDS):
+            color = self._settings.read_setting(f"wheel-rpm-blink-color{i+1}")
+            self._blinking_row.set_led_value(color, i, mute=False)
+            self._blinking_row.set_led_value(color, i, mute=False)
+
 
     def start_test(self, *args):
         self._test_thread = Thread(daemon=True, target=self._dash_rpm_test).start()
