@@ -202,10 +202,10 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "main-set-led-status")
         self._cm.subscribe("main-get-led-status", self._current_row.set_value)
 
-        self._add_row(BoxflatSwitchRow("Default Work Mode State"))
-        self._current_row.reverse_values()
-        self._current_row.subscribe(self._cm.set_setting, "main-set-default-ffb-status")
-        self._cm.subscribe("main-get-default-ffb-status", self._current_row.set_value)
+        # self._add_row(BoxflatSwitchRow("Default Work Mode State"))
+        # self._current_row.reverse_values()
+        # self._current_row.subscribe(self._cm.set_setting, "main-set-default-ffb-status")
+        # self._cm.subscribe("main-get-default-ffb-status", self._current_row.set_value)
 
         self._add_row(BoxflatToggleButtonRow("Temperature Control Strategy",))
         self._current_row.set_subtitle("Conservative = 50°C, Radical = 60°C")
@@ -266,7 +266,7 @@ class BaseSettings(SettingsPanel):
 
 
     def __prepare_curve(self):
-        self.add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
+        self.add_preferences_page("Forces", "network-cellular-signal-excellent-symbolic")
 
         self.add_preferences_group()
         self._curve_row = BoxflatEqRow("FFB Curve", 5, subtitle="Game FFB to Output FFB ratio", suffix="%")
@@ -286,6 +286,35 @@ class BaseSettings(SettingsPanel):
         self._add_row(BoxflatSwitchRow("Force Feedback Reversal"))
         self._current_row.subscribe(self._cm.set_setting, "base-ffb-reverse")
         self._cm.subscribe("base-ffb-reverse", self._current_row.set_value)
+
+        self.add_preferences_group("Effect Gain")
+        self._add_row(BoxflatSliderRow("Game Spring", subtitle="Default = 100%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-spring-gain")
+        self._cm.subscribe("main-get-spring-gain", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Damper", subtitle="Default = 50%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-damper-gain")
+        self._cm.subscribe("main-get-damper-gain", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Inertia", subtitle="Default = 50%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-inertia-gain")
+        self._cm.subscribe("main-get-inertia-gain", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Friction", subtitle="Default = 50%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-friction-gain")
+        self._cm.subscribe("main-get-friction-gain", self._current_row.set_value)
 
 
     def _set_curve_preset(self, value: int):

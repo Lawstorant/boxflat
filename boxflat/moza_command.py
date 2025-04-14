@@ -176,7 +176,7 @@ class MozaCommand():
     @staticmethod
     def value_from_data(data: bytes, value_type: str, bytes: int):
         if  value_type == "int":
-            data = int.from_bytes(data)
+            data = int.from_bytes(data[0:bytes])
 
         elif value_type  == "float":
             data = unpack(">f", data)[0]
