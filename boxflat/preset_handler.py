@@ -10,7 +10,11 @@ from time import sleep
 
 MozaDevicePresetSettings = {
     "main" : [
-        "set-interpolation"
+        "set-interpolation",
+        "set-spring-gain",
+        "set-damper-gain",
+        "set-inertia-gain",
+        "set-friction-gain",
     ],
     "base" : [
         "base-limit",
