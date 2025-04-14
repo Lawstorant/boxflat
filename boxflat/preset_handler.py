@@ -325,6 +325,10 @@ class MozaPresetHandler(SimpleEventDispatcher):
             for setting, value in settings.items():
                 if setting == "indicator-mode":
                     setting = "rpm-indicator-mode"
+
+                if key == "wheel" and setting.endswith("display-mode"):
+                    setting = "set-rpm-display-mode"
+
                 setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                 # print(f"{key}-{setting}: {value}")
                 self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
