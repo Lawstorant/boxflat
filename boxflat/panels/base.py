@@ -66,15 +66,11 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._set_rotation)
         self._cm.subscribe("base-limit", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("FFB Strength", suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.set_expression("*10")
-        self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting, "base-ffb-strength")
-        self._cm.subscribe("base-ffb-strength", self._current_row.set_value)
+        self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
+        self._current_row.subscribe(self._cm.set_setting, "base-calibration")
 
-        self._add_row(BoxflatSwitchRow("Work mode"))
-        self._current_row.reverse_values()
+        self._add_row(BoxflatSwitchRow("Standby mode"))
+        # self._current_row.reverse_values()
         self._current_row.subscribe(self._cm.set_setting, "main-set-work-mode")
         self._cm.subscribe("main-get-work-mode", self._current_row.set_value)
 
@@ -84,11 +80,20 @@ class BaseSettings(SettingsPanel):
         self._cm.subscribe("base-ffb-disable", self._current_row.set_value)
         self._cm.subscribe_connected("estop-get-status", self._current_row.set_present, 1)
 
-        self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
-        self._current_row.subscribe(self._cm.set_setting, "base-calibration")
-
         # Basic settings
         self.add_preferences_group("Basic settings")
+        self._add_row(BoxflatSliderRow("Base torque output", suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(self._cm.set_setting, "base-torque")
+        self._cm.subscribe("base-torque", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game FFB strength", suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(self._cm.set_setting, "base-ffb-strength")
+        self._cm.subscribe("base-ffb-strength", self._current_row.set_value)
+
         self._add_row(BoxflatSliderRow("Maximum Wheel Speed", suffix="%", range_end=200))
         self._current_row.add_marks(50, 100, 150)
         self._current_row.set_expression("*10")
@@ -96,40 +101,6 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "base-speed")
         self._cm.subscribe("base-speed", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Wheel Spring", suffix="%"))
-        self._current_row.add_marks(50)
-        self._current_row.set_expression("*10")
-        self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting, "base-spring")
-        self._cm.subscribe("base-spring", self._current_row.set_value)
-
-        self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
-        self._current_row.add_marks(10, 25, 50)
-        self._current_row.set_expression("*10")
-        self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting, "base-damper")
-        self._cm.subscribe("base-damper", self._current_row.set_value)
-
-        # Advenced settings
-        self.add_preferences_group("Advenced Settings")
-        self._add_row(BoxflatSliderRow("Torque output", suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting, "base-torque")
-        self._cm.subscribe("base-torque", self._current_row.set_value)
-
-        self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500, increment=50))
-        self._current_row.add_marks(150, 300)
-        self._current_row.set_expression("*10")
-        self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting, "base-inertia")
-        self._cm.subscribe("base-inertia", self._current_row.set_value)
-
-        self._add_row(BoxflatSliderRow("Wheel Friction", suffix="%"))
-        self._current_row.add_marks(10, 30)
-        self._current_row.set_expression("*10")
-        self._current_row.set_reverse_expression("/10")
-        self._current_row.subscribe(self._cm.set_setting, "base-friction")
-        self._cm.subscribe("base-friction", self._current_row.set_value)
 
         self.add_preferences_group("Protection")
         slider = BoxflatSliderRow("Steering Wheel Inertia", range_start=100, range_end=4000, increment=50)
@@ -168,6 +139,66 @@ class BaseSettings(SettingsPanel):
         self._current_row.add_marks(120)
         self._current_row.subscribe(self._cm.set_setting, "base-speed-damping-point")
         self._cm.subscribe("base-speed-damping-point", self._current_row.set_value)
+
+        self.add_preferences_page("Effects")
+        self.add_preferences_group("Wheelbase Effects")
+
+        self._add_row(BoxflatSliderRow("Wheel Spring", suffix="%"))
+        self._current_row.add_marks(50)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(self._cm.set_setting, "base-spring")
+        self._cm.subscribe("base-spring", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Wheel Damper", suffix="%"))
+        self._current_row.add_marks(10, 25, 50)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(self._cm.set_setting, "base-damper")
+        self._cm.subscribe("base-damper", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Natural Inertia", range_start=100, range_end=500, increment=50))
+        self._current_row.add_marks(150, 300)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(self._cm.set_setting, "base-inertia")
+        self._cm.subscribe("base-inertia", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Wheel Friction", suffix="%"))
+        self._current_row.add_marks(10, 30)
+        self._current_row.set_expression("*10")
+        self._current_row.set_reverse_expression("/10")
+        self._current_row.subscribe(self._cm.set_setting, "base-friction")
+        self._cm.subscribe("base-friction", self._current_row.set_value)
+
+        self.add_preferences_group("Game Effects")
+        self._add_row(BoxflatSliderRow("Game Spring", subtitle="Default = 100%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-spring-gain")
+        self._cm.subscribe("main-get-spring-gain", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Damper", subtitle="Default = 50%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-damper-gain")
+        self._cm.subscribe("main-get-damper-gain", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Inertia", subtitle="Default = 50%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-inertia-gain")
+        self._cm.subscribe("main-get-inertia-gain", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Friction", subtitle="Default = 50%", increment=5, suffix="%"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.set_expression("*2.55")
+        self._current_row.set_reverse_expression("/2.55")
+        self._current_row.subscribe(self._cm.set_setting, "main-set-friction-gain")
+        self._cm.subscribe("main-get-friction-gain", self._current_row.set_value)
 
         # FFB Equalizer
         self.__prepare_eq()
@@ -231,7 +262,7 @@ class BaseSettings(SettingsPanel):
 
 
     def __prepare_eq(self):
-        self.add_preferences_page("Equalizer", "network-cellular-signal-excellent-symbolic")
+        self.add_preferences_page("EQ", "network-cellular-signal-excellent-symbolic")
 
         self.add_preferences_group()
         self._eq_row = BoxflatEqRow("FFB Equalizer", 6,
@@ -266,7 +297,7 @@ class BaseSettings(SettingsPanel):
 
 
     def __prepare_curve(self):
-        self.add_preferences_page("Forces", "network-cellular-signal-excellent-symbolic")
+        self.add_preferences_page("Curve", "network-cellular-signal-excellent-symbolic")
 
         self.add_preferences_group()
         self._curve_row = BoxflatEqRow("FFB Curve", 5, subtitle="Game FFB to Output FFB ratio", suffix="%")
@@ -286,35 +317,6 @@ class BaseSettings(SettingsPanel):
         self._add_row(BoxflatSwitchRow("Force Feedback Reversal"))
         self._current_row.subscribe(self._cm.set_setting, "base-ffb-reverse")
         self._cm.subscribe("base-ffb-reverse", self._current_row.set_value)
-
-        self.add_preferences_group("Effect Gain")
-        self._add_row(BoxflatSliderRow("Game Spring", subtitle="Default = 100%", increment=5, suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.set_expression("*2.55")
-        self._current_row.set_reverse_expression("/2.55")
-        self._current_row.subscribe(self._cm.set_setting, "main-set-spring-gain")
-        self._cm.subscribe("main-get-spring-gain", self._current_row.set_value)
-
-        self._add_row(BoxflatSliderRow("Game Damper", subtitle="Default = 50%", increment=5, suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.set_expression("*2.55")
-        self._current_row.set_reverse_expression("/2.55")
-        self._current_row.subscribe(self._cm.set_setting, "main-set-damper-gain")
-        self._cm.subscribe("main-get-damper-gain", self._current_row.set_value)
-
-        self._add_row(BoxflatSliderRow("Game Inertia", subtitle="Default = 50%", increment=5, suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.set_expression("*2.55")
-        self._current_row.set_reverse_expression("/2.55")
-        self._current_row.subscribe(self._cm.set_setting, "main-set-inertia-gain")
-        self._cm.subscribe("main-get-inertia-gain", self._current_row.set_value)
-
-        self._add_row(BoxflatSliderRow("Game Friction", subtitle="Default = 50%", increment=5, suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.set_expression("*2.55")
-        self._current_row.set_reverse_expression("/2.55")
-        self._current_row.subscribe(self._cm.set_setting, "main-set-friction-gain")
-        self._cm.subscribe("main-get-friction-gain", self._current_row.set_value)
 
 
     def _set_curve_preset(self, value: int):
