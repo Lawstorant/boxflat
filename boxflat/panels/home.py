@@ -35,14 +35,14 @@ class HomeSettings(SettingsPanel):
         self._hid_handler.subscribe(MozaAxis.STEERING.name, self._set_steering)
         self._current_row.set_value(0)
 
+        self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
+        self._current_row.subscribe(self._cm.set_setting, "base-calibration")
+
         self._add_row(BoxflatLabelRow("E-Stop status"))
         self._current_row.set_label("Disconnected")
         self._cm.subscribe("estop-get-status", self._estop_handler, self._current_row)
         self._cm.subscribe("estop-receive-status", self._estop_handler, self._current_row)
         self._cm.subscribe_connected("estop-get-status", self._current_row.set_active, 1)
-
-        self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
-        self._current_row.subscribe(self._cm.set_setting, "base-calibration")
 
 
         self.add_preferences_group("Pedals")

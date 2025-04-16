@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.30.0" date="2025-04-15">
+      <description>
+        <p>Add support for game effect gain (firmware 1.2.5.5)</p>
+      </description>
+    </release>
     <release version="v1.29.2" date="2025-04-07">
       <description>
         <p>Option to sync wheel and dash settings if both are present</p>

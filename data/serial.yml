@@ -143,6 +143,63 @@ commands:
       bytes: 1
       type: int
 
+    set-spring-gain:
+      read: -1
+      write: 31
+      id: [78, 8]
+      bytes: 1
+      type: int
+
+    set-damper-gain:
+      read: -1
+      write: 31
+      id: [78, 9]
+      bytes: 1
+      type: int
+
+    set-inertia-gain:
+      read: -1
+      write: 31
+      id: [78, 10]
+      bytes: 1
+      type: int
+
+    set-friction-gain:
+      read: -1
+      write: 31
+      id: [78, 11]
+      bytes: 1
+      type: int
+
+    get-spring-gain:
+      read: 31
+      write: -1
+      id: [79, 8]
+      bytes: 1
+      type: int
+
+    get-damper-gain:
+      read: 31
+      write: -1
+      id: [79, 9]
+      bytes: 1
+      type: int
+
+    get-inertia-gain:
+      read: 31
+      write: -1
+      id: [79, 10]
+      bytes: 1
+      type: int
+
+    get-friction-gain:
+      read: 31
+      write: -1
+      id: [79, 11]
+      bytes: 1
+      type: int
+
+
 # Pedals
   pedals:
     throttle-dir:
