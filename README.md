@@ -12,6 +12,8 @@ Boxflat for Moza Racing. Control your Moza gear settings... and more!
 
 > [!WARNING]
 >For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
+> 
+>Not needed for 6.15+ as it was upstreamed and backported to 6.14.3, 6.13.12, 6.12.24.
 
 > [!TIP]
 > For more information about the Moza Racing serial protocol see [Moza serial protocol](./moza-protocol.md) page
