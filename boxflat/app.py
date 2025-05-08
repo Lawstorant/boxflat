@@ -83,7 +83,7 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def _check_native(self) -> bool:
-        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules")
+        return os.path.isfile("/etc/udev/rules.d/99-boxflat.rules") or os.path.isfile("/usr/lib/udev/rules.d/99-boxflat.rules")
 
 
     def _check_flatpak(self) -> bool:
