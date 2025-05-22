@@ -111,6 +111,13 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.31.0" date="2025-05-22">
+      <description>
+        <p>Improve generic devices detection fix</p>
+        <p>Allow ignoring buttons/axes in generic devices</p>
+        <p>Translate gamepad range buttons to joystick range</p>
+      </description>
+    </release>
     <release version="v1.30.0" date="2025-04-15">
       <description>
         <p>Add support for game effect gain (firmware 1.2.5.5)</p>
