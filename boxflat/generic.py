@@ -7,6 +7,8 @@ from evdev.device import AbsInfo
 from threading import Thread, Event
 from boxflat.subscription import SimpleEventDispatcher
 
+GAMEPAD_RANGE = range(BTN_GAMEPAD, BTN_THUMBR+1)
+
 class GenericDevice(SimpleEventDispatcher):
     def __init__(self, entry: dict):
         super().__init__()
@@ -88,6 +90,9 @@ class GenericDevice(SimpleEventDispatcher):
                     if event.type == EV_ABS and self._ignore_axes:
                         continue
 
+                    if event.type == EV_KEY and event.code in GAMEPAD_RANGE:
+                        event.code -= 16
+
                     new_device.write_event(event)
                     if self._shutdown.is_set():
                         break
@@ -129,7 +134,16 @@ class GenericDevice(SimpleEventDispatcher):
             cap[EV_KEY] = [BTN_JOYSTICK]
 
         elif BTN_JOYSTICK not in cap[EV_KEY]:
-            cap[EV_KEY].append(BTN_JOYSTICK)
+            for btn in GAMEPAD_RANGE:
+                if btn not in cap[EV_KEY]:
+                    continue
+
+                # translate to joystick range
+                cap[EV_KEY].remove(btn)
+                cap[EV_KEY].append(btn - 16)
+
+            if BTN_JOYSTICK not in cap[EV_KEY]:
+                cap[EV_KEY].append(BTN_JOYSTICK)
 
         # Create new device
         new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
