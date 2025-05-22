@@ -183,7 +183,7 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_switch("Set angle to 540°", "Button 33 + Right")
         self._current_row.add_switch("Set angle to 720°", "Button 33 + Down")
         self._current_row.add_switch("Set angle to 900°", "Button 33 + Left")
-        self._current_row.add_switch("Switch Dash Display", "Button 32 + Left/Right")
+        self._current_row.add_switch("Switch Dash Display", "Button 32 + Left/Right\nCM2: Button 20 + Right stick")
         self._current_row.add_switch("Set Wheel Center Point", "Press both paddles and Button 1")
         self._current_row.subscribe(self._set_combination_settings)
         self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
