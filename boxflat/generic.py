@@ -128,7 +128,10 @@ class GenericDevice(SimpleEventDispatcher):
 
         # Add necessary event types
         if EV_ABS not in cap:
-            cap[EV_ABS] = [(ABS_RZ, AbsInfo(0, 0, 255, 8 ,8, 0))]
+            cap[EV_ABS] = [
+                (ABS_X, AbsInfo(0, 0, 255, 8 ,8, 0)),
+                (ABS_Y, AbsInfo(0, 0, 255, 8 ,8, 0)),
+            ]
 
         if EV_KEY not in cap:
             cap[EV_KEY] = [BTN_JOYSTICK]
