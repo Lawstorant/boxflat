@@ -91,7 +91,7 @@ class GenericSettings(SettingsPanel):
             expander.add_row(tmp)
 
             self._add_row(expander)
-            self._listed_devices[device["name"]] = row
+            self._listed_devices[device["name"]] = expander
 
         self._device_list.set_present(True)
 

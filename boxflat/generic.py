@@ -128,10 +128,23 @@ class GenericDevice(SimpleEventDispatcher):
 
         # Add necessary event types
         if EV_ABS not in cap:
-            cap[EV_ABS] = [
-                (ABS_X, AbsInfo(0, 0, 255, 8 ,8, 0)),
-                (ABS_Y, AbsInfo(0, 0, 255, 8 ,8, 0)),
-            ]
+            cap[EV_ABS] = []
+
+        x = False
+        y = False
+
+        for axis in cap[EV_ABS]:
+            if axis[0] == ABS_X:
+                x = True
+
+            if axis[0] == ABS_Y:
+                y = True
+
+        if not x:
+            cap[EV_ABS].append((ABS_X, AbsInfo(0, 0, 255, 8 ,8, 0)))
+
+        if not y:
+            cap[EV_ABS].append((ABS_Y, AbsInfo(0, 0, 255, 8 ,8, 0)))
 
         if EV_KEY not in cap:
             cap[EV_KEY] = [BTN_JOYSTICK]
