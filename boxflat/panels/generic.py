@@ -65,9 +65,32 @@ class GenericSettings(SettingsPanel):
             self._listed_devices["empty"] = row
 
         for device in devices:
-            row = BoxflatButtonRow(device["name"], "Remove")
+            row = BoxflatButtonRow("", "Remove")
             row.subscribe(self.remove_device, device)
-            self._add_row(row)
+
+            expander = Adw.ExpanderRow(title=device["name"])
+            expander.add_suffix(row)
+
+            ignore_buttons = False
+            ignore_axes = False
+
+            if "ignore-buttons" in device:
+                ignore_buttons = device["ignore-buttons"]
+
+            if "ignore-axes" in device:
+                ignore_axes = device["ignore-axes"]
+
+            tmp = BoxflatSwitchRow("Ignore Buttons")
+            tmp.subscribe(self._change_device_ignore, device, "buttons")
+            tmp.set_value(ignore_buttons)
+            expander.add_row(tmp)
+
+            tmp = BoxflatSwitchRow("Ignore Axes")
+            tmp.subscribe(self._change_device_ignore, device, "axes")
+            tmp.set_value(ignore_axes)
+            expander.add_row(tmp)
+
+            self._add_row(expander)
             self._listed_devices[device["name"]] = row
 
         self._device_list.set_present(True)
@@ -192,3 +215,17 @@ class GenericSettings(SettingsPanel):
             label += text
 
         self._listed_devices[name].set_title(label)
+
+
+    def _change_device_ignore(self, state: bool, device: dict, type: str) -> None:
+        state = bool(state)
+
+        devices: list = self._settings.read_setting("generic-devices")
+        devices.remove(device)
+
+        device[f"ignore-{type}"] = state
+
+        devices.append(device)
+        self._settings.write_setting(devices, "generic-devices")
+
+        self._fixed_devices[device["name"]].change_ignore_setting(type, state)

@@ -14,12 +14,28 @@ class GenericDevice(SimpleEventDispatcher):
         self._name = entry["name"]
         self._shutdown = Event()
         self._device = None
+        self._ignore_buttons = False
+        self._ignore_axes = False
+
+        if "ignore-buttons" in entry:
+            self._ignore_buttons = entry["ignore-buttons"]
+
+        if "ignore-axes" in entry:
+            self._ignore_axes = entry["ignore-axes"]
 
         Thread(daemon=True, target=self._hid_read_loop).start()
 
 
     def shutdown(self):
         self._shutdown.set()
+
+
+    def change_ignore_setting(self, type: str, state: bool):
+        if type == "buttons":
+            self._ignore_buttons = state
+
+        if type == "axes":
+            self._ignore_axes = state
 
 
     def _try_open(self) -> evdev.InputDevice:
@@ -66,6 +82,12 @@ class GenericDevice(SimpleEventDispatcher):
 
             try:
                 for event in self._device.read_loop():
+                    if event.type == EV_KEY and self._ignore_buttons:
+                        continue
+
+                    if event.type == EV_ABS and self._ignore_axes:
+                        continue
+
                     new_device.write_event(event)
                     if self._shutdown.is_set():
                         break
