@@ -158,8 +158,8 @@ class MyApp(Adw.Application):
         self._autostart = autostart
 
         navigation = Adw.NavigationSplitView()
-        navigation.set_max_sidebar_width(178)
-        navigation.set_min_sidebar_width(178)
+        navigation.set_max_sidebar_width(200)
+        navigation.set_min_sidebar_width(200)
 
         box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 

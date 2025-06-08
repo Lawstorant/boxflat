@@ -89,10 +89,11 @@ class PresetSettings(SettingsPanel):
 
         row = BoxflatSwitchRow("H-Pattern Shifter")
         expander.add_row(row)
-        row.set_value(1)
+        row.set_value(0)
+        row.set_active(0)
         row.set_value(self._settings.read_setting("presets-include-hpattern"))
         row.subscribe(self._settings.write_setting, "presets-include-hpattern")
-        # self._cm.subscribe_connected("sequential-paddle-sync", row.set_active, 1, True)
+        self._hpattern.subscribe("active", row.set_active)
         self._includes["hpattern"] = row.get_value
 
         row = BoxflatSwitchRow("Sequential Shifter")
@@ -113,10 +114,11 @@ class PresetSettings(SettingsPanel):
 
         row = BoxflatSwitchRow("Multifunction Stalks")
         expander.add_row(row)
-        row.set_value(1)
+        row.set_value(0)
+        row.set_active(0)
         row.set_value(self._settings.read_setting("presets-include-stalks"))
         row.subscribe(self._settings.write_setting, "presets-include-stalks")
-        # self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
+        self._stalks.subscribe("active", row.set_active)
         self._includes["stalks"] = row.get_value
 
         self._observer = process_handler.ProcessObserver()
