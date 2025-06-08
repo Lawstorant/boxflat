@@ -26,6 +26,10 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         return self._active
 
 
+    def disable_cooldown(self) -> None:
+        self._cooldown_increment = 0
+
+
     def set_active(self, value=1, offset=0) -> bool:
         if value is None:
             return

@@ -1,6 +1,8 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 from .settings_panel import SettingsPanel
+from .h_pattern import HPatternSettings
+from .stalks import StalksSettings
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 from boxflat.preset_handler import MozaPresetHandler
@@ -10,8 +12,12 @@ import os
 from gi.repository.Gio import Notification, NotificationPriority
 
 class PresetSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler,
+                 hpattern: HPatternSettings, stalks: StalksSettings):
         self._settings = settings
+
+        self._hpattern = hpattern
+        self._stalks = stalks
 
         self._includes = {}
         self._name_row = Adw.EntryRow()
@@ -81,6 +87,15 @@ class PresetSettings(SettingsPanel):
         self._cm.subscribe_connected("pedals-throttle-dir", row.set_active, 1, True)
         self._includes["pedals"] = row.get_value
 
+        row = BoxflatSwitchRow("H-Pattern Shifter")
+        expander.add_row(row)
+        row.set_value(0)
+        row.set_active(0)
+        row.set_value(self._settings.read_setting("presets-include-hpattern"))
+        row.subscribe(self._settings.write_setting, "presets-include-hpattern")
+        self._hpattern.subscribe("active", row.set_active)
+        self._includes["hpattern"] = row.get_value
+
         row = BoxflatSwitchRow("Sequential Shifter")
         expander.add_row(row)
         row.set_value(1)
@@ -96,6 +111,15 @@ class PresetSettings(SettingsPanel):
         row.subscribe(self._settings.write_setting, "presets-include-handbrake")
         self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
+
+        row = BoxflatSwitchRow("Multifunction Stalks")
+        expander.add_row(row)
+        row.set_value(0)
+        row.set_active(0)
+        row.set_value(self._settings.read_setting("presets-include-stalks"))
+        row.subscribe(self._settings.write_setting, "presets-include-stalks")
+        self._stalks.subscribe("active", row.set_active)
+        self._includes["stalks"] = row.get_value
 
         self._observer = process_handler.ProcessObserver()
 
@@ -135,6 +159,9 @@ class PresetSettings(SettingsPanel):
             if method():
                 pm.add_device_settings(key)
 
+        pm.set_hpattern_settings(self._hpattern.get_settings())
+        pm.set_stalks_settings(self._stalks.get_settings())
+
         pm.save_preset()
 
 
@@ -150,7 +177,7 @@ class PresetSettings(SettingsPanel):
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
         pm.set_name(preset_name)
-        pm.load_preset()
+        pm.load_preset(self._hpattern, self._stalks)
 
         if not automatic:
             return

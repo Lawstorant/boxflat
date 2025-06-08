@@ -158,8 +158,8 @@ class MyApp(Adw.Application):
         self._autostart = autostart
 
         navigation = Adw.NavigationSplitView()
-        navigation.set_max_sidebar_width(178)
-        navigation.set_min_sidebar_width(178)
+        navigation.set_max_sidebar_width(200)
+        navigation.set_min_sidebar_width(200)
 
         box2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
@@ -302,7 +302,7 @@ class MyApp(Adw.Application):
         self._panels["Other"] = OtherSettings(
             self.switch_panel, self._cm, self._hid_handler, self._settings, self._version, self, self._data_path)
 
-        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings)
+        self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings, self._panels["H-Pattern Shifter"], self._panels["Multifunction Stalks"])
         self._panels["Presets"].set_application(self)
         self._panels["Generic Devices"] = GenericSettings(self.switch_panel, self._settings)
 

@@ -13,6 +13,8 @@ class SettingsPanel(EventDispatcher):
                  hid_handler: HidHandler=None):
         super().__init__()
 
+        self._register_event("active")
+
         self._cm = connection_manager
         self._hid_handler = hid_handler
         self._application = None
@@ -53,7 +55,7 @@ class SettingsPanel(EventDispatcher):
         label.set_justify(Gtk.Justification.LEFT)
         label.set_xalign(0)
         button.set_child(label)
-        # button.set_visible(False)
+        button.set_visible(False)
         return button
 
 
@@ -137,7 +139,8 @@ class SettingsPanel(EventDispatcher):
         for group in self._groups:
             group.set_sensitive(value)
 
-        # self._button.set_visible(value)
+        self._dispatch("active", value)
+        GLib.idle_add(self._button.set_visible, value)
 
 
     def open_url(self, url: str):

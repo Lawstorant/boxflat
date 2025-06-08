@@ -111,6 +111,13 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.32.0" date="2025-06-08">
+      <description>
+        <p>Include H-Pattern shifter in presets</p>
+        <p>Include Multifunction Stalks in presets</p>
+        <p>Hide inactive device buttons in the sidebar</p>
+      </description>
+    </release>
     <release version="v1.31.0" date="2025-05-22">
       <description>
         <p>Improve generic devices detection fix</p>
