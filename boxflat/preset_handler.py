@@ -189,7 +189,9 @@ MozaDevicePresetSettings = {
         "handbrake-y3",
         "handbrake-y4",
         "handbrake-y5"
-    ]
+    ],
+    "hpattern" : ["hpattern-placeholder"],
+    "stalks" : ["stalks-placeholder"],
 }
 
 class MozaPresetHandler(SimpleEventDispatcher):
@@ -199,6 +201,8 @@ class MozaPresetHandler(SimpleEventDispatcher):
         self._cm = connection_manager
         self._path = None
         self._name = None
+        self._hpattern = {}
+        self._stalks = {}
 
 
     def set_path(self, preset_path: str):
@@ -240,8 +244,22 @@ class MozaPresetHandler(SimpleEventDispatcher):
         Thread(target=self._save_preset, daemon=True).start()
 
 
-    def load_preset(self):
-        Thread(target=self._load_preset, daemon=True).start()
+    def load_preset(self, hpattern, stalks):
+        Thread(target=self._load_preset, daemon=True, args=[hpattern, stalks]).start()
+
+
+    def set_hpattern_settings(self, settings: map) -> None:
+        self._hpattern = settings
+
+
+    def set_stalks_settings(self, settings: map) -> None:
+        self._stalks = settings
+
+    def get_hpattern_settings(self) -> map:
+        return self._hpattern
+
+    def get_stalks_settings(self) -> map:
+        return self._stalks
 
 
     def _get_preset_data(self) -> dict:
@@ -293,6 +311,14 @@ class MozaPresetHandler(SimpleEventDispatcher):
             if device not in preset_data.keys():
                 preset_data[device] = {}
 
+            if device == "hpattern":
+                preset_data[device] = self._hpattern
+                continue
+
+            if device == "stalks":
+                preset_data[device] = self._stalks
+                continue
+
             for setting in settings:
                 tries = 0
                 while tries < 3:
@@ -314,7 +340,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
         self._dispatch()
 
 
-    def _load_preset(self):
+    def _load_preset(self, hpattern, stalks):
         if not self._path or not self._name:
             return
 
@@ -324,6 +350,14 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
         for key, settings in preset_data.items():
             if key not in MozaDevicePresetSettings.keys():
+                continue
+
+            if key == "hpattern":
+                hpattern.set_settings(settings)
+                continue
+
+            if key == "stalks":
+                stalks.set_settings(settings)
                 continue
 
             for setting, value in settings.items():

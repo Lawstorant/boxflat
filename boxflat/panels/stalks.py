@@ -10,6 +10,13 @@ class StalksSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager,
                  hid_handler, settings: SettingsHandler):
 
+        self._turn_toggle  = None
+        self._turn_hold    = None
+        self._headlights   = None
+        self._wipers       = None
+        self._wpiers_alt   = None
+        self._wipers_quick = None
+
         self._settings = settings
         super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler)
 
@@ -31,17 +38,21 @@ class StalksSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "stalks-turnsignal-compat")
         self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat") or 0, mute=False)
+        self._turn_toggle = self._current_row
+
 
         self._add_row(BoxflatSwitchRow("Turn Signals hold", "Hold button as long as signal is active"))
         self._current_row.subscribe(self._settings.write_setting, "stalks-turnsignal-compat-constant")
         self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_constant_active)
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat-constant") or 0, mute=False)
+        self._turn_hold = self._current_row
 
         self.add_preferences_group()
         self._add_row(BoxflatSwitchRow("Headlights", "Cycling instead of discrete buttons"))
         self._current_row.subscribe(self._settings.write_setting, "stalks-headlights-compat")
         self._current_row.subscribe(self._hid_handler.stalks_headlights_compat_active)
         self._current_row.set_value(self._settings.read_setting("stalks-headlights-compat") or 0, mute=False)
+        self._headlights = self._current_row
 
         self._wipers1 = BoxflatSwitchRow("Wipers", "Cycling instead of discrete buttons")
         self._wipers2 = BoxflatSwitchRow("Wipers alternative", "Up/Down instead of discrete buttons")
@@ -53,6 +64,7 @@ class StalksSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._wipers2.set_value_directly(0) if v == 1 else ...)
         self._current_row.subscribe(self._handle_quick_wipe)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat") or 0, mute=False)
+        self._wipers = self._current_row
 
         self._add_row(self._wipers2)
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat2")
@@ -60,6 +72,7 @@ class StalksSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: self._wipers1.set_value_directly(0) if v == 1 else ...)
         self._current_row.subscribe(self._handle_quick_wipe)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat2") or 0, mute=False)
+        self._wpiers_alt = self._current_row
 
         self._quick_wipe = BoxflatSwitchRow("Quick wipe emulation", "One and done")
         self._add_row(self._quick_wipe)
@@ -67,6 +80,14 @@ class StalksSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-quick")
         self._current_row.subscribe(self._hid_handler.stalks_wipers_quick_active)
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-quick") or 0, mute=False)
+        self._wipers_quick = self._current_row
+
+        self._turn_toggle.disable_cooldown()
+        self._turn_hold.disable_cooldown()
+        self._headlights.disable_cooldown()
+        self._wipers.disable_cooldown()
+        self._wpiers_alt.disable_cooldown()
+        self._wipers_quick.disable_cooldown()
 
 
     def _handle_quick_wipe(self, *_) -> None:
@@ -78,3 +99,23 @@ class StalksSettings(SettingsPanel):
             return
 
         self._quick_wipe.set_active(0)
+
+
+    def get_settings(self) -> map:
+        return {
+            "turn-signal-toggle" : self._turn_toggle.get_value(),
+            "turn-signal-hold"   : self._turn_hold.get_value(),
+            "headlights"         : self._headlights.get_value(),
+            "wipers"             : self._wipers.get_value(),
+            "wipers-alt"         : self._wpiers_alt.get_value(),
+            "wipers-quick"       : self._wipers_quick.get_value()
+        }
+
+
+    def set_settings(self, settings: map) -> None:
+        self._turn_toggle.set_value(settings["turn-signal-toggle"], mute=False)
+        self._turn_hold.set_value(settings["turn-signal-hold"], mute=False)
+        self._headlights.set_value(settings["headlights"], mute=False)
+        self._wipers.set_value(settings["wipers"], mute=False)
+        self._wpiers_alt.set_value(settings["wipers-alt"], mute=False)
+        self._wipers_quick.set_value(settings["wipers-quick"], mute=False)
