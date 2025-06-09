@@ -22,10 +22,6 @@ class GenericSettings(SettingsPanel):
         super().__init__("Generic Devices", button_callback)
 
 
-    def active(self, value: int):
-        pass
-
-
     def prepare_ui(self) -> None:
         self.add_preferences_group("Devices with detection fix", suffix=True)
         self._device_list = self._current_group

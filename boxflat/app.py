@@ -315,6 +315,7 @@ class MyApp(Adw.Application):
         self._panels["Home"].active(1)
         self._panels["Other"].active(1)
         self._panels["Presets"].active(1)
+        self._panels["Generic Devices"].active(1)
 
         if self._dry_run:
             print("Dry run")
