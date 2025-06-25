@@ -73,6 +73,9 @@ sudo tee /etc/udev/rules.d/99-boxflat.rules <<< 'SUBSYSTEM=="tty", KERNEL=="ttyA
 ## Arch Linux:
 https://aur.archlinux.org/packages/boxflat-git
 
+## Void Linux:
+`xbps-install -S boxflat`
+
 ## Manual:
 This package depends on:
 - python >= 3.11
