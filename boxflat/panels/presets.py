@@ -123,7 +123,7 @@ class PresetSettings(SettingsPanel):
         self._includes["stalks"] = row.get_value
 
         self._observer = process_handler.ProcessObserver()
-        # self._
+        self._observer.subscribe("no-games", self._load_default)
 
         if Adw.get_minor_version() >= 6:
             self._save_row = Adw.ButtonRow(title="Save")
@@ -171,7 +171,7 @@ class PresetSettings(SettingsPanel):
         GLib.idle_add(self._save_row.set_sensitive, True)
 
 
-    def _load_preset(self, preset_name: str, automatic: bool=False):
+    def _load_preset(self, preset_name: str, automatic=False, default=False):
         preset_name = preset_name.removesuffix(".yml")
         print(f"Loading preset \"{preset_name}\"")
 
@@ -181,14 +181,14 @@ class PresetSettings(SettingsPanel):
         pm.set_name(preset_name)
         pm.load_preset(self._hpattern, self._stalks)
 
-        if not automatic:
+        if not automatic and not default:
             return
 
         notif = Notification()
         app = self._application
 
-        notif.set_title(f"Detected: {pm.get_linked_process()}")
-        notif.set_body(f"Loading preset: {preset_name}")
+        notif.set_title(f"Detected: {pm.get_linked_process()}" if automatic else "No games detected")
+        notif.set_body(f"Loading {"default" if default else ""} preset: {preset_name}")
         notif.set_priority(NotificationPriority.NORMAL)
 
         app.send_notification("preset", notif)
@@ -224,24 +224,56 @@ class PresetSettings(SettingsPanel):
         pm = MozaPresetHandler(None)
         pm.set_path(self._presets_path)
         self._observer.deregister_all_processes()
+        self._default_preset = None
 
         for file in files:
             filepath = os.path.join(self._presets_path, file)
-            if os.path.isfile(filepath):
-                preset_name = file.removesuffix(".yml")
-                row = BoxflatButtonRow(preset_name)
-                row.add_button("Load", self._load_preset, file)
-                row.add_button("Settings", self._show_preset_dialog, file)
-                # row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
-                self._add_row(row)
+            if not os.path.isfile(filepath):
+                continue
 
-                pm.set_name(file)
-                process = pm.get_linked_process()
-                self._observer.register_process(process)
-                self._observer.subscribe(process, self._load_preset, preset_name, True)
+            preset_name = file.removesuffix(".yml")
+            row = BoxflatButtonRow(preset_name)
+            row.add_button("Load", self._load_preset, file)
+            row.add_button("Settings", self._show_preset_dialog, file)
+            # row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
+            self._add_row(row)
 
-                if pm.is_default():
-                    self._default_preset = preset_name
+            pm.set_name(file)
+            process = pm.get_linked_process()
+            self._observer.register_process(process)
+            self._observer.subscribe(process, self._load_preset, preset_name, True)
+
+            if pm.is_default():
+                print(f"Found default preset: {preset_name}")
+                self._default_preset = preset_name
+                self._presets_list_group.set_description(f"Default: {preset_name}")
+
+
+    def _handle_preset_save(self, file_name: str):
+        if not os.path.exists(self._presets_path):
+            return
+
+        files = os.listdir(self._presets_path)
+        pm = MozaPresetHandler(None)
+        pm.set_path(self._presets_path)
+        pm.set_name(file_name)
+
+        if not pm.is_default():
+            self.list_presets()
+            return
+
+        for file in files:
+            if file_name in file:
+                continue
+
+            filepath = os.path.join(self._presets_path, file)
+            if not os.path.isfile(filepath):
+                continue
+
+            pm.set_name(file)
+            pm.set_default(False)
+
+        self.list_presets()
 
 
     def _show_preset_dialog(self, file_name: str):
@@ -252,6 +284,15 @@ class PresetSettings(SettingsPanel):
             return
 
         dialog = BoxflatPresetDialog(self._presets_path, file_name)
-        dialog.subscribe("save", self.list_presets)
+        dialog.subscribe("save", self._handle_preset_save)
         dialog.subscribe("delete", self._delete_preset)
         dialog.present(self._content)
+
+
+    def _load_default(self) -> None:
+        if not self._default_preset:
+            print("No default preset to load")
+            return
+
+        print(f"Loading default preset: {self._default_preset}")
+        self._load_preset(self._default_preset, default=True)
