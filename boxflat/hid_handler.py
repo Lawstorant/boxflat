@@ -211,6 +211,7 @@ class HidHandler(EventDispatcher):
         self._stalks_wipers_compat_active = Lock()
 
         self._stalks_wipers_quick = False
+        self._detection_fix = False
 
 
     def __del__(self):
@@ -266,6 +267,16 @@ class HidHandler(EventDispatcher):
         pattern = f"{pattern}_2"
         if pattern in self._shutdowns:
             self._shutdowns[pattern].set()
+
+
+    def set_detection_fix_enabled(self, enabled: bool) -> None:
+        self._detection_fix = enabled
+
+        for pattern in self._devices.keys():
+            if pattern == MozaHidDevice.STALKS:
+                continue
+
+            self._detection_fix(pattern, enabled)
 
 
     def _configure_device(self, device: evdev.InputDevice, pattern: str):
@@ -412,7 +423,7 @@ class HidHandler(EventDispatcher):
         shutdown = Event()
         self._shutdowns[pattern] = shutdown
 
-        self.detection_fix(pattern)
+        self.detection_fix(pattern, True if pattern == MozaHidDevice.STALKS else self._detection_fix)
         device_path = device.path
         name = device.name
 
@@ -479,7 +490,16 @@ class HidHandler(EventDispatcher):
             cap[EV_KEY] = [BTN_JOYSTICK]
 
         # Create new device
-        new_device = evdev.UInput(cap, vendor=device.info.vendor, product=device.info.product, name=device.name)
+        name = device.name
+        vendor = device.info.vendor
+        product = device.info.product
+
+        if not self._detection_fix and pattern == MozaHidDevice.STALKS:
+            name = f"{device.name} Boxflat"
+            vendor = 0x0001
+            product = 0x0001
+
+        new_device = evdev.UInput(cap, vendor=vendor, product=product, name=device.name)
         device.grab()
         self._virtual_devices[pattern] = new_device
         print(f"Detection fix applied for {device.name}")

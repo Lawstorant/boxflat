@@ -47,12 +47,12 @@ class OtherSettings(SettingsPanel):
         self._cm.subscribe("main-get-ble-mode", self._current_row.set_value)
         self._cm.subscribe_connected("base-limit", self._current_row.set_active)
 
-        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Changes USB product ID"))
+        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Please, disable this on Linux"))
         self._current_row.subscribe(self._cm.set_setting, "main-set-compat-mode")
         self._cm.subscribe("main-get-compat-mode", self._current_row.set_value)
         self._cm.subscribe_connected("main-get-compat-mode", self._current_row.set_present, +1)
 
-        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Changes USB product ID"))
+        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Please, disable this on Linux"))
         self._current_row.subscribe(self._cm.set_setting, "pedals-compat-mode")
         self._cm.subscribe("pedals-compat-mode", self._current_row.set_value)
         self._cm.subscribe_connected("pedals-compat-mode", self._current_row.set_present, +1)
@@ -67,6 +67,15 @@ class OtherSettings(SettingsPanel):
         brake_row.subscribe(self._settings.write_setting, "brake-calibration-enabled")
         brake_row.subscribe(lambda v: self._dispatch("brake-calibration-enabled", v))
         brake_row.set_value(self._settings.read_setting("brake-calibration-enabled"))
+
+        fix_row = BoxflatSwitchRow("Enable Moza detection fixes", "Not needed with Proton 10+")
+        self._fix_row = fix_row
+        self._add_row(fix_row)
+
+        self._register_event("moza-detection-fix-enabled")
+        fix_row.subscribe(self._settings.write_setting, "moza-detection-fix-enabled")
+        fix_row.subscribe(lambda v: self._dispatch("moza-detection-fix-enabled", v))
+        fix_row.set_value(self._settings.read_setting("moza-detection-fix-enabled") or True)
 
         # Autostart and background stuff
         hidden = BoxflatSwitchRow("Start hidden")
