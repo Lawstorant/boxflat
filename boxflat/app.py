@@ -146,6 +146,8 @@ class MyApp(Adw.Application):
         self._data_path = data_path
         self._held = Event()
 
+        self._hid_handler.set_detection_fix_enabled(self._settings.read_setting("moza-detection-fix-enabled") or True)
+
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
         self._cm.subscribe("hid-device-disconnected", self._hid_handler.remove_device)

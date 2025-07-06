@@ -276,7 +276,7 @@ class HidHandler(EventDispatcher):
             if pattern == MozaHidDevice.STALKS:
                 continue
 
-            self._detection_fix(pattern, enabled)
+            self.detection_fix(pattern, enabled)
 
 
     def _configure_device(self, device: evdev.InputDevice, pattern: str):
@@ -460,10 +460,9 @@ class HidHandler(EventDispatcher):
 
     def detection_fix(self, pattern: str, enabled: bool=True) -> None:
         if not enabled:
-            try:
+            if pattern in self._virtual_devices:
                 self._virtual_devices.pop(pattern).close()
-            except KeyError:
-                pass
+                self._devices[pattern].ungrab()
             return
 
         if pattern is MozaHidDevice.BASE:
@@ -494,7 +493,7 @@ class HidHandler(EventDispatcher):
         vendor = device.info.vendor
         product = device.info.product
 
-        if not self._detection_fix and pattern == MozaHidDevice.STALKS:
+        if pattern == MozaHidDevice.STALKS:
             name = f"{device.name} Boxflat"
             vendor = 0x0001
             product = 0x0001
