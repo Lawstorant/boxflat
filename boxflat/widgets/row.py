@@ -30,7 +30,7 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         self._cooldown_increment = 0
 
 
-    def set_active(self, value=1, offset=0) -> bool:
+    def set_active(self, value=1, offset=0, hide_inactive=False) -> bool:
         if value is None:
             return
 
@@ -38,6 +38,8 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         if value != self.get_active():
             self._active = value
             GLib.idle_add(self.set_sensitive, value)
+            if hide_inactive:
+                GLib.idle_add(self.set_visible, value)
             return True
 
         return False

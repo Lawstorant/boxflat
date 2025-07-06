@@ -50,6 +50,9 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
 
         self._auto_apply.set_value(len(process_name) > 0, mute=False)
 
+        self._default = BoxflatSwitchRow("Default preset", "Activate if no other automatic preset applies")
+        self._default.set_value(self._preset_handler.is_default())
+
         # Place rows in logical order
         page = Adw.PreferencesPage()
         group = Adw.PreferencesGroup(margin_start=10, margin_end=10)
@@ -60,6 +63,10 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         group.add(self._auto_apply)
         group.add(self._auto_apply_name)
         group.add(self._auto_apply_select)
+        page.add(group)
+
+        group = Adw.PreferencesGroup(margin_start=10, margin_end=10)
+        group.add(self._default)
         page.add(group)
 
         # Finally, add all things together
@@ -132,6 +139,8 @@ class BoxflatPresetDialog(Adw.Dialog, EventDispatcher):
         if self._auto_apply.get_value():
             process_name = self._auto_apply_name.get_label()
         self._preset_handler.set_linked_process(process_name)
+
+        self._preset_handler.set_default(self._default.get_value())
 
         current_name = self._name_row.get_text()
         if self._initial_name != current_name:

@@ -62,7 +62,8 @@ class ProcessObserver(EventDispatcher):
     def __init__(self) -> None:
         super().__init__()
         self._shutdown = Event()
-        self._current_processs = "no_process_yet"
+        self._current_processs = "empty"
+        self._register_event("no-games")
         Thread(target=self._process_observer_worker, daemon=True).start()
 
 
@@ -73,6 +74,9 @@ class ProcessObserver(EventDispatcher):
 
             for name in self.list_events():
                 if name not in process_list:
+                    if name == self._current_processs:
+                        self._current_processs = "empty"
+                        self._dispatch("no-games")
                     continue
 
                 if name == self._current_processs:
@@ -96,4 +100,7 @@ class ProcessObserver(EventDispatcher):
 
 
     def deregister_all_processes(self) -> None:
-        self._deregister_all_events()
+        for name in self.list_events():
+            if name == "no-games":
+                continue
+            self._deregister_event(name)
