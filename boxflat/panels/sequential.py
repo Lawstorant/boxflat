@@ -2,13 +2,14 @@
 
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
+from boxflat.hid_handler import HidHandler
 from boxflat.widgets import *
 
 class SequentialSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid: HidHandler):
         self._S1 = None
         self._S2 = None
-        super().__init__("Sequential Shifter", button_callback, connection_manager)
+        super().__init__("Sequential Shifter", button_callback, connection_manager, hid)
         self._cm.subscribe_connected("sequential-output-y", self.active)
 
 
@@ -18,11 +19,12 @@ class SequentialSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "sequential-direction")
         self._cm.subscribe("sequential-direction", self._filter_data, self._current_row)
 
-        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Use the same buttons as paddle shifters"))
+        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Use the same buttons as paddle shifters. Works with USB now!"))
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(self._cm.set_setting, "sequential-paddle-sync")
         self._cm.subscribe("sequential-paddle-sync", self._filter_data, self._current_row)
+        self._cm.subscribe("sequential-paddle-sync", lambda v: self._hid_handler.paddle_sync_enabled(v-1))
 
         self.add_preferences_group("Lights")
         self._add_row(BoxflatSliderRow("Buttons Brightness", 0, 10))
