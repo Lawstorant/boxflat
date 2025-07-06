@@ -459,8 +459,11 @@ class HidHandler(EventDispatcher):
 
 
     def detection_fix(self, pattern: str, enabled: bool=True) -> None:
+        device = self._devices[pattern]
+
         if not enabled:
             if pattern in self._virtual_devices:
+                print(f"Detection fix disabled for {device.name}")
                 self._virtual_devices.pop(pattern).close()
                 self._devices[pattern].ungrab()
             return
@@ -469,7 +472,6 @@ class HidHandler(EventDispatcher):
             return
 
         # Get device capabilities
-        device = self._devices[pattern]
         cap: dict = device.capabilities()
 
         # Return if detection fix is unnecessary

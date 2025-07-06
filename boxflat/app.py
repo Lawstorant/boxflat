@@ -141,12 +141,15 @@ class MyApp(Adw.Application):
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         self._settings = SettingsHandler(config_path)
+        if self._settings.read_setting("moza-detection-fix-enabled") is None:
+            self._settings.write_setting(1, "moza-detection-fix-enabled")
+
         self._hid_handler = HidHandler()
+        self._hid_handler.set_detection_fix_enabled(self._settings.read_setting("moza-detection-fix-enabled"))
+
         self._config_path = config_path
         self._data_path = data_path
         self._held = Event()
-
-        self._hid_handler.set_detection_fix_enabled(self._settings.read_setting("moza-detection-fix-enabled") or True)
 
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
