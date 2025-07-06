@@ -300,6 +300,25 @@ class MozaPresetHandler(SimpleEventDispatcher):
         self._set_preset_data(data)
 
 
+    def is_default(self) -> bool:
+        data = self._get_preset_data()
+
+        if data is None:
+            return False
+
+        if not "is-default" in data:
+            return False
+
+        return data["is-default"]
+
+
+    def set_default(self, default=True) -> None:
+        default = bool(default)
+        data = self._get_preset_data()
+        data["is-default"] = default
+        self._set_preset_data(data)
+
+
     def _save_preset(self):
         if not self._path:
             return
@@ -332,10 +351,12 @@ class MozaPresetHandler(SimpleEventDispatcher):
                     tries = 3
 
         process_name = self.get_linked_process()
+        default = self.is_default()
         self._set_preset_data(preset_data)
 
         if process_name is not None:
             self.set_linked_process(process_name)
+        self.set_default(default)
 
         self._dispatch()
 

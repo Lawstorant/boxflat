@@ -24,6 +24,7 @@ class MozaHidDevice():
     HPATTERN = "hgp shifter"
     SEQUENTIAL = "sgp shifter"
     HUB = "gudsen universal hub"
+    HUB2 = "gudsen universal hub_2"
     STALKS = "moza multi-function stalk"
 
 
@@ -100,7 +101,9 @@ MOZA_AXIS_BASE_CODES = {
 
 
 _HpatternButtons = namedtuple("HpatternButtons", "base hpattern hub")
+_SequentialButtons = namedtuple("SequentialButtons", "base sequential hub")
 _ButtonsSpecifier = namedtuple("ButtonsSpecifier", "start end range")
+_SeqButtonsSpecifier = namedtuple("SeqButtonsSpecifier", "down up")
 
 MOZA_BUTTON_COUNT = 128
 MOZA_GEARS = 7
@@ -109,6 +112,8 @@ MOZA_HPATTERN_BUTTONS = _HpatternButtons(
     _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)]),
     _ButtonsSpecifier(5, 12, [i for i in range(5, 12+1)])
 )
+MOZA_GEAR_DOWN     = 13
+MOZA_GEAR_UP       = 14
 MOZA_SIGNAL_LEFT   = 10
 MOZA_SIGNAL_RIGHT  = 8
 MOZA_SIGNAL_CANCEL = 9
@@ -212,6 +217,7 @@ class HidHandler(EventDispatcher):
 
         self._stalks_wipers_quick = False
         self._detection_fix = False
+        self._paddle_sync = False
 
 
     def __del__(self):
@@ -339,7 +345,10 @@ class HidHandler(EventDispatcher):
         # print(f"button {number}, state: {state}")
         self._dispatch(f"button-{number}", state)
 
-        if pattern == MozaHidDevice.STALKS and state == 1:
+        if pattern == MozaHidDevice.STALKS:
+            if state == 0:
+                return
+
             if number in MOZA_SIGNAL_RANGE:
                 if self._stalks_turnsignal_compat_constant:
                     self._turnsignal_compat_constant_handler(number)
@@ -358,6 +367,14 @@ class HidHandler(EventDispatcher):
 
             if self._stalks_wipers_quick and number == MOZA_WIPERS_QUICK:
                 self._wipers_quick_handler(number)
+
+            return
+
+
+        if pattern in [MozaHidDevice.SEQUENTIAL, MozaHidDevice.HUB, MozaHidDevice.HUB2]:
+            if number in [MOZA_GEAR_DOWN, MOZA_GEAR_UP]:
+                self._handle_paddle_sync(number, state)
+            return
 
 
         if not self._hpattern_connected.is_set():
@@ -805,3 +822,25 @@ class HidHandler(EventDispatcher):
                 device.write(EV_KEY, keycode, 0)
                 device.write(EV_SYN, SYN_REPORT, 0)
                 sleep(0.05)
+
+
+    def paddle_sync_enabled(self, enable: bool) -> None:
+        if enable == self._paddle_sync:
+            return
+
+        print(f"Paddle sync {"enabled" if enable else "disabled"}")
+        self._paddle_sync = enable
+
+
+    def _handle_paddle_sync(self, button, state) -> None:
+        if not self._paddle_sync:
+            return
+
+        if MozaHidDevice.BASE not in self._devices:
+            return
+
+        keycode = self._keycode(button, MozaHidDevice.BASE)
+        device = self._devices[MozaHidDevice.BASE]
+
+        device.write(EV_KEY, keycode, state)
+        device.write(EV_SYN, SYN_REPORT, 0)

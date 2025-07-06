@@ -48,7 +48,7 @@ class BoxflatSwitchRow(BoxflatRow):
 
     def set_active(self, value=1, offset=0, off_when_inactive=False) -> bool:
         tmp = self.get_value()
-        change = super().set_active(value, offset=offset)
+        change = super().set_active(value, offset=offset, hide_inactive=off_when_inactive)
 
         if not change:
             return change
