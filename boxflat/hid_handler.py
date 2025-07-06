@@ -496,7 +496,7 @@ class HidHandler(EventDispatcher):
         product = device.info.product
 
         if pattern == MozaHidDevice.STALKS:
-            name = f"{device.name} Boxflat"
+            name = "Boxflat Multifunction Stalks"
             vendor = 0x0001
             product = 0x0001
 
