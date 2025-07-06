@@ -28,12 +28,14 @@ if args.flatpak:
     data_path = "/app/share/boxflat/data"
     os.environ["BOXFLAT_FLATPAK_EDITION"] = "true"
 
-import boxflat.app as app
+# import boxflat.app as app
 
-app.MyApp(data_path,
-    config_path,
-    args.dry_run,
-    args.custom,
-    args.autostart,
-    application_id="io.github.lawstorant.boxflat"
-).run()
+# app.MyApp(data_path,
+#     config_path,
+#     args.dry_run,
+#     args.custom,
+#     args.autostart,
+#     application_id="io.github.lawstorant.boxflat"
+# ).run()
+
+import boxflat.indicator as indicator
