@@ -27,6 +27,7 @@ class PresetSettings(SettingsPanel):
         self._presets_path = os.path.join(self._settings.get_path(), "presets")
         self._presets_list_group = None
         self._presets = []
+        self._default_preset = None
         super().__init__("Presets", button_callback, connection_manager)
         self.list_presets()
 
@@ -90,10 +91,10 @@ class PresetSettings(SettingsPanel):
         row = BoxflatSwitchRow("H-Pattern Shifter")
         expander.add_row(row)
         row.set_value(0)
-        row.set_active(0)
+        row.set_active(0, off_when_inactive=True)
         row.set_value(self._settings.read_setting("presets-include-hpattern"))
         row.subscribe(self._settings.write_setting, "presets-include-hpattern")
-        self._hpattern.subscribe("active", row.set_active)
+        self._hpattern.subscribe("active", row.set_active, 0, True)
         self._includes["hpattern"] = row.get_value
 
         row = BoxflatSwitchRow("Sequential Shifter")
@@ -115,13 +116,14 @@ class PresetSettings(SettingsPanel):
         row = BoxflatSwitchRow("Multifunction Stalks")
         expander.add_row(row)
         row.set_value(0)
-        row.set_active(0)
+        row.set_active(0, off_when_inactive=True)
         row.set_value(self._settings.read_setting("presets-include-stalks"))
         row.subscribe(self._settings.write_setting, "presets-include-stalks")
-        self._stalks.subscribe("active", row.set_active)
+        self._stalks.subscribe("active", row.set_active, 0, True)
         self._includes["stalks"] = row.get_value
 
         self._observer = process_handler.ProcessObserver()
+        # self._
 
         if Adw.get_minor_version() >= 6:
             self._save_row = Adw.ButtonRow(title="Save")
@@ -237,6 +239,9 @@ class PresetSettings(SettingsPanel):
                 process = pm.get_linked_process()
                 self._observer.register_process(process)
                 self._observer.subscribe(process, self._load_preset, preset_name, True)
+
+                if pm.is_default():
+                    self._default_preset = preset_name
 
 
     def _show_preset_dialog(self, file_name: str):

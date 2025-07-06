@@ -300,6 +300,24 @@ class MozaPresetHandler(SimpleEventDispatcher):
         self._set_preset_data(data)
 
 
+    def is_default(self) -> bool:
+        data = self._get_preset_data()
+
+        if data is None:
+            return False
+
+        if not "is-default" in data:
+            return False
+
+        return data["is-default"]
+
+
+    def set_default(self) -> None:
+        data = self._get_preset_data()
+        data["is-default"] = True
+        self._set_preset_data(data)
+
+
     def _save_preset(self):
         if not self._path:
             return
