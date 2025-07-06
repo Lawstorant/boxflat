@@ -75,6 +75,7 @@ class OtherSettings(SettingsPanel):
         self._register_event("moza-detection-fix-enabled")
         fix_row.subscribe(self._settings.write_setting, "moza-detection-fix-enabled")
         fix_row.subscribe(lambda v: self._dispatch("moza-detection-fix-enabled", v))
+        fix_row.subscribe(self._hid_handler.set_detection_fix_enabled)
         fix_row.set_value(self._settings.read_setting("moza-detection-fix-enabled") or True)
 
         # Autostart and background stuff
