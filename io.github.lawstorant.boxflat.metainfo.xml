@@ -111,6 +111,17 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.33.0" date="2025-07-06">
+      <description>
+        <p>Some new features</p>
+        <ul>
+          <li>Sequential paddle sync even with USB/Hub connection</li>
+          <li>Add default preset functionality</li>
+          <li>Allow users to disable detection fix for Moza devices</li>
+          <li>Move "Other" settings panel to the end of the sidebar</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.32.1" date="2025-06-09">
       <description>
         <p>Fix: unhide Generic Devices panel</p>
