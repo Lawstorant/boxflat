@@ -112,7 +112,6 @@ class PedalsSettings(SettingsPanel):
 
 
     def reset(self, pedal: str, *_) -> None:
-        print(pedal)
         self._set_curve_preset(0, pedal)
 
         self._cm.set_setting(0, f"pedals-{pedal}-min")

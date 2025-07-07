@@ -300,6 +300,7 @@ class BaseSettings(SettingsPanel):
         self.add_preferences_group()
         self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
         self._current_row.subscribe(self.reset)
+        self._current_row.subscribe(self.reset)
 
 
     def __prepare_eq(self):

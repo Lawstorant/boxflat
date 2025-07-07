@@ -197,6 +197,11 @@ class WheelSettings(SettingsPanel):
         calibration.subscribe("calibration-start", self._calibrate_paddles, 0)
         calibration.subscribe("calibration-stop", self._calibrate_paddles, 1)
 
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+        self._current_row.subscribe(self.reset)
+
 
         # RPM
         self.add_preferences_page("RPM")
@@ -528,3 +533,48 @@ class WheelSettings(SettingsPanel):
         time.sleep(0.9)
 
         self._cm.set_setting(initial_mode, "wheel-rpm-indicator-mode", exclusive=True)
+
+
+    def reset(self, *_) -> None:
+        self._set_rpm_timings_preset(0)
+        self._set_rpm_timings2_preset(0)
+
+        self._cm.set_setting(0, "wheel-rpm-indicator-mode")
+        # self._cm.set_setting(1, "wheel-flags-indicator-mode")
+        self._cm.set_setting(0, "wheel-set-rpm-display-mode")
+        self._cm.set_setting(0, "wheel-rpm-mode")
+        self._cm.set_setting(2, "wheel-paddles-mode")
+        self._cm.set_setting(50, "wheel-clutch-point")
+        self._cm.set_setting(0, "wheel-knob-mode")
+        self._cm.set_setting(256, "wheel-stick-mode")
+
+        self._set_rpm_timings_preset(0)
+        self._set_rpm_timings2_preset(0)
+
+        self._cm.set_setting(250, "wheel-rpm-interval")
+
+        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color1")
+        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color2")
+        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color3")
+
+        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color4")
+        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color5")
+        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color6")
+        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color7")
+
+        self._cm.set_setting([255, 0, 255], f"wheel-rpm-color8")
+        self._cm.set_setting([255, 0, 255], f"wheel-rpm-color9")
+        self._cm.set_setting([255, 0, 255], f"wheel-rpm-color10")
+
+        for i in range(MOZA_RPM_LEDS):
+            self._blinking_row.set_led_value([0, 255, 255], i, mute=False)
+
+        for i in range(14):
+            self._cm.set_setting([0, 255, 255], f"wheel-button-color{i+1}")
+
+        # for i in range(MOZA_FLAG_LEDS):
+        #     self._cm.set_setting([255, 0, 0], f"wheel-flag-color{i+1}")
+
+        self._cm.set_setting(15, "wheel-rpm-brightness")
+        self._cm.set_setting(15, "wheel-buttons-brightness")
+        self._set_combination_settings([0] * 8)
