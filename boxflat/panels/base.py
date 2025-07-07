@@ -297,6 +297,10 @@ class BaseSettings(SettingsPanel):
         self._current_row.set_reverse_expression("/100")
         self._cm.subscribe("base-motor-temp", self._current_row.set_value)
 
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+
 
     def __prepare_eq(self):
         self.add_preferences_page("EQ", "network-cellular-signal-excellent-symbolic")
@@ -323,7 +327,7 @@ class BaseSettings(SettingsPanel):
         self._sensitivity_row.subscribe(self._set_eq_preset, True)
         self._cm.subscribe("base-road-sensitivity", self._sensitivity_row.set_value)
 
-        self._add_row(BoxflatSliderRow("FFB interpolation", 0, 10, subtitle="\"Inreases\" detail"))
+        self._add_row(BoxflatSliderRow("FFB interpolation", 0, 10, subtitle="Mostly causes issues"))
         self._current_row.add_marks(2,4,6,8)
         self._current_row.set_slider_width(350)
         self._current_row.set_expression("*10")
@@ -390,3 +394,42 @@ class BaseSettings(SettingsPanel):
 
         for i in range(6):
             self._cm.set_setting(self._eq_presets[index][i], f"base-equalizer{i+1}")
+
+
+    def reset(self, *_) -> None:
+        self._set_rotation(450)
+        self._set_curve_preset(0)
+        self._set_eq_preset(0)
+
+        self._cm.set_setting(0, "main-set-work-mode")
+        self._cm.set_setting(0, "base-ffb-disable")
+        self._cm.set_setting(100, "base-torque")
+        self._cm.set_setting(800, "base-ffb-strength")
+        self._cm.set_setting(1000, "base-speed")
+        self._cm.set_setting(0, "base-protection")
+        self._cm.set_setting(1, "base-protection-mode")
+        self._cm.set_setting(1100, "base-natural-inertia")
+        self._cm.set_setting(0, "base-speed-damping")
+        self._cm.set_setting(120, "base-speed-damping-point")
+        self._cm.set_setting(0, "base-spring")
+        self._cm.set_setting(400, "base-damper")
+        self._cm.set_setting(2500, "base-inertia")
+        self._cm.set_setting(250, "base-friction")
+        self._cm.set_setting(255, "main-set-spring-gain")
+        self._cm.set_setting(128, "main-set-damper-gain")
+        self._cm.set_setting(128, "main-set-inertia-gain")
+        self._cm.set_setting(128, "main-set-friction-gain")
+        self._cm.set_setting(278, "base-soft-limit-stiffness")
+        self._cm.set_setting(78, "base-soft-limit-strength")
+        self._cm.set_setting(0, "base-soft-limit-retain")
+        self._cm.set_setting(1, "main-set-led-status")
+        self._cm.set_setting(1, "base-music-index-set")
+        self._cm.set_setting(51, "base-music-volume-set")
+        self._cm.set_setting(1, "base-music-enabled-set")
+        self._cm.set_setting(0, "main-set-interpolation")
+        self._cm.set_setting(0, "base-ffb-reverse")
+        self._cm.set_setting(0, "base-temp-strategy")
+        self._cm.set_setting(50, "base-road-sensitivity")
+
+        self._set_curve_preset(0)
+        self._set_eq_preset(-1)
