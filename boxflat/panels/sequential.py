@@ -43,6 +43,10 @@ class SequentialSettings(SettingsPanel):
         self._S2.subscribe(self._set_colors)
         self._cm.subscribe("sequential-colors", self._get_colors)
 
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+
 
     def _set_colors(self, *args):
         self._cm.set_setting([self._S1.get_value(), self._S2.get_value()], "sequential-colors")
@@ -60,3 +64,10 @@ class SequentialSettings(SettingsPanel):
         if not self._active:
             return
         row.set_value(value)
+
+
+    def reset(self, *_) -> None:
+        self._cm.set_setting(0, "sequential-direction")
+        self._cm.set_setting(1, "sequential-paddle-sync")
+        self._cm.set_setting(10, "sequential-brightness")
+        self._cm.set_setting([0, 0], "sequential-colors")

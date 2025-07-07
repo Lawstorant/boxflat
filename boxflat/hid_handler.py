@@ -830,8 +830,6 @@ class HidHandler(EventDispatcher):
     def paddle_sync_enabled(self, enable: bool) -> None:
         if enable == self._paddle_sync:
             return
-
-        print(f"Paddle sync {"enabled" if enable else "disabled"}")
         self._paddle_sync = enable
 
 
