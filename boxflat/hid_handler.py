@@ -462,7 +462,7 @@ class HidHandler(EventDispatcher):
                         self._notify_button(event.code, event.value, pattern)
 
             except Exception as e:
-                print(e)
+                # print(e)
                 device.close()
                 device = None
 
@@ -482,9 +482,9 @@ class HidHandler(EventDispatcher):
 
         if not enabled:
             if pattern in self._virtual_devices:
-                print(f"Detection fix disabled for {device.name}")
                 self._virtual_devices.pop(pattern).close()
                 if device:
+                    print(f"Detection fix disabled for {device.name}")
                     self._devices[pattern].ungrab()
             return
 
