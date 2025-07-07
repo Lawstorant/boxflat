@@ -73,6 +73,10 @@ class HPatternSettings(SettingsPanel):
         self._slider2.disable_cooldown()
         self._enable.disable_cooldown()
 
+        # self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+
 
     def _update_gear(self, gear: int, state: int) -> None:
         label = "R"
@@ -98,3 +102,11 @@ class HPatternSettings(SettingsPanel):
         self._enable.set_value(settings["blip-enabled"], mute=False)
         self._slider1.set_value(settings["blip-output"], mute=False)
         self._slider2.set_value(settings["blip-level"], mute=False)
+
+
+    def reset(self, *_) -> None:
+        self.set_settings({
+            "blip-enabled": 0,
+            "blip-output": 0,
+            "blip-level": 0,
+        })
