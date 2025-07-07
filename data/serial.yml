@@ -781,25 +781,46 @@ commands:
       bytes: 1
       type: int
 
-    music-index:
+    music-index-set:
       read: -1
       write: 42
       id: [67, 1]
       bytes: 1
       type: int
 
-    music-enabled:
+    music-index-get:
+      read: 42
+      write: -1
+      id: [67, 2]
+      bytes: 1
+      type: int
+
+    music-enabled-set:
       read: -1
       write: 42
       id: [67, 3]
       bytes: 1
       type: int
 
-    music-volume:
+    music-enabled-get:
+      read: 42
+      write: -1
+      id: [67, 4]
+      bytes: 1
+      type: int
+
+    music-volume-set:
       read: -1
       write: 42
-      id: [68]
-      bytes: 2
+      id: [68, 0]
+      bytes: 1
+      type: int
+
+    music-volume-get:
+      read: 42
+      write: -1
+      id: [68, 1]
+      bytes: 1
       type: int
 
 # Dashboard
