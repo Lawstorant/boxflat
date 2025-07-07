@@ -255,10 +255,10 @@ class BaseSettings(SettingsPanel):
         tmp2.set_active(0)
         tmp2.subscribe(lambda v: self._cm.set_setting(tmp1.get_value() + 1, "base-music-preview"))
 
-        tmp3 = BoxflatSliderRow("Volume")
-        tmp3.add_marks(25, 50, 75)
+        tmp3 = BoxflatSliderRow("Volume", subtitle="Very loud over 20")
+        tmp3.add_marks(20, 40, 60, 80)
         tmp3.set_active(0)
-        tmp3.set_slider_width(200)
+        tmp3.set_slider_width(250)
         tmp3.set_expression("*2.55")
         tmp3.set_reverse_expression("/2.55")
         tmp3.subscribe(self._cm.set_setting, "base-music-volume-set")
