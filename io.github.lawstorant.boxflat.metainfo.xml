@@ -117,6 +117,7 @@
           <li>Startup music settings from beta base firmware</li>
           <li>Add setting to load default preset on application startup</li>
           <li>Add reset button to all devices. This will restore default values to all settings</li>
+          <li>Add skipping "positional" light stage for games that only have on/off headlights</li>
         </ul>
       </description>
     </release>
