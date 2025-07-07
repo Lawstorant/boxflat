@@ -6,8 +6,9 @@ from threading import Event
 from boxflat.subscription import SimpleEventDispatcher
 
 class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
-    def __init__(self, title="", subtitle=""):
-        Adw.ActionRow.__init__(self)
+    def __init__(self, title="", subtitle="", init_adw=True):
+        if init_adw:
+            Adw.ActionRow.__init__(self)
         SimpleEventDispatcher.__init__(self)
 
         self._cooldown = 0

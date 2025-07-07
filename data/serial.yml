@@ -774,6 +774,34 @@ commands:
       bytes: 2
       type: int
 
+    music-preview:
+      read: -1
+      write: 42
+      id: [67, 0]
+      bytes: 1
+      type: int
+
+    music-index:
+      read: -1
+      write: 42
+      id: [67, 1]
+      bytes: 1
+      type: int
+
+    music-enabled:
+      read: -1
+      write: 42
+      id: [67, 3]
+      bytes: 1
+      type: int
+
+    music-volume:
+      read: -1
+      write: 42
+      id: [68]
+      bytes: 2
+      type: int
+
 # Dashboard
   dash:
     rpm-timings:

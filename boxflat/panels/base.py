@@ -244,6 +244,38 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "base-temp-strategy")
         self._cm.subscribe("base-temp-strategy", self._current_row.set_value)
 
+        tmp1 = BoxflatComboRow("Select music")
+        tmp1.set_active(0)
+        for i in range(10):
+            tmp1.add_entry(f"Music {i+1}")
+        tmp1.subscribe(lambda v: self._cm.set_setting(v + 1, "base-music-index"))
+        self._cm.subscribe("base-music-index", tmp1.set_value)
+
+        tmp2 = BoxflatButtonRow("Preview", "Play")
+        tmp2.set_active(0)
+        tmp2.subscribe(lambda v: self._cm.set_setting(tmp1.get_value() + 1, "base-music-preview"))
+
+        tmp3 = BoxflatSliderRow("Volume")
+        tmp3.add_marks(25, 50, 75)
+        tmp3.set_active(0)
+        tmp3.set_slider_width(200)
+        tmp3.set_expression("*2.55")
+        tmp3.set_reverse_expression("/2.55")
+        tmp3.subscribe(self._cm.set_setting, "base-music-volume")
+        self._cm.subscribe("base-music-volume", tmp3.set_value)
+
+        self.add_preferences_group("Startup music")
+        self._add_row(BoxflatSwitchRow("Startup music enabled"))
+        self._current_row.subscribe(tmp1.set_active)
+        self._current_row.subscribe(tmp2.set_active)
+        self._current_row.subscribe(tmp3.set_active)
+        self._current_row.subscribe(self._cm.set_setting, "base-music-enabled")
+        self._cm.subscribe("base-music-enabled", self._current_row.set_value)
+
+        self._add_row(tmp3)
+        self._add_row(tmp1)
+        self._add_row(tmp2)
+
         self.add_preferences_group("Temperatures")
         self._add_row(BoxflatLabelRow("MCU Temperature"))
         self._current_row.set_suffix("°C")
