@@ -112,4 +112,6 @@ class HandbrakeSettings(SettingsPanel):
         self._cm.set_setting(50, "handbrake-button-threshold")
         self._cm.set_setting(0, "handbrake-min")
         self._cm.set_setting(100, "handbrake-max")
-        self._set_curve_preset(0)
+
+        for i in range(len(self._presets[0])):
+            self._set_curve_point(self._presets[0][i], i)
