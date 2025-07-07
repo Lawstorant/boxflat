@@ -8,6 +8,8 @@ from boxflat.widgets import *
 from boxflat.preset_handler import MozaPresetHandler
 from boxflat.settings_handler import SettingsHandler
 import os
+from threading import Thread
+from time import sleep
 
 from gi.repository.Gio import Notification, NotificationPriority
 
@@ -30,6 +32,9 @@ class PresetSettings(SettingsPanel):
         self._default_preset = None
         super().__init__("Presets", button_callback, connection_manager)
         self.list_presets()
+
+        if self._settings.read_setting("default-preset-on-startup"):
+            Thread(target=self._load_default, args=[5], daemon=True).start()
 
 
     def prepare_ui(self):
@@ -289,10 +294,13 @@ class PresetSettings(SettingsPanel):
         dialog.present(self._content)
 
 
-    def _load_default(self) -> None:
+    def _load_default(self, delay: int=0) -> None:
         if not self._default_preset:
             print("No default preset to load")
             return
+
+        if delay > 0:
+            sleep(delay)
 
         print(f"Loading default preset: {self._default_preset}")
         self._load_preset(self._default_preset, default=True)

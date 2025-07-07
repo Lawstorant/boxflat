@@ -59,6 +59,11 @@ class OtherSettings(SettingsPanel):
 
 
         self.add_preferences_group("Application settings")
+
+        self._add_row(BoxflatSwitchRow("Load default preset on application startup"))
+        self._current_row.set_value(self._settings.read_setting("default-preset-on-startup") or 0)
+        self._current_row.subscribe(self._settings.write_setting, "default-preset-on-startup")
+
         brake_row = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
         self._brake_row = brake_row
         self._add_row(brake_row)
