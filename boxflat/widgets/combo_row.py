@@ -1,46 +1,36 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
-# from gi.repository import GObject
+from gi.repository import Gtk, Adw, Gio, GObject
+from .row import BoxflatRow
 
-# class ComboRow(GObject.Object):
-#     __gtype_name__ = 'ComboRow'
 
-#     def __init__(self, row_id: str, row_name: str):
-#         super().__init__()
+class ComboRow(GObject.Object):
+    def __init__(self, text="", value=None):
+        super().__init__()
+        self.text = text
+        self.value = value
 
-#         self._row_id = row_id
-#         self._row_name = row_name
 
-#     @GObject.Property
-#     def row_id(self) -> str:
-#         return self._row_id
+class BoxflatComboRow(Adw.ComboRow, BoxflatRow):
+    def __init__(self, title: str, subtitle=""):
+        Adw.ComboRow.__init__(self)
+        BoxflatRow.__init__(self, title, subtitle, init_adw=False)
 
-#     @GObject.Property
-#     def row_name(self) -> str:
-#         return self._row_name
+        self.set_model(Gtk.StringList())
+        self.connect("notify::selected", self._notify)
 
-#     def add_combo_row(self, title: str, values: dict, callback=None, subtitle=""):
-#         if self._current_group is None:
-#             return
 
-#         combo = Adw.ComboRow()
-#         combo.set_title(title)
-#         combo.set_subtitle(subtitle)
+    def add_entry(self, text) -> None:
+        if not text:
+            return
+        self.get_model().append(text)
 
-#         # Jesus christ, why is this so complicated?
-#         store = Gio.ListStore(item_type=ComboRow)
-#         for value in values:
-#             store.append(ComboRow(value, values[value]))
 
-#         factory = Gtk.SignalListItemFactory()
-#         factory.connect("setup", lambda factory,item : item.set_child(Gtk.Label()))
-#         factory.connect("bind", lambda factory,item : item.get_child().set_text(item.get_item().row_name))
+    def get_value(self) -> int:
+        return self.get_selected()
 
-#         combo.set_model(store)
-#         combo.set_factory(factory)
 
-#         # TODO: connect callback function
-#         if callback is not None:
-#             pass
-
-#         self._current_group.add(combo)
+    def _set_value(self, value: int) -> None:
+        if value < 0:
+            return
+        self.set_selected(value)

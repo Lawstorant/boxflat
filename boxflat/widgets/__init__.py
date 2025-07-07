@@ -18,3 +18,4 @@ from .button_level_row import *
 from .min_max_level_row import *
 from .preset_dialog import *
 from .advance_row import *
+from .combo_row import BoxflatComboRow
