@@ -275,7 +275,7 @@ class BaseSettings(SettingsPanel):
         self._cm.subscribe("base-music-enabled-get", tmp1.set_active)
         self._cm.subscribe("base-music-enabled-get", tmp2.set_active)
         self._cm.subscribe("base-music-enabled-get", tmp3.set_active)
-        # self._cm.subscribe_connected("base-music-enabled-get", self._current_group.set_visible)
+        self._cm.subscribe_connected("base-music-enabled-get", self._current_group.set_present, 1)
 
         self._add_row(tmp3)
         self._add_row(tmp1)
