@@ -218,6 +218,7 @@ class HidHandler(EventDispatcher):
         self._stalks_wipers_quick = False
         self._detection_fix = False
         self._paddle_sync = False
+        self._stalks_skip_positional = False
 
 
     def __del__(self):
@@ -355,6 +356,9 @@ class HidHandler(EventDispatcher):
 
                 elif self._stalks_turnsignal_compat:
                     self._turnsignal_compat_handler(number)
+
+            if self._stalks_headlights_compat and self._stalks_skip_positional and number == MOZA_HEADLIGHTS_RANGE[1]:
+                return
 
             if self._stalks_headlights_compat and number in MOZA_HEADLIGHTS_RANGE:
                 self._wipers_compat_handler(number, headlights=True)
@@ -619,6 +623,10 @@ class HidHandler(EventDispatcher):
         self._stalks_headlights_compat = bool(active)
 
 
+    def stalks_headlights_skip_pos_active(self, active: bool) -> None:
+        self._stalks_skip_positional = bool(active)
+
+
     def stalks_wipers_compat_active(self, active: bool) -> None:
         if active:
             self._stalks_wipers_compat2 = False
@@ -653,7 +661,7 @@ class HidHandler(EventDispatcher):
 
     def _wipers_compat_handler(self, button: int, headlights=False) -> None:
         last = self._last_headlight_button if headlights else self._last_wiper_button
-        if button == last:
+        if button == last and not self._stalks_skip_positional:
             return
 
         Thread(daemon=True, target=self._wipers_compat_worker, args=[button, last, headlights]).start()
@@ -735,7 +743,7 @@ class HidHandler(EventDispatcher):
         compat_lock: Lock = self._stalks_headlights_compat_active if  headlights else self._stalks_wipers_compat_active
 
         repeat = 1
-        if button < last:
+        if button < last and not self._stalks_skip_positional:
             repeat = len(button_range) - 1
 
         if MozaHidDevice.STALKS not in self._virtual_devices:
