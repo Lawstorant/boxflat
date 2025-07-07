@@ -111,6 +111,15 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.34.0" date="2025-07-07">
+      <description>
+        <ul>
+          <li>Startup music settings from beta base firmware</li>
+          <li>Add setting to load default preset on application startup</li>
+          <li>Add reset button to all devices. This will restore default values to all settings</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.33.0" date="2025-07-06">
       <description>
         <p>Some new features</p>
