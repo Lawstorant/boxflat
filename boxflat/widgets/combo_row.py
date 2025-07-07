@@ -20,7 +20,7 @@ class BoxflatComboRow(Adw.ComboRow, BoxflatRow):
         self.connect("notify::selected", self._notify)
 
 
-    def add_entry(self, text) -> None:
+    def add_entry(self, text: str) -> None:
         if not text:
             return
         self.get_model().append(text)
