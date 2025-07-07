@@ -21,6 +21,7 @@ class HandbrakeSettings(SettingsPanel):
         super().__init__("Handbrake", button_callback, connection_manager, hid_handler)
         self._cm.subscribe_connected("handbrake-direction", self.active)
 
+
     def prepare_ui(self):
         self.add_preferences_group("Handbrake settings")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
@@ -77,6 +78,9 @@ class HandbrakeSettings(SettingsPanel):
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "handbrake-calibration-start")
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "handbrake-calibration-stop")
 
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+
 
     def _set_curve_preset(self, value: int):
         self._set_curve(self._presets[value])
@@ -100,3 +104,14 @@ class HandbrakeSettings(SettingsPanel):
 
         self._curve_row.set_button_value(index)
         self._curve_row.set_slider_value(value, sindex)
+
+
+    def reset(self, *_) -> None:
+        self._cm.set_setting(0, "handbrake-direction")
+        self._cm.set_setting(0, "handbrake-mode")
+        self._cm.set_setting(50, "handbrake-button-threshold")
+        self._cm.set_setting(0, "handbrake-min")
+        self._cm.set_setting(100, "handbrake-max")
+
+        for i in range(len(self._presets[0])):
+            self._set_curve_point(self._presets[0][i], i)

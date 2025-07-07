@@ -89,6 +89,10 @@ class StalksSettings(SettingsPanel):
         self._wpiers_alt.disable_cooldown()
         self._wipers_quick.disable_cooldown()
 
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+
 
     def _handle_quick_wipe(self, *_) -> None:
         row1 = self._wipers1.get_value()
@@ -119,3 +123,12 @@ class StalksSettings(SettingsPanel):
         self._wipers.set_value(settings["wipers"], mute=False)
         self._wpiers_alt.set_value(settings["wipers-alt"], mute=False)
         self._wipers_quick.set_value(settings["wipers-quick"], mute=False)
+
+
+    def reset(self, *_) -> None:
+        self._turn_toggle.set_value(0, mute=False)
+        self._turn_hold.set_value(0, mute=False)
+        self._headlights.set_value(0, mute=False)
+        self._wipers.set_value(0, mute=False)
+        self._wpiers_alt.set_value(0, mute=False)
+        self._wipers_quick.set_value(0, mute=False)

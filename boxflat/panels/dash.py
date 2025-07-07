@@ -133,6 +133,10 @@ class DashSettings(SettingsPanel):
         self._current_row.subscribe(lambda v: Thread(target=self._sync_from_wheel, daemon=True).start())
         self._cm.subscribe_connected("wheel-rpm-indicator-mode", self._current_group.set_present, 1)
 
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(self.reset)
+        self._current_row.subscribe(self.reset)
+
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("RPM Colors")
@@ -321,3 +325,40 @@ class DashSettings(SettingsPanel):
 
         self._cm.set_setting(initial_mode, "dash-rpm-indicator-mode", exclusive=True)
         self._cm.set_setting(initial_mode, "dash-flags-indicator-mode", exclusive=True)
+
+
+    def reset(self, *_) -> None:
+        self._set_rpm_timings_preset(0)
+        self._set_rpm_timings2_preset(0)
+
+        self._cm.set_setting(1, "dash-rpm-indicator-mode")
+        self._cm.set_setting(1, "dash-flags-indicator-mode")
+        self._cm.set_setting(0, "dash-rpm-display-mode")
+        self._cm.set_setting(0, "dash-rpm-mode")
+
+        self._set_rpm_timings_preset(0)
+        self._set_rpm_timings2_preset(0)
+
+        self._cm.set_setting(250, "dash-rpm-interval")
+
+        self._cm.set_setting([0, 255, 0], f"dash-rpm-color1")
+        self._cm.set_setting([0, 255, 0], f"dash-rpm-color2")
+        self._cm.set_setting([0, 255, 0], f"dash-rpm-color3")
+
+        self._cm.set_setting([255, 0, 0], f"dash-rpm-color4")
+        self._cm.set_setting([255, 0, 0], f"dash-rpm-color5")
+        self._cm.set_setting([255, 0, 0], f"dash-rpm-color6")
+        self._cm.set_setting([255, 0, 0], f"dash-rpm-color7")
+
+        self._cm.set_setting([255, 0, 255], f"dash-rpm-color8")
+        self._cm.set_setting([255, 0, 255], f"dash-rpm-color9")
+        self._cm.set_setting([255, 0, 255], f"dash-rpm-color10")
+
+        for i in range(MOZA_RPM_LEDS):
+            self._blinking_row.set_led_value([0, 255, 255], i, mute=False)
+
+        for i in range(MOZA_FLAG_LEDS):
+            self._cm.set_setting([255, 0, 255], f"dash-flag-color{i+1}")
+
+        self._cm.set_setting(15, "dash-rpm-brightness")
+        self._cm.set_setting(15, "dash-flags-brightness")

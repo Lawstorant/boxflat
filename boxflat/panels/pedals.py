@@ -80,6 +80,10 @@ class PedalsSettings(SettingsPanel):
         if pedal == MozaAxis.BRAKE:
             self._brake_calibration_row = self._current_row
 
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._current_row.subscribe(lambda v: self.reset(pedal.name))
+
 
     def _set_curve_preset(self, value: int, pedal: str):
         self._set_curve(self._presets[value], pedal)
@@ -105,3 +109,15 @@ class PedalsSettings(SettingsPanel):
 
         row.set_button_value(index)
         row.set_slider_value(value, sindex)
+
+
+    def reset(self, pedal: str, *_) -> None:
+        self._set_curve_preset(0, pedal)
+
+        self._cm.set_setting(0, f"pedals-{pedal}-min")
+        self._cm.set_setting(100, f"pedals-{pedal}-max")
+        self._cm.set_setting(0, f"pedals-{pedal}-dir")
+        if pedal == MozaAxis.BRAKE.name:
+            self._cm.set_setting(50, "pedals-brake-angle-ratio")
+
+        self._set_curve_preset(0, pedal)
