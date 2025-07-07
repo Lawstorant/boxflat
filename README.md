@@ -130,5 +130,6 @@ $ sudo ./install.sh remove
 I give my heartfelt THANK YOU to every supporter who felt like this was worth a little to spare. Special thanks go to:
 - [@abowen](https://github.com/abowen)
 - [@SkaterPaul](https://github.com/SkaterPaul)
+- [@m4tx](https://github.com/m4tx)
 
 **© 2025 Tomasz Pakuła Using Arch BTW**
