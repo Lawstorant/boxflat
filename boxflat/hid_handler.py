@@ -524,13 +524,13 @@ class HidHandler(EventDispatcher):
             vendor = 0x0001
             product = 0x0001
 
-        new_device = evdev.UInput(cap, vendor=vendor, product=product, name=device.name)
+        new_device = evdev.UInput(cap, vendor=vendor, product=product, name=name)
         device.grab()
         self._virtual_devices[pattern] = new_device
         print(f"Detection fix applied for {device.name}")
 
 
-    def copy_blip_data(data: BlipData) -> None:
+    def copy_blip_data(self, data: BlipData) -> None:
         self._blip.copy(data)
 
 

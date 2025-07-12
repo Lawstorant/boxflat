@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.34.1" date="2025-07-12">
+      <description>
+        <p>Small change to the stalks naming after detection fix</p>
+      </description>
+    </release>
     <release version="v1.34.0" date="2025-07-07">
       <description>
         <ul>
