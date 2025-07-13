@@ -122,6 +122,7 @@ MOZA_SIGNAL_RANGE = [MOZA_SIGNAL_RIGHT, MOZA_SIGNAL_CANCEL, MOZA_SIGNAL_LEFT]
 MOZA_HEADLIGHTS_RANGE = [1, 2, 3]
 MOZA_WIPERS_RANGE     = [21, 22, 23, 24]
 MOZA_WIPERS_QUICK     = 20
+MOZA_WIPERS_REAR      = [11, 12]
 
 
 class AxisValue():
@@ -219,6 +220,9 @@ class HidHandler(EventDispatcher):
         self._detection_fix = False
         self._paddle_sync = False
         self._stalks_skip_positional = False
+
+        self._stalks_ignition = False
+        self._ignition_state = False
 
 
     def __del__(self):
@@ -353,24 +357,34 @@ class HidHandler(EventDispatcher):
             if number in MOZA_SIGNAL_RANGE:
                 if self._stalks_turnsignal_compat_constant:
                     self._turnsignal_compat_constant_handler(number)
+                    return
 
                 elif self._stalks_turnsignal_compat:
                     self._turnsignal_compat_handler(number)
+                    return
 
             if self._stalks_headlights_compat and self._stalks_skip_positional and number == MOZA_HEADLIGHTS_RANGE[1]:
                 return
 
             if self._stalks_headlights_compat and number in MOZA_HEADLIGHTS_RANGE:
                 self._wipers_compat_handler(number, headlights=True)
+                return
 
             if self._stalks_wipers_compat and number in MOZA_WIPERS_RANGE:
                 self._wipers_compat_handler(number)
+                return
 
             if self._stalks_wipers_compat2 and number in MOZA_WIPERS_RANGE:
                 self._wipers_compat2_handler(number)
+                return
 
             if self._stalks_wipers_quick and number == MOZA_WIPERS_QUICK:
                 self._wipers_quick_handler(number)
+                return
+
+            if self._stalks_ignition and number in MOZA_WIPERS_REAR:
+                self._ignition_handler(number)
+                return
 
             return
 
@@ -430,6 +444,9 @@ class HidHandler(EventDispatcher):
                 return
 
             elif self._stalks_turnsignal_compat_constant and button in MOZA_SIGNAL_RANGE:
+                return
+
+            elif self._stalks_ignition and button in MOZA_WIPERS_REAR:
                 return
 
         self._virtual_devices[pattern].write_event(event)
@@ -643,6 +660,10 @@ class HidHandler(EventDispatcher):
         self._stalks_wipers_quick = bool(active)
 
 
+    def stalks_ignition_active(self, active: bool) -> None:
+        self._stalks_ignition = bool(active)
+
+
     def _turnsignal_compat_handler(self, button: int) -> None:
         if button in (MOZA_SIGNAL_LEFT, MOZA_SIGNAL_RIGHT):
             self._turnsignal_queue.put(button)
@@ -833,6 +854,33 @@ class HidHandler(EventDispatcher):
                 device.write(EV_KEY, keycode, 0)
                 device.write(EV_SYN, SYN_REPORT, 0)
                 sleep(0.05)
+
+
+    def _ignition_handler(self, button: int, thread=False) -> None:
+        if not thread:
+            Thread(daemon=True, target=self._ignition_handler, args=[button, True]).start()
+            return
+
+        change = False
+        if self._ignition_state and button == MOZA_WIPERS_REAR[0]:
+            change = True
+
+        if not self._ignition_state and button == MOZA_WIPERS_REAR[1]:
+            change = True
+
+        if not change:
+            return
+
+        pattern = MozaHidDevice.STALKS
+        device: evdev.InputDevice = self._virtual_devices[pattern]
+        keycode = self._keycode(MOZA_WIPERS_REAR[1], pattern)
+
+        device.write(EV_KEY, keycode, 1)
+        device.write(EV_SYN, SYN_REPORT, 0)
+        sleep(0.05)
+
+        device.write(EV_KEY, keycode, 0)
+        device.write(EV_SYN, SYN_REPORT, 0)
 
 
     def paddle_sync_enabled(self, enable: bool) -> None:
