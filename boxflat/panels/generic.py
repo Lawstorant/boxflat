@@ -106,6 +106,9 @@ class GenericSettings(SettingsPanel):
 
         devices: list[evdev.InputDevice] = [evdev.InputDevice(path) for path in evdev.list_devices()]
         for device in devices:
+            if "boxflat" in device.name.lower():
+                continue
+        
             if device.name in names:
                 continue
 
