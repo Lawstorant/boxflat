@@ -661,6 +661,7 @@ class HidHandler(EventDispatcher):
 
 
     def stalks_ignition_active(self, active: bool) -> None:
+        self._ignition_state = False
         self._stalks_ignition = bool(active)
 
 
@@ -862,6 +863,7 @@ class HidHandler(EventDispatcher):
             return
 
         change = False
+        # print(f"Ignition state: {self._ignition_state}, button: {button}")
         if self._ignition_state and button == MOZA_WIPERS_REAR[0]:
             change = True
 
@@ -869,8 +871,10 @@ class HidHandler(EventDispatcher):
             change = True
 
         if not change:
+            # print("Skipping ignition button")
             return
 
+        self._ignition_state = not self._ignition_state
         pattern = MozaHidDevice.STALKS
         device: evdev.InputDevice = self._virtual_devices[pattern]
         keycode = self._keycode(MOZA_WIPERS_REAR[1], pattern)
