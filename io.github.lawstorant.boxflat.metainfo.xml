@@ -111,6 +111,21 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.34.2" date="2025-07-13">
+      <description>
+        <p>
+          New compatiblity mode added to multifunction stalks that allows users to transform
+          rear wiper controls into ignition and starter switch. The on/off position is now
+          tracked and button inputs are only sent when it actually changes + the buttons are
+          now combined into just one.
+        </p>
+        <p>
+          The button doesn't fire again after toggling the momentary switch, normally used for
+          rear windshield washer, so the whole thing can be used the same as a real ignition.
+          Tested with Truck Simlators and ACC.
+        </p>
+      </description>
+    </release>
     <release version="v1.34.1" date="2025-07-12">
       <description>
         <p>Small change to the stalks naming after detection fix</p>

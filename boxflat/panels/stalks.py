@@ -17,6 +17,7 @@ class StalksSettings(SettingsPanel):
         self._wpiers_alt   = None
         self._wipers_quick = None
         self._skip         = None
+        self._ignition     = None
 
         self._settings = settings
         super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler)
@@ -30,6 +31,11 @@ class StalksSettings(SettingsPanel):
             return
 
         self.active(connected)
+
+
+    def _add_row(self, row: BoxflatRow) -> None:
+        super()._add_row(row)
+        row.disable_cooldown()
 
 
     def prepare_ui(self):
@@ -97,12 +103,15 @@ class StalksSettings(SettingsPanel):
         self._wipers_quick = self._current_row
         self._hid_handler.stalks_wipers_quick_active(quick)
 
-        self._turn_toggle.disable_cooldown()
-        self._turn_hold.disable_cooldown()
-        self._headlights.disable_cooldown()
-        self._wipers.disable_cooldown()
-        self._wpiers_alt.disable_cooldown()
-        self._wipers_quick.disable_cooldown()
+        self.add_preferences_group()
+        ignition = self._settings.read_setting("stalks-ignition") or 0
+        self._add_row(BoxflatSwitchRow("Rear wiper as ignition", "Pretty immersive"))
+        self._ignition = self._current_row
+        self._current_row.set_value(ignition)
+        self._current_row.subscribe(self._settings.write_setting, "stalks-ignition")
+        self._current_row.subscribe(self._hid_handler.stalks_ignition_active)
+        self._hid_handler.stalks_ignition_active(ignition)
+
 
         self.add_preferences_group()
         self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
@@ -128,7 +137,8 @@ class StalksSettings(SettingsPanel):
             "skip-positional"    : self._skip.get_value(),
             "wipers"             : self._wipers.get_value(),
             "wipers-alt"         : self._wpiers_alt.get_value(),
-            "wipers-quick"       : self._wipers_quick.get_value()
+            "wipers-quick"       : self._wipers_quick.get_value(),
+            "ignition"           : self._ignition.get_value(),
         }
 
 
@@ -143,6 +153,9 @@ class StalksSettings(SettingsPanel):
         if "skip-positional" in settings:
             self._skip.set_value(settings["skip-positional"], mute=False)
 
+        if "ignition" in settings:
+            self._ignition.set_value(settings["ignition"], mute=False)
+
 
     def reset(self, *_) -> None:
         self._turn_toggle.set_value(0, mute=False)
@@ -151,3 +164,4 @@ class StalksSettings(SettingsPanel):
         self._wipers.set_value(0, mute=False)
         self._wpiers_alt.set_value(0, mute=False)
         self._wipers_quick.set_value(0, mute=False)
+        self._ignition.set_value(0, mute=False)
