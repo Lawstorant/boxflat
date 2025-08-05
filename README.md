@@ -113,6 +113,17 @@ Removal:
 $ sudo ./install.sh remove
 ```
 
+# Troubleshooting
+Below are some common problems and possible solutions:
+- `Error getting authority` when adding/updating the udev rules: make sure
+  the `dbus` service is running
+- Wheelbase does not appear, `dmesg` shows it connecting and getting assigned
+  an USB device, but it doesn't show up in boxflat -- check the `/dev` folder
+  with `ls /dev/ttyACM*`, if there is nothing you might be missing the
+  `CDC ACM` serial driver in the kernel
+- There is no FFB - if your torque is up to 100%, try turning it down to 95%
+  and turn the wheelbase off and on again
+
 # Some more screenshots
 <img alt="Home panel" src="screens/home.png">
 
