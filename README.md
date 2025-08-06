@@ -12,7 +12,7 @@ Boxflat for Moza Racing. Control your Moza gear settings... and more!
 
 > [!WARNING]
 >For moza ffb driver, check out [universal-pidff](https://github.com/JacKeTUs/universal-pidff) by [@JacKeTUs](https://github.com/JacKeTUs)
-> 
+>
 >Not needed for 6.15+ as it was upstreamed and backported to 6.14.3, 6.13.12, 6.12.24.
 
 > [!TIP]
@@ -142,5 +142,6 @@ I give my heartfelt THANK YOU to every supporter who felt like this was worth a 
 - [@abowen](https://github.com/abowen)
 - [@SkaterPaul](https://github.com/SkaterPaul)
 - [@m4tx](https://github.com/m4tx)
+- [@TylerCode](https://github.com/TylerCode)
 
 **© 2025 Tomasz Pakuła Using Arch BTW**
