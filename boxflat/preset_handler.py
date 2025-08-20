@@ -231,6 +231,10 @@ class MozaPresetHandler(SimpleEventDispatcher):
         for setting in MozaDevicePresetSettings[device]:
             self.append_setting(setting)
 
+        # base settings are split into two "devices"
+        if device == "base":
+            self.add_device_settings("main")
+
 
     # def remove_setting(self, setting_name: str):
     #     self._settings.remove(setting_name)
