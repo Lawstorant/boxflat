@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.34.4" date="2025-08-22">
+      <description>
+        <p>Fix ffb effects gain and ffb interpolation not being saved to presets (again)</p>
+      </description>
+    </release>
     <release version="v1.34.3" date="2025-08-20">
       <description>
         <p>Fix ffb effects gain and ffb interpolation not being saved to presets</p>
