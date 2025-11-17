@@ -22,37 +22,6 @@ MOZA_TELEMETRY_FLAGS = [
     "White Flag"
 ]
 
-SHARED_SETTINGS = [
-    "rpm-display-mode",
-    "rpm-timings",
-    "rpm-indicator-mode",
-    "rpm-interval",
-    "rpm-mode",
-    "rpm-value1",
-    "rpm-value2",
-    "rpm-value3",
-    "rpm-value4",
-    "rpm-value5",
-    "rpm-value6",
-    "rpm-value7",
-    "rpm-value8",
-    "rpm-value9",
-    "rpm-value10",
-    "rpm-color1",
-    "rpm-color2",
-    "rpm-color3",
-    "rpm-color4",
-    "rpm-color5",
-    "rpm-color6",
-    "rpm-color7",
-    "rpm-color8",
-    "rpm-color9",
-    "rpm-color10",
-    "rpm-brightness",
-]
-
-indicator_mode_map = [2,1,3]
-
 class WheelSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
         self._settings = settings
@@ -426,26 +395,6 @@ class WheelSettings(SettingsPanel):
 
     def start_test(self, *args):
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test).start()
-
-
-    def _sync_from_dash(self, *args):
-        for setting in SHARED_SETTINGS:
-            value = self._cm.get_setting(f"dash-{setting}", exclusive=True)
-            if value is None:
-                value = self._cm.get_setting(f"dash-{setting}", exclusive=True)
-
-            if setting == "rpm-display-mode":
-                setting = f"set-{setting}"
-
-            if setting == "rpm-indicator-mode":
-                value = indicator_mode_map[value]
-
-            self._cm.set_setting(value, f"wheel-{setting}")
-
-        for i in range(MOZA_RPM_LEDS):
-            color = self._settings.read_setting(f"dash-rpm-blink-color{i+1}")
-            self._blinking_row.set_led_value(color, i, mute=False)
-            self._blinking_row.set_led_value(color, i, mute=False)
 
 
     def _wheel_rpm_test(self, *args):
