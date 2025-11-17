@@ -21,6 +21,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
         BoxflatRow.__init__(self, title, subtitle)
         EventDispatcher.__init__(self)
 
+        self._register_event(f"color")
         for i in range(pickers):
             self._register_event(f"color{i}")
 
@@ -82,6 +83,9 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
         if not isinstance(value, list):
             return
 
+        if len(value) != 3:
+            return
+
         if self._value_lock.locked():
             return
 
@@ -116,6 +120,7 @@ class BoxflatNewColorPickerRow(EventDispatcher, BoxflatRow):
         value = alt_value if alt_value else self.get_value(index)
 
         self._dispatch(f"color{index}", value)
+        self._dispatch(f"color", [index] + value)
 
 
     def _enter_button(self, controller: Gtk.EventControllerMotion, a, b, index: int):

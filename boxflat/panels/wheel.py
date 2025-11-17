@@ -47,7 +47,7 @@ class WheelSettings(SettingsPanel):
         ]
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
-        self._cm.subscribe_connected("wheel-rpm-indicator-mode", self.active)
+        self._cm.subscribe_connected("wheel-telemetry-mode", self.active)
         self.set_banner_title(f"Device disconnected. Trying wheel id: ...")
 
 
@@ -143,6 +143,30 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-stick-mode", self._current_row.set_value)
 
 
+        self.add_preferences_group("Idle")
+        self._add_row(BoxflatToggleButtonRow("Mode"))
+        self._current_row.add_buttons("Off", "Breathing")
+        self._current_row.subscribe(self._cm.set_setting, "wheel-idle-mode")
+        self._cm.subscribe("wheel-idle-mode", self._current_row.set_value)
+        self._cm.subscribe_connected("wheel-idle-mode", self._current_group.set_present, 1)
+
+        self._add_row(BoxflatSliderRow("Timeout minutes", 0, 30))
+        self._current_row.add_marks(10, 20)
+        self._current_row.subscribe(self._cm.set_setting, "wheel-idle-timeout")
+        self._cm.subscribe("wheel-idle-timeout", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000))
+        self._current_row.add_marks(2500)
+        self._current_row.subscribe(self._cm.set_setting, "wheel-idle-speed")
+        self._cm.subscribe("wheel-idle-speed", self._current_row.set_value)
+        self._cm.subscribe("wheel-idle-mode", self._current_row.set_present)
+
+        self._add_row(BoxflatNewColorPickerRow(pickers=1))
+        self._current_row.subscribe("color0", self._cm.set_setting, "wheel-idle-color")
+        self._cm.subscribe("wheel-idle-color", self._current_row.set_led_value, 0)
+        self._cm.subscribe("wheel-idle-mode", self._current_row.set_present)
+
+
         self.add_preferences_group("Misc")
         self._combination_row = BoxflatDialogRow("Key Combination Settings")
         self._add_row(self._combination_row)
@@ -176,67 +200,59 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("RPM")
         self.add_preferences_group("Indicator settings")
 
-        self._add_row(BoxflatToggleButtonRow("RPM Indicator Mode"))
-        self._current_row.add_buttons("RPM", "Off", "On ")
-        self._current_row.set_expression("+1")
-        self._current_row.set_reverse_expression("-1")
-        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-indicator-mode")
-        self._cm.subscribe("wheel-rpm-indicator-mode", self._current_row.set_value)
+        self._add_row(BoxflatToggleButtonRow("Telemetry Mode"))
+        self._current_row.add_buttons("Off", "Telemetry", "Static")
+        self._current_row.subscribe(self._cm.set_setting, "wheel-telemetry-mode")
+        self._cm.subscribe("wheel-telemetry-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
-        self._current_row.add_buttons("Mode 1", "Mode 2")
-        self._current_row.subscribe(self._cm.set_setting, "wheel-set-rpm-display-mode")
-        self._cm.subscribe("wheel-get-rpm-display-mode", self._current_row.set_value)
+        # self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
+        # self._current_row.add_buttons("Mode 1", "Mode 2")
+        # self._current_row.subscribe(self._cm.set_setting, "wheel-set-rpm-display-mode")
+        # self._cm.subscribe("wheel-get-rpm-display-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatToggleButtonRow("RPM Mode"))
-        self._current_row.add_buttons("Percent", "RPM")
-        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-mode")
-        self._current_row.subscribe(self._reconfigure_timings)
-        self._cm.subscribe("wheel-rpm-mode", self._current_row.set_value)
+        # self._add_row(BoxflatToggleButtonRow("RPM Mode"))
+        # self._current_row.add_buttons("Percent", "RPM")
+        # self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-mode")
+        # self._current_row.subscribe(self._reconfigure_timings)
+        # self._cm.subscribe("wheel-rpm-mode", self._current_row.set_value)
 
-        self.add_preferences_group("Timings")
-        self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
-            button_row=False, draw_marks=False)
+        # self.add_preferences_group("Timings")
+        # self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
+        #     button_row=False, draw_marks=False)
 
-        self._add_row(self._timing_row)
-        self._timing_row.add_buttons("Early", "Normal", "Late")
-        # self._timing_row.add_buttons("Center")
-        self._timing_row.subscribe(self._set_rpm_timings_preset)
-        self._timing_row.subscribe_sliders(self._set_rpm_timings)
-        for i in range(MOZA_RPM_LEDS):
-            self._timing_row.add_labels(f"RPM{i+1}", index=i)
+        # self._add_row(self._timing_row)
+        # self._timing_row.add_buttons("Early", "Normal", "Late")
+        # # self._timing_row.add_buttons("Center")
+        # self._timing_row.subscribe(self._set_rpm_timings_preset)
+        # self._timing_row.subscribe_sliders(self._set_rpm_timings)
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._timing_row.add_labels(f"RPM{i+1}", index=i)
 
 
-        self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
-            range_start=2000, range_end=18_000, button_row=False, draw_marks=False, increment=100)
+        # self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
+        #     range_start=2000, range_end=18_000, button_row=False, draw_marks=False, increment=100)
 
-        self._add_row(self._timing_row2)
-        self._timing_row2.add_buttons("Early", "Normal", "Late")
-        self._timing_row2.subscribe(self._set_rpm_timings2_preset)
-        self._timing_row2.set_present(0)
+        # self._add_row(self._timing_row2)
+        # self._timing_row2.add_buttons("Early", "Normal", "Late")
+        # self._timing_row2.subscribe(self._set_rpm_timings2_preset)
+        # self._timing_row2.set_present(0)
 
-        for i in range(MOZA_RPM_LEDS):
-            self._timing_row2.add_labels(f"RPM{i+1}", index=i)
-            self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"wheel-rpm-value{i+1}")
-            self._cm.subscribe(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
-        self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
-
-
-        self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings)
-        self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings_preset)
-        self._cm.subscribe("wheel-rpm-mode", self._reconfigure_timings)
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._timing_row2.add_labels(f"RPM{i+1}", index=i)
+        #     self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"wheel-rpm-value{i+1}")
+        #     self._cm.subscribe(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
+        # self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
 
-        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
-        self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
-        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-interval")
-        self._cm.subscribe("wheel-rpm-interval", self._current_row.set_value)
+        # self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings)
+        # self._cm.subscribe("wheel-rpm-timings", self._get_rpm_timings_preset)
+        # self._cm.subscribe("wheel-rpm-mode", self._reconfigure_timings)
 
-        self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Sync settings with dash", "Sync"))
-        self._current_row.subscribe(lambda v: Thread(target=self._sync_from_dash, daemon=True).start())
-        self._cm.subscribe_connected("dash-rpm-indicator-mode", self._current_group.set_present, 1)
 
+        # self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
+        # self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
+        # self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-interval")
+        # self._cm.subscribe("wheel-rpm-interval", self._current_row.set_value)
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("Buttons")
@@ -272,20 +288,20 @@ class WheelSettings(SettingsPanel):
             self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
 
         self.add_preferences_group("Brightness")
-        self._add_row(BoxflatSliderRow("Button Brightness", range_end=15))
-        self._current_row.add_marks(5, 10)
+        self._add_row(BoxflatSliderRow("Button Brightness"))
+        self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting, "wheel-buttons-brightness")
         self._cm.subscribe("wheel-buttons-brightness", self._current_row.set_value)
         self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
 
-        self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
-        self._current_row.add_marks(5, 10)
+        self._add_row(BoxflatSliderRow("RPM Brightness"))
+        self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-brightness")
         self._cm.subscribe("wheel-rpm-brightness", self._current_row.set_value)
 
-        self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
-        self._current_row.subscribe(self.start_test)
+        # self.add_preferences_group()
+        # self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
+        # self._current_row.subscribe(self.start_test)
 
         # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
         # self._current_row.add_marks(5, 10)
@@ -400,8 +416,8 @@ class WheelSettings(SettingsPanel):
     def _wheel_rpm_test(self, *args):
         self._cm.set_setting(0, "wheel-send-telemetry")
         time.sleep(0.2)
-        initial_mode = self._cm.get_setting("wheel-rpm-indicator-mode", exclusive=True)
-        self._cm.set_setting(1, "wheel-rpm-indicator-mode", exclusive=True)
+        initial_mode = self._cm.get_setting("wheel-telemetry-mode", exclusive=True)
+        self._cm.set_setting(1, "wheel-telemetry-mode", exclusive=True)
 
         t = 0.1
         for j in range(2):
@@ -481,14 +497,14 @@ class WheelSettings(SettingsPanel):
         self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
 
-        self._cm.set_setting(initial_mode, "wheel-rpm-indicator-mode", exclusive=True)
+        self._cm.set_setting(initial_mode, "wheel-telemetry-mode", exclusive=True)
 
 
     def reset(self, *_) -> None:
         self._set_rpm_timings_preset(0)
         self._set_rpm_timings2_preset(0)
 
-        self._cm.set_setting(0, "wheel-rpm-indicator-mode")
+        self._cm.set_setting(0, "wheel-telemetry-mode")
         # self._cm.set_setting(1, "wheel-flags-indicator-mode")
         self._cm.set_setting(0, "wheel-set-rpm-display-mode")
         self._cm.set_setting(0, "wheel-rpm-mode")
