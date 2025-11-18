@@ -465,6 +465,8 @@ class WheelSettings(SettingsPanel):
         initial_mode = self._cm.get_setting("wheel-telemetry-mode", exclusive=True)
         # self._cm.set_setting(1, "wheel-telemetry-mode", exclusive=True)
 
+        self._cm.set_setting([0, 0xff, 0, 0] ,"wheel-telemetry-rpm-colors")
+
         t = 0.1
         for j in range(2):
             for i in range(10):

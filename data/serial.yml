@@ -1721,9 +1721,23 @@ commands:
     send-telemetry:
       read: -1
       write: 63
-      id: [26]
-      bytes: 5
+      id: [26, 0]
+      bytes: 4
       type: int
+
+    telemetry-rpm-colors:
+      read: -1
+      write: 63
+      id: [25, 0]
+      bytes: 16
+      type: array
+
+    telemetry-button-colors:
+      read: -1
+      write: 63
+      id: [25, 1]
+      bytes: 16
+      type: array
 
 # hpattern shifter
   hpattern:
@@ -1983,8 +1997,8 @@ commands:
     port3:
       read: 100
       write: -1
-      id: [5]
-      bytes: 2
+      id: [5, 1]
+      bytes: 1
       type: int
 
     pedals1:
