@@ -1718,25 +1718,32 @@ commands:
       type: int
 
     # telemetry stuff
-    send-telemetry:
+    send-rpm-telemetry:
       read: -1
       write: 63
       id: [26, 0]
-      bytes: 4
-      type: int
+      bytes: 2
+      type: array
+
+    send-buttons-telemetry:
+      read: -1
+      write: 63
+      id: [26, 1]
+      bytes: 2
+      type: array
 
     telemetry-rpm-colors:
       read: -1
       write: 63
       id: [25, 0]
-      bytes: 16
+      bytes: 20
       type: array
 
     telemetry-button-colors:
       read: -1
       write: 63
       id: [25, 1]
-      bytes: 16
+      bytes: 20
       type: array
 
 # hpattern shifter
