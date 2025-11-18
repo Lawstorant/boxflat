@@ -116,7 +116,7 @@ class SerialHandler(SimpleEventDispatcher):
             except Empty:
                 continue
 
-            print(f"{self._device_name} writing: {data.hex(":")}")
+            # print(f"{self._device_name} writing: {data.hex(":")}")
             try:
                 self._serial.write(data)
             except:
