@@ -26,6 +26,11 @@ class BoxflatComboRow(Adw.ComboRow, BoxflatRow):
         self.get_model().append(text)
 
 
+    def add_entries(self, *entries) -> None:
+        for entry in entries:
+            self.add_entry(entry)
+
+
     def get_value(self) -> int:
         return self.get_selected()
 

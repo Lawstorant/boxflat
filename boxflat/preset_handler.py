@@ -97,7 +97,9 @@ MozaDevicePresetSettings = {
         "wheel-set-rpm-display-mode",
         "wheel-clutch-point",
         "wheel-knob-mode",
-        "wheel-rpm-mode",
+        "wheel-telemetry-mode",
+        "wheel-telemetry-idle-effect",
+        "wheel-buttons-idle-effect"
     ],
     "wheel-colors" : [
         # "wheel-rpm-blink-color1",
