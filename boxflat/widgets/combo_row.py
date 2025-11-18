@@ -1,6 +1,6 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
-from gi.repository import Gtk, Adw, Gio, GObject
+from gi.repository import Gtk, Adw, GObject
 from .row import BoxflatRow
 
 

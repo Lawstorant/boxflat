@@ -1720,9 +1720,9 @@ commands:
     # telemetry stuff
     send-telemetry:
       read: -1
-      write: 65
-      id: [253, 222]
-      bytes: 4
+      write: 63
+      id: [26]
+      bytes: 5
       type: int
 
 # hpattern shifter

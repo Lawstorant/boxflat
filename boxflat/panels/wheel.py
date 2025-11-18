@@ -49,14 +49,12 @@ class WheelSettings(SettingsPanel):
         ]
 
         super().__init__("Wheel", button_callback, connection_manager, hid_handler)
-        self._cm.subscribe("wheel-stick-mode", self.active)
+        self._cm.subscribe("wheel-telemetry-mode", self.active)
         self.set_banner_title(f"Device disconnected. Trying wheel id: ...")
 
 
     def active(self, value: int):
         initial = self._active
-        print(value)
-
         super().active(value)
         if value == -1:
             new_id = self._cm.cycle_wheel_id()
@@ -249,7 +247,7 @@ class WheelSettings(SettingsPanel):
             self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
 
         # self.add_preferences_group()
-        # self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
+        # self._add_row(BoxflatButtonRow("Telemetry strip test", "Test"))
         # self._current_row.subscribe(self.start_test)
 
         # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
@@ -457,86 +455,90 @@ class WheelSettings(SettingsPanel):
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test).start()
 
 
+    def _write_telemetry(self, value) -> None:
+        self._cm.set_setting(value << 24, "wheel-send-telemetry")
+
+
     def _wheel_rpm_test(self, *args):
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         time.sleep(0.2)
         initial_mode = self._cm.get_setting("wheel-telemetry-mode", exclusive=True)
-        self._cm.set_setting(1, "wheel-telemetry-mode", exclusive=True)
+        # self._cm.set_setting(1, "wheel-telemetry-mode", exclusive=True)
 
         t = 0.1
         for j in range(2):
             for i in range(10):
                 val = bit(i)
-                self._cm.set_setting(val, "wheel-send-telemetry")
+                self._write_telemetry(val)
                 time.sleep(t)
 
             for i in reversed(range(1,9)):
                 val = bit(i)
-                self._cm.set_setting(val, "wheel-send-telemetry")
+                self._write_telemetry(val)
                 time.sleep(t)
 
         val = 0
-        self._cm.set_setting(val, "wheel-send-telemetry")
+        self._write_telemetry(val)
         time.sleep(t)
         for i in range(10):
             val = set_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in range(9):
             val = unset_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in reversed(range(10)):
             val = set_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in reversed(range(1,10)):
             val = unset_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in range(1,10):
             val = set_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         time.sleep(0.2)
         val = modify_bit(0,15)
-        self._cm.set_setting(val, "wheel-send-telemetry")
+        self._write_telemetry(val)
         time.sleep(0.9)
 
-        self._cm.set_setting(val, "wheel-send-telemetry")
+        self._write_telemetry(val)
         time.sleep(0.9)
 
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         self._cm.set_setting([255, 0, 0] * 7, "wheel-flag-colors1")
         self._cm.set_setting([255, 0, 0] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
 
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         self._cm.set_setting([255, 0, 0] * 7, "wheel-flag-colors1")
         self._cm.set_setting([255, 0, 0] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
 
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         self._cm.set_setting([0, 255, 0] * 7, "wheel-flag-colors1")
         self._cm.set_setting([0, 255, 0] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
 
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         self._cm.set_setting([0, 255, 0] * 7, "wheel-flag-colors1")
         self._cm.set_setting([0, 255, 0] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
 
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         self._cm.set_setting([0, 0, 255] * 7, "wheel-flag-colors1")
         self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
 
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         self._cm.set_setting([0, 0, 255] * 7, "wheel-flag-colors1")
         self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
         time.sleep(0.9)
@@ -549,8 +551,6 @@ class WheelSettings(SettingsPanel):
         self._set_rpm_timings2_preset(0)
 
         self._cm.set_setting(0, "wheel-telemetry-mode")
-        # self._cm.set_setting(1, "wheel-flags-indicator-mode")
-        self._cm.set_setting(0, "wheel-set-rpm-display-mode")
         self._cm.set_setting(0, "wheel-rpm-mode")
         self._cm.set_setting(2, "wheel-paddles-mode")
         self._cm.set_setting(50, "wheel-clutch-point")
