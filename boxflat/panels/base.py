@@ -82,8 +82,8 @@ class BaseSettings(SettingsPanel):
 
         # Basic settings
         self.add_preferences_group("Basic settings")
-        self._add_row(BoxflatSliderRow("Base torque output", suffix="%"))
-        self._current_row.add_marks(25, 50, 75)
+        self._add_row(BoxflatSliderRow("Base torque output", suffix="%", range_start=50, increment=5))
+        self._current_row.add_marks(60, 70, 80, 90)
         self._current_row.subscribe(self._cm.set_setting, "base-torque")
         self._cm.subscribe("base-torque", self._current_row.set_value)
 
