@@ -1155,11 +1155,25 @@ commands:
       bytes: 6
       type: bytes
 
+    sequence-data2:
+      read: -1
+      write: 67
+      id: [124, 0, 1]
+      bytes: 2
+      type: bytes
+
     display-data:
       read: -1
       write: 67
-      id: [124, 0, 2, 1]
-      bytes: 27
+      id: [124, 0, 1, 1]
+      bytes: 23
+      type: bytes
+
+    display-data2:
+      read: -1
+      write: 67
+      id: [252, 0, 1, 1]
+      bytes: 23
       type: bytes
 
 # Steering wheel

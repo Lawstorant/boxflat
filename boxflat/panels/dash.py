@@ -358,7 +358,7 @@ class DashSettings(SettingsPanel):
         return le16(self._sequence)
 
 
-    def prepare_display_data(self, command_id, value, padding=0) -> bytes:
+    def prepare_display_data(self, command_id, value, padding=0, sequence=None) -> bytes:
         length = (2 + padding) * 4
 
         data = bytearray()
@@ -375,17 +375,22 @@ class DashSettings(SettingsPanel):
         data2.extend(data)
         data2.extend(le32(crc32(data2)))
 
-        seq = self.get_seqeunce()
-        data2.insert(0, seq[0])
-        data2.insert(1, seq[1])
+        if not sequence:
+            sequence = self.get_seqeunce()
+
+        data2.insert(0, sequence[0])
+        data2.insert(1, sequence[1])
 
         return bytes(data2)
 
 
     def brightness(self, value: int) -> None:
-        command = 1
-        self._cm.set_setting(self.prepare_display_data(0x0e, 100, 0), "dash-display-data")
-        sleep(0.1)
-        self._cm.set_setting(self.prepare_display_data(command, value, 0), "dash-display-data")
-        sleep(0.1)
-        self._cm.set_setting(self.prepare_display_data(4, 2, 1), "dash-display-data")
+        # command = 1
+        # self._cm.set_setting(self.prepare_display_data(0x0e, 100, 0), "dash-display-data")
+        # sleep(0.1)
+        # self._cm.set_setting(self.prepare_display_data(command, value, 0), "dash-display-data")
+        # sleep(0.1)
+        # sequence = self.get_seqeunce()
+        # self._cm.set_setting(sequence, "dash-sequence-data2")
+        self._cm.set_setting(self.prepare_display_data(1, value, 0), "dash-display-data")
+        self._cm.set_setting(self.prepare_display_data(1, value, 0), "dash-display-data2")
