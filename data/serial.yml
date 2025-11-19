@@ -1340,7 +1340,7 @@ commands:
       type: int
 
     telemetry-idle-interval:
-      read: 64
+      read: -1
       write: 63
       id: [30, 0]
       bytes: 3
