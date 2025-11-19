@@ -347,7 +347,7 @@ class WheelSettings(SettingsPanel):
         # tsw_buttons_active.subscribe(self._current_row.set_present)
         # self._cm.subscribe_connected(f"wheel-button-color11", self._current_row.set_present, 1)
         self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
-        self._cm.subscribe_connected("wheel-buttons-brightness", self._handle_tsw)
+        self._cm.subscribe_connected("wheel-paddles-mode", self._handle_tsw)
         for i in range(4):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
 
@@ -541,7 +541,7 @@ class WheelSettings(SettingsPanel):
         self._cm.set_setting(2, "wheel-paddles-mode")
         self._cm.set_setting(50, "wheel-clutch-point")
         self._cm.set_setting(0, "wheel-knob-mode")
-        self._cm.set_setting(256, "wheel-stick-mode")
+        # self._cm.set_setting(256, "wheel-stick-mode")
 
         # self._set_rpm_timings_preset(0)
         # self._set_rpm_timings2_preset(0)
@@ -564,9 +564,9 @@ class WheelSettings(SettingsPanel):
         # for i in range(MOZA_RPM_LEDS):
         #     self._blinking_row.set_led_value([0, 255, 255], i, mute=False)
 
-        for i in range(14 if self._tsw_row.get_active() else 10):
-            self._cm.set_setting([0, 255, 255], f"wheel-button-color{i+1}")
-            sleep(0.01)
+        # for i in range(14 if self._tsw_row.get_active() else 10):
+        #     self._cm.set_setting([0, 255, 255], f"wheel-button-color{i+1}")
+        #     sleep(0.01)
 
         # for i in range(MOZA_FLAG_LEDS):
         #     self._cm.set_setting([255, 0, 0], f"wheel-flag-color{i+1}")
@@ -598,9 +598,10 @@ class WheelSettings(SettingsPanel):
 
 
     def _handle_tsw(self, value) -> None:
-        value = self._cm.get_setting("wheel-button-color11")
+        if not self._active:
+            return
 
-        if value is None:
+        if value != -1:
             self._tsw_row.set_present(0)
             return
 
