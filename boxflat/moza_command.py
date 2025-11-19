@@ -163,6 +163,9 @@ class MozaCommand():
 
             elif self._type == "hex":
                 data = bytes.fromhex(value)
+
+            elif self._type == "bytes":
+                data = value
         except:
             data = bytes(self._length)
 
@@ -186,6 +189,9 @@ class MozaCommand():
 
         elif value_type  == "hex":
             data = hexlify(data).decode("utf-8")
+
+        elif value_type == "bytes":
+            pass
 
         else:
             data = None

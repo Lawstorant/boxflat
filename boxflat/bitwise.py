@@ -41,3 +41,10 @@ def swap_nibbles(value: int) -> int:
     ret = (value & 0x0f) << 4
     ret |= (value & 0xf0) >> 4
     return ret
+
+
+def le32(value: int) -> bytes:
+    return value.to_bytes(4, byteorder='little', signed=False)
+
+def le16(value: int) -> bytes:
+    return value.to_bytes(2, byteorder='little', signed=False)

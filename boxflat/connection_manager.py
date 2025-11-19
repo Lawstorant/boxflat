@@ -273,7 +273,7 @@ class MozaConnectionManager(EventDispatcher):
         if value is None or command is None:
             return
 
-        # print(f"{command} received: {data.hex(":")}")
+        print(f"{command} received: {data.hex(":")}")
         self._dispatch(command, value)
 
 
@@ -306,7 +306,11 @@ class MozaConnectionManager(EventDispatcher):
             print("Command doesn't support READ operation: " + command_name)
             return
 
-        command.set_payload(value)
+        if command.type == "bytes":
+            command.set_payload_bytes(bytes(value))
+        else:
+            command.set_payload(value)
+
         self._handle_command_v2(command, rw)
 
 

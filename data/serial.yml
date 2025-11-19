@@ -1148,6 +1148,20 @@ commands:
       bytes: 4
       type: int
 
+    sequence-data:
+      read: -1
+      write: 67
+      id: [124, 0, 2, 1]
+      bytes: 6
+      type: bytes
+
+    display-data:
+      read: -1
+      write: 67
+      id: [124, 0, 2, 1]
+      bytes: 27
+      type: bytes
+
 # Steering wheel
   wheel:
     colors:

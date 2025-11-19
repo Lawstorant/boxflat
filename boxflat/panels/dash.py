@@ -8,6 +8,9 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis
 from boxflat.settings_handler import SettingsHandler
 
+from zlib import crc32
+from boxflat.bitwise import le32, le16
+
 MOZA_TELEMETRY_FLAGS = [
     "Wheel Spin",
     "Pitlane",
@@ -30,6 +33,8 @@ class DashSettings(SettingsPanel):
         self._split = None
         self._timing_row = None
         self._timing_preset_row = None
+
+        self._sequence = 0
 
         self._timings: list[list[int]] = [
             [65, 69, 72, 75, 78, 80, 83, 85, 88, 91], # Early
@@ -56,13 +61,20 @@ class DashSettings(SettingsPanel):
         if not self._active or initial:
             return
 
-        for i in range(MOZA_RPM_LEDS):
-            self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
-            self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
+        #     self._cm.set_setting(self._blinking_row.get_value(i), f"dash-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):
         self.add_view_stack()
+        self.add_preferences_page("Display")
+        self.add_preferences_group("Display settings")
+
+        self._add_row(BoxflatSliderRow("Brightness", increment=10))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(self.brightness)
+
         self.add_preferences_page("Dash")
         self.add_preferences_group("Indicator modes")
 
@@ -127,10 +139,10 @@ class DashSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-interval")
         self._cm.subscribe("dash-rpm-interval", self._current_row.set_value)
 
-        self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Sync settings with wheel", "Sync"))
-        self._current_row.subscribe(lambda v: Thread(target=self._sync_from_wheel, daemon=True).start())
-        self._cm.subscribe_connected("wheel-telemetry-mode", self._current_group.set_present, 1)
+        # self.add_preferences_group()
+        # self._add_row(BoxflatButtonRow("Sync settings with wheel", "Sync"))
+        # self._current_row.subscribe(lambda v: Thread(target=self._sync_from_wheel, daemon=True).start())
+        # self._cm.subscribe_connected("wheel-telemetry-mode", self._current_group.set_present, 1)
 
         self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
         self._current_row.subscribe(self.reset)
@@ -339,3 +351,37 @@ class DashSettings(SettingsPanel):
 
         self._cm.set_setting(15, "dash-rpm-brightness")
         self._cm.set_setting(15, "dash-flags-brightness")
+
+
+    def get_seqeunce(self) -> bytes:
+        self._sequence += 1
+        return le16(self._sequence)
+
+
+    def prepare_display_data(self, command_id, value, padding=0) -> bytes:
+        length = (2 + padding) * 4
+
+        data = bytearray()
+        data.extend(le32(command_id))
+        data.extend(le32(value))
+        if padding > 0:
+            data.extend(bytes(padding * 4))
+
+        data2 = bytearray()
+
+        data2.append(0xff)
+        data2.extend(le32(length))
+        data2.extend(le32(crc32(data)))
+        data2.extend(data)
+        data2.extend(le32(crc32(data2)))
+
+        seq = self.get_seqeunce()
+        data2.insert(0, seq[0])
+        data2.insert(1, seq[1])
+
+        return bytes(data2)
+
+
+    def brightness(self, value: int) -> None:
+        command = 1
+        self._cm.set_setting(self.prepare_display_data(command, value, 0), "dash-display-data")
