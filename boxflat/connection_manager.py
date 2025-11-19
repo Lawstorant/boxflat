@@ -273,7 +273,7 @@ class MozaConnectionManager(EventDispatcher):
         if value is None or command is None:
             return
 
-        print(f"{command} received: {data.hex(":")}")
+        # print(f"{command} received: {data.hex(":")}")
         self._dispatch(command, value)
 
 

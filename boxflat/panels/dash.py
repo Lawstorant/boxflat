@@ -384,4 +384,8 @@ class DashSettings(SettingsPanel):
 
     def brightness(self, value: int) -> None:
         command = 1
+        self._cm.set_setting(self.prepare_display_data(0x0e, 100, 0), "dash-display-data")
+        sleep(0.1)
         self._cm.set_setting(self.prepare_display_data(command, value, 0), "dash-display-data")
+        sleep(0.1)
+        self._cm.set_setting(self.prepare_display_data(4, 2, 1), "dash-display-data")
