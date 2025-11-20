@@ -403,6 +403,9 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 if key == "wheel" and setting.endswith("display-mode"):
                     setting = "set-rpm-display-mode"
 
+                if key == "handbrake" and "range" in setting:
+                    setting = setting.replace("range-", "").replace("end", "max").replace("start", "min")
+
                 if "button-color" in setting and paddles is not None:
                     index = int(setting.lstrip("button-color"))
                     if 11 <= index <= 14:

@@ -72,9 +72,9 @@ class WheelSettings(SettingsPanel):
         if not self._active or initial:
             return
 
-        for i in range(MOZA_RPM_LEDS):
-            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
-            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
+        #     self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):
@@ -183,9 +183,9 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(self._set_combination_settings)
         self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
 
-        tsw_buttons_active = BoxflatSwitchRow("TSW button colors", "Show additional row of color pickers")
-        tsw_buttons_active.subscribe(self._settings.write_setting, "tsw-button-colors")
-        self._add_row(tsw_buttons_active)
+        # tsw_buttons_active = BoxflatSwitchRow("TSW button colors", "Show additional row of color pickers")
+        # tsw_buttons_active.subscribe(self._settings.write_setting, "tsw-button-colors")
+        # self._add_row(tsw_buttons_active)
 
         calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
         self._add_row(calibration)
@@ -344,8 +344,6 @@ class WheelSettings(SettingsPanel):
         self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4))
         self._current_row.set_present(0)
         self._tsw_row = self._current_row
-        # tsw_buttons_active.subscribe(self._current_row.set_present)
-        # self._cm.subscribe_connected(f"wheel-button-color11", self._current_row.set_present, 1)
         self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
         self._cm.subscribe_connected("wheel-paddles-mode", self._handle_tsw)
         for i in range(4):
