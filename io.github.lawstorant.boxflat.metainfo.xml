@@ -111,6 +111,16 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.35.0" date="2025-11-20">
+      <description>
+        <ul>
+          <li>New wheel protocol support (please update firmware)</li>
+          <li>Trim base torque slider to only show usable range</li>
+          <li>Rearrange effect settings to better reflect their importance</li>
+          <li>Add a way to improve ffb around the center of the steering</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.34.4" date="2025-08-22">
       <description>
         <p>Fix ffb effects gain and ffb interpolation not being saved to presets (again)</p>
