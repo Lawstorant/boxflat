@@ -548,18 +548,27 @@ class WheelSettings(SettingsPanel):
 
         # self._cm.set_setting(250, "wheel-rpm-interval")
 
-        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color1")
-        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color2")
-        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color3")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color1")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color2")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color3")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color4")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color5")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color6")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color7")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color8")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color9")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color10")
 
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color4")
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color5")
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color6")
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color7")
-
-        self._cm.set_setting([0, 0, 255], f"wheel-rpm-color8")
-        self._cm.set_setting([0, 0, 255], f"wheel-rpm-color9")
-        self._cm.set_setting([0, 0, 255], f"wheel-rpm-color10")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color1")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color2")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color3")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color4")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color5")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color6")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color7")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color8")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color9")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color10")
 
         # for i in range(MOZA_RPM_LEDS):
         #     self._blinking_row.set_led_value([0, 255, 255], i, mute=False)
