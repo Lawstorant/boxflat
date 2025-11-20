@@ -310,10 +310,10 @@ class MozaConnectionManager(EventDispatcher):
         self._handle_command_v2(command, rw)
 
 
-    def _split_name(self, command_name: str):
+    def _split_name(self, command_name: str) -> tuple[str, str]:
         if command_name not in self._command_list:
             print(f"Command not found: {command_name}")
-            return None, None
+            return "", ""
 
         device_name = command_name.split("-", maxsplit=1)[0]
         command_name = command_name.split("-", maxsplit=1)[1]
@@ -327,7 +327,7 @@ class MozaConnectionManager(EventDispatcher):
             time.sleep(0.005)
 
         name, device = self._split_name(command_name)
-        if name is None:
+        if name == "":
             return
         self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
 
@@ -338,7 +338,7 @@ class MozaConnectionManager(EventDispatcher):
         #     self._handle_setting(value, name, device, MOZA_COMMAND_WRITE)
 
 
-    def get_setting(self, command_name: str, exclusive=False):
+    def get_setting(self, command_name: str, exclusive=False, custom_value=1):
         self._exclusive_access.wait()
         if exclusive:
             self._exclusive_access.clear()
@@ -347,7 +347,7 @@ class MozaConnectionManager(EventDispatcher):
         value = BlockingValue()
 
         self.subscribe_once(command_name, value.set_value)
-        self._get_setting(command_name, exclusive)
+        self._get_setting(command_name, exclusive, custom_value)
         response = value.get_value_no_clear()
 
         if exclusive:
@@ -357,11 +357,11 @@ class MozaConnectionManager(EventDispatcher):
         return response
 
 
-    def _get_setting(self, command_name: str, exclusive=False):
+    def _get_setting(self, command_name: str, exclusive=False, custom_value=1):
         name, device = self._split_name(command_name)
-        if name is None:
+        if name == "":
             return
-        self._handle_setting(1, name, device, MOZA_COMMAND_READ)
+        self._handle_setting(custom_value, name, device, MOZA_COMMAND_READ)
 
 
     def cycle_wheel_id(self) -> int:

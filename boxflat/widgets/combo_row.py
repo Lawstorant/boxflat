@@ -1,6 +1,6 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
-from gi.repository import Gtk, Adw, Gio, GObject
+from gi.repository import Gtk, Adw, GObject
 from .row import BoxflatRow
 
 
@@ -24,6 +24,11 @@ class BoxflatComboRow(Adw.ComboRow, BoxflatRow):
         if not text:
             return
         self.get_model().append(text)
+
+
+    def add_entries(self, *entries) -> None:
+        for entry in entries:
+            self.add_entry(entry)
 
 
     def get_value(self) -> int:

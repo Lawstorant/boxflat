@@ -22,6 +22,8 @@ MOZA_TELEMETRY_FLAGS = [
     "White Flag"
 ]
 
+MOZA_IDLE_EFFECTS = ["Off", "Constant", "Breathing", "Color cycle", "Rainbow", "Sand flow"]
+
 class WheelSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
         self._settings = settings
@@ -53,7 +55,6 @@ class WheelSettings(SettingsPanel):
 
     def active(self, value: int):
         initial = self._active
-
         super().active(value)
         if value == -1:
             new_id = self._cm.cycle_wheel_id()
@@ -71,14 +72,14 @@ class WheelSettings(SettingsPanel):
         if not self._active or initial:
             return
 
-        for i in range(MOZA_RPM_LEDS):
-            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
-            self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
+        #     self._cm.set_setting(self._blinking_row.get_value(i), f"wheel-rpm-blink-color{i+1}")
 
 
     def prepare_ui(self):
         self.add_view_stack()
-        self.add_preferences_page("Wheel")
+        self.add_preferences_page("General")
 
         self.add_preferences_group("Clutch Paddles")
         self._cm.subscribe_connected("wheel-paddles-mode", self._current_group.set_present)
@@ -151,11 +152,12 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe_connected("wheel-idle-mode", self._current_group.set_present, 1)
 
         self._add_row(BoxflatSliderRow("Timeout minutes", 0, 30))
-        self._current_row.add_marks(10, 20)
+        self._current_row.add_mark(0, "Off", clear=True)
+        self._current_row.add_marks(10, 20, 30)
         self._current_row.subscribe(self._cm.set_setting, "wheel-idle-timeout")
         self._cm.subscribe("wheel-idle-timeout", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000))
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500))
         self._current_row.add_marks(2500)
         self._current_row.subscribe(self._cm.set_setting, "wheel-idle-speed")
         self._cm.subscribe("wheel-idle-speed", self._current_row.set_value)
@@ -181,9 +183,9 @@ class WheelSettings(SettingsPanel):
         self._current_row.subscribe(self._set_combination_settings)
         self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
 
-        tsw_buttons_active = BoxflatSwitchRow("TSW button colors", "Show additional row of color pickers")
-        tsw_buttons_active.subscribe(self._settings.write_setting, "tsw-button-colors")
-        self._add_row(tsw_buttons_active)
+        # tsw_buttons_active = BoxflatSwitchRow("TSW button colors", "Show additional row of color pickers")
+        # tsw_buttons_active.subscribe(self._settings.write_setting, "tsw-button-colors")
+        # self._add_row(tsw_buttons_active)
 
         calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
         self._add_row(calibration)
@@ -204,6 +206,61 @@ class WheelSettings(SettingsPanel):
         self._current_row.add_buttons("Off", "Telemetry", "Static")
         self._current_row.subscribe(self._cm.set_setting, "wheel-telemetry-mode")
         self._cm.subscribe("wheel-telemetry-mode", self._current_row.set_value)
+
+        self._add_row(BoxflatComboRow("Idle effect"))
+        self._idle_telemetry_effect = self._current_row
+        self._current_row.add_entries(*MOZA_IDLE_EFFECTS)
+        self._current_row.subscribe(self._cm.set_setting, "wheel-telemetry-idle-effect")
+        self._current_row.subscribe(self._handle_idle_telemetry_interval)
+        self._cm.subscribe("wheel-telemetry-idle-effect", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500))
+        self._idle_telemetry_speed = self._current_row
+        self._current_row.set_value(self._settings.read_setting("wheel-telemetry-idle-interval") or 2500)
+        self._current_row.add_marks(1000, 2000, 3000, 4000)
+        self._current_row.subscribe(lambda v: self._cm.set_setting((self._idle_telemetry_effect.get_value() << 16) + v,"wheel-telemetry-idle-interval"))
+        self._current_row.subscribe(self._settings.write_setting, "wheel-telemetry-idle-interval")
+        self._cm.subscribe("wheel-telemetry-idle-effect", self._current_row.set_active, -1)
+        self._cm.subscribe("wheel-telemetry-idle-effect", self._handle_idle_telemetry_interval)
+
+        self.add_preferences_group("Colors")
+        self._add_row(BoxflatNewColorPickerRow(blinking=True))
+        self._rpm_colors = self._current_row
+        for i in range(MOZA_RPM_LEDS):
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-color{i+1}")
+            self._cm.subscribe(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
+
+        self.add_preferences_group()
+        self._add_row(BoxflatSliderRow("Brightness"))
+        self._current_row.add_marks(25, 50, 75)
+        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-brightness")
+        self._cm.subscribe("wheel-rpm-brightness", self._current_row.set_value)
+
+        self.add_preferences_group("RPM Blinking")
+        self._current_group.set_present(0)
+        self._current_group.set_description("These colors are not saved to the wheel")
+        self._blinking_row = BoxflatNewColorPickerRow()
+        self._add_row(self._blinking_row)
+        for i in range(MOZA_RPM_LEDS):
+            name = f"wheel-rpm-blink-color{i+1}"
+            self._current_row.set_led_value(self._settings.read_setting(name), i)
+            self._current_row.subscribe(f"color{i}", self._cm.set_setting, name)
+            self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
+
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Telemetry test", "Test"))
+        self._current_row.subscribe(self.start_test)
+
+        # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
+        # self._current_row.add_marks(5, 10)
+        # self._current_row.subscribe(self._cm.set_setting, "wheel-flags-brightness")
+        # self._cm.subscribe("wheel-flags-brightness", self._current_row.set_value)
+
+        # self.add_preferences_group("Telemetry flag")
+        # self._add_row(BoxflatNewColorPickerRow(""))
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._cm.subscribe(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
+
 
         # self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
         # self._current_row.add_buttons("Mode 1", "Mode 2")
@@ -254,9 +311,30 @@ class WheelSettings(SettingsPanel):
         # self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-interval")
         # self._cm.subscribe("wheel-rpm-interval", self._current_row.set_value)
 
-        self.add_preferences_page("Colors")
-        self.add_preferences_group("Buttons")
+        self.add_preferences_page("Buttons")
+        self.add_preferences_group("General mode")
+        self._add_row(BoxflatComboRow("Idle effect"))
+        self._idle_buttons_effect = self._current_row
+        self._current_row.add_entries(*MOZA_IDLE_EFFECTS)
+        self._current_row.subscribe(self._cm.set_setting, "wheel-buttons-idle-effect")
+        self._current_row.subscribe(self._handle_idle_telemetry_interval)
+        self._cm.subscribe("wheel-buttons-idle-effect", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500))
+        self._idle_buttons_speed = self._current_row
+        self._current_row.set_value(self._settings.read_setting("wheel-buttons-idle-interval") or 2500)
+        self._current_row.add_marks(1000, 2000, 3000, 4000)
+        self._current_row.subscribe(lambda v: self._cm.set_setting((self._idle_telemetry_effect.get_value() << 16) + v,"wheel-buttons-idle-interval"))
+        self._current_row.subscribe(self._settings.write_setting, "wheel-buttons-idle-interval")
+        self._cm.subscribe("wheel-buttons-idle-effect", self._current_row.set_active, -1)
+        self._cm.subscribe("wheel-buttons-idle-effect", self._handle_idle_buttons_interval)
+
+        self._add_row(BoxflatButtonRow("Match with telemetry", "Match", "We are so in sync!"))
+        self._current_row.subscribe(self._match_idle)
+
+        self.add_preferences_group("Colors")
         self._add_row(BoxflatNewColorPickerRow(blinking=True))
+        self._button_colors = self._current_row
         self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
         for i in range(MOZA_RGB_BUTTONS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+1}")
@@ -265,55 +343,20 @@ class WheelSettings(SettingsPanel):
         # TSW Buttons
         self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4))
         self._current_row.set_present(0)
-        tsw_buttons_active.subscribe(self._current_row.set_present)
+        self._tsw_row = self._current_row
+        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
+        self._cm.subscribe_connected("wheel-paddles-mode", self._handle_tsw)
         for i in range(4):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
-            self._cm.subscribe(f"wheel-button-color{i+11}", self._current_row.set_led_value, i)
 
-
-        self.add_preferences_group("RPM Colors")
-        self._add_row(BoxflatNewColorPickerRow())
-        for i in range(MOZA_RPM_LEDS):
-            self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-color{i+1}")
-            self._cm.subscribe(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
-
-        self.add_preferences_group("RPM Blinking")
-        self._current_group.set_description("These colors are not saved to the wheel")
-        self._blinking_row = BoxflatNewColorPickerRow()
-        self._add_row(self._blinking_row)
-        for i in range(MOZA_RPM_LEDS):
-            name = f"wheel-rpm-blink-color{i+1}"
-            self._current_row.set_led_value(self._settings.read_setting(name), i)
-            self._current_row.subscribe(f"color{i}", self._cm.set_setting, name)
-            self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
-
-        self.add_preferences_group("Brightness")
-        self._add_row(BoxflatSliderRow("Button Brightness"))
+        self.add_preferences_group()
+        self._add_row(BoxflatSliderRow("Brightness"))
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting, "wheel-buttons-brightness")
         self._cm.subscribe("wheel-buttons-brightness", self._current_row.set_value)
-        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_present, +1)
+        self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
 
-        self._add_row(BoxflatSliderRow("RPM Brightness"))
-        self._current_row.add_marks(25, 50, 75)
-        self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-brightness")
-        self._cm.subscribe("wheel-rpm-brightness", self._current_row.set_value)
-
-        # self.add_preferences_group()
-        # self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
-        # self._current_row.subscribe(self.start_test)
-
-        # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
-        # self._current_row.add_marks(5, 10)
-        # self._current_row.subscribe(self._cm.set_setting, "wheel-flags-brightness")
-        # self._cm.subscribe("wheel-flags-brightness", self._current_row.set_value)
-
-        # self.add_preferences_group("Telemetry flag")
-        # self._add_row(BoxflatNewColorPickerRow(""))
-        # for i in range(MOZA_RPM_LEDS):
-        #     self._cm.subscribe(f"wheel-flag-color{i+1}", self._current_row.set_led_value, i)
-
-        tsw_buttons_active.set_value(self._settings.read_setting("tsw-button-colors") or False, mute=False)
+        # tsw_buttons_active.set_value(self._settings.read_setting("tsw-button-colors") or False, mute=False)
 
 
     def _set_rpm_timings(self, timings: list):
@@ -413,133 +456,164 @@ class WheelSettings(SettingsPanel):
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test).start()
 
 
+    def _write_telemetry(self, value) -> None:
+        self._cm.set_setting([value & 255, value >> 8], "wheel-send-rpm-telemetry")
+        self._cm.set_setting([value & 255, value >> 8], "wheel-send-buttons-telemetry")
+
+
     def _wheel_rpm_test(self, *args):
-        self._cm.set_setting(0, "wheel-send-telemetry")
+        self._write_telemetry(0)
         time.sleep(0.2)
         initial_mode = self._cm.get_setting("wheel-telemetry-mode", exclusive=True)
         self._cm.set_setting(1, "wheel-telemetry-mode", exclusive=True)
+
+        val = []
+        val2 = []
+        for i in range(10):
+            val.append(i)
+            val2.append(i)
+            val = val + self._rpm_colors.get_value(i)
+            val2 = val2 + self._button_colors.get_value(i)
+
+        self._cm.set_setting(val[:20] ,"wheel-telemetry-rpm-colors")
+        self._cm.set_setting(val[20:] ,"wheel-telemetry-rpm-colors")
+        self._cm.set_setting(val2[:20] ,"wheel-telemetry-button-colors")
+        self._cm.set_setting(val2[20:] ,"wheel-telemetry-button-colors")
 
         t = 0.1
         for j in range(2):
             for i in range(10):
                 val = bit(i)
-                self._cm.set_setting(val, "wheel-send-telemetry")
+                self._write_telemetry(val)
                 time.sleep(t)
 
             for i in reversed(range(1,9)):
                 val = bit(i)
-                self._cm.set_setting(val, "wheel-send-telemetry")
+                self._write_telemetry(val)
                 time.sleep(t)
 
         val = 0
-        self._cm.set_setting(val, "wheel-send-telemetry")
+        self._write_telemetry(val)
         time.sleep(t)
         for i in range(10):
             val = set_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in range(9):
             val = unset_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in reversed(range(10)):
             val = set_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in reversed(range(1,10)):
             val = unset_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
         for i in range(1,10):
             val = set_bit(val, i)
-            self._cm.set_setting(val, "wheel-send-telemetry")
+            self._write_telemetry(val)
             time.sleep(t)
 
-        time.sleep(0.2)
-        val = modify_bit(0,15)
-        self._cm.set_setting(val, "wheel-send-telemetry")
-        time.sleep(0.9)
-
-        self._cm.set_setting(val, "wheel-send-telemetry")
-        time.sleep(0.9)
-
-        self._cm.set_setting(0, "wheel-send-telemetry")
-        self._cm.set_setting([255, 0, 0] * 7, "wheel-flag-colors1")
-        self._cm.set_setting([255, 0, 0] * 3, "wheel-flag-colors2")
-        time.sleep(0.9)
-
-        self._cm.set_setting(0, "wheel-send-telemetry")
-        self._cm.set_setting([255, 0, 0] * 7, "wheel-flag-colors1")
-        self._cm.set_setting([255, 0, 0] * 3, "wheel-flag-colors2")
-        time.sleep(0.9)
-
-        self._cm.set_setting(0, "wheel-send-telemetry")
-        self._cm.set_setting([0, 255, 0] * 7, "wheel-flag-colors1")
-        self._cm.set_setting([0, 255, 0] * 3, "wheel-flag-colors2")
-        time.sleep(0.9)
-
-        self._cm.set_setting(0, "wheel-send-telemetry")
-        self._cm.set_setting([0, 255, 0] * 7, "wheel-flag-colors1")
-        self._cm.set_setting([0, 255, 0] * 3, "wheel-flag-colors2")
-        time.sleep(0.9)
-
-        self._cm.set_setting(0, "wheel-send-telemetry")
-        self._cm.set_setting([0, 0, 255] * 7, "wheel-flag-colors1")
-        self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
-        time.sleep(0.9)
-
-        self._cm.set_setting(0, "wheel-send-telemetry")
-        self._cm.set_setting([0, 0, 255] * 7, "wheel-flag-colors1")
-        self._cm.set_setting([0, 0, 255] * 3, "wheel-flag-colors2")
-        time.sleep(0.9)
-
+        time.sleep(0.8)
         self._cm.set_setting(initial_mode, "wheel-telemetry-mode", exclusive=True)
 
 
     def reset(self, *_) -> None:
-        self._set_rpm_timings_preset(0)
-        self._set_rpm_timings2_preset(0)
+        # self._set_rpm_timings_preset(0)
+        # self._set_rpm_timings2_preset(0)
 
-        self._cm.set_setting(0, "wheel-telemetry-mode")
-        # self._cm.set_setting(1, "wheel-flags-indicator-mode")
-        self._cm.set_setting(0, "wheel-set-rpm-display-mode")
-        self._cm.set_setting(0, "wheel-rpm-mode")
+        self._cm.set_setting(1, "wheel-idle-mode")
+        self._cm.set_setting(10, "wheel-idle-timeout")
+        self._cm.set_setting(2500, "wheel-idle-speed")
+        self._cm.set_setting([255] * 3, "wheel-idle-color")
+
+        self._cm.set_setting(1, "wheel-telemetry-mode")
+        self._cm.set_setting(256, "wheel-stick-mode")
+        # self._cm.set_setting(0, "wheel-rpm-mode")
         self._cm.set_setting(2, "wheel-paddles-mode")
         self._cm.set_setting(50, "wheel-clutch-point")
         self._cm.set_setting(0, "wheel-knob-mode")
-        self._cm.set_setting(256, "wheel-stick-mode")
+        # self._cm.set_setting(256, "wheel-stick-mode")
 
-        self._set_rpm_timings_preset(0)
-        self._set_rpm_timings2_preset(0)
+        # self._set_rpm_timings_preset(0)
+        # self._set_rpm_timings2_preset(0)
 
-        self._cm.set_setting(250, "wheel-rpm-interval")
+        # self._cm.set_setting(250, "wheel-rpm-interval")
 
-        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color1")
-        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color2")
-        self._cm.set_setting([0, 255, 0], f"wheel-rpm-color3")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color1")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color2")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color3")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color4")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color5")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color6")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color7")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color8")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color9")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color10")
 
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color4")
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color5")
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color6")
-        self._cm.set_setting([255, 0, 0], f"wheel-rpm-color7")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color1")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color2")
+        self._cm.set_setting([0, 255, 0], "wheel-rpm-color3")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color4")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color5")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color6")
+        self._cm.set_setting([255, 0, 0], "wheel-rpm-color7")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color8")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color9")
+        self._cm.set_setting([0, 0, 255], "wheel-rpm-color10")
 
-        self._cm.set_setting([255, 0, 255], f"wheel-rpm-color8")
-        self._cm.set_setting([255, 0, 255], f"wheel-rpm-color9")
-        self._cm.set_setting([255, 0, 255], f"wheel-rpm-color10")
+        # for i in range(MOZA_RPM_LEDS):
+        #     self._blinking_row.set_led_value([0, 255, 255], i, mute=False)
 
-        for i in range(MOZA_RPM_LEDS):
-            self._blinking_row.set_led_value([0, 255, 255], i, mute=False)
-
-        for i in range(14):
-            self._cm.set_setting([0, 255, 255], f"wheel-button-color{i+1}")
+        # for i in range(14 if self._tsw_row.get_active() else 10):
+        #     self._cm.set_setting([0, 255, 255], f"wheel-button-color{i+1}")
+        #     sleep(0.01)
 
         # for i in range(MOZA_FLAG_LEDS):
         #     self._cm.set_setting([255, 0, 0], f"wheel-flag-color{i+1}")
 
-        self._cm.set_setting(15, "wheel-rpm-brightness")
-        self._cm.set_setting(15, "wheel-buttons-brightness")
+        self._idle_buttons_speed.set_value(2500, mute=False)
+        self._cm.set_setting(1, "wheel-buttons-idle-effect")
+
+        self._idle_telemetry_speed.set_value(2500, mute=False)
+        self._cm.set_setting(2, "wheel-telemetry-idle-effect")
+
+        self._cm.set_setting(100, "wheel-rpm-brightness")
+        self._cm.set_setting(100, "wheel-buttons-brightness")
         self._set_combination_settings([0] * 8)
+
+
+    def _handle_idle_telemetry_interval(self, effect_id: int) -> None:
+        effect_id <<= 16
+        self._cm.set_setting(effect_id + self._idle_telemetry_speed.get_value(), "wheel-telemetry-idle-interval")
+
+
+    def _handle_idle_buttons_interval(self, effect_id: int) -> None:
+        effect_id <<= 16
+        self._cm.set_setting(effect_id + self._idle_buttons_speed.get_value(), "wheel-buttons-idle-interval",)
+
+
+    def _match_idle(self, *_) -> None:
+        self._idle_buttons_effect.set_value(self._idle_telemetry_effect.get_value(), mute=False)
+        self._idle_buttons_speed.set_value(self._idle_telemetry_speed.get_value(), mute=False)
+
+
+    def _handle_tsw(self, value) -> None:
+        if not self._active:
+            return
+
+        if value != -1:
+            self._tsw_row.set_present(0)
+            return
+
+        self._tsw_row.set_present(1)
+        for i in range(4):
+            value = self._cm.get_setting(f"wheel-button-color{i+11}")
+            self._tsw_row.set_led_value(value, i)
+

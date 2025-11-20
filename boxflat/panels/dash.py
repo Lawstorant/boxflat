@@ -128,10 +128,6 @@ class DashSettings(SettingsPanel):
         self._cm.subscribe("dash-rpm-interval", self._current_row.set_value)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Sync settings with wheel", "Sync"))
-        self._current_row.subscribe(lambda v: Thread(target=self._sync_from_wheel, daemon=True).start())
-        self._cm.subscribe_connected("wheel-telemetry-mode", self._current_group.set_present, 1)
-
         self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
         self._current_row.subscribe(self.reset)
         self._current_row.subscribe(self.reset)

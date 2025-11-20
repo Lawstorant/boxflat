@@ -1325,6 +1325,34 @@ commands:
       bytes: 1
       type: int
 
+    telemetry-idle-effect:
+      read: 64
+      write: 63
+      id: [29, 0]
+      bytes: 1
+      type: int
+
+    buttons-idle-effect:
+      read: 64
+      write: 63
+      id: [29, 1]
+      bytes: 1
+      type: int
+
+    telemetry-idle-interval:
+      read: -1
+      write: 63
+      id: [30, 0]
+      bytes: 3
+      type: int
+
+    buttons-idle-interval:
+      read: -1
+      write: 63
+      id: [30, 1]
+      bytes: 3
+      type: int
+
     idle-speed:
       read: 64
       write: 63
@@ -1690,12 +1718,33 @@ commands:
       type: int
 
     # telemetry stuff
-    send-telemetry:
+    send-rpm-telemetry:
       read: -1
-      write: 65
-      id: [253, 222]
-      bytes: 4
-      type: int
+      write: 63
+      id: [26, 0]
+      bytes: 2
+      type: array
+
+    send-buttons-telemetry:
+      read: -1
+      write: 63
+      id: [26, 1]
+      bytes: 2
+      type: array
+
+    telemetry-rpm-colors:
+      read: -1
+      write: 63
+      id: [25, 0]
+      bytes: 20
+      type: array
+
+    telemetry-button-colors:
+      read: -1
+      write: 63
+      id: [25, 1]
+      bytes: 20
+      type: array
 
 # hpattern shifter
   hpattern:
@@ -1955,8 +2004,8 @@ commands:
     port3:
       read: 100
       write: -1
-      id: [5]
-      bytes: 2
+      id: [5, 1]
+      bytes: 1
       type: int
 
     pedals1:

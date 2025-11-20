@@ -10,7 +10,7 @@ class BoxflatSliderRow(BoxflatRow):
         super().__init__(title, subtitle)
 
         slider = Gtk.Scale()
-        self._slider = slider
+        self._slider: Gtk.Scale = slider
         self._suffix = suffix
         self._increment = increment
         self._range_start = range_start
@@ -62,7 +62,9 @@ class BoxflatSliderRow(BoxflatRow):
             self.add_mark(mark, str(mark))
 
 
-    def add_mark(self, value: int, text: str):
+    def add_mark(self, value: int, text: str, clear=False):
+        if clear:
+            self._slider.clear_marks()
         self._slider.add_mark(value, Gtk.PositionType.BOTTOM, f"{text}{self._suffix}")
 
 

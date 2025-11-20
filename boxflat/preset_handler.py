@@ -95,10 +95,11 @@ MozaDevicePresetSettings = {
         "wheel-paddles-mode",
         "wheel-telemetry-mode",
         "wheel-stick-mode",
-        "wheel-set-rpm-display-mode",
+        # "wheel-set-rpm-display-mode",
         "wheel-clutch-point",
         "wheel-knob-mode",
-        "wheel-rpm-mode",
+        "wheel-telemetry-idle-effect",
+        "wheel-buttons-idle-effect"
     ],
     "wheel-colors" : [
         # "wheel-rpm-blink-color1",
@@ -322,6 +323,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
         preset_data = self._get_preset_data() or {}
         preset_data["BoxflatPresetVersion"] = "1"
+        paddles = 0
 
         for device, settings in self._settings.items():
             if device not in preset_data.keys():
@@ -335,14 +337,24 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 preset_data[device] = self._stalks
                 continue
 
+            if device == "wheel":
+                paddles = self._cm.get_setting("wheel-paddles-mode")
+
             for setting in settings:
                 tries = 0
                 while tries < 3:
                     tries += 1
                     replace = setting.replace("set-", "get-")
-                    value = self._cm.get_setting(f"{device}-{replace}", exclusive=True)
 
-                    if value == -1:
+                    if "button-color" in setting and paddles is not None:
+                        index = int(setting.lstrip("button-color"))
+                        if 11 <= index <= 14:
+                            # print(f"skipping button {index}, not TSW")
+                            break
+
+                    value = self._cm.get_setting(f"{device}-{replace}")
+
+                    if value == -1 or value is None:
                         continue
                     preset_data[device][setting] = value
                     tries = 3
@@ -366,6 +378,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
         if preset_data is None:
             return
 
+        paddles = 0
         for key, settings in preset_data.items():
             if key not in MozaDevicePresetSettings.keys():
                 continue
@@ -378,16 +391,31 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 stalks.set_settings(settings)
                 continue
 
+            if key == "wheel":
+                paddles = self._cm.get_setting("wheel-paddles-mode")
+
             for setting, value in settings.items():
+                if value is None or value == -1:
+                    continue
+
                 if setting == "indicator-mode":
                     setting = "rpm-indicator-mode"
 
                 if key == "wheel" and setting.endswith("display-mode"):
                     setting = "set-rpm-display-mode"
 
+                if key == "handbrake" and "range" in setting:
+                    setting = setting.replace("range-", "").replace("end", "max").replace("start", "min")
+
+                if "button-color" in setting and paddles is not None:
+                    index = int(setting.lstrip("button-color"))
+                    if 11 <= index <= 14:
+                        print(f"skipping button {index}, not TSW")
+                        continue
+
                 setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                 # print(f"{key}-{setting}: {value}")
-                self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
+                self._cm.set_setting(value, f"{key}-{setting}", exclusive = True)
 
         self._dispatch()
 
