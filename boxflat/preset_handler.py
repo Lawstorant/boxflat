@@ -411,7 +411,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
                 setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                 # print(f"{key}-{setting}: {value}")
-                self._cm.set_setting(value, f"{key}-{setting}")
+                self._cm.set_setting(value, f"{key}-{setting}", exclusive = True)
 
         self._dispatch()
 
