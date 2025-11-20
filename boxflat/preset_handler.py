@@ -46,7 +46,8 @@ MozaDevicePresetSettings = {
         "base-ffb-curve-y3",
         "base-ffb-curve-y4",
         "base-ffb-curve-y5",
-        "base-ffb-reverse"
+        "base-ffb-reverse",
+        "base-ffb-curve-x1",
     ],
     "dash" : [
         "dash-rpm-timings",

@@ -355,7 +355,14 @@ class BaseSettings(SettingsPanel):
             self._current_row.subscribe_slider(i, self._set_curve_point, i)
             self._cm.subscribe(f"base-ffb-curve-y{i+1}", self._get_curve, i)
 
-        self.add_preferences_group("")
+        self.add_preferences_group()
+        self._add_row(BoxflatSliderRow("Stronger around center", subtitle="FFB reaches first EQ point earlier", range_end=10))
+        self._current_row.add_marks(5)
+        self._current_row.set_expression("*-1 +20")
+        self._current_row.set_reverse_expression("*-1 +20")
+        self._current_row.subscribe(self._cm.set_setting, "base-ffb-curve-x1")
+        self._cm.subscribe("base-ffb-curve-x1", self._current_row.set_value)
+
         self._add_row(BoxflatSwitchRow("Force Feedback Reversal"))
         self._current_row.subscribe(self._cm.set_setting, "base-ffb-reverse")
         self._cm.subscribe("base-ffb-reverse", self._current_row.set_value)
