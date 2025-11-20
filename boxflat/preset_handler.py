@@ -97,7 +97,6 @@ MozaDevicePresetSettings = {
         # "wheel-set-rpm-display-mode",
         "wheel-clutch-point",
         "wheel-knob-mode",
-        # "wheel-telemetry-mode",
         "wheel-telemetry-idle-effect",
         "wheel-buttons-idle-effect"
     ],
@@ -338,7 +337,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 continue
 
             if device == "wheel":
-                paddles = self._cm.get_setting("wheel-paddles-mode", exclusive=True)
+                paddles = self._cm.get_setting("wheel-paddles-mode")
 
             for setting in settings:
                 tries = 0
@@ -352,8 +351,9 @@ class MozaPresetHandler(SimpleEventDispatcher):
                             # print(f"skipping button {index}, not TSW")
                             break
 
-                    value = self._cm.get_setting(f"{device}-{replace}", exclusive=True)
-                    if value == -1:
+                    value = self._cm.get_setting(f"{device}-{replace}")
+
+                    if value == -1 or value is None:
                         continue
                     preset_data[device][setting] = value
                     tries = 3
@@ -391,9 +391,12 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 continue
 
             if key == "wheel":
-                paddles = self._cm.get_setting("wheel-paddles-mode", exclusive=True)
+                paddles = self._cm.get_setting("wheel-paddles-mode")
 
             for setting, value in settings.items():
+                if value is None or value == -1:
+                    continue
+
                 if setting == "indicator-mode":
                     setting = "rpm-indicator-mode"
 
@@ -408,7 +411,7 @@ class MozaPresetHandler(SimpleEventDispatcher):
 
                 setting = setting.replace("get-", "set-").replace("-end", "-max").replace("-start", "-min")
                 # print(f"{key}-{setting}: {value}")
-                self._cm.set_setting(value, f"{key}-{setting}", exclusive=True)
+                self._cm.set_setting(value, f"{key}-{setting}")
 
         self._dispatch()
 
