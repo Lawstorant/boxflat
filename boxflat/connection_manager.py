@@ -191,7 +191,7 @@ class MozaConnectionManager(EventDispatcher):
 
     def _polling_thread(self):
         while self._refresh_cont.is_set():
-            time.sleep(3)
+            time.sleep(2)
 
             for command in self._polling_list:
                 if command.startswith("estop-receive"):
