@@ -44,17 +44,26 @@ class SubscriptionList():
         return sub
 
 
-    def append_single(self, callback, *args):
+    def append_single(self, callback, *args) -> Subscription:
         if not callable(callback):
-            return
+            return None
 
         sub = Subscription(callback, *args)
         self._single_time_subs.put(sub)
+        return sub
 
 
     def remove(self, sub: Subscription):
         if sub in self._subscriptions:
             self._subscriptions.remove(sub)
+            return
+
+        tmp = None
+        for i in range(self._single_time_subs.qsize()):
+            tmp = self._single_time_subs.get()
+            if tmp is sub:
+                break
+            self._single_time_subs.put(tmp)
 
 
     def append_subscription(self, subscription: Subscription):
@@ -157,7 +166,7 @@ class EventDispatcher():
         if not self.__find_event(event_name):
             return
 
-        self.__events[event_name].append_single(callback, *args)
+        return self.__events[event_name].append_single(callback, *args)
 
 
     def _clear_event_subscriptions(self, event_name: str) -> bool:

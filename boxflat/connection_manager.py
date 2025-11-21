@@ -191,7 +191,7 @@ class MozaConnectionManager(EventDispatcher):
 
     def _polling_thread(self):
         while self._refresh_cont.is_set():
-            time.sleep(2)
+            time.sleep(3)
 
             for command in self._polling_list:
                 if command.startswith("estop-receive"):
@@ -199,6 +199,7 @@ class MozaConnectionManager(EventDispatcher):
 
                 if self._event_sub_count(command) == 0:
                     continue
+
                 # print("Polling data: " + command)
                 self._get_setting(command)
                 time.sleep(0.002)
@@ -220,7 +221,7 @@ class MozaConnectionManager(EventDispatcher):
                     value = -1
                 subs.call(value)
 
-            time.sleep(2)
+            time.sleep(3)
         self._connected_thread = None
 
 
@@ -346,9 +347,12 @@ class MozaConnectionManager(EventDispatcher):
 
         value = BlockingValue()
 
-        self.subscribe_once(command_name, value.set_value)
+        sub = self.subscribe_once(command_name, value.set_value)
         self._get_setting(command_name, exclusive, custom_value)
         response = value.get_value_no_clear()
+
+        if response is None:
+            self._remove_subscription(command_name, sub)
 
         if exclusive:
             time.sleep(0.01)
