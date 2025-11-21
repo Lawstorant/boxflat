@@ -367,6 +367,8 @@ class BaseSettings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "base-ffb-reverse")
         self._cm.subscribe("base-ffb-reverse", self._current_row.set_value)
 
+        self._curve_row.add_labels("10%", index=0)
+
 
     def _set_curve_preset(self, value: int):
         self._set_curve(self._curve_presets[value])
