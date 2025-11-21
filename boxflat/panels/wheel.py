@@ -618,7 +618,6 @@ class WheelSettings(SettingsPanel):
             return
 
         for i in range(4):
-            print("SRAKA")
             value = self._cm.get_setting(f"wheel-button-color{i+11}")
             self._tsw_row.set_led_value(value, i)
 
