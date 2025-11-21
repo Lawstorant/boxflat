@@ -114,6 +114,7 @@
     <release version="v1.35.2" date="2025-11-22">
       <description>
         <p>Allow more furve offset for the first point</p>
+        <p>Hide E-Stop row on the home scren if not detected</p>
       </description>
     </release>
     <release version="v1.35.1" date="2025-11-22">
