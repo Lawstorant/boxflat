@@ -606,13 +606,17 @@ class WheelSettings(SettingsPanel):
 
     def _handle_tsw(self, value) -> None:
         if not self._active:
+            self._tsw_row.set_present(0)
             return
 
         if value != -1:
             self._tsw_row.set_present(0)
             return
 
-        self._tsw_row.set_present(1)
+        if not self._tsw_row.get_present():
+            self._tsw_row.set_present(1)
+            return
+
         for i in range(4):
             value = self._cm.get_setting(f"wheel-button-color{i+11}")
             self._tsw_row.set_led_value(value, i)
