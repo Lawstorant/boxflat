@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.35.2" date="2025-11-22">
+      <description>
+        <p>Allow more furve offset for the first point</p>
+      </description>
+    </release>
     <release version="v1.35.1" date="2025-11-22">
       <description>
         <p>Fix wheel crashes during TSW detection</p>
