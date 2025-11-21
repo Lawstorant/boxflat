@@ -42,7 +42,7 @@ class HomeSettings(SettingsPanel):
         self._current_row.set_label("Disconnected")
         self._cm.subscribe("estop-get-status", self._estop_handler, self._current_row)
         self._cm.subscribe("estop-receive-status", self._estop_handler, self._current_row)
-        self._cm.subscribe_connected("estop-get-status", self._current_row.set_active, 1)
+        self._cm.subscribe_connected("estop-get-status", self._current_row.set_present, 1)
 
 
         self.add_preferences_group("Pedals")
