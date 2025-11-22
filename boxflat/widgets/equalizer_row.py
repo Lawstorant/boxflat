@@ -77,8 +77,13 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         self.add_marks(range_start, range_end)
 
 
-    def add_marks(self, *marks: int):
+    def add_marks(self, *marks: int, index: int=-1):
         if not self._draw_marks:
+            return
+
+        if 0 <= index < len(self._sliders):
+            for mark in marks:
+                self._sliders[index].add_mark(mark, Gtk.PositionType.RIGHT,f" {mark}{self._suffix}")
             return
 
         for mark in marks:
@@ -86,16 +91,17 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
                 slider.add_mark(mark, Gtk.PositionType.RIGHT,f" {mark}{self._suffix}")
 
 
-    def add_labels(self, *labels: str, index=None):
-        if index is not None:
-            self._slider_labels[index].set_text(labels[0])
-            return
+    def add_label(self, text: str, index: int) -> None:
+        if index is not None and isinstance(text, str):
+            self._slider_labels[index].set_text(text)
 
+
+    def add_labels(self, *labels: str):
         if len(labels) != len(self._slider_labels):
             return
 
-        for slider, label in zip(self._slider_labels, labels):
-            slider.set_text(label)
+        for label, i in zip(labels, range(len(self._slider_labels))):
+            self.add_label(label, i)
 
 
     def add_buttons(self, *buttons):

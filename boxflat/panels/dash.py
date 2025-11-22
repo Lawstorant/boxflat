@@ -99,7 +99,7 @@ class DashSettings(SettingsPanel):
         self._timing_row.subscribe(self._set_rpm_timings_preset)
         self._timing_row.subscribe_sliders(self._set_rpm_timings)
         for i in range(MOZA_RPM_LEDS):
-            self._timing_row.add_labels(f"RPM{i+1}", index=i)
+            self._timing_row.add_label(f"RPM{i+1}", i)
 
 
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
@@ -111,7 +111,7 @@ class DashSettings(SettingsPanel):
         self._timing_row2.set_present(0)
 
         for i in range(MOZA_RPM_LEDS):
-            self._timing_row2.add_labels(f"RPM{i+1}", index=i)
+            self._timing_row2.add_label(f"RPM{i+1}", i)
             self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"dash-rpm-value{i+1}")
             self._cm.subscribe(f"dash-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
         self._cm.subscribe(f"dash-rpm-value10", self._get_rpm_timings2_preset)
