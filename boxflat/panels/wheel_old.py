@@ -87,10 +87,10 @@ class OldWheelSettings(SettingsPanel):
 
         super().active(value)
         if value == -1:
-            self._cm.allow_wheel_cycling()
+            new_id = self._cm.cycle_wheel_id(old=True)
+            self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
             return
 
-        self._cm.block_wheel_cycling()
         wheel_id = self._cm.get_device_id("wheel")
         if self._stick_row is not None:
             self._stick_row.set_active(wheel_id == 23)
