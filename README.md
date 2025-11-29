@@ -143,5 +143,6 @@ I give my heartfelt THANK YOU to every supporter who felt like this was worth a 
 - [@SkaterPaul](https://github.com/SkaterPaul)
 - [@m4tx](https://github.com/m4tx)
 - [@TylerCode](https://github.com/TylerCode)
+- [@Petjes-je](https://github.com/Petjes-je)
 
 **© 2025 Tomasz Pakuła Using Arch BTW**
