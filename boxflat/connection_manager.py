@@ -57,6 +57,9 @@ class MozaConnectionManager(EventDispatcher):
         self._dry_run = dry_run
         self._shutdown = Event()
 
+        self._cycling = False
+        self._old_cycling = False
+
         self._serial_devices: dict[str, MozaSerialDevice] = {}
         self._devices_lock = Lock()
         self._exclusive_access = Event()
@@ -368,7 +371,18 @@ class MozaConnectionManager(EventDispatcher):
         self._handle_setting(custom_value, name, device, MOZA_COMMAND_READ)
 
 
-    def cycle_wheel_id(self) -> int:
+    def cycle_wheel_id(self, old=False) -> int:
+        if old:
+            self._old_cycling = True
+        else:
+            self._cycling = True
+
+        if not (self._old_cycling and self._cycling):
+            return 0
+
+        self._old_cycling = False
+        self._cycling = False
+
         with self._devices_lock:
             wid = self._serial_data["device-ids"]["wheel"] - 2
 

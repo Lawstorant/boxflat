@@ -1746,6 +1746,98 @@ commands:
       bytes: 20
       type: array
 
+# old
+    rpm-indicator-mode:
+      read: 64
+      write: 63
+      id: [4]
+      bytes: 1
+      type: int
+
+    old-rpm-color1:
+      read: 64
+      write: 63
+      id: [21, 0, 0]
+      bytes: 3
+      type: array
+
+    old-rpm-color2:
+      read: 64
+      write: 63
+      id: [21, 0, 1]
+      bytes: 3
+      type: array
+
+    old-rpm-color3:
+      read: 64
+      write: 63
+      id: [21, 0, 2]
+      bytes: 3
+      type: array
+
+    old-rpm-color4:
+      read: 64
+      write: 63
+      id: [21, 0, 3]
+      bytes: 3
+      type: array
+
+    old-rpm-color5:
+      read: 64
+      write: 63
+      id: [21, 0, 4]
+      bytes: 3
+      type: array
+
+    old-rpm-color6:
+      read: 64
+      write: 63
+      id: [21, 0, 5]
+      bytes: 3
+      type: array
+
+    old-rpm-color7:
+      read: 64
+      write: 63
+      id: [21, 0, 6]
+      bytes: 3
+      type: array
+
+    old-rpm-color8:
+      read: 64
+      write: 63
+      id: [21, 0, 7]
+      bytes: 3
+      type: array
+
+    old-rpm-color9:
+      read: 64
+      write: 63
+      id: [21, 0, 8]
+      bytes: 3
+      type: array
+
+    old-rpm-color10:
+      read: 64
+      write: 63
+      id: [21, 0, 9]
+      bytes: 3
+      type: array
+
+    old-rpm-brightness:
+      read: 64
+      write: 63
+      id: [20, 0]
+      bytes: 1
+      type: int
+
+    old-send-telemetry:
+      read: -1
+      write: 65
+      id: [253, 222]
+      bytes: 4
+      type: int
+
 # hpattern shifter
   hpattern:
     hid-mode:
