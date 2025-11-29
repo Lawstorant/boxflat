@@ -57,6 +57,8 @@ class MozaConnectionManager(EventDispatcher):
         self._dry_run = dry_run
         self._shutdown = Event()
 
+        self._wheel_cycling = Lock()
+
         self._serial_devices: dict[str, MozaSerialDevice] = {}
         self._devices_lock = Lock()
         self._exclusive_access = Event()
@@ -369,6 +371,9 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def cycle_wheel_id(self) -> int:
+        if self._wheel_cycling.locked():
+            return 0
+
         with self._devices_lock:
             wid = self._serial_data["device-ids"]["wheel"] - 2
 
@@ -379,6 +384,16 @@ class MozaConnectionManager(EventDispatcher):
 
             # print(f"Cycling wheel id. New id: {wid}")
             return wid
+
+
+    def block_wheel_cycling(self) -> None:
+        if not self._wheel_cycling.locked():
+            self._wheel_cycling.acquire()
+
+
+    def allow_wheel_cycling(self) -> None:
+        if self._wheel_cycling.locked():
+            self._wheel_cycling.release()
 
 
     def get_command_data(self) -> dict[str, dict]:

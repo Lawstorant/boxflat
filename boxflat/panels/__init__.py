@@ -3,6 +3,7 @@
 from .settings_panel import SettingsPanel
 from .base           import BaseSettings
 from .wheel          import WheelSettings
+from .wheel_old      import OldWheelSettings
 from .home           import HomeSettings
 from .pedals         import PedalsSettings
 from .h_pattern      import HPatternSettings
