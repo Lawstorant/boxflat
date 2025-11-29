@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.35.3" date="2025-11-29">
+      <description>
+        <p>Fix detection for ES wheel and wheels with older firmwares</p>
+      </description>
+    </release>
     <release version="v1.35.2" date="2025-11-22">
       <description>
         <p>Allow more furve offset for the first point</p>
