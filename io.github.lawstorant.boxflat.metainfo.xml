@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.35.4" date="2026-01-11">
+      <description>
+        <p>Add support for R21 and R25 ultra bases</p>
+      </description>
+    </release>
     <release version="v1.35.3" date="2025-11-29">
       <description>
         <p>Fix detection for ES wheel and wheels with older firmwares</p>
