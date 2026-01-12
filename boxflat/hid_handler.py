@@ -18,7 +18,7 @@ JOYSTICK_RANGE = (BTN_DEAD - BTN_JOYSTICK) + 1
 
 
 class MozaHidDevice():
-    BASE = "gudsen (moza )?r[0-9]{1,2} (base|racing wheel and pedals)"
+    BASE = "gudsen (moza )?r[0-9]{1,2} (ultra base|base|racing wheel and pedals)"
     PEDALS = "gudsen moza (srp|sr-p|crp)[0-9]? pedals"
     HANDBRAKE = "hbp handbrake"
     HPATTERN = "hgp shifter"
