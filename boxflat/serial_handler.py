@@ -1,9 +1,11 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
+import multiprocessing as mp
+mp.set_start_method("fork")
+
 from threading import Thread
 from multiprocessing import Process, Queue, Event
-from multiprocessing.queues import Empty
-from serial import Serial, SerialException
+from serial import Serial
 from boxflat.subscription import SimpleEventDispatcher
 from time import sleep
 
@@ -11,7 +13,7 @@ from boxflat.moza_command import MozaCommand
 
 
 class SerialHandler(SimpleEventDispatcher):
-    def __init__(self, serial_path: str, msg_start: str, device_name: str):
+    def __init__(self, serial_path: str, msg_start: int, device_name: str):
         super().__init__()
         self._read_queue = Queue()
         self._text_read_queue = Queue()
@@ -113,7 +115,7 @@ class SerialHandler(SimpleEventDispatcher):
         while not self._shutdown.is_set():
             try:
                 data = self._write_queue.get(timeout=0.3)
-            except Empty:
+            except:
                 continue
 
             # print(f"{self._device_name} writing: {data.hex(":")}")
