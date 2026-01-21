@@ -92,6 +92,8 @@ Python dependencies:
 - pycairo 1.27.0
 - PyGObject 3.50.0
 - evdev 1.7.1
+- trayer 0.1.1
+- dbus-python 1.4.0
 
 
 ```bash
