@@ -55,7 +55,7 @@ try:
 
     tray.setup()
 
-except ModuleNotFoundError, ImportError:
+except (ModuleNotFoundError, ImportError):
     print("Mising support for tray icons (trayer python module)")
 
 box.run()
