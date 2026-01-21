@@ -1,6 +1,8 @@
+dbus-python==1.4.0
 evdev==1.7.1
 psutil==6.1.0
 pycairo==1.27.0
 PyGObject==3.50.0
 pyserial==3.5
 PyYAML==6.0.2
+trayer==0.1.1

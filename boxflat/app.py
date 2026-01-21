@@ -15,7 +15,6 @@ from threading import Thread, Event
 import os
 import subprocess
 
-
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, navigation: Adw.NavigationSplitView, settings: SettingsHandler):
         super().__init__()
@@ -136,6 +135,8 @@ class MyApp(Adw.Application):
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
 
+        self.Tray = None
+
         css_provider = Gtk.CssProvider()
         css_provider.load_from_path(f"{data_path}/style.css")
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -227,7 +228,6 @@ class MyApp(Adw.Application):
 
         if self.navigation.get_root() != None:
             return
-
 
         win = MainWindow(self.navigation, self._settings)
         win.set_application(app)
@@ -349,3 +349,27 @@ class MyApp(Adw.Application):
             buttons.append(panel.button)
 
         return buttons
+
+
+    def toggle_window(self):
+        for window in self.get_windows():
+            if window.is_visible():
+                window.hide()
+            else:
+                window.present()
+
+
+    def show_window(self):
+        windows = self.get_windows()
+
+        if len(windows) == 0:
+            self.on_activate(self)
+            return
+
+        for window in windows:
+            window.present()
+
+
+    def hide_window(self):
+        for window in self.get_windows():
+            window.hide()

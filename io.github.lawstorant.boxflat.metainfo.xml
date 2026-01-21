@@ -111,6 +111,11 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.36.0" date="2026-01-21">
+      <description>
+        <p>Add tray icon via trayer</p>
+      </description>
+    </release>
     <release version="v1.35.5" date="2026-01-14">
       <description>
         <p>Fix for Python 3.14</p>

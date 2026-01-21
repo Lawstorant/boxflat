@@ -30,10 +30,32 @@ if args.flatpak:
 
 import boxflat.app as app
 
-app.MyApp(data_path,
+box = app.MyApp(data_path,
     config_path,
     args.dry_run,
     args.custom,
     args.autostart,
     application_id="io.github.lawstorant.boxflat"
-).run()
+)
+
+try:
+    from trayer import TrayIcon
+
+    tray = TrayIcon(
+        app_id="io.github.lawstorant.boxflat",
+        title="Boxflat",
+        icon_name="io.github.lawstorant.boxflat"
+    )
+
+    tray.set_left_click(box.show_window)
+    tray.add_menu_item("Show Window", callback=box.show_window)
+    tray.add_menu_item("Hide Window", callback=box.hide_window)
+    tray.add_menu_separator()
+    tray.add_menu_item("Quit", callback=box.quit)
+
+    tray.setup()
+
+except ModuleNotFoundError, ImportError:
+    print("Mising support for tray icons (trayer python module)")
+
+box.run()
