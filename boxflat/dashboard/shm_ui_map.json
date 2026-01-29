@@ -1,0 +1,22 @@
+{
+  "speed": { "shm": "physics", "offset": 28, "type": "float", "ui_id": "speed" },
+  "gear": { "shm": "physics", "offset": 16, "type": "int", "ui_id": "gear" },
+  "rpm": { "shm": "physics", "offset": 20, "type": "int", "ui_id": "mulValue" },
+  "brake": { "shm": "physics", "offset": 8, "type": "float" },
+  "drs": { "shm": "physics", "offset": 200, "type": "float" },
+  "tc": { "shm": "graphics", "offset": 1268, "type": "int", "ui_id": "tcValue" },
+  "pitLimiter": { "shm": "physics", "offset": 248, "type": "int", "ui_id": "athValue" },
+  "abs": { "shm": "graphics", "offset": 1280, "type": "int", "ui_id": "absValue" },
+  "fuel": { "shm": "physics", "offset": 12, "type": "float", "ui_ids": ["fuelRem"] },
+  "tyreWear": { "shm": "physics", "offset": 120, "type": "float", "count": 4, "ui_ids": ["tyreFLWear","tyreFRWear","tyreRLWear","tyreRRWear"] },
+  "tyreCoreTemperature": { "shm": "physics", "offset": 152, "type": "float", "count": 4, "ui_ids": ["tyreFLTemp","tyreFRTemp","tyreRLTemp","tyreRRTemp"] },
+
+  "lap": { "shm": "graphics", "field": "completedLaps", "type": "int", "ui_id": "lap" },
+  "iCurrentTime": { "shm": "graphics", "field": "iCurrentTime", "type": "int" },
+  "iBestTime": { "shm": "graphics", "field": "iBestTime", "type": "int" },
+  "currentTimeStr": { "shm": "graphics", "field": "currentTime", "type": "wchar", "ui_id": "laptime" },
+  "bestTimeStr": { "shm": "graphics", "field": "bestTime", "type": "wchar", "ui_id": "predTime" },
+  "tyreCompound": { "shm": "graphics", "field": "tyreCompound", "type": "wchar", "ui_id": "tyreType" },
+  "session": { "shm": "graphics", "field": "session", "type": "int", "ui_id": "tyreType" }
+  
+}

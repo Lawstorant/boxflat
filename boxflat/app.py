@@ -7,6 +7,7 @@ gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Gdk, Adw
 from boxflat.panels import *
+from boxflat.panels.ac_dashboard import ACDashboardSettings
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
@@ -313,6 +314,9 @@ class MyApp(Adw.Application):
         self._panels["Other"] = OtherSettings(
             self.switch_panel, self._cm, self._hid_handler, self._settings, self._version, self, self._data_path)
 
+        self._panels["AC Dashboard"] = ACDashboardSettings(
+            self.switch_panel, self._cm, self._hid_handler, self._settings)
+
         self._panels["Other"].subscribe("brake-calibration-enabled", self._panels["Pedals"].set_brake_calibration_active)
         self._panels["Pedals"].set_brake_calibration_active(self._panels["Other"].get_brake_valibration_enabled())
 
@@ -323,6 +327,7 @@ class MyApp(Adw.Application):
         self._panels["Other"].active(1)
         self._panels["Presets"].active(1)
         self._panels["Generic Devices"].active(1)
+        self._panels["AC Dashboard"].active(1)
 
         if self._dry_run:
             print("Dry run")

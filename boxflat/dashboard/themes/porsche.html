@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="w-screen h-screen bg-black flex p-5 text-white">
+    <div class="w-13/100 h-1/1 text-[3vw] font-bold flex flex-col">
+        <div class="h-1/7">Race</div>
+        <div class="h-1/7 flex flex-row border-3 border-purple-500 rounded-xl justify-between place-items-center p-2">
+            <div>ABS</div>
+            <div id="absValue">0</div>
+        </div>
+        <div class="h-1/7 flex flex-row border-3 border-red-500 rounded-xl justify-between place-items-center p-2">
+            <div>TC</div>
+            <div id="tcValue">0</div>
+        </div>
+        <div class="h-1/7 flex flex-row border-3 border-orange-500 rounded-xl justify-between place-items-center p-2">
+            <div>DRS</div>
+            <div id="dimValue">0</div>
+        </div>
+        <div class="h-1/7 flex flex-row border-3 border-yellow-500 rounded-xl justify-between place-items-center p-2">
+            <div>PIT</div>
+            <div id="athValue">0</div>
+        </div>
+        <div class="h-1/7 flex flex-row">
+            Logo
+        </div>
+    </div>
+    <div class="w-26/100 h-1/1">
+        <div class="h-1/7 flex items-center justify-around space-x-1">
+            <img id="icon-brake" src="/dashboard/icons/brake-system-warning.svg" alt="brake" class="h-4/5 hidden" style="transform: scale(0.8); transform-origin: center;" />
+            <img id="icon-hazard" src="/dashboard/icons/hazard.svg" alt="hazard" class="h-4/5 hidden" style="transform: scale(0.8); transform-origin: center;" />
+            <img id="icon-high" src="/dashboard/icons/high-beam.svg" alt="high-beam" class="h-4/5 hidden" style="transform: scale(0.8); transform-origin: center;" />
+            <img id="icon-low" src="/dashboard/icons/low-beam.svg" alt="low-beam" class="h-4/5 hidden" style="transform: scale(0.8); transform-origin: center;" />
+        </div>
+        <div class="h-4/7 border-3 border-slate-700 rounded-3xl border-l-transparent text-[3vw]">
+            <div class="h-1/4 flex flex-row justify-between place-items-center font-bold">
+                <div class="bg-slate-700 h-full w-3/4 rounded-xl text-justify place-items-center flex p-2">
+                    <p>Water</p>
+                </div>
+                <div id="waterTemp" class=" text-justify place-items-center flex p-2">0</div>
+            </div>
+            <div class="h-1/4 flex flex-row justify-between place-items-center font-bold">
+                <div class="bg-slate-700 h-full w-3/4 rounded-xl text-justify place-items-center flex p-2">
+                    <p>Fuel/Lap</p>
+                </div>
+                <div id="fuelPerLap" class=" text-justify place-items-center flex p-2">0</div>
+            </div>
+            <div class="h-1/4 flex flex-row justify-between place-items-center font-bold">
+                <div class="bg-slate-700 h-full w-3/4 rounded-xl text-justify place-items-center flex p-2">
+                    <p>Fuel rem</p>
+                </div>
+                <div id="fuelRem" class=" text-justify place-items-center flex p-2">0</div>
+            </div>
+            <div class="h-1/4 flex flex-row justify-between place-items-center font-bold">
+                <div class="bg-slate-700 h-full w-3/4 rounded-xl text-justify place-items-center flex p-2">
+                    <p>Fuel cap</p>
+                </div>
+                <div id="fuelCap" class=" text-justify place-items-center flex p-2">0</div>
+            </div>
+        </div>
+        <div class="h-2/7"></div>
+    </div>
+    <div class="w-22/100 h-1/1">
+            <div class="h-1/7 border-3 border-slate-700 rounded-2xl place-items-center flex text-[7vw] font-bold place-content-center">
+            <div id="speed">0</div>
+        </div>
+        <div class="h-4/7 border-3 border-slate-700 rounded-2xl place-items-center flex text-[25vw] font-bold place-content-center">
+            <div id="gear">0</div>
+        </div>
+        <div class="h-2/7 border-3 border-orange-500 rounded-2xl">
+            <div class="grid grid-cols-3 grid-rows-4 text-center w-full h-full font-bold text-[3vw]">
+
+<!-- Row 1 -->
+            <div class="flex items-center justify-start pl-2">
+                <span id="tyreFLPressure">0</span>
+            </div>
+
+  <div class="flex items-center justify-center bg-orange-500 rounded-b-xl text-[2vw]">
+    Tyre
+  </div>
+
+            <div class="flex items-center justify-end pr-2">
+                <span id="tyreFRPressure">0</span>
+            </div>
+
+  <!-- Row 2 -->
+  <div class="border-b border-white"></div>
+
+        <div class="border-b border-white relative flex items-center justify-center">
+        <span class="absolute left-1/2 top-0 h-full w-px bg-white"></span>
+        <span class="mr-4" id="tyreFLTemp">0</span>
+        <span class="ml-4" id="tyreFRTemp">0</span>
+    </div>
+
+  <div class="border-b border-white"></div>
+
+  <!-- Row 3 -->
+  <div class=""></div>
+
+        <div class=" relative flex items-center justify-center">
+        <span class="absolute left-1/2 top-0 h-full w-px bg-white"></span>
+        <span class="mr-4" id="tyreRLTemp">0</span>
+        <span class="ml-4" id="tyreRRTemp">0</span>
+    </div>
+
+  <div=""></div>
+
+  <!-- Row 4 -->
+        <div class="flex items-center justify-start pl-2">
+        <span id="tyreRLPressure">0</span>
+    </div>
+
+  <div class="relative flex items-center justify-center">
+    <span class="absolute left-1/2 top-0 h-full w-px bg-white"></span>
+  </div>
+
+    <div class="flex items-center justify-end pr-2">
+        <span id="tyreRRPressure">0</span>
+    </div>
+
+</div>
+
+        </div>
+    </div>
+    <div class="w-26/100 h-1/1">
+        <div class="h-1/7 flex justify-center">
+            <div class="w-2/3 h-4/5 border-3 border-slate-700 rounded-3xl text-[3vw] font-bold flex justify-between">
+               <div class="bg-slate-700 h-full w-1/2 rounded-xl text-justify place-items-center flex p-2">
+                    <p>Lap</p>
+                </div>
+                <div id="lap" class=" text-justify place-items-center flex p-2">0</div>
+            </div>
+        </div>
+        <div class="h-5/7 border-3 border-slate-700 rounded-3xl text-[2vw]">
+            <div class="h-1/7 bg-slate-700 rounded-t-2xl flex place-items-center justify-center font-bold">
+                Lap Time
+            </div>
+            <div id="laptime" class="h-2/7 text-[3vw] flex place-items-center justify-center font-bold">
+                0
+            </div>
+            <div class="h-1/7 bg-slate-700 rounded-t-2xl flex place-items-center justify-center font-bold">
+                Time Diff
+            </div>
+            <div id="timeDiff" class="h-1/7 text-[3vw] flex place-items-center justify-center font-bold">
+                0
+            </div>
+            <div class="h-1/7 bg-slate-700 rounded-t-2xl flex place-items-center justify-center font-bold">
+                Best Lap
+            </div>
+            <div id="bestLap" class="h-1/7 text-[3vw] flex place-items-center justify-center font-bold">
+                0
+            </div>
+        </div>
+        <div class="h-1/7 border-3 border-slate-700 rounded-3xl text-[2vw]">
+            <div class="h-1/4 bg-slate-700 rounded-t-2xl flex place-items-center justify-center font-bold">
+                Brake Bias
+            </div>
+            <div id="brakeBias" class="h-3/4 text-[3vw] flex place-items-center justify-center font-bold">
+                0
+            </div>
+        </div>
+    </div>
+    <div class="w-13/100 h-1/1">
+
+            <div id="tyreType" class="h-1/7 border-3 border-slate-700 rounded-2xl flex items-center justify-center text-[3vw] font-bold mb-2">
+                DRY
+            </div>
+            <div class="h-6/7">
+            </div>
+    </div>
+
+    <!-- Universal dashboard script - handles everything automatically! -->
+    <script src="/dashboard/scripts/dashboard.js"></script>
+  </body>
+</html>

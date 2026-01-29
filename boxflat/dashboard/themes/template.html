@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Custom AC Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .panel {
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .panel h3 {
+            margin-bottom: 10px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .big-number {
+            font-size: 60px;
+            font-weight: bold;
+        }
+
+        .medium-number {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .tyre-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .tyre {
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .tyre-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .tyre-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .indicator {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #222;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .indicator.active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .indicator.warning {
+            background: #ffff00;
+            color: #000;
+        }
+
+        .indicator.danger {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .fuel-bar {
+            width: 100%;
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .fuel-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444 0%, #ffdd00 50%, #00ff00 100%);
+            transition: width 0.3s;
+        }
+
+        .gear-display {
+            font-size: 120px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .gear-N { color: #fff; }
+        .gear-R { color: #ff4444; }
+        .gear-1, .gear-2, .gear-3 { color: #00ff00; }
+        .gear-4, .gear-5 { color: #ffff00; }
+        .gear-6, .gear-7 { color: #ff8800; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Speed & Gear -->
+        <div class="panel">
+            <h3>SPEED</h3>
+            <div id="speed" class="big-number">0</div>
+            <h3>GEAR</h3>
+            <div id="gear" class="gear-display gear-N">N</div>
+        </div>
+
+        <!-- RPM -->
+        <div class="panel">
+            <h3>RPM</h3>
+            <div id="rpm" class="big-number">0</div>
+            <div class="fuel-bar">
+                <div id="rpmFill" class="fuel-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Indicators -->
+        <div class="panel">
+            <h3>SYSTEMS</h3>
+            <div id="abs" class="indicator">ABS</div>
+            <div id="tc" class="indicator">TC</div>
+            <div id="drs" class="indicator">DRS</div>
+            <div id="pitLimiter" class="indicator warning">PIT LIMITER</div>
+        </div>
+
+        <!-- Fuel -->
+        <div class="panel">
+            <h3>FUEL</h3>
+            <div class="fuel-bar">
+                <div id="fuelFill" class="fuel-fill" style="width: 0%"></div>
+            </div>
+            <p>Remaining: <span id="fuelRem">-</span> L</p>
+            <p>Per Lap: <span id="fuelPerLap">-</span> L</p>
+            <p>Capacity: <span id="fuelCap">-</span> L</p>
+        </div>
+
+        <!-- Tyres -->
+        <div class="panel">
+            <h3>TYRE PRESSURE</h3>
+            <div class="tyre-grid">
+                <div class="tyre">
+                    <div class="tyre-label">FL</div>
+                    <div id="tyreFLPressure" class="tyre-value">0</div>
+                </div>
+                <div class="tyre">
+                    <div class="tyre-label">FR</div>
+                    <div id="tyreFRPressure" class="tyre-value">0</div>
+                </div>
+                <div class="tyre">
+                    <div class="tyre-label">RL</div>
+                    <div id="tyreRLPressure" class="tyre-value">0</div>
+                </div>
+                <div class="tyre">
+                    <div class="tyre-label">RR</div>
+                    <div id="tyreRRPressure" class="tyre-value">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tyre Temp -->
+        <div class="panel">
+            <h3>TYRE TEMPERATURE</h3>
+            <div class="tyre-grid">
+                <div class="tyre">
+                    <div class="tyre-label">FL</div>
+                    <div id="tyreFLTemp" class="tyre-value">0</div>
+                </div>
+                <div class="tyre">
+                    <div class="tyre-label">FR</div>
+                    <div id="tyreFRTemp" class="tyre-value">0</div>
+                </div>
+                <div class="tyre">
+                    <div class="tyre-label">RL</div>
+                    <div id="tyreRLTemp" class="tyre-value">0</div>
+                </div>
+                <div class="tyre">
+                    <div class="tyre-label">RR</div>
+                    <div id="tyreRRTemp" class="tyre-value">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lap Times -->
+        <div class="panel">
+            <h3>LAP: <span id="lap">0</span></h3>
+            <p>Current: <span id="laptime">00:00.000</span></p>
+            <p>Diff: <span id="timeDiff">-0.000</span></p>
+            <p>Best: <span id="bestLap">00:00.000</span></p>
+        </div>
+
+        <!-- Other -->
+        <div class="panel">
+            <h3>OTHER</h3>
+            <p>Water Temp: <span id="waterTemp">-</span></p>
+            <p>Brake Bias: <span id="brakeBias">0</span>%</p>
+            <p>Tyre Type: <span id="tyreType">DRY</span></p>
+        </div>
+
+        <!-- Connection Status (optional) -->
+        <div class="panel">
+            <h3>CONNECTION</h3>
+            <div id="status">Connecting...</div>
+        </div>
+    </div>
+
+    <!-- Universal dashboard script - handles everything automatically! -->
+    <script src="/dashboard/scripts/dashboard.js"></script>
+</body>
+</html>

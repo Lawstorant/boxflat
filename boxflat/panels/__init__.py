@@ -15,3 +15,4 @@ from .hub            import HubSettings
 from .stalks         import StalksSettings
 from .generic        import GenericSettings
 from .dash           import DashSettings
+from .ac_dashboard   import ACDashboardSettings
