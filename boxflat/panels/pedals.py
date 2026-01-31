@@ -11,6 +11,7 @@ class PedalsSettings(SettingsPanel):
         self._curve_rows: dict[str, BoxflatEqRow] = {}
         self._inverted = False
         self._pedal_pages: dict[str, Gtk.Widget] = {}
+        self._view_stack = None
 
         self._presets = [
             [20, 40, 60, 80, 100], # Linear
@@ -37,22 +38,27 @@ class PedalsSettings(SettingsPanel):
         self._inverted = bool(inverted)
 
         # Update Throttle page title
-        if MozaAxis.THROTTLE.name in self._pedal_pages:
-            title = "Clutch" if self._inverted else "Throttle"
-            title = f"{title} *" if self._inverted else title
-            self._pedal_pages[MozaAxis.THROTTLE.name].set_title(title)
+        if MozaAxis.THROTTLE.name in self._pedal_pages and self._view_stack:
+            stack_page = self._view_stack.get_page(self._pedal_pages[MozaAxis.THROTTLE.name])
+            if stack_page:
+                title = "Clutch" if self._inverted else "Throttle"
+                title = f"{title} *" if self._inverted else title
+                stack_page.set_title(title)
 
         # Update Clutch page title
-        if MozaAxis.CLUTCH.name in self._pedal_pages:
-            title = "Throttle" if self._inverted else "Clutch"
-            title = f"{title} *" if self._inverted else title
-            self._pedal_pages[MozaAxis.CLUTCH.name].set_title(title)
+        if MozaAxis.CLUTCH.name in self._pedal_pages and self._view_stack:
+            stack_page = self._view_stack.get_page(self._pedal_pages[MozaAxis.CLUTCH.name])
+            if stack_page:
+                title = "Throttle" if self._inverted else "Clutch"
+                title = f"{title} *" if self._inverted else title
+                stack_page.set_title(title)
 
         # Brake page never changes - no update needed
 
 
     def prepare_ui(self):
         self.add_view_stack()
+        self._view_stack = self._current_stack
         for pedal in [MozaAxis.THROTTLE, MozaAxis.BRAKE, MozaAxis.CLUTCH]:
             self._prepare_pedal(pedal)
 
