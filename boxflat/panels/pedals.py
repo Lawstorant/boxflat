@@ -11,6 +11,7 @@ class PedalsSettings(SettingsPanel):
         self._curve_rows: dict[str, BoxflatEqRow] = {}
         self._inverted = False
         self._pedal_pages: dict[str, Gtk.Widget] = {}
+        self._pedal_swap_map: dict[str, str] = {}  # maps page_name -> actual_pedal_name
         self._view_stack = None
 
         self._presets = [
@@ -28,8 +29,23 @@ class PedalsSettings(SettingsPanel):
         self._brake_calibration_row.set_active(active)
 
 
+    def _get_actual_pedal_name(self, page_pedal: str) -> str:
+        """Get the actual pedal name whose data should be displayed on this page.
+
+        When inverted is enabled, the Throttle page shows Clutch's data and
+        the Clutch page shows Throttle's data. Brake page never changes.
+
+        Args:
+            page_pedal: The pedal name for this page (THROTTLE, BRAKE, or CLUTCH)
+
+        Returns:
+            The actual pedal name whose data should be displayed
+        """
+        return self._pedal_swap_map.get(page_pedal, page_pedal)
+
+
     def set_inverted_pedals(self, inverted: int) -> None:
-        """Update pedal page titles when inversion state changes.
+        """Update pedal page titles and value routing when inversion state changes.
 
         This is a global setting that affects all pedal devices uniformly.
         The inversion toggle applies to the entire pedal configuration, not
@@ -39,6 +55,17 @@ class PedalsSettings(SettingsPanel):
         when inverted to show which pedals are affected.
         """
         self._inverted = bool(inverted)
+
+        # Update which pedal each page displays
+        if self._inverted:
+            self._pedal_swap_map[MozaAxis.THROTTLE.name] = MozaAxis.CLUTCH.name
+            self._pedal_swap_map[MozaAxis.CLUTCH.name] = MozaAxis.THROTTLE.name
+        else:
+            self._pedal_swap_map[MozaAxis.THROTTLE.name] = MozaAxis.THROTTLE.name
+            self._pedal_swap_map[MozaAxis.CLUTCH.name] = MozaAxis.CLUTCH.name
+
+        # Brake page never swaps
+        self._pedal_swap_map[MozaAxis.BRAKE.name] = MozaAxis.BRAKE.name
 
         # Update Throttle page title - always "Throttle" (with * when inverted)
         if MozaAxis.THROTTLE.name in self._pedal_pages and self._view_stack:
@@ -71,7 +98,10 @@ class PedalsSettings(SettingsPanel):
         self._pedal_pages[pedal.name] = self._current_page
         self.add_preferences_group(f"{pedal.name.title()} Curve", level_bar=1)
         self._current_group.set_bar_max(65_534)
-        self._hid_handler.subscribe(pedal.name, self._current_group.set_bar_level)
+
+        # Subscribe to the actual pedal's HID data (swapped when inverted)
+        actual_pedal = self._get_actual_pedal_name(pedal.name)
+        self._hid_handler.subscribe(actual_pedal, self._current_group.set_bar_level)
 
         self._curve_rows[pedal.name] = BoxflatEqRow("", 5, suffix="%")
         self._add_row(self._curve_rows[pedal.name])
@@ -84,20 +114,23 @@ class PedalsSettings(SettingsPanel):
         self._current_row.subscribe(self._set_curve_preset, pedal.name)
         for i in range(5):
             self._curve_rows[pedal.name].subscribe_slider(i, self._set_curve_point, i, pedal.name)
-            self._cm.subscribe(f"pedals-{pedal.name}-y{i+1}", self._get_curve, i, pedal.name)
+            # Subscribe to actual pedal's curve settings
+            self._cm.subscribe(f"pedals-{actual_pedal}-y{i+1}", self._get_curve, i, pedal.name)
 
         self.add_preferences_group(f"{pedal.name.title()} Range")
         self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting, f"pedals-{pedal.name}-min")
-        self._cm.subscribe(f"pedals-{pedal.name}-min", self._current_row.set_value)
+        # Subscribe to actual pedal's min setting
+        self._current_row.subscribe(self._cm.set_setting, f"pedals-{actual_pedal}-min")
+        self._cm.subscribe(f"pedals-{actual_pedal}-min", self._current_row.set_value)
 
         self._add_row(BoxflatSliderRow("Range End", suffix="%"))
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
-        self._current_row.subscribe(self._cm.set_setting, f"pedals-{pedal.name}-max")
-        self._cm.subscribe(f"pedals-{pedal.name}-max", self._current_row.set_value)
+        # Subscribe to actual pedal's max setting
+        self._current_row.subscribe(self._cm.set_setting, f"pedals-{actual_pedal}-max")
+        self._cm.subscribe(f"pedals-{actual_pedal}-max", self._current_row.set_value)
 
         if pedal == MozaAxis.BRAKE:
             self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
@@ -107,12 +140,14 @@ class PedalsSettings(SettingsPanel):
 
         self.add_preferences_group("Misc")
         self._add_row(BoxflatSwitchRow("Reverse Direction"))
-        self._current_row.subscribe(self._cm.set_setting, f"pedals-{pedal.name}-dir")
-        self._cm.subscribe(f"pedals-{pedal.name}-dir", self._current_row.set_value)
+        # Subscribe to actual pedal's direction setting
+        self._current_row.subscribe(self._cm.set_setting, f"pedals-{actual_pedal}-dir")
+        self._cm.subscribe(f"pedals-{actual_pedal}-dir", self._current_row.set_value)
 
         self._add_row(BoxflatCalibrationRow("Calibration", f"Fully depress {pedal.name} once"))
-        self._current_row.subscribe("calibration-start", self._cm.set_setting, f"pedals-{pedal.name}-calibration-start", True)
-        self._current_row.subscribe("calibration-stop", self._cm.set_setting, f"pedals-{pedal.name}-calibration-stop", True)
+        # Subscribe to actual pedal's calibration settings
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, f"pedals-{actual_pedal}-calibration-start", True)
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, f"pedals-{actual_pedal}-calibration-stop", True)
         if pedal == MozaAxis.BRAKE:
             self._brake_calibration_row = self._current_row
 
@@ -126,7 +161,9 @@ class PedalsSettings(SettingsPanel):
 
 
     def _set_curve_point(self, value: int, index: int, pedal: str):
-        self._cm.set_setting(value, f"pedals-{pedal}-y{index+1}")
+        # Write to the actual pedal's settings (swapped when inverted)
+        actual_pedal = self._get_actual_pedal_name(pedal)
+        self._cm.set_setting(value, f"pedals-{actual_pedal}-y{index+1}")
 
 
     def _set_curve(self, values: list, pedal: str):
@@ -148,12 +185,15 @@ class PedalsSettings(SettingsPanel):
 
 
     def reset(self, pedal: str, *_) -> None:
+        # Reset the actual pedal's settings (swapped when inverted)
+        actual_pedal = self._get_actual_pedal_name(pedal)
+
         self._set_curve_preset(0, pedal)
 
-        self._cm.set_setting(0, f"pedals-{pedal}-min")
-        self._cm.set_setting(100, f"pedals-{pedal}-max")
-        self._cm.set_setting(0, f"pedals-{pedal}-dir")
-        if pedal == MozaAxis.BRAKE.name:
+        self._cm.set_setting(0, f"pedals-{actual_pedal}-min")
+        self._cm.set_setting(100, f"pedals-{actual_pedal}-max")
+        self._cm.set_setting(0, f"pedals-{actual_pedal}-dir")
+        if actual_pedal == MozaAxis.BRAKE.name:
             self._cm.set_setting(50, "pedals-brake-angle-ratio")
 
         self._set_curve_preset(0, pedal)
