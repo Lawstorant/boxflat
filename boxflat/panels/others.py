@@ -83,6 +83,16 @@ class OtherSettings(SettingsPanel):
         fix_row.subscribe(self._hid_handler.set_detection_fix_enabled)
         fix_row.set_value(self._settings.read_setting("moza-detection-fix-enabled"))
 
+        inversion_row = BoxflatSwitchRow("Inverted Pedals", "Swap clutch and throttle axes")
+        self._inverted_pedals_row = inversion_row
+        self._add_row(inversion_row)
+
+        self._register_event("inverted-pedals-enabled")
+        inversion_row.subscribe(self._settings.write_setting, "inverted-pedals")
+        inversion_row.subscribe(lambda v: self._dispatch("inverted-pedals-enabled", v))
+        inversion_row.set_value(self._settings.read_setting("inverted-pedals") or 0)
+        self._cm.subscribe_connected("pedals-throttle-dir", inversion_row.set_active, 1)
+
         # Autostart and background stuff
         hidden = BoxflatSwitchRow("Start hidden")
         hidden.set_value(self._settings.read_setting("autostart-hidden") or 0)
