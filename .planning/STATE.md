@@ -12,11 +12,11 @@
 ## Current Position
 
 **Phase:** Phase 1 - Core Inversion UI and Behavior
-**Plan:** 01 of 2 (Add Inverted Pedals Toggle)
+**Plan:** 03 of 2 (Home Panel Value and Label Swapping)
 **Status:** In Progress
-**Progress:** 10% (1 of 10 plans complete across all phases)
+**Progress:** 20% (2 of 10 plans complete across all phases)
 
-**Current Work:** Completed plan 01-01 (Inverted Pedals toggle). Ready for plan 01-02 (pedal panel display updates).
+**Current Work:** Completed plan 01-03 (Home panel swapping). Awaiting user verification at checkpoint.
 
 ## Performance Metrics
 
@@ -25,6 +25,14 @@
 ## Accumulated Context
 
 ### Decisions Made
+
+**2026-01-31 - Plan 01-03 Implementation: Home Panel Value and Label Swapping**
+- Value routing wrapper pattern: _throttle_input_wrapper and _clutch_input_wrapper route values based on _inverted state
+- Star (*) indicator added to row titles when inverted to show swapped state
+- Row titles update dynamically via set_title() method when inversion toggles
+- Event bridging: HomeSettings subscribes to inverted-pedals-enabled event from OtherSettings
+- Multiple subscriptions to same event supported (both Home and Pedals panels receive events)
+- UI-layer only: HID subscriptions unchanged, value swapping happens at display layer
 
 **2026-01-31 - Plan 01-01 Implementation: Inverted Pedals Toggle**
 - Event name confirmed: "inverted-pedals-enabled" (consistent with existing pattern)
@@ -79,17 +87,19 @@
 ## Session Continuity
 
 **Last Session:** 2026-01-31
-**Stopped At:** Completed plan 01-01 (Add Inverted Pedals Toggle)
-**Resume File:** None (plan complete, ready for next plan)
+**Stopped At:** Completed plan 01-03 (Home Panel Value and Label Swapping)
+**Resume File:** None (plan complete, awaiting user verification at checkpoint)
 
 **Completed:**
 - Plan 01-01: Inverted Pedals toggle in Other settings panel (commit a76a18d)
-- User verification: Approved (toggle works correctly)
+  - User verification: Approved (toggle works correctly)
+- Plan 01-02: Pedals panel label swapping (unknown commit, executed prior)
+- Plan 01-03: Home panel value and label swapping (commits 1bef42c, 8f06b20)
+  - Status: Awaiting user verification
 
 **Next Steps:**
-1. Execute plan 01-02: Update pedal panels to consume inversion events
-2. Implement label swapping (clutch ↔ throttle) in Home/Pedals settings
-3. Implement value swapping in telemetry displays
+1. User verification of plan 01-03: Test Home panel displays swapped values and labels correctly
+2. Continue with remaining plans if verification passes
 
 **Open Questions:** None
 
