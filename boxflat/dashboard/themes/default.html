@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .rpm-container {
+            text-align: center;
+        }
+
+        .rpm-value {
+            font-size: 120px;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .rpm-bar {
+            width: 400px;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .rpm-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff87 0%, #00ff87 60%, #ffdd00 80%, #ff4444 100%);
+            transition: width 0.05s linear;
+            border-radius: 15px;
+        }
+
+        .rpm-label {
+            font-size: 24px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .gear-display {
+            font-size: 180px;
+            font-weight: bold;
+            min-width: 200px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .gear-N { color: #fff; }
+        .gear-R { color: #ff4444; }
+        .gear-1, .gear-2, .gear-3 { color: #00ff87; }
+        .gear-4, .gear-5 { color: #ffdd00; }
+        .gear-6, .gear-7 { color: #ff8800; }
+
+        .speed-display {
+            text-align: center;
+        }
+
+        .speed-value {
+            font-size: 100px;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            color: #00a8ff;
+            text-shadow: 0 0 20px rgba(0,168,255,0.5);
+        }
+
+        .speed-unit {
+            font-size: 30px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            margin-top: auto;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        .indicator-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: background 0.1s;
+        }
+
+        .indicator.active .indicator-dot {
+            background: #00ff87;
+            box-shadow: 0 0 15px #00ff87;
+        }
+
+        .indicator.warning .indicator-dot {
+            background: #ffdd00;
+            box-shadow: 0 0 15px #ffdd00;
+        }
+
+        .indicator.danger .indicator-dot {
+            background: #ff4444;
+            box-shadow: 0 0 15px #ff4444;
+        }
+
+        .fuel-bar {
+            width: 300px;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .fuel-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444 0%, #ffdd00 30%, #00ff87 100%);
+            transition: width 0.3s;
+        }
+
+        .status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 5px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .status.connected {
+            color: #00ff87;
+        }
+
+        @media (max-width: 768px) {
+            .rpm-value { font-size: 80px; }
+            .rpm-bar { width: 300px; }
+            .gear-display { font-size: 120px; min-width: 150px; }
+            .speed-value { font-size: 70px; }
+            .top-row { gap: 20px; }
+            .bottom-row { gap: 30px; flex-wrap: wrap; }
+            .indicator { font-size: 14px; padding: 8px 12px; }
+            .fuel-bar { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="status" id="status">Connecting...</div>
+
+    <div class="dashboard">
+        <div class="top-row">
+            <div class="rpm-container">
+                <div class="rpm-value" id="rpm">0</div>
+                <div class="rpm-bar">
+                    <div class="rpm-fill" id="rpmFill"></div>
+                </div>
+                <div class="rpm-label">RPM</div>
+            </div>
+
+            <div class="gear-display">
+                <span class="gear-N" id="gear">N</span>
+            </div>
+
+            <div class="speed-display">
+                <div class="speed-value" id="speed">0</div>
+                <div class="speed-unit">km/h</div>
+            </div>
+        </div>
+
+        <div class="bottom-row">
+            <div class="indicator" id="abs">
+                <div class="indicator-dot"></div>
+                <span>ABS</span>
+            </div>
+
+            <div class="indicator" id="tc">
+                <div class="indicator-dot"></div>
+                <span>TC</span>
+            </div>
+
+            <div class="indicator" id="drs">
+                <div class="indicator-dot"></div>
+                <span>DRS</span>
+            </div>
+
+            <div class="indicator warning" id="pitLimiter">
+                <div class="indicator-dot"></div>
+                <span>PIT</span>
+            </div>
+
+            <div class="indicator">
+                <span>FUEL</span>
+                <div class="fuel-bar">
+                    <div class="fuel-fill" id="fuelFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/dashboard/scripts/dashboard.js"></script>
+</body>
+</html>

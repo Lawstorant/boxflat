@@ -7,6 +7,7 @@ from boxflat.widgets import *
 
 from boxflat.hid_handler import MozaAxis
 from boxflat.settings_handler import SettingsHandler
+from boxflat.ac_telemetry import ACTelemetryReader
 
 MOZA_TELEMETRY_FLAGS = [
     "Wheel Spin",
@@ -77,6 +78,22 @@ class OldWheelSettings(SettingsPanel):
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
         ]
 
+        # Initialize AC telemetry reader (direct shared memory, reads from AC like Monocoque)
+        def _rpm_callback(rpm_value):
+            """Callback when AC telemetry updates RPM."""
+            # Send RPM to wheel using bitfield method (for old wheels)
+            # Calculate percentage (0-100) and convert to LED bitfield
+            percent = min(100, max(0, int(rpm_value * 100 / 20000)))
+            num_leds = int(percent / 10)
+
+            value = 0
+            for i in range(num_leds):
+                value = bit(i) | value
+
+            self._cm.set_setting(value, "wheel-old-send-telemetry")
+
+        self._ac_telemetry = ACTelemetryReader(_rpm_callback)
+
         super().__init__("Wheel Old", button_callback, connection_manager, hid_handler)
         self._cm.subscribe_connected("wheel-rpm-value1", self.active)
         self.set_banner_title(f"Device disconnected...")
@@ -90,6 +107,10 @@ class OldWheelSettings(SettingsPanel):
             new_id = self._cm.cycle_wheel_id(old=True)
             self.set_banner_title(f"Device disconnected. Trying wheel id: {new_id}...")
             return
+
+        # Ensure AC telemetry switch stays sensitive even when device disconnected
+        if hasattr(self, '_ac_telemetry_switch_row') and self._ac_telemetry_switch_row:
+            self._ac_telemetry_switch_row.set_sensitive(True)
 
         wheel_id = self._cm.get_device_id("wheel")
         if self._stick_row is not None:
@@ -224,6 +245,23 @@ class OldWheelSettings(SettingsPanel):
         self._current_row.subscribe(self._reconfigure_timings)
         self._cm.subscribe("wheel-rpm-mode", self._current_row.set_value)
 
+        self.add_preferences_group("Telemetry")
+        self._current_group.set_description("Read RPM data directly from Assetto Corsa shared memory")
+        # Make this group always accessible, even when device is disconnected
+        self._groups.remove(self._current_group)  # Remove from auto-sensitivity list
+
+        # Load saved state
+        telemetry_enabled = self._settings.read_setting("ac-telemetry-enabled") or False
+
+        # Enable/Disable telemetry
+        self._add_row(BoxflatSwitchRow("Enable AC Telemetry"))
+        self._ac_telemetry_switch_row = self._current_row
+        # Directly connect to the switch signal
+        self._ac_telemetry_switch_row._switch.connect('notify::active', self._on_ac_telemetry_switch_changed)
+
+        # Set initial state
+        self._ac_telemetry_switch_row._switch.set_active(telemetry_enabled)
+
         self.add_preferences_group("Timings")
         self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
             button_row=False, draw_marks=False)
@@ -330,6 +368,21 @@ class OldWheelSettings(SettingsPanel):
     def _reconfigure_timings(self, value: int):
         self._timing_row.set_present(value < 1)
         self._timing_row2.set_present(value >= 1)
+
+
+    def _on_ac_telemetry_switch_changed(self, switch, gparam):
+        """Handle AC telemetry switch change."""
+        enabled = switch.get_active()
+        print(f"[Wheel Old] AC telemetry toggle: {enabled}")
+
+        if enabled:
+            print("[Wheel Old] Starting direct AC telemetry (shared memory)")
+            self._ac_telemetry.start()
+        else:
+            print("[Wheel Old] Stopping AC telemetry")
+            self._ac_telemetry.stop()
+
+        self._settings.write_setting(int(enabled), "ac-telemetry-enabled")
 
 
     def _calibrate_paddles(self, value: int, *_):
@@ -531,3 +584,9 @@ class OldWheelSettings(SettingsPanel):
 
         self._cm.set_setting(15, "wheel-old-rpm-brightness")
         self._set_combination_settings([0] * 8)
+
+
+    def shutdown(self):
+        """Cleanup when panel is being destroyed."""
+        if hasattr(self, '_ac_telemetry') and self._ac_telemetry:
+            self._ac_telemetry.stop()
