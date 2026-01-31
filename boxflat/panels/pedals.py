@@ -34,22 +34,25 @@ class PedalsSettings(SettingsPanel):
         This is a global setting that affects all pedal devices uniformly.
         The inversion toggle applies to the entire pedal configuration, not
         per-device. All pedal pages show the same swapped labels when inverted.
+
+        Page titles keep their original names and only add a star indicator
+        when inverted to show which pedals are affected.
         """
         self._inverted = bool(inverted)
 
-        # Update Throttle page title
+        # Update Throttle page title - always "Throttle" (with * when inverted)
         if MozaAxis.THROTTLE.name in self._pedal_pages and self._view_stack:
             stack_page = self._view_stack.get_page(self._pedal_pages[MozaAxis.THROTTLE.name])
             if stack_page:
-                title = "Clutch" if self._inverted else "Throttle"
+                title = "Throttle"
                 title = f"{title} *" if self._inverted else title
                 stack_page.set_title(title)
 
-        # Update Clutch page title
+        # Update Clutch page title - always "Clutch" (with * when inverted)
         if MozaAxis.CLUTCH.name in self._pedal_pages and self._view_stack:
             stack_page = self._view_stack.get_page(self._pedal_pages[MozaAxis.CLUTCH.name])
             if stack_page:
-                title = "Throttle" if self._inverted else "Clutch"
+                title = "Clutch"
                 title = f"{title} *" if self._inverted else title
                 stack_page.set_title(title)
 

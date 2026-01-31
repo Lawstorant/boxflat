@@ -12,11 +12,11 @@
 ## Current Position
 
 **Phase:** Phase 1 - Core Inversion UI and Behavior
-**Plan:** 03 of 2 (Home Panel Value and Label Swapping)
-**Status:** In Progress
+**Plan:** 02 of 2 (Pedals Panel Page Title Updates)
+**Status:** Bug Fix Applied
 **Progress:** 20% (2 of 10 plans complete across all phases)
 
-**Current Work:** Completed plan 01-03 (Home panel swapping). Awaiting user verification at checkpoint.
+**Current Work:** Fixed bug in plan 01-02 where Pedals panel page titles were not updating. Ready for user verification.
 
 ## Performance Metrics
 
@@ -25,6 +25,12 @@
 ## Accumulated Context
 
 ### Decisions Made
+
+**2026-01-31 - Plan 01-02 Bug Fix: ViewStackPage Title Updates**
+- Root cause: set_title() was called on Adw.PreferencesPage instead of Adw.ViewStackPage wrapper
+- ViewStack API: When pages added with add_titled_with_icon(), wrapper controls displayed title
+- Fix: Store ViewStack reference, get wrapper with get_page(), call set_title() on wrapper
+- Commit: 093d972
 
 **2026-01-31 - Plan 01-03 Implementation: Home Panel Value and Label Swapping**
 - Value routing wrapper pattern: _throttle_input_wrapper and _clutch_input_wrapper route values based on _inverted state
@@ -87,19 +93,22 @@
 ## Session Continuity
 
 **Last Session:** 2026-01-31
-**Stopped At:** Completed plan 01-03 (Home Panel Value and Label Swapping)
-**Resume File:** None (plan complete, awaiting user verification at checkpoint)
+**Stopped At:** Fixed bug in plan 01-02 (Pedals panel page title updates)
+**Resume File:** None (bug fix complete, ready for verification)
 
 **Completed:**
 - Plan 01-01: Inverted Pedals toggle in Other settings panel (commit a76a18d)
   - User verification: Approved (toggle works correctly)
-- Plan 01-02: Pedals panel label swapping (unknown commit, executed prior)
+- Plan 01-02: Pedals panel page title updates (commits c315198, e874466, 3bfa070, 021d02b)
+  - Bug fix applied: ViewStackPage title updates (commit 093d972)
+  - Status: Ready for user verification
 - Plan 01-03: Home panel value and label swapping (commits 1bef42c, 8f06b20)
   - Status: Awaiting user verification
 
 **Next Steps:**
-1. User verification of plan 01-03: Test Home panel displays swapped values and labels correctly
-2. Continue with remaining plans if verification passes
+1. User verification of plan 01-02: Test that Pedals panel page titles update correctly
+2. User verification of plan 01-03: Test Home panel displays swapped values and labels correctly
+3. Continue with remaining plans if verifications pass
 
 **Open Questions:** None
 
