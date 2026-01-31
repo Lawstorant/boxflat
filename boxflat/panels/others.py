@@ -127,6 +127,10 @@ class OtherSettings(SettingsPanel):
         return self._settings.read_setting("brake-calibration-enabled") or 0
 
 
+    def get_inverted_pedals_enabled(self) -> int:
+        return self._settings.read_setting("inverted-pedals") or 0
+
+
     def enable_custom_commands(self):
         self.add_preferences_group("Custom command")
         self._command = Adw.EntryRow()

@@ -320,6 +320,9 @@ class MyApp(Adw.Application):
         self._panels["Other"].subscribe("brake-calibration-enabled", self._panels["Pedals"].set_brake_calibration_active)
         self._panels["Pedals"].set_brake_calibration_active(self._panels["Other"].get_brake_valibration_enabled())
 
+        self._panels["Other"].subscribe("inverted-pedals-enabled", self._panels["Pedals"].set_inverted_pedals)
+        self._panels["Pedals"].set_inverted_pedals(self._panels["Other"].get_inverted_pedals_enabled())
+
         for panel in self._panels.values():
             panel.active(-2)
 
