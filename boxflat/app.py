@@ -323,6 +323,9 @@ class MyApp(Adw.Application):
         self._panels["Other"].subscribe("inverted-pedals-enabled", self._panels["Pedals"].set_inverted_pedals)
         self._panels["Pedals"].set_inverted_pedals(self._panels["Other"].get_inverted_pedals_enabled())
 
+        self._panels["Other"].subscribe("inverted-pedals-enabled", self._panels["Home"].set_inverted_pedals)
+        self._panels["Home"].set_inverted_pedals(self._panels["Other"].get_inverted_pedals_enabled())
+
         for panel in self._panels.values():
             panel.active(-2)
 
