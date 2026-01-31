@@ -9,6 +9,8 @@ class PedalsSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
         self._brake_calibration_row = None
         self._curve_rows: dict[str, BoxflatEqRow] = {}
+        self._inverted = False
+        self._pedal_pages: dict[str, Gtk.Widget] = {}
 
         self._presets = [
             [20, 40, 60, 80, 100], # Linear
