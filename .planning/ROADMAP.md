@@ -16,6 +16,8 @@ This roadmap delivers the Inverted Pedals feature for Boxflat, allowing sim race
 
 **Dependencies:** None (this is the first GSD-tracked milestone)
 
+**Plans:** 3 plans
+
 **Requirements:**
 - INVT-01: User can toggle "Inverted Pedals" in Other settings panel
 - INVT-02: Inverted Pedals setting persists across application restarts
@@ -34,6 +36,11 @@ This roadmap delivers the Inverted Pedals feature for Boxflat, allowing sim race
 3. User can disable Inverted Pedals and see clutch/throttle values return to normal
 4. User can restart application and see Inverted Pedals setting preserved
 5. User can see clutch and throttle axis labels update dynamically when toggling inversion
+
+**Plans:**
+- [ ] 01-01-PLAN.md — Add Inverted Pedals toggle to Other settings panel
+- [ ] 01-02-PLAN.md — Update Pedals panel page titles on inversion toggle
+- [ ] 01-03-PLAN.md — Implement value/label swapping in Home panel
 
 ---
 
