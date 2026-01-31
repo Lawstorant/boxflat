@@ -35,6 +35,7 @@ class PedalsSettings(SettingsPanel):
 
     def _prepare_pedal(self, pedal: AxisData):
         self.add_preferences_page(pedal.name.title())
+        self._pedal_pages[pedal.name] = self._current_page
         self.add_preferences_group(f"{pedal.name.title()} Curve", level_bar=1)
         self._current_group.set_bar_max(65_534)
         self._hid_handler.subscribe(pedal.name, self._current_group.set_bar_level)
