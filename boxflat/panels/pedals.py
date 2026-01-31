@@ -27,6 +27,30 @@ class PedalsSettings(SettingsPanel):
         self._brake_calibration_row.set_active(active)
 
 
+    def set_inverted_pedals(self, inverted: int) -> None:
+        """Update pedal page titles when inversion state changes.
+
+        This is a global setting that affects all pedal devices uniformly.
+        The inversion toggle applies to the entire pedal configuration, not
+        per-device. All pedal pages show the same swapped labels when inverted.
+        """
+        self._inverted = bool(inverted)
+
+        # Update Throttle page title
+        if MozaAxis.THROTTLE.name in self._pedal_pages:
+            title = "Clutch" if self._inverted else "Throttle"
+            title = f"{title} *" if self._inverted else title
+            self._pedal_pages[MozaAxis.THROTTLE.name].set_title(title)
+
+        # Update Clutch page title
+        if MozaAxis.CLUTCH.name in self._pedal_pages:
+            title = "Throttle" if self._inverted else "Clutch"
+            title = f"{title} *" if self._inverted else title
+            self._pedal_pages[MozaAxis.CLUTCH.name].set_title(title)
+
+        # Brake page never changes - no update needed
+
+
     def prepare_ui(self):
         self.add_view_stack()
         for pedal in [MozaAxis.THROTTLE, MozaAxis.BRAKE, MozaAxis.CLUTCH]:
