@@ -12,11 +12,11 @@
 ## Current Position
 
 **Phase:** Phase 1 - Core Inversion UI and Behavior
-**Plan:** 02 of 2 (Pedals Panel Page Title Updates)
-**Status:** Bug Fix Applied
-**Progress:** 20% (2 of 10 plans complete across all phases)
+**Plan:** 03 of 10 (Home Panel Value and Label Swapping)
+**Status:** Complete and verified
+**Progress:** 30% (3 of 10 plans complete across all phases)
 
-**Current Work:** Fixed bug in plan 01-02 where Pedals panel page titles were not updating. Ready for user verification.
+**Current Work:** Completed plan 01-03 with user verification passed. Home panel correctly displays swapped pedal values with star indicator on row titles.
 
 ## Performance Metrics
 
@@ -30,15 +30,28 @@
 - Root cause: set_title() was called on Adw.PreferencesPage instead of Adw.ViewStackPage wrapper
 - ViewStack API: When pages added with add_titled_with_icon(), wrapper controls displayed title
 - Fix: Store ViewStack reference, get wrapper with get_page(), call set_title() on wrapper
-- Commit: 093d972
+- Commits: 093d972, 5583b70
+
+**2026-01-31 - Plan 01-02 Implementation: Pedals Panel Value Swapping**
+- Initial approach: Swap map with dynamic HID re-subscription (commit 92275e2)
+- Problem: Re-subscription caused duplicate subscriptions, both pages showed same data
+- Final fix: Wrapper function pattern (commit 1b19ad8)
+  - _throttle_hid_wrapper and _clutch_hid_wrapper route HID data based on _inverted state
+  - Each page subscribes once to its original pedal's HID data
+  - No subscription/unsubscription complexity
+  - Matches Home panel pattern for consistency
+- User verification passed: Confirmed correct page titles and value routing
 
 **2026-01-31 - Plan 01-03 Implementation: Home Panel Value and Label Swapping**
 - Value routing wrapper pattern: _throttle_input_wrapper and _clutch_input_wrapper route values based on _inverted state
 - Star (*) indicator added to row titles when inverted to show swapped state
+- Row titles preserve original names ("Throttle input", "Clutch input") with star when inverted
+- Fix applied: Original implementation swapped titles along with values, corrected to keep original titles
 - Row titles update dynamically via set_title() method when inversion toggles
 - Event bridging: HomeSettings subscribes to inverted-pedals-enabled event from OtherSettings
 - Multiple subscriptions to same event supported (both Home and Pedals panels receive events)
 - UI-layer only: HID subscriptions unchanged, value swapping happens at display layer
+- User verification passed: Confirmed correct behavior with star indicator
 
 **2026-01-31 - Plan 01-01 Implementation: Inverted Pedals Toggle**
 - Event name confirmed: "inverted-pedals-enabled" (consistent with existing pattern)
@@ -93,22 +106,22 @@
 ## Session Continuity
 
 **Last Session:** 2026-01-31
-**Stopped At:** Fixed bug in plan 01-02 (Pedals panel page title updates)
-**Resume File:** None (bug fix complete, ready for verification)
+**Stopped At:** Completed plan 01-03 (Home panel value and label swapping)
+**Resume File:** None (plan complete, ready to continue)
 
 **Completed:**
 - Plan 01-01: Inverted Pedals toggle in Other settings panel (commit a76a18d)
   - User verification: Approved (toggle works correctly)
-- Plan 01-02: Pedals panel page title updates (commits c315198, e874466, 3bfa070, 021d02b)
-  - Bug fix applied: ViewStackPage title updates (commit 093d972)
-  - Status: Ready for user verification
-- Plan 01-03: Home panel value and label swapping (commits 1bef42c, 8f06b20)
-  - Status: Awaiting user verification
+- Plan 01-02: Pedals panel page title and value updates (commits c315198, e874466, 3bfa070, 021d02b, 093d972, 5583b70, 92275e2, 1b19ad8)
+  - Bug fixes applied: ViewStackPage title updates (093d972), HID wrapper routing (1b19ad8)
+  - User verification: Approved (page titles and value routing work correctly)
+- Plan 01-03: Home panel value and label swapping (commits 1bef42c, 8f06b20, dd956f7)
+  - Bug fix applied: Keep original row titles with star indicator (commit dd956f7)
+  - User verification: Approved (values and labels swap correctly)
 
 **Next Steps:**
-1. User verification of plan 01-02: Test that Pedals panel page titles update correctly
-2. User verification of plan 01-03: Test Home panel displays swapped values and labels correctly
-3. Continue with remaining plans if verifications pass
+1. Continue with remaining Phase 1 plans
+2. Plans 01-04 through 01-10: Additional UI components and preset integration
 
 **Open Questions:** None
 
