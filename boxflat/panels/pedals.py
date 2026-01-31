@@ -11,7 +11,7 @@ class PedalsSettings(SettingsPanel):
         self._curve_rows: dict[str, BoxflatEqRow] = {}
         self._inverted = False
         self._pedal_pages: dict[str, Gtk.Widget] = {}
-        self._pedal_swap_map: dict[str, str] = {}  # maps page_name -> actual_pedal_name
+        self._pedal_bars: dict[str, Gtk.Widget] = {}  # stores level_bar widgets for HID updates
         self._view_stack = None
 
         self._presets = [
@@ -41,11 +41,30 @@ class PedalsSettings(SettingsPanel):
         Returns:
             The actual pedal name whose data should be displayed
         """
-        return self._pedal_swap_map.get(page_pedal, page_pedal)
+        if self._inverted:
+            if page_pedal == MozaAxis.THROTTLE.name:
+                return MozaAxis.CLUTCH.name
+            elif page_pedal == MozaAxis.CLUTCH.name:
+                return MozaAxis.THROTTLE.name
+        return page_pedal
+
+
+    def _throttle_hid_wrapper(self, value: int) -> None:
+        """Route throttle HID data to correct page based on inversion state."""
+        target_page = MozaAxis.CLUTCH.name if self._inverted else MozaAxis.THROTTLE.name
+        if target_page in self._pedal_bars:
+            self._pedal_bars[target_page].set_bar_level(value)
+
+
+    def _clutch_hid_wrapper(self, value: int) -> None:
+        """Route clutch HID data to correct page based on inversion state."""
+        target_page = MozaAxis.THROTTLE.name if self._inverted else MozaAxis.CLUTCH.name
+        if target_page in self._pedal_bars:
+            self._pedal_bars[target_page].set_bar_level(value)
 
 
     def set_inverted_pedals(self, inverted: int) -> None:
-        """Update pedal page titles and value routing when inversion state changes.
+        """Update pedal page titles when inversion state changes.
 
         This is a global setting that affects all pedal devices uniformly.
         The inversion toggle applies to the entire pedal configuration, not
@@ -53,19 +72,11 @@ class PedalsSettings(SettingsPanel):
 
         Page titles keep their original names and only add a star indicator
         when inverted to show which pedals are affected.
+
+        HID data routing is handled by wrapper functions that check _inverted
+        state and route data to the correct page automatically.
         """
         self._inverted = bool(inverted)
-
-        # Update which pedal each page displays
-        if self._inverted:
-            self._pedal_swap_map[MozaAxis.THROTTLE.name] = MozaAxis.CLUTCH.name
-            self._pedal_swap_map[MozaAxis.CLUTCH.name] = MozaAxis.THROTTLE.name
-        else:
-            self._pedal_swap_map[MozaAxis.THROTTLE.name] = MozaAxis.THROTTLE.name
-            self._pedal_swap_map[MozaAxis.CLUTCH.name] = MozaAxis.CLUTCH.name
-
-        # Brake page never swaps
-        self._pedal_swap_map[MozaAxis.BRAKE.name] = MozaAxis.BRAKE.name
 
         # Update Throttle page title - always "Throttle" (with * when inverted)
         if MozaAxis.THROTTLE.name in self._pedal_pages and self._view_stack:
@@ -99,9 +110,20 @@ class PedalsSettings(SettingsPanel):
         self.add_preferences_group(f"{pedal.name.title()} Curve", level_bar=1)
         self._current_group.set_bar_max(65_534)
 
-        # Subscribe to the actual pedal's HID data (swapped when inverted)
+        # Store the level_bar widget for wrapper-based HID routing
+        self._pedal_bars[pedal.name] = self._current_group
+
+        # Subscribe to HID data using wrapper functions for throttle/clutch
+        # This ensures proper routing when inversion is toggled
+        if pedal == MozaAxis.THROTTLE:
+            self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._throttle_hid_wrapper)
+        elif pedal == MozaAxis.CLUTCH:
+            self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._clutch_hid_wrapper)
+        else:  # BRAKE - never swaps, direct subscription
+            self._hid_handler.subscribe(MozaAxis.BRAKE.name, self._current_group.set_bar_level)
+
+        # Get the actual pedal name for settings subscriptions (swapped when inverted)
         actual_pedal = self._get_actual_pedal_name(pedal.name)
-        self._hid_handler.subscribe(actual_pedal, self._current_group.set_bar_level)
 
         self._curve_rows[pedal.name] = BoxflatEqRow("", 5, suffix="%")
         self._add_row(self._curve_rows[pedal.name])
