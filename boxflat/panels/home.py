@@ -15,6 +15,9 @@ class HomeSettings(SettingsPanel):
 
         self._version = version
         self._rotation = 180
+        self._inverted = False
+        self._throttle_row = None
+        self._clutch_row = None
 
         super().__init__("Home", button_callback, connection_manager=connection_manager, hid_handler=hid_handler)
         self._cm.subscribe("base-limit", self._get_rotation_limit)
@@ -49,7 +52,8 @@ class HomeSettings(SettingsPanel):
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Throttle input", self._set_limit, "pedals-throttle", max_value=65_534))
-        self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._current_row.set_value)
+        self._throttle_row = self._current_row
+        self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._throttle_input_wrapper)
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Brake input", self._set_limit, "pedals-brake", max_value=65_534))
@@ -57,7 +61,8 @@ class HomeSettings(SettingsPanel):
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Clutch input", self._set_limit, "pedals-clutch", max_value=65_534))
-        self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._current_row.set_value)
+        self._clutch_row = self._current_row
+        self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._clutch_input_wrapper)
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_row.set_active, 1)
 
         self.add_preferences_group("Handbrake")
@@ -105,6 +110,45 @@ class HomeSettings(SettingsPanel):
         # print(f"New limit: {new_limit}")
 
         self._cm.set_setting(new_limit, f"{command}-{min_max}")
+
+
+    def _throttle_input_wrapper(self, value: int) -> None:
+        """Route throttle value to correct row based on inversion state."""
+        if self._inverted:
+            # Inverted: route throttle value to clutch row
+            self._clutch_row.set_value(value)
+        else:
+            # Normal: route throttle value to throttle row
+            self._throttle_row.set_value(value)
+
+
+    def _clutch_input_wrapper(self, value: int) -> None:
+        """Route clutch value to correct row based on inversion state."""
+        if self._inverted:
+            # Inverted: route clutch value to throttle row
+            self._throttle_row.set_value(value)
+        else:
+            # Normal: route clutch value to clutch row
+            self._clutch_row.set_value(value)
+
+
+    def set_inverted_pedals(self, inverted: int) -> None:
+        """Update pedal input row titles when inversion state changes."""
+        self._inverted = bool(inverted)
+
+        # Update Throttle row title
+        if self._throttle_row:
+            title = "Clutch input" if self._inverted else "Throttle input"
+            title = f"{title} *" if self._inverted else title
+            self._throttle_row.set_title(title)
+
+        # Update Clutch row title
+        if self._clutch_row:
+            title = "Throttle input" if self._inverted else "Clutch input"
+            title = f"{title} *" if self._inverted else title
+            self._clutch_row.set_title(title)
+
+        # Brake row is never affected - no update needed
 
 
     def _show_about_dialog(self, *_):
