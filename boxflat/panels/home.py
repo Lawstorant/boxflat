@@ -136,15 +136,15 @@ class HomeSettings(SettingsPanel):
         """Update pedal input row titles when inversion state changes."""
         self._inverted = bool(inverted)
 
-        # Update Throttle row title
+        # Update Throttle row title - always "Throttle input" (with * when inverted)
         if self._throttle_row:
-            title = "Clutch input" if self._inverted else "Throttle input"
+            title = "Throttle input"
             title = f"{title} *" if self._inverted else title
             self._throttle_row.set_title(title)
 
-        # Update Clutch row title
+        # Update Clutch row title - always "Clutch input" (with * when inverted)
         if self._clutch_row:
-            title = "Throttle input" if self._inverted else "Clutch input"
+            title = "Clutch input"
             title = f"{title} *" if self._inverted else title
             self._clutch_row.set_title(title)
 
