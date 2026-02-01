@@ -19,8 +19,8 @@ SIMAPI_STATUS_OFF = 0
 SIMAPI_STATUS_MENU = 1
 SIMAPI_STATUS_ACTIVE = 2
 
-# Default LED thresholds (Early preset, matches dash.py)
-DEFAULT_THRESHOLDS = [65, 69, 72, 75, 78, 80, 83, 85, 88, 91]
+# Default LED thresholds - spread across full RPM range for better feedback
+DEFAULT_THRESHOLDS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
 
 
 class LapTime(ctypes.Structure):
@@ -189,6 +189,7 @@ class SimApiHandler(EventDispatcher):
         self._last_car = b""  # Track car changes for recalibration
         self._last_track = b""  # Track track changes
         self._calibration_buffer = 1.05  # Add 5% buffer above highest seen
+        self._maxrpm_before_change = 0  # Track maxrpm before car change to detect stale data
 
         # Connection manager reference (set externally)
         self._connection_manager = None
@@ -229,8 +230,19 @@ class SimApiHandler(EventDispatcher):
         self._close_shm()
 
     def is_available(self) -> bool:
-        """Check if SimAPI shared memory exists."""
-        return os.path.exists(SIMAPI_SHM_PATH)
+        """Check if simd process is running by scanning /proc."""
+        try:
+            for pid in os.listdir("/proc"):
+                if pid.isdigit():
+                    try:
+                        with open(f"/proc/{pid}/comm", "r") as f:
+                            if f.read().strip() == "simd":
+                                return True
+                    except (FileNotFoundError, PermissionError):
+                        continue
+        except OSError:
+            pass
+        return False
 
     def is_connected(self) -> bool:
         """Check if currently connected to SimAPI."""
@@ -283,6 +295,7 @@ class SimApiHandler(EventDispatcher):
     def reset_calibration(self) -> None:
         """Reset the auto-calibrated max RPM."""
         self._calibrated_maxrpm = 0
+        self._maxrpm_before_change = 0
         if self._debug:
             print("[SimAPI] Max RPM calibration reset")
 
@@ -292,10 +305,13 @@ class SimApiHandler(EventDispatcher):
 
     def _open_shm(self) -> bool:
         """Open and memory-map the SimAPI shared memory file."""
-        if self._connected:
+        if self._mm is not None:
             return True
 
         if not self.is_available():
+            if self._connected:
+                self._connected = False
+                self._dispatch("connected", False)
             return False
 
         try:
@@ -306,10 +322,11 @@ class SimApiHandler(EventDispatcher):
             map_size = min(file_size, ctypes.sizeof(SimData))
             self._mm = mmap.mmap(self._shm_fd, map_size, access=mmap.ACCESS_READ)
 
-            self._connected = True
             self._last_mtick = 0  # Reset watchdog
             self._stale_count = 0
-            self._dispatch("connected", True)
+            if not self._connected:
+                self._connected = True
+                self._dispatch("connected", True)
             return True
 
         except (FileNotFoundError, OSError, ValueError) as e:
@@ -332,7 +349,10 @@ class SimApiHandler(EventDispatcher):
                 pass
             self._shm_fd = None
 
-        if self._connected:
+        # Only dispatch disconnection if simd is actually not running
+        # (shared memory file doesn't exist). This prevents UI flapping
+        # during internal reconnections due to stale data.
+        if self._connected and not self.is_available():
             self._connected = False
             self._dispatch("connected", False)
 
@@ -352,11 +372,23 @@ class SimApiHandler(EventDispatcher):
     def _poll_loop(self) -> None:
         """Main polling loop - runs in daemon thread."""
         reconnect_interval = 1.0  # Seconds between reconnect attempts
+        availability_check_counter = 0
+        availability_check_interval = 60  # Check every ~1 second at 60Hz
 
         while self._running.is_set():
             interval = 1.0 / self._poll_rate
 
-            if not self._connected:
+            # Periodically check if simd is still running
+            availability_check_counter += 1
+            if availability_check_counter >= availability_check_interval:
+                availability_check_counter = 0
+                if not self.is_available() and self._connected:
+                    self._connected = False
+                    self._dispatch("connected", False)
+                    self._close_shm()
+
+            # Try to open shared memory if not mapped
+            if self._mm is None:
                 if not self._open_shm():
                     sleep(reconnect_interval)
                     continue
@@ -388,15 +420,6 @@ class SimApiHandler(EventDispatcher):
 
     def _process_telemetry(self, data: SimData) -> None:
         """Process telemetry data and dispatch events."""
-        # Debug: print raw values periodically
-        if self._debug and data.simstatus == SIMAPI_STATUS_ACTIVE:
-            if not hasattr(self, '_debug_counter'):
-                self._debug_counter = 0
-            self._debug_counter += 1
-            if self._debug_counter % 60 == 0:  # Every ~1 second at 60Hz
-                effective_max = data.maxrpm if data.maxrpm > data.idlerpm else int(self._calibrated_maxrpm * self._calibration_buffer)
-                print(f"[SimAPI] RPM: {data.rpms}, MaxRPM: {data.maxrpm} (eff: {effective_max}), IdleRPM: {data.idlerpm}, Gear: {data.gear}")
-
         # Dispatch status changes
         if data.simstatus != self._last_status:
             self._last_status = data.simstatus
@@ -406,6 +429,9 @@ class SimApiHandler(EventDispatcher):
             if data.simstatus != SIMAPI_STATUS_ACTIVE:
                 self._clear_leds()
                 return
+            else:
+                # Sim just became active - wake up the wheel with a brief flash
+                self._wake_up_leds()
 
         # Only process RPM when sim is active
         if data.simstatus != SIMAPI_STATUS_ACTIVE:
@@ -416,7 +442,9 @@ class SimApiHandler(EventDispatcher):
         current_track = data.track
         if current_car != self._last_car or current_track != self._last_track:
             if self._last_car != b"" or self._last_track != b"":
-                # Car or track changed - reset calibration
+                # Car or track changed - reset calibration and save old maxrpm
+                # to detect stale data from SimAPI
+                self._maxrpm_before_change = data.maxrpm
                 self._calibrated_maxrpm = 0
                 if self._debug:
                     try:
@@ -429,9 +457,20 @@ class SimApiHandler(EventDispatcher):
             self._last_track = current_track
 
         # Determine effective max RPM (use game value or auto-calibrate)
+        # Also check for stale maxrpm data after car change - if maxrpm hasn't
+        # changed since the car switch, it's likely stale and we should auto-calibrate
+        if self._maxrpm_before_change > 0 and data.maxrpm != self._maxrpm_before_change:
+            # maxrpm changed after car switch, clear the stale marker
+            if self._debug:
+                print(f"[SimAPI] MaxRPM updated to {data.maxrpm}, clearing stale marker")
+            self._maxrpm_before_change = 0
+
+        maxrpm_is_stale = (self._maxrpm_before_change > 0 and
+                          data.maxrpm == self._maxrpm_before_change)
+
         effective_maxrpm = data.maxrpm
-        if data.maxrpm == 0 or data.maxrpm <= data.idlerpm:
-            # Game doesn't provide max RPM - use calibrated value
+        if data.maxrpm == 0 or data.maxrpm <= data.idlerpm or maxrpm_is_stale:
+            # Game doesn't provide max RPM or data is stale - use calibrated value
             # Update calibration if we see a higher RPM
             if data.rpms > self._calibrated_maxrpm:
                 self._calibrated_maxrpm = data.rpms
@@ -440,6 +479,14 @@ class SimApiHandler(EventDispatcher):
 
             # Use calibrated max with buffer
             effective_maxrpm = int(self._calibrated_maxrpm * self._calibration_buffer)
+
+        # Debug: print raw values periodically (after effective_maxrpm is calculated)
+        if self._debug and data.simstatus == SIMAPI_STATUS_ACTIVE:
+            if not hasattr(self, '_debug_counter'):
+                self._debug_counter = 0
+            self._debug_counter += 1
+            if self._debug_counter % 60 == 0:  # Every ~1 second at 60Hz
+                print(f"[SimAPI] RPM: {data.rpms}, MaxRPM: {data.maxrpm} (eff: {effective_maxrpm}), IdleRPM: {data.idlerpm}, Gear: {data.gear}")
 
         # Calculate RPM percentage using effective max
         rpm_percent = self._calculate_rpm_percent(data.rpms, effective_maxrpm, data.idlerpm)
@@ -523,6 +570,36 @@ class SimApiHandler(EventDispatcher):
             if self._wheel_old_protocol:
                 self._connection_manager.set_setting(0, "wheel-old-send-telemetry")
             else:
+                self._connection_manager.set_setting([0, 0], "wheel-send-rpm-telemetry")
+
+    def _wake_up_leds(self) -> None:
+        """Send a brief flash to wake up the wheel's telemetry mode.
+
+        Some wheels don't respond to telemetry until they receive a non-zero
+        bitmask. This sends all LEDs on then off to initialize the wheel.
+        """
+        if not self._connection_manager:
+            return
+
+        full_bitmask = 0x3FF  # All 10 LEDs on
+
+        if self._dash_enabled:
+            self._connection_manager.set_setting(full_bitmask, "dash-send-telemetry")
+            self._connection_manager.set_setting(0, "dash-send-telemetry")
+
+        if self._wheel_enabled:
+            if self._wheel_old_protocol:
+                self._connection_manager.set_setting(full_bitmask, "wheel-old-send-telemetry")
+                self._connection_manager.set_setting(0, "wheel-old-send-telemetry")
+            else:
+                # For new wheels, ensure colors are sent first
+                if not self._wheel_colors_sent:
+                    self._setup_wheel_telemetry_colors()
+                    self._wheel_colors_sent = True
+                self._connection_manager.set_setting(
+                    [full_bitmask & 255, full_bitmask >> 8],
+                    "wheel-send-rpm-telemetry"
+                )
                 self._connection_manager.set_setting([0, 0], "wheel-send-rpm-telemetry")
 
     def _setup_wheel_telemetry_colors(self) -> None:
