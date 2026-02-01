@@ -3,7 +3,7 @@
 
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
-from boxflat.simapi_handler import SimApiHandler, DEFAULT_THRESHOLDS
+from boxflat.simapi_handler import SimApiHandler
 from boxflat.widgets import *
 from boxflat.settings_handler import SettingsHandler
 
@@ -14,20 +14,14 @@ class TelemetrySettings(SettingsPanel):
     """
     Panel for configuring SimAPI telemetry integration.
     Allows users to enable/disable telemetry feed to dashboard and wheel,
-    configure RPM thresholds, and monitor connection status.
+    and monitor connection status. RPM thresholds are configured in the
+    respective Wheel/Dashboard panels.
     """
 
     def __init__(self, button_callback, connection_manager: MozaConnectionManager,
                  hid_handler, settings: SettingsHandler, simapi_handler: SimApiHandler):
         self._settings = settings
         self._simapi = simapi_handler
-
-        # Threshold presets (same as dash.py)
-        self._timings = [
-            [65, 69, 72, 75, 78, 80, 83, 85, 88, 91],  # Early
-            [75, 79, 82, 85, 87, 88, 89, 90, 92, 94],  # Normal
-            [80, 83, 86, 89, 91, 92, 93, 94, 96, 97],  # Late
-        ]
 
         # UI element references
         self._status_label = None
@@ -36,7 +30,6 @@ class TelemetrySettings(SettingsPanel):
         self._dash_switch = None
         self._wheel_switch = None
         self._wheel_old_switch = None
-        self._threshold_row = None
         self._poll_rate_slider = None
 
         super().__init__("Telemetry", button_callback, connection_manager, hid_handler)
@@ -115,27 +108,6 @@ class TelemetrySettings(SettingsPanel):
         self._add_row(self._poll_rate_slider)
         self._poll_rate_slider.subscribe(self._on_poll_rate_change)
 
-        # Thresholds page
-        self.add_preferences_page("Thresholds")
-        self.add_preferences_group("RPM LED Activation")
-        self._current_group.set_description("Percentage of max RPM at which each LED activates")
-
-        self._threshold_row = BoxflatEqRow("Threshold Preset", 10, "",
-                                            range_start=50, range_end=100,
-                                            draw_marks=False, button_row=True)
-        self._threshold_row.add_buttons("Early", "Normal", "Late")
-        self._threshold_row.subscribe(self._set_threshold_preset)
-        self._threshold_row.subscribe_sliders(self._on_threshold_change)
-
-        for i in range(10):
-            self._threshold_row.add_label(f"LED{i+1}", i)
-
-        self._add_row(self._threshold_row)
-
-        self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Reset to defaults", "Reset"))
-        self._current_row.subscribe(self._reset_settings)
-
     def _load_settings(self):
         """Load saved settings from config file."""
         # Load dash enabled
@@ -161,17 +133,6 @@ class TelemetrySettings(SettingsPanel):
         if poll_rate is not None:
             self._poll_rate_slider.set_value(poll_rate)
             self._simapi.set_poll_rate(poll_rate)
-
-        # Load thresholds
-        thresholds = self._settings.read_setting("telemetry-thresholds")
-        if thresholds is not None and len(thresholds) == 10:
-            self._threshold_row.set_sliders_value(thresholds)
-            self._simapi.set_thresholds(thresholds)
-            self._get_threshold_preset(thresholds)
-        else:
-            # Default to Early preset
-            self._threshold_row.set_sliders_value(self._timings[0])
-            self._threshold_row.set_button_value(0)
 
     def _on_connected(self, connected: bool):
         """Handle SimAPI connection status change."""
@@ -278,39 +239,6 @@ class TelemetrySettings(SettingsPanel):
         """Handle poll rate change."""
         self._simapi.set_poll_rate(value)
         self._settings.write_setting(value, "telemetry-poll-rate")
-
-    def _set_threshold_preset(self, index: int):
-        """Set thresholds to a preset."""
-        if 0 <= index < len(self._timings):
-            self._threshold_row.set_sliders_value(self._timings[index], mute=False)
-
-    def _on_threshold_change(self, thresholds: list):
-        """Handle threshold slider change."""
-        self._simapi.set_thresholds(thresholds)
-        self._settings.write_setting(thresholds, "telemetry-thresholds")
-        self._get_threshold_preset(thresholds)
-
-    def _get_threshold_preset(self, thresholds: list):
-        """Update preset button to match current thresholds."""
-        index = -1
-        if list(thresholds) in self._timings:
-            index = self._timings.index(list(thresholds))
-        self._threshold_row.set_button_value(index)
-
-    def _reset_settings(self, *_):
-        """Reset all telemetry settings to defaults."""
-        # Reset thresholds to Early preset
-        self._threshold_row.set_sliders_value(self._timings[0], mute=False)
-        self._threshold_row.set_button_value(0)
-        self._simapi.set_thresholds(self._timings[0])
-
-        # Reset poll rate
-        self._poll_rate_slider.set_value(60, mute=False)
-        self._simapi.set_poll_rate(60)
-
-        # Save settings
-        self._settings.write_setting(self._timings[0], "telemetry-thresholds")
-        self._settings.write_setting(60, "telemetry-poll-rate")
 
     def active(self, value: int):
         """Override to always show this panel (no device dependency)."""

@@ -179,6 +179,11 @@ class SimApiHandler(EventDispatcher):
         self._last_status = -1
         self._connected = False
 
+        # Watchdog for detecting stale connections (simd restart)
+        self._last_mtick = 0
+        self._stale_count = 0
+        self._stale_threshold = 30  # Reconnect after this many stale reads (~0.5s at 60Hz)
+
         # Auto-calibration state
         self._calibrated_maxrpm = 0  # Highest RPM seen
         self._last_car = b""  # Track car changes for recalibration
@@ -302,6 +307,8 @@ class SimApiHandler(EventDispatcher):
             self._mm = mmap.mmap(self._shm_fd, map_size, access=mmap.ACCESS_READ)
 
             self._connected = True
+            self._last_mtick = 0  # Reset watchdog
+            self._stale_count = 0
             self._dispatch("connected", True)
             return True
 
@@ -358,6 +365,20 @@ class SimApiHandler(EventDispatcher):
             if data is None:
                 sleep(reconnect_interval)
                 continue
+
+            # Watchdog: check if mtick is updating (detect simd restart)
+            if data.mtick == self._last_mtick:
+                self._stale_count += 1
+                if self._stale_count >= self._stale_threshold:
+                    if self._debug:
+                        print("[SimAPI] Connection stale, reconnecting...")
+                    self._close_shm()
+                    self._stale_count = 0
+                    sleep(reconnect_interval)
+                    continue
+            else:
+                self._last_mtick = data.mtick
+                self._stale_count = 0
 
             self._process_telemetry(data)
             sleep(interval)
