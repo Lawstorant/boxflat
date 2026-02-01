@@ -1,0 +1,324 @@
+# Copyright (c) 2025, Tomasz Pakula Using Arch BTW
+# Telemetry panel for SimAPI integration
+
+from boxflat.panels.settings_panel import SettingsPanel
+from boxflat.connection_manager import MozaConnectionManager
+from boxflat.simapi_handler import SimApiHandler, DEFAULT_THRESHOLDS
+from boxflat.widgets import *
+from boxflat.settings_handler import SettingsHandler
+
+from gi.repository import GLib
+
+
+class TelemetrySettings(SettingsPanel):
+    """
+    Panel for configuring SimAPI telemetry integration.
+    Allows users to enable/disable telemetry feed to dashboard and wheel,
+    configure RPM thresholds, and monitor connection status.
+    """
+
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager,
+                 hid_handler, settings: SettingsHandler, simapi_handler: SimApiHandler):
+        self._settings = settings
+        self._simapi = simapi_handler
+
+        # Threshold presets (same as dash.py)
+        self._timings = [
+            [65, 69, 72, 75, 78, 80, 83, 85, 88, 91],  # Early
+            [75, 79, 82, 85, 87, 88, 89, 90, 92, 94],  # Normal
+            [80, 83, 86, 89, 91, 92, 93, 94, 96, 97],  # Late
+        ]
+
+        # UI element references
+        self._status_label = None
+        self._rpm_level = None
+        self._gear_label = None
+        self._dash_switch = None
+        self._wheel_switch = None
+        self._wheel_old_switch = None
+        self._threshold_row = None
+        self._poll_rate_slider = None
+
+        super().__init__("Telemetry", button_callback, connection_manager, hid_handler)
+
+        # Subscribe to SimAPI events
+        self._simapi.subscribe("connected", self._on_connected)
+        self._simapi.subscribe("rpm-percent", self._on_rpm_percent)
+        self._simapi.subscribe("rpm-raw", self._on_rpm_raw)
+        self._simapi.subscribe("gear", self._on_gear)
+        self._simapi.subscribe("sim-status", self._on_sim_status)
+
+        # Auto-detect wheel type based on which wheel responds
+        self._cm.subscribe_connected("wheel-telemetry-mode", self._on_new_wheel_detected)
+        self._cm.subscribe_connected("wheel-rpm-value1", self._on_old_wheel_detected)
+
+        # Always visible (no device dependency)
+        self.active(1)
+
+        # Load saved settings
+        self._load_settings()
+
+        # Start simapi handler
+        self._simapi.start()
+
+    def prepare_ui(self):
+        self.add_view_stack()
+
+        # Status page
+        self.add_preferences_page("Status")
+        self.add_preferences_group("SimAPI Connection")
+
+        self._status_label = BoxflatLabelRow("Status", "SimAPI daemon connection", "Checking...")
+        self._add_row(self._status_label)
+
+        self._sim_label = BoxflatLabelRow("Simulator", "Current simulation", "None")
+        self._add_row(self._sim_label)
+
+        self.add_preferences_group("Live Telemetry")
+        self._rpm_raw_label = BoxflatLabelRow("Raw RPM", "Current / Max (effective) / Idle", "0 / 0 (0) / 0")
+        self._add_row(self._rpm_raw_label)
+
+        self._rpm_level = BoxflatLevelRow("RPM %", max_value=100)
+        self._rpm_level.set_bar_width(400)
+        self._add_row(self._rpm_level)
+
+        self._gear_label = BoxflatLabelRow("Gear", "", "N")
+        self._add_row(self._gear_label)
+
+        self.add_preferences_group("Calibration")
+        self._current_group.set_description("Auto-calibrates max RPM when game doesn't provide it")
+        self._add_row(BoxflatButtonRow("Reset RPM Calibration", "Reset", "Rev to max RPM to recalibrate"))
+        self._current_row.subscribe(self._reset_calibration)
+
+        # Settings page
+        self.add_preferences_page("Settings")
+        self.add_preferences_group("Telemetry Output")
+        self._current_group.set_description("Enable telemetry output to your Moza devices")
+
+        self._dash_switch = BoxflatSwitchRow("Dashboard RPM LEDs", "Send telemetry to dashboard")
+        self._add_row(self._dash_switch)
+        self._dash_switch.subscribe(self._on_dash_toggle)
+
+        self._wheel_switch = BoxflatSwitchRow("Wheel RPM LEDs", "Send telemetry to wheel")
+        self._add_row(self._wheel_switch)
+        self._wheel_switch.subscribe(self._on_wheel_toggle)
+
+        self._wheel_old_switch = BoxflatSwitchRow("ES Wheel (Old Protocol)", "Enable for ES wheel compatibility")
+        self._add_row(self._wheel_old_switch)
+        self._wheel_old_switch.subscribe(self._on_wheel_old_toggle)
+
+        self.add_preferences_group("Performance")
+        self._poll_rate_slider = BoxflatSliderRow("Update Rate", range_start=30, range_end=120,
+                                                   subtitle="Updates per second", suffix=" Hz")
+        self._poll_rate_slider.add_marks(30, 60, 90, 120)
+        self._poll_rate_slider.set_value(60)
+        self._add_row(self._poll_rate_slider)
+        self._poll_rate_slider.subscribe(self._on_poll_rate_change)
+
+        # Thresholds page
+        self.add_preferences_page("Thresholds")
+        self.add_preferences_group("RPM LED Activation")
+        self._current_group.set_description("Percentage of max RPM at which each LED activates")
+
+        self._threshold_row = BoxflatEqRow("Threshold Preset", 10, "",
+                                            range_start=50, range_end=100,
+                                            draw_marks=False, button_row=True)
+        self._threshold_row.add_buttons("Early", "Normal", "Late")
+        self._threshold_row.subscribe(self._set_threshold_preset)
+        self._threshold_row.subscribe_sliders(self._on_threshold_change)
+
+        for i in range(10):
+            self._threshold_row.add_label(f"LED{i+1}", i)
+
+        self._add_row(self._threshold_row)
+
+        self.add_preferences_group()
+        self._add_row(BoxflatButtonRow("Reset to defaults", "Reset"))
+        self._current_row.subscribe(self._reset_settings)
+
+    def _load_settings(self):
+        """Load saved settings from config file."""
+        # Load dash enabled
+        dash_enabled = self._settings.read_setting("telemetry-dash-enabled")
+        if dash_enabled is not None:
+            self._dash_switch.set_value(dash_enabled)
+            self._simapi.set_dash_enabled(bool(dash_enabled))
+
+        # Load wheel old protocol (must be before wheel enabled)
+        wheel_old = self._settings.read_setting("telemetry-wheel-old-protocol")
+        if wheel_old is not None:
+            self._wheel_old_switch.set_value(wheel_old)
+            self._simapi.set_wheel_old_protocol(bool(wheel_old))
+
+        # Load wheel enabled
+        wheel_enabled = self._settings.read_setting("telemetry-wheel-enabled")
+        if wheel_enabled is not None:
+            self._wheel_switch.set_value(wheel_enabled)
+            self._simapi.set_wheel_enabled(bool(wheel_enabled))
+
+        # Load poll rate
+        poll_rate = self._settings.read_setting("telemetry-poll-rate")
+        if poll_rate is not None:
+            self._poll_rate_slider.set_value(poll_rate)
+            self._simapi.set_poll_rate(poll_rate)
+
+        # Load thresholds
+        thresholds = self._settings.read_setting("telemetry-thresholds")
+        if thresholds is not None and len(thresholds) == 10:
+            self._threshold_row.set_sliders_value(thresholds)
+            self._simapi.set_thresholds(thresholds)
+            self._get_threshold_preset(thresholds)
+        else:
+            # Default to Early preset
+            self._threshold_row.set_sliders_value(self._timings[0])
+            self._threshold_row.set_button_value(0)
+
+    def _on_connected(self, connected: bool):
+        """Handle SimAPI connection status change."""
+        if connected:
+            GLib.idle_add(self._status_label.set_label, "Connected")
+        else:
+            GLib.idle_add(self._status_label.set_label, "Not available")
+            GLib.idle_add(self._sim_label.set_label, "None")
+            GLib.idle_add(self._rpm_level.set_value, 0)
+            GLib.idle_add(self._rpm_raw_label.set_label, "0 / 0 (0) / 0")
+            GLib.idle_add(self._gear_label.set_label, "N")
+
+    def _on_rpm_percent(self, percent: int):
+        """Handle RPM percentage update."""
+        GLib.idle_add(self._rpm_level.set_value, percent)
+
+    def _on_rpm_raw(self, data: tuple):
+        """Handle raw RPM data update."""
+        rpm, maxrpm, idlerpm, effective_max = data
+        # Show effective max in parentheses if different from reported max
+        if maxrpm != effective_max and effective_max > 0:
+            GLib.idle_add(self._rpm_raw_label.set_label, f"{rpm} / {maxrpm} ({effective_max}) / {idlerpm}")
+        else:
+            GLib.idle_add(self._rpm_raw_label.set_label, f"{rpm} / {maxrpm} / {idlerpm}")
+
+    def _on_gear(self, gear: int):
+        """Handle gear change."""
+        if gear == 0:
+            gear_str = "R"
+        elif gear == 1:
+            gear_str = "N"
+        else:
+            gear_str = str(gear - 1)
+        GLib.idle_add(self._gear_label.set_label, gear_str)
+
+    def _on_sim_status(self, status: int):
+        """Handle simulation status change."""
+        status_map = {
+            0: "Off",
+            1: "In Menu",
+            2: "Active"
+        }
+        GLib.idle_add(self._sim_label.set_label, status_map.get(status, "Unknown"))
+
+    def _reset_calibration(self, *_):
+        """Reset RPM auto-calibration."""
+        self._simapi.reset_calibration()
+        self.show_toast("RPM calibration reset - rev to max RPM to recalibrate")
+
+    def _on_dash_toggle(self, value: int):
+        """Handle dashboard telemetry toggle."""
+        enabled = bool(value)
+        self._simapi.set_dash_enabled(enabled)
+        self._settings.write_setting(value, "telemetry-dash-enabled")
+
+        # Set dash to telemetry mode when enabled
+        if enabled and self._cm:
+            self._cm.set_setting(1, "dash-rpm-indicator-mode")
+
+    def _on_wheel_toggle(self, value: int):
+        """Handle wheel telemetry toggle."""
+        enabled = bool(value)
+        self._simapi.set_wheel_enabled(enabled)
+        self._settings.write_setting(value, "telemetry-wheel-enabled")
+
+        # Set wheel to appropriate mode when enabled
+        if enabled and self._cm:
+            old_protocol = self._wheel_old_switch.get_value() if self._wheel_old_switch else False
+            if old_protocol:
+                # ES wheel uses rpm-indicator-mode
+                self._cm.set_setting(1, "wheel-rpm-indicator-mode")
+            else:
+                # New wheels use telemetry-mode
+                self._cm.set_setting(1, "wheel-telemetry-mode")
+
+    def _on_wheel_old_toggle(self, value: int):
+        """Handle old wheel protocol toggle."""
+        old_protocol = bool(value)
+        self._simapi.set_wheel_old_protocol(old_protocol)
+        self._settings.write_setting(value, "telemetry-wheel-old-protocol")
+
+        # If wheel is currently enabled, update the mode setting
+        if self._wheel_switch and self._wheel_switch.get_value() and self._cm:
+            if old_protocol:
+                self._cm.set_setting(1, "wheel-rpm-indicator-mode")
+            else:
+                self._cm.set_setting(1, "wheel-telemetry-mode")
+
+    def _on_new_wheel_detected(self, value: int):
+        """Auto-detect new wheel protocol when wheel-telemetry-mode responds."""
+        if value >= 0:  # Valid response means new wheel detected
+            self._simapi.set_wheel_old_protocol(False)
+            if self._wheel_old_switch:
+                GLib.idle_add(self._wheel_old_switch.set_value, 0)
+
+    def _on_old_wheel_detected(self, value: int):
+        """Auto-detect old wheel protocol (ES wheel) when wheel-rpm-value1 responds."""
+        if value >= 0:  # Valid response means old wheel detected
+            self._simapi.set_wheel_old_protocol(True)
+            if self._wheel_old_switch:
+                GLib.idle_add(self._wheel_old_switch.set_value, 1)
+
+    def _on_poll_rate_change(self, value: int):
+        """Handle poll rate change."""
+        self._simapi.set_poll_rate(value)
+        self._settings.write_setting(value, "telemetry-poll-rate")
+
+    def _set_threshold_preset(self, index: int):
+        """Set thresholds to a preset."""
+        if 0 <= index < len(self._timings):
+            self._threshold_row.set_sliders_value(self._timings[index], mute=False)
+
+    def _on_threshold_change(self, thresholds: list):
+        """Handle threshold slider change."""
+        self._simapi.set_thresholds(thresholds)
+        self._settings.write_setting(thresholds, "telemetry-thresholds")
+        self._get_threshold_preset(thresholds)
+
+    def _get_threshold_preset(self, thresholds: list):
+        """Update preset button to match current thresholds."""
+        index = -1
+        if list(thresholds) in self._timings:
+            index = self._timings.index(list(thresholds))
+        self._threshold_row.set_button_value(index)
+
+    def _reset_settings(self, *_):
+        """Reset all telemetry settings to defaults."""
+        # Reset thresholds to Early preset
+        self._threshold_row.set_sliders_value(self._timings[0], mute=False)
+        self._threshold_row.set_button_value(0)
+        self._simapi.set_thresholds(self._timings[0])
+
+        # Reset poll rate
+        self._poll_rate_slider.set_value(60, mute=False)
+        self._simapi.set_poll_rate(60)
+
+        # Save settings
+        self._settings.write_setting(self._timings[0], "telemetry-thresholds")
+        self._settings.write_setting(60, "telemetry-poll-rate")
+
+    def active(self, value: int):
+        """Override to always show this panel (no device dependency)."""
+        # Don't call super().active() - we manage visibility ourselves
+        if value > -1:
+            GLib.idle_add(self._button.set_visible, True)
+
+    def shutdown(self, *args):
+        """Clean up on application shutdown."""
+        self._simapi.stop()
+        super().shutdown(*args)

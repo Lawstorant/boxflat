@@ -10,6 +10,7 @@ from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
+from boxflat.simapi_handler import SimApiHandler
 from threading import Thread, Event
 
 import os
@@ -148,6 +149,8 @@ class MyApp(Adw.Application):
         self._hid_handler = HidHandler()
         self._hid_handler.set_detection_fix_enabled(self._settings.read_setting("moza-detection-fix-enabled"))
 
+        self._simapi_handler = SimApiHandler()
+
         self._config_path = config_path
         self._data_path = data_path
         self._held = Event()
@@ -155,6 +158,7 @@ class MyApp(Adw.Application):
         self._cm = MozaConnectionManager(os.path.join(data_path, "serial.yml"), dry_run)
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
         self._cm.subscribe("hid-device-disconnected", self._hid_handler.remove_device)
+        self._simapi_handler.set_connection_manager(self._cm)
 
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
@@ -309,6 +313,8 @@ class MyApp(Adw.Application):
         self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings, self._panels["H-Pattern Shifter"], self._panels["Multifunction Stalks"])
         self._panels["Presets"].set_application(self)
         self._panels["Generic Devices"] = GenericSettings(self.switch_panel, self._settings)
+        self._panels["Telemetry"] = TelemetrySettings(
+            self.switch_panel, self._cm, self._hid_handler, self._settings, self._simapi_handler)
 
         self._panels["Other"] = OtherSettings(
             self.switch_panel, self._cm, self._hid_handler, self._settings, self._version, self, self._data_path)
@@ -335,6 +341,7 @@ class MyApp(Adw.Application):
         for panel in self._panels.values():
             panel.shutdown()
 
+        self._simapi_handler.stop()
         self._cm.shutdown()
 
 
