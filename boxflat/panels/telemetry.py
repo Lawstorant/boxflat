@@ -327,6 +327,12 @@ class TelemetrySettings(SettingsPanel):
         }
         GLib.idle_add(self._sim_label.set_label, status_map.get(status, "Unknown"))
 
+        # Zero out telemetry display when sim is off
+        if status == 0:
+            GLib.idle_add(self._rpm_level.set_value, 0)
+            GLib.idle_add(self._rpm_raw_label.set_label, "0 / 0 (0) / 0")
+            GLib.idle_add(self._gear_label.set_label, "N")
+
     def _on_car_name(self, car_name: str):
         """Handle car name update."""
         GLib.idle_add(self._car_label.set_label, car_name)

@@ -5,7 +5,7 @@ import ctypes
 import mmap
 import os
 from threading import Thread, Event
-from time import sleep
+from time import sleep, monotonic
 
 from .subscription import EventDispatcher
 from .bitwise import set_bit
@@ -20,7 +20,7 @@ SIMAPI_STATUS_MENU = 1
 SIMAPI_STATUS_ACTIVE = 2
 
 # Default LED thresholds - spread across full RPM range for better feedback
-DEFAULT_THRESHOLDS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
+DEFAULT_THRESHOLDS = [1, 20, 30, 40, 50, 60, 70, 80, 90, 99]
 
 # Max reasonable RPM for validation (F1 engines topped out at ~19000 RPM)
 # Set to 20000 to allow margin while rejecting wild values
@@ -182,6 +182,7 @@ class SimApiHandler(EventDispatcher):
         self._last_gear = -1
         self._last_status = -1
         self._connected = False
+        self._last_telemetry_time = 0  # Track last telemetry send for keepalive
 
         # Watchdog for detecting stale connections (simd restart)
         self._last_mtick = 0
@@ -487,44 +488,35 @@ class SimApiHandler(EventDispatcher):
                 self._dispatch("car-name", "Unknown")
 
         # Determine effective max RPM (use game value or auto-calibrate)
-        # Also check for stale maxrpm data after car change - if maxrpm hasn't
-        # changed since the car switch, it's likely stale and we should auto-calibrate
         if self._maxrpm_before_change > 0 and data.maxrpm != self._maxrpm_before_change:
-            # maxrpm changed after car switch, clear the stale marker
             if self._debug:
                 print(f"[SimAPI] MaxRPM updated to {data.maxrpm}, clearing stale marker")
             self._maxrpm_before_change = 0
 
-        maxrpm_is_stale = (self._maxrpm_before_change > 0 and
-                          data.maxrpm == self._maxrpm_before_change)
+        # Use auto-calibration if game value is missing, stale, or unreasonable
+        use_auto_calibration = (
+            data.maxrpm == 0 or
+            data.maxrpm > MAX_REASONABLE_RPM or
+            data.maxrpm <= data.idlerpm or
+            self._maxrpm_before_change > 0  # stale after car change
+        )
 
-        effective_maxrpm = data.maxrpm
-        # Validate game-provided maxrpm and reject wild values
-        if data.maxrpm > MAX_REASONABLE_RPM:
-            if self._debug:
-                print(f"[SimAPI] Game reported wild maxRPM: {data.maxrpm}, using auto-calibration")
-            effective_maxrpm = 0  # Force auto-calibration
-
-        if effective_maxrpm == 0 or effective_maxrpm <= data.idlerpm or maxrpm_is_stale:
-            # Game doesn't provide max RPM or data is stale - use calibrated value
-            # Update calibration if we see a higher RPM (with sanity check)
-            if data.rpms > self._calibrated_maxrpm and data.rpms <= MAX_REASONABLE_RPM:
+        if use_auto_calibration:
+            # Update calibration if we see a valid higher RPM
+            if self._calibrated_maxrpm < data.rpms <= MAX_REASONABLE_RPM:
                 self._calibrated_maxrpm = data.rpms
                 if self._debug:
                     print(f"[SimAPI] Auto-calibrated maxRPM: {self._calibrated_maxrpm}")
-            elif data.rpms > MAX_REASONABLE_RPM:
-                if self._debug:
-                    print(f"[SimAPI] Ignoring wild RPM value: {data.rpms} (exceeds {MAX_REASONABLE_RPM})")
-
-            # Use calibrated max with buffer
             effective_maxrpm = int(self._calibrated_maxrpm * self._calibration_buffer)
+        else:
+            effective_maxrpm = data.maxrpm
 
         # Debug: print raw values periodically (after effective_maxrpm is calculated)
         if self._debug and data.simstatus == SIMAPI_STATUS_ACTIVE:
             if not hasattr(self, '_debug_counter'):
                 self._debug_counter = 0
             self._debug_counter += 1
-            if self._debug_counter % 60 == 0:  # Every ~1 second at 60Hz
+            if self._debug_counter % 300 == 0:  # Every ~10 second at 60Hz
                 print(f"[SimAPI] RPM: {data.rpms}, MaxRPM: {data.maxrpm} (eff: {effective_maxrpm}), IdleRPM: {data.idlerpm}, Gear: {data.gear}")
 
         # Calculate RPM percentage using effective max
@@ -546,12 +538,18 @@ class SimApiHandler(EventDispatcher):
             self._last_rpm_percent = rpm_percent
             self._dispatch("rpm-percent", rpm_percent)
 
-            # Calculate and dispatch bitmask
-            bitmask = self._calculate_bitmask(rpm_percent)
+        # Calculate bitmask and send telemetry
+        bitmask = self._calculate_bitmask(rpm_percent)
+        current_time = monotonic()
+        time_since_last = current_time - self._last_telemetry_time
+
+        # Send telemetry if bitmask changed or keepalive needed (at least once per second)
+        if bitmask != self._last_bitmask or time_since_last >= 1.0:
             if bitmask != self._last_bitmask:
                 self._last_bitmask = bitmask
                 self._dispatch("rpm-bitmask", bitmask)
-                self._send_telemetry(bitmask)
+            self._send_telemetry(bitmask)
+            self._last_telemetry_time = current_time
 
         # Dispatch gear changes
         if data.gear != self._last_gear:
@@ -764,6 +762,10 @@ class SimApiHandler(EventDispatcher):
                     "wheel-send-rpm-telemetry"
                 )
                 self._connection_manager.set_setting([0, 0], "wheel-send-rpm-telemetry")
+
+        # Reset last bitmask so the next telemetry update will be sent,
+        # even if RPM is below 10% (bitmask=0)
+        self._last_bitmask = -1
 
     def _setup_wheel_telemetry_colors(self) -> None:
         """Configure wheel telemetry LED colors (required before telemetry works).

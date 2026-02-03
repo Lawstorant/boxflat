@@ -297,10 +297,6 @@ class PresetSettings(SettingsPanel):
 
 
     def _load_default(self, delay: int=0) -> None:
-        print(f"[PRESETS] _load_default called with delay={delay}")
-        print(f"[PRESETS] _default_preset={self._default_preset}")
-        print(f"[PRESETS] default-preset-on-startup setting={self._settings.read_setting('default-preset-on-startup')}")
-
         if not self._default_preset:
             print("No default preset to load")
             return
