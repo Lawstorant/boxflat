@@ -33,6 +33,10 @@ class TelemetrySettings(SettingsPanel):
         self._wheel_switch = None
         self._wheel_old_switch = None
         self._poll_rate_slider = None
+        self._debug_switch = None
+
+        # Debug view labels (stored as dict for easy updates)
+        self._debug_labels = {}
 
         super().__init__("Telemetry", button_callback, connection_manager, hid_handler)
 
@@ -43,6 +47,7 @@ class TelemetrySettings(SettingsPanel):
         self._simapi.subscribe("gear", self._on_gear)
         self._simapi.subscribe("sim-status", self._on_sim_status)
         self._simapi.subscribe("car-name", self._on_car_name)
+        self._simapi.subscribe("debug-data", self._on_debug_data)
 
         # Auto-detect wheel type based on which wheel responds
         self._cm.subscribe_connected("wheel-telemetry-mode", self._on_new_wheel_detected)
@@ -114,6 +119,138 @@ class TelemetrySettings(SettingsPanel):
         self._add_row(self._poll_rate_slider)
         self._poll_rate_slider.subscribe(self._on_poll_rate_change)
 
+        # Debug page
+        self.add_preferences_page("Debug")
+        self.add_preferences_group("Debug View")
+        self._current_group.set_description("Enable to see all raw SimHub telemetry values")
+
+        self._debug_switch = BoxflatSwitchRow("Enable Debug View", "Show raw telemetry data below")
+        self._add_row(self._debug_switch)
+        self._debug_switch.subscribe(self._on_debug_toggle)
+
+        # Session Info
+        self.add_preferences_group("Session Info")
+        self._add_debug_label("car", "Car")
+        self._add_debug_label("track", "Track")
+        self._add_debug_label("driver", "Driver")
+        self._add_debug_label("tyrecompound", "Tyre Compound")
+        self._add_debug_label("session", "Session Type")
+        self._add_debug_label("simstatus", "Sim Status")
+
+        # Engine/Drivetrain
+        self.add_preferences_group("Engine / Drivetrain")
+        self._add_debug_label("rpms", "RPM")
+        self._add_debug_label("maxrpm", "Max RPM")
+        self._add_debug_label("idlerpm", "Idle RPM")
+        self._add_debug_label("gear", "Gear")
+        self._add_debug_label("gearc", "Gear Char")
+        self._add_debug_label("maxgears", "Max Gears")
+        self._add_debug_label("turboboost", "Turbo Boost")
+        self._add_debug_label("turboboostperct", "Turbo %")
+        self._add_debug_label("maxturbo", "Max Turbo")
+
+        # Controls
+        self.add_preferences_group("Controls")
+        self._add_debug_label("gas", "Throttle")
+        self._add_debug_label("brake", "Brake")
+        self._add_debug_label("clutch", "Clutch")
+        self._add_debug_label("steer", "Steering")
+        self._add_debug_label("handbrake", "Handbrake")
+
+        # Speed/Position
+        self.add_preferences_group("Speed / Position")
+        self._add_debug_label("velocity", "Velocity")
+        self._add_debug_label("distance", "Distance")
+        self._add_debug_label("altitude", "Altitude")
+        self._add_debug_label("worldposx", "World X")
+        self._add_debug_label("worldposy", "World Y")
+        self._add_debug_label("worldposz", "World Z")
+
+        # Orientation
+        self.add_preferences_group("Orientation")
+        self._add_debug_label("heading", "Heading")
+        self._add_debug_label("pitch", "Pitch")
+        self._add_debug_label("roll", "Roll")
+
+        # Velocity Vectors
+        self.add_preferences_group("Velocity Vectors")
+        self._add_debug_label("Xvelocity", "X Velocity")
+        self._add_debug_label("Yvelocity", "Y Velocity")
+        self._add_debug_label("Zvelocity", "Z Velocity")
+        self._add_debug_label("worldXvelocity", "World X Vel")
+        self._add_debug_label("worldYvelocity", "World Y Vel")
+        self._add_debug_label("worldZvelocity", "World Z Vel")
+
+        # Race Info
+        self.add_preferences_group("Race Info")
+        self._add_debug_label("lap", "Current Lap")
+        self._add_debug_label("numlaps", "Total Laps")
+        self._add_debug_label("playerlaps", "Player Laps")
+        self._add_debug_label("position", "Position")
+        self._add_debug_label("numcars", "Num Cars")
+
+        # Lap Times
+        self.add_preferences_group("Lap Times")
+        self._add_debug_label("currentlap", "Current Lap")
+        self._add_debug_label("lastlap", "Last Lap")
+        self._add_debug_label("bestlap", "Best Lap")
+        self._add_debug_label("currentlapinseconds", "Current (s)")
+        self._add_debug_label("lastlapinseconds", "Last (s)")
+        self._add_debug_label("sectorindex", "Sector")
+        self._add_debug_label("sector1time", "Sector 1")
+        self._add_debug_label("sector2time", "Sector 2")
+        self._add_debug_label("lastsectorinms", "Last Sector (ms)")
+
+        # Session Time
+        self.add_preferences_group("Session Time")
+        self._add_debug_label("sessiontime", "Session Time")
+        self._add_debug_label("time", "Time")
+        self._add_debug_label("mtick", "Monotonic Tick")
+
+        # Fuel
+        self.add_preferences_group("Fuel")
+        self._add_debug_label("fuel", "Fuel Level")
+        self._add_debug_label("fuelcapacity", "Fuel Capacity")
+
+        # Brakes/ABS
+        self.add_preferences_group("Brakes / ABS")
+        self._add_debug_label("abs", "ABS")
+        self._add_debug_label("brakebias", "Brake Bias")
+        self._add_debug_label("braketemp", "Brake Temps")
+
+        # Tyres
+        self.add_preferences_group("Tyres")
+        self._add_debug_label("tyretemp", "Tyre Temps")
+        self._add_debug_label("tyrepressure", "Tyre Pressure")
+        self._add_debug_label("tyrewear", "Tyre Wear")
+        self._add_debug_label("tyreRPS", "Tyre RPS")
+        self._add_debug_label("tyrediameter", "Tyre Diameter")
+
+        # Suspension
+        self.add_preferences_group("Suspension")
+        self._add_debug_label("suspension", "Suspension")
+        self._add_debug_label("suspvelocity", "Susp Velocity")
+
+        # Track
+        self.add_preferences_group("Track Info")
+        self._add_debug_label("trackdistancearound", "Track Distance")
+        self._add_debug_label("playerspline", "Player Spline")
+        self._add_debug_label("trackspline", "Track Spline")
+        self._add_debug_label("playertrackpos", "Track Pos")
+        self._add_debug_label("tracksamples", "Track Samples")
+
+        # Weather
+        self.add_preferences_group("Weather")
+        self._add_debug_label("airtemp", "Air Temp")
+        self._add_debug_label("tracktemp", "Track Temp")
+        self._add_debug_label("airdensity", "Air Density")
+
+        # Flags
+        self.add_preferences_group("Flags")
+        self._add_debug_label("courseflag", "Course Flag")
+        self._add_debug_label("playerflag", "Player Flag")
+        self._add_debug_label("lapisvalid", "Lap Valid")
+
     def _load_settings(self):
         """Load saved settings from config file."""
         # Load dash enabled
@@ -139,6 +276,12 @@ class TelemetrySettings(SettingsPanel):
         if poll_rate is not None:
             self._poll_rate_slider.set_value(poll_rate)
             self._simapi.set_poll_rate(poll_rate)
+
+        # Load debug mode
+        debug_enabled = self._settings.read_setting("telemetry-debug-enabled")
+        if debug_enabled is not None:
+            self._debug_switch.set_value(debug_enabled)
+            self._simapi.set_debug_ui_enabled(bool(debug_enabled))
 
     def _on_connected(self, connected: bool):
         """Handle SimAPI connection status change."""
@@ -250,6 +393,35 @@ class TelemetrySettings(SettingsPanel):
         """Handle poll rate change."""
         self._simapi.set_poll_rate(value)
         self._settings.write_setting(value, "telemetry-poll-rate")
+
+    def _add_debug_label(self, key: str, title: str):
+        """Helper to add a debug label row and track it."""
+        label = BoxflatLabelRow(title, "", "-")
+        self._add_row(label)
+        self._debug_labels[key] = label
+
+    def _on_debug_toggle(self, value: int):
+        """Handle debug view toggle."""
+        enabled = bool(value)
+        self._simapi.set_debug_ui_enabled(enabled)
+        self._settings.write_setting(value, "telemetry-debug-enabled")
+
+    def _on_debug_data(self, data: dict):
+        """Handle debug data update from SimAPI."""
+        for key, label in self._debug_labels.items():
+            if key in data:
+                value = data[key]
+                # Format lists nicely
+                if isinstance(value, list):
+                    if all(isinstance(v, float) for v in value):
+                        formatted = ", ".join(f"{v:.2f}" for v in value)
+                    else:
+                        formatted = ", ".join(str(v) for v in value)
+                elif isinstance(value, float):
+                    formatted = f"{value:.3f}"
+                else:
+                    formatted = str(value)
+                GLib.idle_add(label.set_label, formatted)
 
     def active(self, value: int):
         """Override to always show this panel (no device dependency)."""

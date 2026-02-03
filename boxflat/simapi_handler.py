@@ -203,6 +203,7 @@ class SimApiHandler(EventDispatcher):
         self._wheel_colors_sent = False  # Track if we've sent color config
         self._auto_enable = True
         self._debug = True  # Enable debug output
+        self._debug_ui_enabled = False  # UI debug view toggle
 
         # Register events
         self._register_events(
@@ -213,7 +214,8 @@ class SimApiHandler(EventDispatcher):
             "sim-status",
             "connected",
             "car-changed",  # Emitted when car/session changes
-            "car-name"  # Current car name as string
+            "car-name",  # Current car name as string
+            "debug-data"  # Full SimData dict for debug UI
         )
 
     def set_connection_manager(self, cm):
@@ -296,6 +298,14 @@ class SimApiHandler(EventDispatcher):
     def set_auto_enable(self, enabled: bool) -> None:
         """Enable/disable auto-start when sim is detected."""
         self._auto_enable = enabled
+
+    def set_debug_ui_enabled(self, enabled: bool) -> None:
+        """Enable/disable debug UI data dispatching."""
+        self._debug_ui_enabled = enabled
+
+    def is_debug_ui_enabled(self) -> bool:
+        """Check if debug UI data dispatching is enabled."""
+        return self._debug_ui_enabled
 
     def reset_calibration(self) -> None:
         """Reset the auto-calibrated max RPM."""
@@ -527,6 +537,10 @@ class SimApiHandler(EventDispatcher):
         if self._raw_counter % 10 == 0:
             self._dispatch("rpm-raw", (data.rpms, data.maxrpm, data.idlerpm, effective_maxrpm))
 
+            # Dispatch full debug data if debug UI is enabled
+            if self._debug_ui_enabled:
+                self._dispatch("debug-data", self._simdata_to_dict(data))
+
         # Dispatch RPM changes
         if rpm_percent != self._last_rpm_percent:
             self._last_rpm_percent = rpm_percent
@@ -560,6 +574,126 @@ class SimApiHandler(EventDispatcher):
             if rpm_percent >= threshold:
                 bitmask = set_bit(bitmask, i)
         return bitmask
+
+    def _simdata_to_dict(self, data: SimData) -> dict:
+        """Convert SimData structure to a dictionary for debug display."""
+        def decode_str(b):
+            try:
+                return b.decode('utf-8', errors='ignore').rstrip('\x00')
+            except:
+                return ""
+
+        def laptime_to_str(lt: LapTime) -> str:
+            return f"{lt.hours:02d}:{lt.minutes:02d}:{lt.seconds:02d}.{lt.fraction:03d}"
+
+        return {
+            # Basic telemetry
+            "mtick": data.mtick,
+            "simstatus": data.simstatus,
+            "velocity": data.velocity,
+            "rpms": data.rpms,
+            "gear": data.gear,
+            "maxrpm": data.maxrpm,
+            "idlerpm": data.idlerpm,
+            "maxgears": data.maxgears,
+            "gearc": decode_str(data.gearc),
+
+            # Position/Lap info
+            "lap": data.lap,
+            "position": data.position,
+            "numlaps": data.numlaps,
+            "playerlaps": data.playerlaps,
+            "numcars": data.numcars,
+            "altitude": data.altitude,
+
+            # Velocity vectors
+            "Xvelocity": data.Xvelocity,
+            "Yvelocity": data.Yvelocity,
+            "Zvelocity": data.Zvelocity,
+            "worldXvelocity": data.worldXvelocity,
+            "worldYvelocity": data.worldYvelocity,
+            "worldZvelocity": data.worldZvelocity,
+
+            # Controls
+            "gas": data.gas,
+            "brake": data.brake,
+            "clutch": data.clutch,
+            "steer": data.steer,
+            "handbrake": data.handbrake,
+
+            # Fuel
+            "fuel": data.fuel,
+            "fuelcapacity": data.fuelcapacity,
+
+            # Turbo
+            "turboboost": data.turboboost,
+            "turboboostperct": data.turboboostperct,
+            "maxturbo": data.maxturbo,
+
+            # ABS/Brakes
+            "abs": data.abs,
+            "brakebias": data.brakebias,
+            "braketemp": list(data.braketemp),
+
+            # Tyres
+            "tyreRPS": list(data.tyreRPS),
+            "tyrediameter": list(data.tyrediameter),
+            "tyrewear": list(data.tyrewear),
+            "tyretemp": list(data.tyretemp),
+            "tyrepressure": list(data.tyrepressure),
+
+            # Orientation
+            "heading": data.heading,
+            "pitch": data.pitch,
+            "roll": data.roll,
+
+            # World position
+            "worldposx": data.worldposx,
+            "worldposy": data.worldposy,
+            "worldposz": data.worldposz,
+            "distance": data.distance,
+
+            # Suspension
+            "suspension": list(data.suspension),
+            "suspvelocity": list(data.suspvelocity),
+
+            # Track
+            "trackdistancearound": data.trackdistancearound,
+            "playerspline": data.playerspline,
+            "trackspline": data.trackspline,
+            "playertrackpos": data.playertrackpos,
+            "tracksamples": data.tracksamples,
+
+            # Weather
+            "airdensity": data.airdensity,
+            "airtemp": data.airtemp,
+            "tracktemp": data.tracktemp,
+
+            # Timing
+            "lastlap": laptime_to_str(data.lastlap),
+            "bestlap": laptime_to_str(data.bestlap),
+            "currentlap": laptime_to_str(data.currentlap),
+            "currentlapinseconds": data.currentlapinseconds,
+            "lastlapinseconds": data.lastlapinseconds,
+            "time": data.time,
+            "sessiontime": laptime_to_str(data.sessiontime),
+            "session": data.session,
+            "sectorindex": data.sectorindex,
+            "sector1time": data.sector1time,
+            "sector2time": data.sector2time,
+            "lastsectorinms": data.lastsectorinms,
+
+            # Flags
+            "courseflag": data.courseflag,
+            "playerflag": data.playerflag,
+            "lapisvalid": data.lapisvalid,
+
+            # Session info
+            "car": decode_str(data.car),
+            "track": decode_str(data.track),
+            "driver": decode_str(data.driver),
+            "tyrecompound": decode_str(data.tyrecompound),
+        }
 
     def _send_telemetry(self, bitmask: int) -> None:
         """Send telemetry to enabled devices."""
