@@ -1,4 +1,4 @@
-# Copyright (c) 2025, Tomasz Pakula Using Arch BTW
+# Copyright (c) 2025, Ryan Orth Using CachyOS BTW
 # SimAPI integration for reading racing simulator telemetry
 
 import ctypes
@@ -21,6 +21,10 @@ SIMAPI_STATUS_ACTIVE = 2
 
 # Default LED thresholds - spread across full RPM range for better feedback
 DEFAULT_THRESHOLDS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
+
+# Max reasonable RPM for validation (F1 engines topped out at ~19000 RPM)
+# Set to 20000 to allow margin while rejecting wild values
+MAX_REASONABLE_RPM = 20000
 
 
 class LapTime(ctypes.Structure):
@@ -208,7 +212,8 @@ class SimApiHandler(EventDispatcher):
             "gear",
             "sim-status",
             "connected",
-            "car-changed"  # Emitted when car/session changes
+            "car-changed",  # Emitted when car/session changes
+            "car-name"  # Current car name as string
         )
 
     def set_connection_manager(self, cm):
@@ -402,8 +407,8 @@ class SimApiHandler(EventDispatcher):
             if data.mtick == self._last_mtick:
                 self._stale_count += 1
                 if self._stale_count >= self._stale_threshold:
-                    if self._debug:
-                        print("[SimAPI] Connection stale, reconnecting...")
+                    # if self._debug:
+                    #     print("[SimAPI] Connection stale, reconnecting...")
                     self._close_shm()
                     self._stale_count = 0
                     sleep(reconnect_interval)
@@ -428,10 +433,18 @@ class SimApiHandler(EventDispatcher):
             # Clear LEDs when sim becomes inactive
             if data.simstatus != SIMAPI_STATUS_ACTIVE:
                 self._clear_leds()
+                # Clear car name
+                self._dispatch("car-name", "None")
                 return
             else:
                 # Sim just became active - wake up the wheel with a brief flash
                 self._wake_up_leds()
+                # Dispatch current car name
+                try:
+                    car_name = data.car.decode('utf-8', errors='ignore').rstrip('\x00')
+                    self._dispatch("car-name", car_name if car_name else "Unknown")
+                except:
+                    self._dispatch("car-name", "Unknown")
 
         # Only process RPM when sim is active
         if data.simstatus != SIMAPI_STATUS_ACTIVE:
@@ -456,6 +469,13 @@ class SimApiHandler(EventDispatcher):
             self._last_car = current_car
             self._last_track = current_track
 
+            # Dispatch car name as readable string
+            try:
+                car_name = current_car.decode('utf-8', errors='ignore').rstrip('\x00')
+                self._dispatch("car-name", car_name if car_name else "Unknown")
+            except:
+                self._dispatch("car-name", "Unknown")
+
         # Determine effective max RPM (use game value or auto-calibrate)
         # Also check for stale maxrpm data after car change - if maxrpm hasn't
         # changed since the car switch, it's likely stale and we should auto-calibrate
@@ -469,13 +489,22 @@ class SimApiHandler(EventDispatcher):
                           data.maxrpm == self._maxrpm_before_change)
 
         effective_maxrpm = data.maxrpm
-        if data.maxrpm == 0 or data.maxrpm <= data.idlerpm or maxrpm_is_stale:
+        # Validate game-provided maxrpm and reject wild values
+        if data.maxrpm > MAX_REASONABLE_RPM:
+            if self._debug:
+                print(f"[SimAPI] Game reported wild maxRPM: {data.maxrpm}, using auto-calibration")
+            effective_maxrpm = 0  # Force auto-calibration
+
+        if effective_maxrpm == 0 or effective_maxrpm <= data.idlerpm or maxrpm_is_stale:
             # Game doesn't provide max RPM or data is stale - use calibrated value
-            # Update calibration if we see a higher RPM
-            if data.rpms > self._calibrated_maxrpm:
+            # Update calibration if we see a higher RPM (with sanity check)
+            if data.rpms > self._calibrated_maxrpm and data.rpms <= MAX_REASONABLE_RPM:
                 self._calibrated_maxrpm = data.rpms
                 if self._debug:
                     print(f"[SimAPI] Auto-calibrated maxRPM: {self._calibrated_maxrpm}")
+            elif data.rpms > MAX_REASONABLE_RPM:
+                if self._debug:
+                    print(f"[SimAPI] Ignoring wild RPM value: {data.rpms} (exceeds {MAX_REASONABLE_RPM})")
 
             # Use calibrated max with buffer
             effective_maxrpm = int(self._calibrated_maxrpm * self._calibration_buffer)

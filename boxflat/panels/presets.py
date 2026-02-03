@@ -11,6 +11,7 @@ import os
 from threading import Thread
 from time import sleep
 
+from gi.repository import GLib
 from gi.repository.Gio import Notification, NotificationPriority
 
 class PresetSettings(SettingsPanel):
@@ -181,7 +182,6 @@ class PresetSettings(SettingsPanel):
     def _load_preset(self, preset_name: str, automatic=False, default=False):
         preset_name = preset_name.removesuffix(".yml")
         print(f"Loading preset \"{preset_name}\"")
-
         GLib.idle_add(self._name_row.set_text, preset_name)
         pm = MozaPresetHandler(self._cm)
         pm.set_path(self._presets_path)
@@ -297,6 +297,10 @@ class PresetSettings(SettingsPanel):
 
 
     def _load_default(self, delay: int=0) -> None:
+        print(f"[PRESETS] _load_default called with delay={delay}")
+        print(f"[PRESETS] _default_preset={self._default_preset}")
+        print(f"[PRESETS] default-preset-on-startup setting={self._settings.read_setting('default-preset-on-startup')}")
+
         if not self._default_preset:
             print("No default preset to load")
             return
@@ -306,3 +310,10 @@ class PresetSettings(SettingsPanel):
 
         print(f"Loading default preset: {self._default_preset}")
         self._load_preset(self._default_preset, default=True)
+
+
+    def update_preset_name(self, preset_name: str) -> None:
+        """Update the preset name in the UI (called when loaded via IPC)."""
+        print(f"[PRESETS] update_preset_name called with: {preset_name}")
+        preset_name = preset_name.removesuffix(".yml")
+        GLib.idle_add(self._name_row.set_text, preset_name)

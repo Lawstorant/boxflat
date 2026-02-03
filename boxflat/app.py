@@ -11,6 +11,7 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
 from boxflat.simapi_handler import SimApiHandler
+from boxflat.ipc_handler import IpcHandler
 from threading import Thread, Event
 
 import os
@@ -159,6 +160,10 @@ class MyApp(Adw.Application):
         self._cm.subscribe("hid-device-connected", self._hid_handler.add_device)
         self._cm.subscribe("hid-device-disconnected", self._hid_handler.remove_device)
         self._simapi_handler.set_connection_manager(self._cm)
+
+        self._ipc_handler = IpcHandler(self._cm, self._settings)
+        if not dry_run:
+            self._ipc_handler.start()
 
         with open(os.path.join(data_path, "version"), "r") as version:
             self._version = version.readline().strip()
@@ -312,6 +317,10 @@ class MyApp(Adw.Application):
 
         self._panels["Presets"] = PresetSettings(self.switch_panel, self._cm, self._settings, self._panels["H-Pattern Shifter"], self._panels["Multifunction Stalks"])
         self._panels["Presets"].set_application(self)
+
+        # Subscribe preset panel to IPC preset load events
+        subscription = self._ipc_handler.subscribe("preset-loaded", self._panels["Presets"].update_preset_name)
+        print(f"[APP] Subscribed to preset-loaded event: {subscription}")
         self._panels["Generic Devices"] = GenericSettings(self.switch_panel, self._settings)
         self._panels["Telemetry"] = TelemetrySettings(
             self.switch_panel, self._cm, self._hid_handler, self._settings, self._simapi_handler)
@@ -342,6 +351,7 @@ class MyApp(Adw.Application):
             panel.shutdown()
 
         self._simapi_handler.stop()
+        self._ipc_handler.stop()
         self._cm.shutdown()
 
 

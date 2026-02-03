@@ -384,11 +384,13 @@ class MozaPresetHandler(SimpleEventDispatcher):
                 continue
 
             if key == "hpattern":
-                hpattern.set_settings(settings)
+                if hpattern is not None:
+                    hpattern.set_settings(settings)
                 continue
 
             if key == "stalks":
-                stalks.set_settings(settings)
+                if stalks is not None:
+                    stalks.set_settings(settings)
                 continue
 
             if key == "wheel":

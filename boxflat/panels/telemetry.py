@@ -1,4 +1,4 @@
-# Copyright (c) 2025, Tomasz Pakula Using Arch BTW
+# Copyright (c) 2025, Ryan Orth Using CachyOS BTW
 # Telemetry panel for SimAPI integration
 
 from boxflat.panels.settings_panel import SettingsPanel
@@ -25,6 +25,8 @@ class TelemetrySettings(SettingsPanel):
 
         # UI element references
         self._status_label = None
+        self._sim_label = None
+        self._car_label = None
         self._rpm_level = None
         self._gear_label = None
         self._dash_switch = None
@@ -40,6 +42,7 @@ class TelemetrySettings(SettingsPanel):
         self._simapi.subscribe("rpm-raw", self._on_rpm_raw)
         self._simapi.subscribe("gear", self._on_gear)
         self._simapi.subscribe("sim-status", self._on_sim_status)
+        self._simapi.subscribe("car-name", self._on_car_name)
 
         # Auto-detect wheel type based on which wheel responds
         self._cm.subscribe_connected("wheel-telemetry-mode", self._on_new_wheel_detected)
@@ -66,6 +69,9 @@ class TelemetrySettings(SettingsPanel):
 
         self._sim_label = BoxflatLabelRow("Simulator", "Current simulation", "None")
         self._add_row(self._sim_label)
+
+        self._car_label = BoxflatLabelRow("Car", "Current vehicle", "None")
+        self._add_row(self._car_label)
 
         self.add_preferences_group("Live Telemetry")
         self._rpm_raw_label = BoxflatLabelRow("Raw RPM", "Current / Max (effective) / Idle", "0 / 0 (0) / 0")
@@ -141,6 +147,7 @@ class TelemetrySettings(SettingsPanel):
         else:
             GLib.idle_add(self._status_label.set_label, "Not available")
             GLib.idle_add(self._sim_label.set_label, "None")
+            GLib.idle_add(self._car_label.set_label, "None")
             GLib.idle_add(self._rpm_level.set_value, 0)
             GLib.idle_add(self._rpm_raw_label.set_label, "0 / 0 (0) / 0")
             GLib.idle_add(self._gear_label.set_label, "N")
@@ -176,6 +183,10 @@ class TelemetrySettings(SettingsPanel):
             2: "Active"
         }
         GLib.idle_add(self._sim_label.set_label, status_map.get(status, "Unknown"))
+
+    def _on_car_name(self, car_name: str):
+        """Handle car name update."""
+        GLib.idle_add(self._car_label.set_label, car_name)
 
     def _reset_calibration(self, *_):
         """Reset RPM auto-calibration."""
