@@ -51,7 +51,7 @@ class SimData(ctypes.Structure):
 
         ("simstatus", ctypes.c_uint32),      # 0=off, 1=menu, 2=active
         ("velocity", ctypes.c_uint32),       # speed in game units
-        ("rpms", ctypes.c_uint32),           # current RPM
+        ("rpms", ctypes.c_int32),            # current RPM (signed to handle negative values)
         ("gear", ctypes.c_uint32),           # current gear
         ("pulses", ctypes.c_uint32),         # pulse count
         ("maxrpm", ctypes.c_uint32),         # max RPM
@@ -183,6 +183,11 @@ class SimApiHandler(EventDispatcher):
         self._last_status = -1
         self._connected = False
         self._last_telemetry_time = 0  # Track last telemetry send for keepalive
+
+        # Blink state for max RPM
+        self._blink_state = False  # Toggle for blinking effect
+        self._blink_counter = 0  # Frame counter for blink timing
+        self._blink_interval = 4  # Toggle every N frames (~7 blinks/sec at 60Hz)
 
         # Watchdog for detecting stale connections (simd restart)
         self._last_mtick = 0
@@ -461,6 +466,10 @@ class SimApiHandler(EventDispatcher):
         if data.simstatus != SIMAPI_STATUS_ACTIVE:
             return
 
+        # Clamp negative RPM values to 0 (games may send -1 for engine off)
+        if data.rpms < 0:
+            data.rpms = 0
+
         # Detect car/track changes for recalibration
         current_car = data.car
         current_track = data.track
@@ -540,6 +549,22 @@ class SimApiHandler(EventDispatcher):
 
         # Calculate bitmask and send telemetry
         bitmask = self._calculate_bitmask(rpm_percent)
+
+        # Blink LEDs when RPM is at/above threshold
+        if rpm_percent >= self._blink_threshold:
+            self._blink_counter += 1
+            if self._blink_counter >= self._blink_interval:
+                self._blink_counter = 0
+                self._blink_state = not self._blink_state
+
+            # Turn off LEDs during blink-off phase
+            if not self._blink_state:
+                bitmask = 0
+        else:
+            # Reset blink state when below threshold
+            self._blink_state = True
+            self._blink_counter = 0
+
         current_time = monotonic()
         time_since_last = current_time - self._last_telemetry_time
 

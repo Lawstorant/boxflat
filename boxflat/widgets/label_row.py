@@ -1,6 +1,6 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Pango
 from .row import BoxflatRow
 
 class BoxflatLabelRow(BoxflatRow):
@@ -14,6 +14,12 @@ class BoxflatLabelRow(BoxflatRow):
         self._label = label
         self._suffix = ""
         self.connect("activated", lambda *_: self._dispatch())
+
+
+    def set_wrap(self, wrap: bool):
+        self._label.set_wrap(wrap)
+        if wrap:
+            self._label.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
 
 
     def _set_value(self, value: str):

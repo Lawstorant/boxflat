@@ -37,6 +37,9 @@ Boxflat for Moza Racing. Control your Moza gear settings... and more!
 | Presets         | 100%          | |
 | Generic devices | Detection fix | |
 
+### Preset Auto-Loading
+Presets can automatically load when specific games are detected. The system now supports full command-line pattern matching, allowing you to distinguish between games from the same publisher (e.g., different EA games that all launch through `EADesktop.exe`). Patterns can be simple process names or command-line substrings for precise matching.
+
 ### Ideas
 - Telemetry ingestion through REST API/WebSockets
 - Cammus support

@@ -194,7 +194,18 @@ class PresetSettings(SettingsPanel):
         notif = Notification()
         app = self._application
 
-        notif.set_title(f"Detected: {pm.get_linked_process()}" if automatic else "No games detected")
+        # Format the process name nicely for notification
+        if automatic:
+            linked_process = pm.get_linked_process()
+            # Extract just the executable name from command line for display
+            process_display = linked_process.split()[0] if ' ' in linked_process else linked_process
+            # Further simplify if it's a path
+            import os
+            process_display = os.path.basename(process_display)
+            notif.set_title(f"Game detected: {process_display}")
+        else:
+            notif.set_title("No games detected")
+
         notif.set_body(f"Loading {"default" if default else ""} preset: {preset_name}")
         notif.set_priority(NotificationPriority.NORMAL)
 
