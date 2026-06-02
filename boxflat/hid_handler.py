@@ -521,8 +521,8 @@ class HidHandler(EventDispatcher):
             return
 
         # Remove unneeded event types
-        cap.pop(EV_SYN)
-        cap.pop(EV_MSC)
+        cap.pop(EV_SYN, None)
+        cap.pop(EV_MSC, None)
 
         # Add necessary event types
         if EV_ABS not in cap:
