@@ -15,6 +15,7 @@ MozaDevicePresetSettings = {
         "main-set-damper-gain",
         "main-set-inertia-gain",
         "main-set-friction-gain",
+        "main-set-work-mode",
     ],
     "base" : [
         "base-limit",
