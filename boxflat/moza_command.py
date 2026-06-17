@@ -220,5 +220,7 @@ class MozaCommand():
         ret.extend(self.id_bytes)
         ret.extend(self._payload)
         ret.append(self.checksum(ret, magic_value))
+        if ret[-1] == 0x7e:
+            ret.append(0x7e)
 
         return bytes(ret)
