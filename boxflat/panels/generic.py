@@ -11,7 +11,7 @@ from evdev import ecodes
 from binascii import hexlify
 
 class GenericSettings(SettingsPanel):
-    def __init__(self, button_callback, settings: SettingsHandler):
+    def __init__(self, button_callback, settings: SettingsHandler, description_handler=None):
         self._settings = settings
         self._device_list: BoxflatPreferencesGroup = None
         self._candidates_list: BoxflatPreferencesGroup = None
@@ -19,7 +19,7 @@ class GenericSettings(SettingsPanel):
         self._listed_devices = {}
         self._fixed_devices = {}
         self._candidates = []
-        super().__init__("Generic Devices", button_callback)
+        super().__init__("Generic Devices", button_callback, description_handler=description_handler)
 
 
     def prepare_ui(self) -> None:
@@ -36,7 +36,11 @@ class GenericSettings(SettingsPanel):
         self.add_preferences_group("")
         self._back = self._current_group
         self._current_group.set_present(False)
-        self._add_row(BoxflatAdvanceRow("Go back"))
+        self._add_row(BoxflatAdvanceRow("Go back"),
+            description={
+                "description": "Return to the list of configured generic devices.",
+                "recommended": "Use after reviewing available joysticks to add to the detection fix list."
+            })
         self._current_row.subscribe(self.list_configured_devices)
         self._current_group.set_size_request(620, 0)
 
@@ -57,7 +61,10 @@ class GenericSettings(SettingsPanel):
 
         if len(devices) < 1:
             row = BoxflatLabelRow("No configured devices")
-            self._add_row(row)
+            self._add_row(row,
+                description={
+                    "description": "No generic devices have been added to the detection fix list yet."
+                })
             self._listed_devices["empty"] = row
 
         for device in devices:
@@ -65,6 +72,7 @@ class GenericSettings(SettingsPanel):
             row.subscribe(self.remove_device, device)
 
             expander = Adw.ExpanderRow(title=device["name"])
+            expander.set_tooltip_text("Generic device with detection fix applied.")
             expander.add_suffix(row)
 
             ignore_buttons = False
@@ -77,11 +85,19 @@ class GenericSettings(SettingsPanel):
                 ignore_axes = device["ignore-axes"]
 
             tmp = BoxflatSwitchRow("Ignore Buttons")
+            tmp.set_tooltip_from_description({
+                "description": "Ignore all button inputs from this device.",
+                "recommended": "Enable if the device sends spurious button events."
+            })
             tmp.subscribe(self._change_device_ignore, device, "buttons")
             tmp.set_value(ignore_buttons)
             expander.add_row(tmp)
 
             tmp = BoxflatSwitchRow("Ignore Axes")
+            tmp.set_tooltip_from_description({
+                "description": "Ignore all axis inputs from this device.",
+                "recommended": "Enable if the device sends spurious axis events."
+            })
             tmp.subscribe(self._change_device_ignore, device, "axes")
             tmp.set_value(ignore_axes)
             expander.add_row(tmp)
@@ -140,13 +156,20 @@ class GenericSettings(SettingsPanel):
                     continue
 
             row = BoxflatButtonRow(device.name, "Fix Detection")
+            row.set_tooltip_from_description({
+                "description": f"Add '{device.name}' to the detection fix list.",
+                "recommended": "Use for non-MOZA devices that are not detected correctly by games."
+            })
             row.subscribe(self.add_device, device.path, True)
             self._add_row(row)
             self._candidates.append(row)
 
         if len(self._candidates) < 1:
             row = BoxflatLabelRow("No promising devices")
-            self._add_row(row)
+            self._add_row(row,
+                description={
+                    "description": "No suitable generic joysticks were found to add to the detection fix list."
+                })
             self._candidates.append(row)
 
         self._back.set_present(True)

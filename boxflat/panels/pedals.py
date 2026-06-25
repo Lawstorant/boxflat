@@ -6,7 +6,7 @@ from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis, AxisData
 
 class PedalsSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, description_handler=None):
         self._brake_calibration_row = None
         self._curve_rows: dict[str, BoxflatEqRow] = {}
 
@@ -17,7 +17,7 @@ class PedalsSettings(SettingsPanel):
             [46, 72, 86, 94, 100]  # Parabolic
         ]
 
-        super().__init__("Pedals", button_callback, connection_manager, hid_handler)
+        super().__init__("Pedals", button_callback, connection_manager, hid_handler, description_handler)
         self._cm.subscribe_connected("pedals-throttle-dir", self.active)
 
 
@@ -38,7 +38,11 @@ class PedalsSettings(SettingsPanel):
         self._hid_handler.subscribe(pedal.name, self._current_group.set_bar_level)
 
         self._curve_rows[pedal.name] = BoxflatEqRow("", 5, suffix="%")
-        self._add_row(self._curve_rows[pedal.name])
+        self._add_row(self._curve_rows[pedal.name],
+            description={
+                "description": f"{pedal.name.title()} response curve from raw input to game output.",
+                "recommended": "Linear for a 1:1 response; use other presets only if you need a specific feel."
+            })
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.add_labels("20%", "40%", "60%", "80%", "100%")
         self._current_row.set_height(280)
@@ -47,41 +51,56 @@ class PedalsSettings(SettingsPanel):
         self._curve_rows[pedal.name].set_height(290)
         self._current_row.subscribe(self._set_curve_preset, pedal.name)
         for i in range(5):
+            command = f"pedals-{pedal.name}-y{i+1}"
             self._curve_rows[pedal.name].subscribe_slider(i, self._set_curve_point, i, pedal.name)
-            self._cm.subscribe(f"pedals-{pedal.name}-y{i+1}", self._get_curve, i, pedal.name)
+            self._cm.subscribe(command, self._get_curve, i, pedal.name)
+            self._curve_rows[pedal.name].set_slider_tooltip_from_description(
+                i, self._description_handler.get_description(command))
 
         self.add_preferences_group(f"{pedal.name.title()} Range")
-        self._add_row(BoxflatSliderRow("Range Start", suffix="%"))
+        self._add_row(BoxflatSliderRow("Range Start", suffix="%"),
+            f"pedals-{pedal.name}-min")
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, f"pedals-{pedal.name}-min")
         self._cm.subscribe(f"pedals-{pedal.name}-min", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Range End", suffix="%"))
+        self._add_row(BoxflatSliderRow("Range End", suffix="%"),
+            f"pedals-{pedal.name}-max")
         self._current_row.add_marks(20, 40, 60, 80)
         self._current_row.set_slider_width(380)
         self._current_row.subscribe(self._cm.set_setting, f"pedals-{pedal.name}-max")
         self._cm.subscribe(f"pedals-{pedal.name}-max", self._current_row.set_value)
 
         if pedal == MozaAxis.BRAKE:
-            self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"))
+            self._add_row(BoxflatSliderRow("Sensor ratio", suffix="%", subtitle="0% = Only Angle Sensor\n100% = Only Load Cell"),
+                "pedals-brake-angle-ratio")
             self._current_row.add_marks(25, 50, 75)
             self._current_row.subscribe(self._cm.set_setting, "pedals-brake-angle-ratio")
             self._cm.subscribe("pedals-brake-angle-ratio", self._current_row.set_value)
 
         self.add_preferences_group("Misc")
-        self._add_row(BoxflatSwitchRow("Reverse Direction"))
+        self._add_row(BoxflatSwitchRow("Reverse Direction"),
+            f"pedals-{pedal.name}-dir")
         self._current_row.subscribe(self._cm.set_setting, f"pedals-{pedal.name}-dir")
         self._cm.subscribe(f"pedals-{pedal.name}-dir", self._current_row.set_value)
 
-        self._add_row(BoxflatCalibrationRow("Calibration", f"Fully depress {pedal.name} once"))
+        self._add_row(BoxflatCalibrationRow("Calibration", f"Fully depress {pedal.name} once"),
+            description={
+                "description": f"Calibrate the {pedal.name} pedal input range.",
+                "recommended": "Fully depress the pedal once, then press Calibrate."
+            })
         self._current_row.subscribe("calibration-start", self._cm.set_setting, f"pedals-{pedal.name}-calibration-start", True)
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, f"pedals-{pedal.name}-calibration-stop", True)
         if pedal == MozaAxis.BRAKE:
             self._brake_calibration_row = self._current_row
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": f"Reset the {pedal.name} pedal curve, range, direction, and sensor ratio to their default values.",
+                "recommended": "Use this if the pedal response feels wrong after tuning."
+            })
         self._current_row.subscribe(lambda v: self.reset(pedal.name))
 
 

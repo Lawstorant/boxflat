@@ -7,14 +7,14 @@ from boxflat.settings_handler import SettingsHandler
 from boxflat.hid_handler import HidHandler
 
 class HPatternSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler, hid: HidHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler, hid: HidHandler, description_handler=None):
         self._slider1 = None
         self._slider2 = None
         self._enable = None
         self._settings = settings
         self._gear_row = BoxflatLabelRow("Current Gear")
 
-        super().__init__("H-Pattern Shifter", button_callback, connection_manager, hid)
+        super().__init__("H-Pattern Shifter", button_callback, connection_manager, hid, description_handler)
         self._cm.subscribe_connected("hpattern-output-y", self.active)
 
 
@@ -37,7 +37,7 @@ class HPatternSettings(SettingsPanel):
         self._slider1 = row1
         self._slider2 = row2
 
-        self._add_row(BoxflatSwitchRow("Auto Downshift Throttle Blip", subtitle="Easy rev match"))
+        self._add_row(BoxflatSwitchRow("Auto Downshift Throttle Blip", subtitle="Easy rev match"), "hpattern-blip-enabled")
         self._current_row.subscribe(row1.set_active)
         self._current_row.subscribe(row2.set_active)
         self._current_row.subscribe(self._hid_handler.update_blip_data)
@@ -45,8 +45,8 @@ class HPatternSettings(SettingsPanel):
         self._current_row.subscribe(self._settings.write_setting, "hpattern-blip-enabled")
         self._enable = self._current_row
 
-        self._add_row(row1)
-        self._add_row(row2)
+        self._add_row(row1, "hpattern-blip-level")
+        self._add_row(row2, "hpattern-blip-duration")
 
         row1.add_marks(25, 50, 75)
         row2.add_marks(250, 500, 750)
@@ -65,7 +65,11 @@ class HPatternSettings(SettingsPanel):
         self._update_gear(0, 0)
         self._hid_handler.subscribe("gear", self._update_gear)
 
-        self._add_row(BoxflatCalibrationRow("Device Calibration", "Shift into R > 7th > R > Neutral"))
+        self._add_row(BoxflatCalibrationRow("Device Calibration", "Shift into R > 7th > R > Neutral"),
+            description={
+                "description": "Calibrate the H-pattern shifter gate positions.",
+                "recommended": "Follow the sequence shown on the row: R, 7th, R, Neutral."
+            })
         self._current_row.subscribe("calibration-start", self._cm.set_setting, "hpattern-calibration-start")
         self._current_row.subscribe("calibration-stop", self._cm.set_setting, "hpattern-calibration-stop")
 
@@ -74,7 +78,11 @@ class HPatternSettings(SettingsPanel):
         self._enable.disable_cooldown()
 
         # self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": "Reset the H-pattern auto-blip settings to their default values.",
+                "recommended": "Use this if throttle blip behavior becomes inconsistent."
+            })
         self._current_row.subscribe(self.reset)
 
 

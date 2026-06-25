@@ -15,7 +15,7 @@ from gi.repository.Gio import Notification, NotificationPriority
 
 class PresetSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, settings: SettingsHandler,
-                 hpattern: HPatternSettings, stalks: StalksSettings):
+                 hpattern: HPatternSettings, stalks: StalksSettings, description_handler=None):
         self._settings = settings
 
         self._hpattern = hpattern
@@ -30,7 +30,7 @@ class PresetSettings(SettingsPanel):
         self._presets_list_group = None
         self._presets = []
         self._default_preset = None
-        super().__init__("Presets", button_callback, connection_manager)
+        super().__init__("Presets", button_callback, connection_manager, description_handler=description_handler)
         self.list_presets()
 
         if self._settings.read_setting("default-preset-on-startup"):
@@ -40,15 +40,24 @@ class PresetSettings(SettingsPanel):
     def prepare_ui(self):
         self.add_preferences_group("Saving")
         self._current_group.set_description("Doesn't overwrite unavailable devices")
-        self._add_row(self._name_row)
+        self._add_row(self._name_row,
+            description={
+                "description": "Name for the preset being saved.",
+                "recommended": "Use a descriptive name that identifies the car or game."
+            })
 
         expander = Adw.ExpanderRow(title="Include Devices")
-        self._add_row(expander)
+        self._add_row(expander,
+            description={
+                "description": "Choose which device settings are included when saving or loading this preset.",
+                "recommended": "Include only the devices you want the preset to control."
+            })
 
         row = BoxflatSwitchRow("Base")
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-base"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-base"))
         row.subscribe(self._settings.write_setting, "presets-include-base")
         self._cm.subscribe_connected("base-limit", row.set_active, 1, True)
         self._includes["base"] = row.get_value
@@ -57,6 +66,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-dash"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-dash"))
         row.subscribe(self._settings.write_setting, "presets-include-dash")
         self._cm.subscribe_connected("dash-rpm-indicator-mode", row.set_active, 1, True)
         self._includes["dash"] = row.get_value
@@ -65,6 +75,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-dash-color"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-dash-color"))
         row.subscribe(self._settings.write_setting, "presets-include-dash-color")
         self._cm.subscribe_connected("dash-rpm-indicator-mode", row.set_active, 1, True)
         self._includes["dash-colors"] = row.get_value
@@ -73,6 +84,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-wheel"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-wheel"))
         row.subscribe(self._settings.write_setting, "presets-include-wheel")
         self._cm.subscribe_connected("wheel-telemetry-mode", row.set_active, 1, True)
         self._includes["wheel"] = row.get_value
@@ -81,6 +93,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(0)
         row.set_value(self._settings.read_setting("presets-include-wheel-colors"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-wheel-colors"))
         row.subscribe(self._settings.write_setting, "presets-include-wheel-colors")
         self._cm.subscribe_connected("wheel-telemetry-mode", row.set_active, 1, True)
         self._includes["wheel-colors"] = row.get_value
@@ -89,6 +102,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-pedals"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-pedals"))
         row.subscribe(self._settings.write_setting, "presets-include-pedals")
         self._cm.subscribe_connected("pedals-throttle-dir", row.set_active, 1, True)
         self._includes["pedals"] = row.get_value
@@ -98,6 +112,7 @@ class PresetSettings(SettingsPanel):
         row.set_value(0)
         row.set_active(0)
         row.set_value(self._settings.read_setting("presets-include-hpattern"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-hpattern"))
         row.subscribe(self._settings.write_setting, "presets-include-hpattern")
         self._hpattern.subscribe("active", row.set_active, 0, True)
         self._hpattern.subscribe("active", row.set_present)
@@ -107,6 +122,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-sequential"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-sequential"))
         row.subscribe(self._settings.write_setting, "presets-include-sequential")
         self._cm.subscribe_connected("sequential-output-y", row.set_active, 1, True)
         self._includes["sequential"] = row.get_value
@@ -115,6 +131,7 @@ class PresetSettings(SettingsPanel):
         expander.add_row(row)
         row.set_value(1)
         row.set_value(self._settings.read_setting("presets-include-handbrake"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-handbrake"))
         row.subscribe(self._settings.write_setting, "presets-include-handbrake")
         self._cm.subscribe_connected("handbrake-direction", row.set_active, 1, True)
         self._includes["handbrake"] = row.get_value
@@ -124,6 +141,7 @@ class PresetSettings(SettingsPanel):
         row.set_value(0)
         row.set_active(0)
         row.set_value(self._settings.read_setting("presets-include-stalks"))
+        row.set_tooltip_from_description(self._description_handler.get_description("presets-include-stalks"))
         row.subscribe(self._settings.write_setting, "presets-include-stalks")
         self._stalks.subscribe("active", row.set_active, 0, True)
         self._stalks.subscribe("active", row.set_present)
@@ -136,7 +154,11 @@ class PresetSettings(SettingsPanel):
             self._save_row = Adw.ButtonRow(title="Save")
             self._save_row.add_css_class("suggested-action")
             self._save_row.set_end_icon_name("document-save-symbolic")
-            self._add_row(self._save_row)
+            self._add_row(self._save_row,
+                description={
+                    "description": "Save the current device settings as a preset with the given name.",
+                    "recommended": "Make sure the desired devices are included before saving."
+                })
             self._save_row.connect("activated", self._save_preset)
             self._save_row.connect("activated", lambda v: expander.set_expanded(False))
             self._name_row.connect("notify::text-length", lambda e, *args: self._save_row.set_sensitive(e.get_text_length()))
@@ -145,7 +167,11 @@ class PresetSettings(SettingsPanel):
         # compatibility with libadwaita older than 1.6
         else:
             self._save_row = BoxflatButtonRow("Save preset", "Save")
-            self._add_row(self._save_row)
+            self._add_row(self._save_row,
+                description={
+                    "description": "Save the current device settings as a preset with the given name.",
+                    "recommended": "Make sure the desired devices are included before saving."
+                })
             self._current_row.subscribe(self._save_preset)
             self._current_row.subscribe(lambda v: expander.set_expanded(False))
             self._current_row.set_active(False)
@@ -240,6 +266,10 @@ class PresetSettings(SettingsPanel):
 
             preset_name = file.removesuffix(".yml")
             row = BoxflatButtonRow(preset_name)
+            row.set_tooltip_from_description({
+                "description": f"Load or configure the '{preset_name}' preset.",
+                "recommended": "Load applies settings immediately; Settings changes the preset metadata."
+            })
             row.add_button("Load", self._load_preset, file)
             row.add_button("Settings", self._show_preset_dialog, file)
             # row.add_button("Delete", self._delete_preset, file).add_css_class("destructive-action")
