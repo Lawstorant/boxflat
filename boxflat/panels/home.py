@@ -8,7 +8,7 @@ from math import ceil, floor
 from gi.repository import Gtk, Adw
 
 class HomeSettings(SettingsPanel):
-    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str=""):
+    def __init__(self, button_callback, dry_run: bool, connection_manager, hid_handler, version: str="", description_handler=None):
         self._test_text = "inactive"
         if dry_run:
             self._test_text = "active"
@@ -16,7 +16,7 @@ class HomeSettings(SettingsPanel):
         self._version = version
         self._rotation = 180
 
-        super().__init__("Home", button_callback, connection_manager=connection_manager, hid_handler=hid_handler)
+        super().__init__("Home", button_callback, connection_manager=connection_manager, hid_handler=hid_handler, description_handler=description_handler)
         self._cm.subscribe("base-limit", self._get_rotation_limit)
 
 
@@ -35,7 +35,7 @@ class HomeSettings(SettingsPanel):
         self._hid_handler.subscribe(MozaAxis.STEERING.name, self._set_steering)
         self._current_row.set_value(0)
 
-        self._add_row(BoxflatButtonRow("Adjust center point", "Center"))
+        self._add_row(BoxflatButtonRow("Adjust center point", "Center"), "base-calibration")
         self._current_row.subscribe(self._cm.set_setting, "base-calibration")
 
         self._add_row(BoxflatLabelRow("E-Stop status"))
@@ -69,7 +69,11 @@ class HomeSettings(SettingsPanel):
 
         self.add_preferences_group()
 
-        self._add_row(BoxflatAdvanceRow("About"))
+        self._add_row(BoxflatAdvanceRow("About"),
+            description={
+                "description": "Show information about the Boxflat application and version.",
+                "recommended": "Use to check the installed version and project links."
+            })
         self._current_row.subscribe(self._show_about_dialog)
         self._current_row.set_width(0)
 

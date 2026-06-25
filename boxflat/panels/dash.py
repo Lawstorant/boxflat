@@ -23,7 +23,7 @@ MOZA_TELEMETRY_FLAGS = [
 ]
 
 class DashSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler, description_handler=None):
         self._settings = settings
         self._blinking_row = None
 
@@ -44,7 +44,7 @@ class DashSettings(SettingsPanel):
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
         ]
 
-        super().__init__("Dash", button_callback, connection_manager, hid_handler)
+        super().__init__("Dash", button_callback, connection_manager, hid_handler, description_handler)
         self._cm.subscribe_connected("dash-rpm-indicator-mode", self.active)
 
 
@@ -66,24 +66,24 @@ class DashSettings(SettingsPanel):
         self.add_preferences_page("Dash")
         self.add_preferences_group("Indicator modes")
 
-        self._add_row(BoxflatToggleButtonRow("RPM Indicator Mode"))
+        self._add_row(BoxflatToggleButtonRow("RPM Indicator Mode"), "dash-rpm-indicator-mode")
         self._current_row.add_buttons("Off", " RPM ", "On ")
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-indicator-mode")
         self._cm.subscribe("dash-rpm-indicator-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatToggleButtonRow("Flags Indicator"))
+        self._add_row(BoxflatToggleButtonRow("Flags Indicator"), "dash-flags-indicator-mode")
         self._current_row.add_buttons("Off", "Flags", "On ")
         self._current_row.subscribe(self._cm.set_setting, "dash-flags-indicator-mode")
         self._cm.subscribe("dash-flags-indicator-mode", self._current_row.set_value)
 
 
         self.add_preferences_group("RPM settings")
-        self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
+        self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"), "dash-rpm-display-mode")
         self._current_row.add_buttons("Mode 1", "Mode 2")
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-display-mode")
         self._cm.subscribe("dash-rpm-display-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatToggleButtonRow("RPM Mode"))
+        self._add_row(BoxflatToggleButtonRow("RPM Mode"), "dash-rpm-mode")
         self._current_row.add_buttons("Percent", "RPM")
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-mode")
         self._current_row.subscribe(self._reconfigure_timings)
@@ -93,7 +93,11 @@ class DashSettings(SettingsPanel):
         self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
             button_row=False, draw_marks=False)
 
-        self._add_row(self._timing_row)
+        self._add_row(self._timing_row,
+            description={
+                "description": "RPM LED activation points as percentages of max RPM.",
+                "recommended": "Use the Early/Normal/Late presets as a starting point."
+            })
         self._timing_row.add_buttons("Early", "Normal", "Late")
         # self._timing_row.add_buttons("Center")
         self._timing_row.subscribe(self._set_rpm_timings_preset)
@@ -105,15 +109,22 @@ class DashSettings(SettingsPanel):
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
             range_start=2000, range_end=18_000, button_row=False, draw_marks=False, increment=100)
 
-        self._add_row(self._timing_row2)
+        self._add_row(self._timing_row2,
+            description={
+                "description": "RPM LED activation points as exact RPM values.",
+                "recommended": "Only visible in RPM mode; tune per car and track."
+            })
         self._timing_row2.add_buttons("Early", "Normal", "Late")
         self._timing_row2.subscribe(self._set_rpm_timings2_preset)
         self._timing_row2.set_present(0)
 
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_label(f"RPM{i+1}", i)
-            self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"dash-rpm-value{i+1}")
-            self._cm.subscribe(f"dash-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
+            command = f"dash-rpm-value{i+1}"
+            self._timing_row2.subscribe_slider(i, self._cm.set_setting, command)
+            self._cm.subscribe(command, self._timing_row2.set_slider_value, i)
+            self._timing_row2.set_slider_tooltip_from_description(
+                i, self._description_handler.get_description(command))
         self._cm.subscribe(f"dash-rpm-value10", self._get_rpm_timings2_preset)
 
 
@@ -122,20 +133,29 @@ class DashSettings(SettingsPanel):
         self._cm.subscribe("dash-rpm-mode", self._reconfigure_timings)
 
 
-        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
+        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50), "dash-rpm-interval")
         self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-interval")
         self._cm.subscribe("dash-rpm-interval", self._current_row.set_value)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": "Reset all dash indicator settings to their default values.",
+                "recommended": "Use this if LED timing or colors become inconsistent."
+            })
         self._current_row.subscribe(self.reset)
         self._current_row.subscribe(self.reset)
 
 
         self.add_preferences_page("Colors")
         self.add_preferences_group("RPM Colors")
-        self._add_row(BoxflatNewColorPickerRow())
+        self._add_row(BoxflatNewColorPickerRow(),
+            description={
+                "description": "Colors of the dash RPM indicator LEDs from low to high engine speed.",
+                "default": "Green (low), Red (mid), Magenta (high)",
+                "recommended": "Use distinct colors for each RPM range so they are easy to read at a glance."
+            })
         for i in range(MOZA_RPM_LEDS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"dash-rpm-color{i+1}")
             self._cm.subscribe(f"dash-rpm-color{i+1}", self._current_row.set_led_value, i)
@@ -143,7 +163,11 @@ class DashSettings(SettingsPanel):
         self.add_preferences_group("RPM Blinking")
         self._current_group.set_description("These colors are not saved to the dash")
         self._blinking_row = BoxflatNewColorPickerRow()
-        self._add_row(self._blinking_row)
+        self._add_row(self._blinking_row,
+            description={
+                "description": "Colors used during the dash indicator test blink sequence. These are not saved to the dash.",
+                "recommended": "Used only for the Test button preview."
+            })
         for i in range(MOZA_RPM_LEDS):
             name = f"dash-rpm-blink-color{i+1}"
             self._current_row.set_led_value(self._settings.read_setting(name), i)
@@ -152,24 +176,32 @@ class DashSettings(SettingsPanel):
 
         self.add_preferences_group("Flag Default Colors")
         self._current_group.set_description("More to come...")
-        self._add_row(BoxflatNewColorPickerRow(pickers=6))
+        self._add_row(BoxflatNewColorPickerRow(pickers=6),
+            description={
+                "description": "Default colors for the telemetry flag LEDs on the dash.",
+                "recommended": "Set colors that match your preferred flag meanings."
+            })
         for i in range(MOZA_FLAG_LEDS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"dash-flag-color{i+1}")
             self._cm.subscribe(f"dash-flag-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group("Brightness")
-        self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
+        self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15), "dash-rpm-brightness")
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting, "dash-rpm-brightness")
         self._cm.subscribe("dash-rpm-brightness", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
+        self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15), "dash-flags-brightness")
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting, "dash-flags-brightness")
         self._cm.subscribe("dash-flags-brightness", self._current_row.set_value)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Dash indicator test", "Test"))
+        self._add_row(BoxflatButtonRow("Dash indicator test", "Test"),
+            description={
+                "description": "Run a preview of the dash RPM and flag indicator patterns.",
+                "recommended": "Use to verify LED placement and colors without launching a game."
+            })
         self._current_row.subscribe(self.start_test)
 
         # self.add_preferences_group("Telemetry flag")

@@ -5,10 +5,10 @@ from boxflat.connection_manager import MozaConnectionManager
 from boxflat.widgets import *
 
 class HubSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, description_handler=None):
         self._S1 = None
         self._S2 = None
-        super().__init__("Universal Hub", button_callback, connection_manager)
+        super().__init__("Universal Hub", button_callback, connection_manager, description_handler=description_handler)
         self._cm.subscribe_connected("hub-base", self.active)
 
 

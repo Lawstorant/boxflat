@@ -54,7 +54,7 @@ SHARED_SETTINGS = [
 indicator_mode_map = [2,1,3]
 
 class OldWheelSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler, description_handler=None):
         self._settings = settings
         self._blinking_row = None
 
@@ -77,7 +77,7 @@ class OldWheelSettings(SettingsPanel):
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
         ]
 
-        super().__init__("Wheel Old", button_callback, connection_manager, hid_handler)
+        super().__init__("Wheel Old", button_callback, connection_manager, hid_handler, description_handler)
         self._cm.subscribe_connected("wheel-rpm-value1", self.active)
         self.set_banner_title(f"Device disconnected...")
 
@@ -119,7 +119,7 @@ class OldWheelSettings(SettingsPanel):
         self._current_group.set_present(0)
 
         paddle_mode = BoxflatToggleButtonRow("Dual Clutch Paddles Mode")
-        self._add_row(paddle_mode)
+        self._add_row(paddle_mode, "wheel-paddles-mode")
         self._current_row.add_buttons("Buttons", "Combined", "Split")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
@@ -150,7 +150,7 @@ class OldWheelSettings(SettingsPanel):
 
 
         slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
-        self._add_row(slider)
+        self._add_row(slider, "wheel-clutch-point")
         self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
@@ -162,14 +162,14 @@ class OldWheelSettings(SettingsPanel):
         self._cm.subscribe_connected("wheel-clutch-point", self._current_row.set_present)
 
         self.add_preferences_group("Input")
-        self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
+        self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"), "wheel-knob-mode")
         self._current_row.add_buttons("Buttons", "  Knob ")
         self._current_row.subscribe(self._cm.set_setting, "wheel-knob-mode")
         self._cm.subscribe("wheel-knob-mode", self._current_row.set_value)
         self._cm.subscribe_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
         self._stick_row = BoxflatToggleButtonRow("Left Stick Mode")
-        self._add_row(self._stick_row)
+        self._add_row(self._stick_row, "wheel-stick-mode")
         self._current_row.add_buttons("Buttons", "D-Pad")
         self._current_row.set_expression("*256")
         self._current_row.set_reverse_expression("/256")
@@ -179,7 +179,7 @@ class OldWheelSettings(SettingsPanel):
 
         self.add_preferences_group("Misc")
         self._combination_row = BoxflatDialogRow("Key Combination Settings")
-        self._add_row(self._combination_row)
+        self._add_row(self._combination_row, "wheel-key-combination")
         self._current_row.add_switch("Left Stick Mode", "Press and hold both sticks")
         self._current_row.add_switch("Wheelbase Setting", "Button 34 + Up/Down/Left/Right")
         self._current_row.add_switch("Set angle to 360°", "Button 33 + Up")
@@ -192,12 +192,20 @@ class OldWheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-key-combination", self._get_combination_settings)
 
         calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
-        self._add_row(calibration)
+        self._add_row(calibration,
+            description={
+                "description": "Calibrate the analog clutch paddle range for older wheel firmware.",
+                "recommended": "Follow the on-screen instructions and fully depress both paddles."
+            })
         calibration.subscribe("calibration-start", self._calibrate_paddles, 0)
         calibration.subscribe("calibration-stop", self._calibrate_paddles, 1)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": "Reset all old-wheel settings to their default values.",
+                "recommended": "Use this if LED, paddle, or button behavior becomes inconsistent on an older wheel."
+            })
         self._current_row.subscribe(self.reset)
         self._current_row.subscribe(self.reset)
 
@@ -206,19 +214,19 @@ class OldWheelSettings(SettingsPanel):
         self.add_preferences_page("RPM")
         self.add_preferences_group("Indicator settings")
 
-        self._add_row(BoxflatToggleButtonRow("RPM Indicator Mode"))
+        self._add_row(BoxflatToggleButtonRow("RPM Indicator Mode"), "wheel-rpm-indicator-mode")
         self._current_row.add_buttons("RPM", "Off", "On ")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-indicator-mode")
         self._cm.subscribe("wheel-rpm-indicator-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"))
+        self._add_row(BoxflatToggleButtonRow("RPM Indicator Display Mode"), "wheel-set-rpm-display-mode")
         self._current_row.add_buttons("Mode 1", "Mode 2")
         self._current_row.subscribe(self._cm.set_setting, "wheel-set-rpm-display-mode")
         self._cm.subscribe("wheel-get-rpm-display-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatToggleButtonRow("RPM Mode"))
+        self._add_row(BoxflatToggleButtonRow("RPM Mode"), "wheel-rpm-mode")
         self._current_row.add_buttons("Percent", "RPM")
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-mode")
         self._current_row.subscribe(self._reconfigure_timings)
@@ -228,7 +236,11 @@ class OldWheelSettings(SettingsPanel):
         self._timing_row = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
             button_row=False, draw_marks=False)
 
-        self._add_row(self._timing_row)
+        self._add_row(self._timing_row,
+            description={
+                "description": "RPM LED activation points as percentages of max RPM.",
+                "recommended": "Use the Early/Normal/Late presets as a starting point."
+            })
         self._timing_row.add_buttons("Early", "Normal", "Late")
         # self._timing_row.add_buttons("Center")
         self._timing_row.subscribe(self._set_rpm_timings_preset)
@@ -240,15 +252,22 @@ class OldWheelSettings(SettingsPanel):
         self._timing_row2 = BoxflatEqRow("RPM Indicator Timing", 10, "Is it my turn now?",
             range_start=2000, range_end=18_000, button_row=False, draw_marks=False, increment=100)
 
-        self._add_row(self._timing_row2)
+        self._add_row(self._timing_row2,
+            description={
+                "description": "RPM LED activation points as exact RPM values.",
+                "recommended": "Only visible in RPM mode; tune per car and track."
+            })
         self._timing_row2.add_buttons("Early", "Normal", "Late")
         self._timing_row2.subscribe(self._set_rpm_timings2_preset)
         self._timing_row2.set_present(0)
 
         for i in range(MOZA_RPM_LEDS):
             self._timing_row2.add_label(f"RPM{i+1}", index=i)
-            self._timing_row2.subscribe_slider(i, self._cm.set_setting, f"wheel-rpm-value{i+1}")
-            self._cm.subscribe(f"wheel-rpm-value{i+1}", self._timing_row2.set_slider_value, i)
+            command = f"wheel-rpm-value{i+1}"
+            self._timing_row2.subscribe_slider(i, self._cm.set_setting, command)
+            self._cm.subscribe(command, self._timing_row2.set_slider_value, i)
+            self._timing_row2.set_slider_tooltip_from_description(
+                i, self._description_handler.get_description(command))
         self._cm.subscribe(f"wheel-rpm-value10", self._get_rpm_timings2_preset)
 
 
@@ -257,13 +276,19 @@ class OldWheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-rpm-mode", self._reconfigure_timings)
 
 
-        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50))
+        self._add_row(BoxflatSliderRow("Blinking Interval", range_end=1000, subtitle="Miliseconds", increment=50),
+            "wheel-rpm-interval")
         self._current_row.add_marks(125, 250, 375, 500, 625, 750, 875)
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-interval")
         self._cm.subscribe("wheel-rpm-interval", self._current_row.set_value)
 
         self.add_preferences_group("RPM Colors")
-        self._add_row(BoxflatNewColorPickerRow())
+        self._add_row(BoxflatNewColorPickerRow(),
+            description={
+                "description": "Colors of the older wheel's RPM indicator LEDs from low to high engine speed.",
+                "default": "Green (low), Red (mid), Magenta (high)",
+                "recommended": "Use distinct colors for each RPM range so they are easy to read at a glance."
+            })
         for i in range(MOZA_RPM_LEDS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-old-rpm-color{i+1}")
             self._cm.subscribe(f"wheel-old-rpm-color{i+1}", self._current_row.set_led_value, i)
@@ -271,20 +296,28 @@ class OldWheelSettings(SettingsPanel):
         self.add_preferences_group("RPM Blinking")
         self._current_group.set_description("These colors are not saved to the wheel")
         self._blinking_row = BoxflatNewColorPickerRow()
-        self._add_row(self._blinking_row)
+        self._add_row(self._blinking_row,
+            description={
+                "description": "Colors used during the wheel indicator test blink sequence. These are not saved to the wheel.",
+                "recommended": "Used only for the Test button preview."
+            })
         for i in range(MOZA_RPM_LEDS):
             name = f"wheel-rpm-blink-color{i+1}"
             self._current_row.set_led_value(self._settings.read_setting(name), i)
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, name)
             self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
 
-        self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15))
+        self._add_row(BoxflatSliderRow("RPM Brightness", range_end=15), "wheel-old-rpm-brightness")
         self._current_row.add_marks(5, 10)
         self._current_row.subscribe(self._cm.set_setting, "wheel-old-rpm-brightness")
         self._cm.subscribe("wheel-old-rpm-brightness", self._current_row.set_value)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
+        self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"),
+            description={
+                "description": "Run a preview of the older wheel's RPM LED patterns.",
+                "recommended": "Use to verify LED placement and colors without launching a game."
+            })
         self._current_row.subscribe(self.start_test)
 
 

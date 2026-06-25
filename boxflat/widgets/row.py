@@ -140,6 +140,20 @@ class BoxflatRow(Adw.ActionRow, SimpleEventDispatcher):
         self.set_size_request(width, 0)
 
 
+    @staticmethod
+    def _format_description(description: dict) -> str:
+        lines = [description.get("description", "")]
+        for key in ("range", "default", "recommended"):
+            if key in description:
+                lines.append(f"{key.capitalize()}: {description[key]}")
+        return "\n\n".join(line for line in lines if line)
+
+
+    def set_tooltip_from_description(self, description: dict | None) -> None:
+        if description:
+            self.set_tooltip_text(self._format_description(description))
+
+
     def cooldown(self) -> bool:
         ret = (self._cooldown != 0)
 

@@ -8,7 +8,7 @@ from boxflat.settings_handler import SettingsHandler
 
 class StalksSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager,
-                 hid_handler, settings: SettingsHandler):
+                 hid_handler, settings: SettingsHandler, description_handler=None):
 
         self._turn_toggle  = None
         self._turn_hold    = None
@@ -20,7 +20,7 @@ class StalksSettings(SettingsPanel):
         self._ignition     = None
 
         self._settings = settings
-        super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler)
+        super().__init__("Multifunction Stalks", button_callback, connection_manager, hid_handler, description_handler)
 
         self._cm.subscribe("hid-device-connected", self._parse_connected, 1)
         self._cm.subscribe("hid-device-disconnected", self._parse_connected, -1)
@@ -33,22 +33,22 @@ class StalksSettings(SettingsPanel):
         self.active(connected)
 
 
-    def _add_row(self, row: BoxflatRow) -> None:
-        super()._add_row(row)
+    def _add_row(self, row: BoxflatRow, command: str=None, description: dict=None) -> None:
+        super()._add_row(row, command=command, description=description)
         row.disable_cooldown()
 
 
     def prepare_ui(self):
         self.add_preferences_group("Compatibility modes")
 
-        self._add_row(BoxflatSwitchRow("Turn Signals toggle", "Press button again when canceling"))
+        self._add_row(BoxflatSwitchRow("Turn Signals toggle", "Press button again when canceling"), "stalks-turnsignal-compat")
         self._current_row.subscribe(self._settings.write_setting, "stalks-turnsignal-compat")
         self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_active)
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat") or 0, mute=False)
         self._turn_toggle = self._current_row
 
 
-        self._add_row(BoxflatSwitchRow("Turn Signals hold", "Hold button as long as signal is active"))
+        self._add_row(BoxflatSwitchRow("Turn Signals hold", "Hold button as long as signal is active"), "stalks-turnsignal-compat-constant")
         self._current_row.subscribe(self._settings.write_setting, "stalks-turnsignal-compat-constant")
         self._current_row.subscribe(self._hid_handler.stalks_turnsignal_compat_constant_active)
         self._current_row.set_value(self._settings.read_setting("stalks-turnsignal-compat-constant") or 0, mute=False)
@@ -56,14 +56,14 @@ class StalksSettings(SettingsPanel):
 
         self.add_preferences_group()
         compat = self._settings.read_setting("stalks-headlights-compat") or 0
-        self._add_row(BoxflatSwitchRow("Headlights", "Cycling instead of discrete buttons"))
+        self._add_row(BoxflatSwitchRow("Headlights", "Cycling instead of discrete buttons"), "stalks-headlights-compat")
         self._current_row.subscribe(self._settings.write_setting, "stalks-headlights-compat")
         self._current_row.subscribe(self._hid_handler.stalks_headlights_compat_active)
         self._current_row.set_value(compat, mute=False)
         self._headlights = self._current_row
 
         positional = self._settings.read_setting("stalks-skip-positional") or 0
-        self._add_row(BoxflatSwitchRow("Skip positional", "For games that only have on/off headlights"))
+        self._add_row(BoxflatSwitchRow("Skip positional", "For games that only have on/off headlights"), "stalks-skip-positional")
         self._current_row.set_active(compat)
         self._current_row.set_value(positional)
         self._current_row.subscribe(self._settings.write_setting, "stalks-skip-positional")
@@ -77,7 +77,7 @@ class StalksSettings(SettingsPanel):
         self._wipers2 = BoxflatSwitchRow("Wipers alternative", "Up/Down instead of discrete buttons")
 
         self.add_preferences_group()
-        self._add_row(self._wipers1)
+        self._add_row(self._wipers1, "stalks-wipers-compat")
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat")
         self._current_row.subscribe(self._hid_handler.stalks_wipers_compat_active)
         self._current_row.subscribe(lambda v: self._wipers2.set_value_directly(0) if v == 1 else ...)
@@ -85,7 +85,7 @@ class StalksSettings(SettingsPanel):
         self._current_row.set_value(self._settings.read_setting("stalks-wipers-compat") or 0, mute=False)
         self._wipers = self._current_row
 
-        self._add_row(self._wipers2)
+        self._add_row(self._wipers2, "stalks-wipers-compat2")
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-compat2")
         self._current_row.subscribe(self._hid_handler.stalks_wipers_compat2_active)
         self._current_row.subscribe(lambda v: self._wipers1.set_value_directly(0) if v == 1 else ...)
@@ -95,7 +95,7 @@ class StalksSettings(SettingsPanel):
 
         quick = self._settings.read_setting("stalks-wipers-quick") or 0
         self._quick_wipe = BoxflatSwitchRow("Quick wipe emulation", "One and done")
-        self._add_row(self._quick_wipe)
+        self._add_row(self._quick_wipe, "stalks-wipers-quick")
         self._current_row.set_active(0)
         self._current_row.subscribe(self._settings.write_setting, "stalks-wipers-quick")
         self._current_row.subscribe(self._hid_handler.stalks_wipers_quick_active)
@@ -105,7 +105,7 @@ class StalksSettings(SettingsPanel):
 
         self.add_preferences_group()
         ignition = self._settings.read_setting("stalks-ignition") or 0
-        self._add_row(BoxflatSwitchRow("Rear wiper as ignition", "Pretty immersive"))
+        self._add_row(BoxflatSwitchRow("Rear wiper as ignition", "Pretty immersive"), "stalks-ignition")
         self._ignition = self._current_row
         self._current_row.set_value(ignition)
         self._current_row.subscribe(self._settings.write_setting, "stalks-ignition")
@@ -114,7 +114,11 @@ class StalksSettings(SettingsPanel):
 
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": "Reset all multifunction stalk compatibility settings to their default values.",
+                "recommended": "Use this if turn signals, headlights, or wipers behave unexpectedly."
+            })
         self._current_row.subscribe(self.reset)
 
 
