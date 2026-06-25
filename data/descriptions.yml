@@ -22,7 +22,7 @@ base-torque:
   description: "Maximum torque output delivered by the wheel base."
   range: "50 – 100 %"
   default: "100 %"
-  recommended: "100 % for most users; lower only if the wheel feels too strong."
+  recommended: "100 % for most users; lower only if the wheel feels too strong. Try 95 % if FFB is not working for you."
 
 base-ffb-strength:
   description: "Overall strength of game force feedback."
