@@ -6,20 +6,20 @@ from boxflat.hid_handler import HidHandler
 from boxflat.widgets import *
 
 class SequentialSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid: HidHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid: HidHandler, description_handler=None):
         self._S1 = None
         self._S2 = None
-        super().__init__("Sequential Shifter", button_callback, connection_manager, hid)
+        super().__init__("Sequential Shifter", button_callback, connection_manager, hid, description_handler)
         self._cm.subscribe_connected("sequential-output-y", self.active)
 
 
     def prepare_ui(self):
         self.add_preferences_group("Shift Settings")
-        self._add_row(BoxflatSwitchRow("Reverse Shift Direction"))
+        self._add_row(BoxflatSwitchRow("Reverse Shift Direction"), "sequential-direction")
         self._current_row.subscribe(self._cm.set_setting, "sequential-direction")
         self._cm.subscribe("sequential-direction", self._filter_data, self._current_row)
 
-        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Use the same buttons as paddle shifters. Works with USB now!"))
+        self._add_row(BoxflatSwitchRow("Paddle Shifter Synchronization", subtitle="Use the same buttons as paddle shifters. Works with USB now!"), "sequential-paddle-sync")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
         self._current_row.subscribe(self._cm.set_setting, "sequential-paddle-sync")
@@ -27,24 +27,36 @@ class SequentialSettings(SettingsPanel):
         self._cm.subscribe("sequential-paddle-sync", lambda v: self._hid_handler.paddle_sync_enabled(v-1))
 
         self.add_preferences_group("Lights")
-        self._add_row(BoxflatSliderRow("Buttons Brightness", 0, 10))
+        self._add_row(BoxflatSliderRow("Buttons Brightness", 0, 10), "sequential-brightness")
         self._current_row.add_marks(5)
         self._current_row.set_slider_width(294)
         self._current_row.subscribe(self._cm.set_setting, "sequential-brightness")
         self._cm.subscribe("sequential-brightness", self._filter_data, self._current_row)
 
         self._S1 = BoxflatColorPickerRow("S1 Color")
-        self._add_row(self._S1)
+        self._add_row(self._S1,
+            description={
+                "description": "Color of the first sequential shifter LED.",
+                "default": "Off"
+            })
 
         self._S2 = BoxflatColorPickerRow("S2 Color")
-        self._add_row(self._S2)
+        self._add_row(self._S2,
+            description={
+                "description": "Color of the second sequential shifter LED.",
+                "default": "Off"
+            })
 
         self._S1.subscribe(self._set_colors)
         self._S2.subscribe(self._set_colors)
         self._cm.subscribe("sequential-colors", self._get_colors)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": "Reset the sequential shifter settings to their default values.",
+                "recommended": "Use this if shift direction or LED behavior becomes inconsistent."
+            })
         self._current_row.subscribe(self.reset)
 
 

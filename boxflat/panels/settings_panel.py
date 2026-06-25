@@ -6,17 +6,20 @@ from gi.repository import Gtk, Adw
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler, MozaAxis
 from boxflat.subscription import EventDispatcher
+from boxflat.description_handler import DescriptionHandler
 
 class SettingsPanel(EventDispatcher):
     def __init__(self, title: str, button_callback,
                  connection_manager: MozaConnectionManager=None,
-                 hid_handler: HidHandler=None):
+                 hid_handler: HidHandler=None,
+                 description_handler: DescriptionHandler=None):
         super().__init__()
 
         self._register_event("active")
 
         self._cm = connection_manager
         self._hid_handler = hid_handler
+        self._description_handler = description_handler
         self._application = None
 
         self._current_page: Adw.PreferencesPage = None
@@ -187,7 +190,7 @@ class SettingsPanel(EventDispatcher):
         self._header.set_title_widget(switcher)
 
 
-    def _add_row(self, row: BoxflatRow):
+    def _add_row(self, row: BoxflatRow, command: str=None, description: dict=None):
         if self._current_group is None:
             self.add_preferences_group()
         self._current_row = row
@@ -199,6 +202,18 @@ class SettingsPanel(EventDispatcher):
             row.set_size_request(620, 0)
 
         GLib.idle_add(self._current_group.add, row)
+
+        tooltip_description = None
+        if description is not None:
+            tooltip_description = description
+        elif command is not None and self._description_handler is not None:
+            tooltip_description = self._description_handler.get_description(command)
+
+        if tooltip_description is not None:
+            if isinstance(row, BoxflatRow):
+                row.set_tooltip_from_description(tooltip_description)
+            else:
+                row.set_tooltip_text(BoxflatRow._format_description(tooltip_description))
 
     # def deactivate_hid_subs(self):
     #     if not self._hid_handler:

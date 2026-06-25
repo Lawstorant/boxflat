@@ -153,6 +153,11 @@ class BoxflatEqRow(BoxflatToggleButtonRow):
         super().set_value(value, mute)
 
 
+    def set_slider_tooltip_from_description(self, index: int, description: dict | None) -> None:
+        if description and 0 <= index < len(self._sliders):
+            self._sliders[index].set_tooltip_text(self._format_description(description))
+
+
     def subscribe_slider(self, index: int, callback, *args):
         self._slider_subs_list[index].append(callback, *args)
 

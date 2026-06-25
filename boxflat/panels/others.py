@@ -26,20 +26,25 @@ class OtherSettings(SettingsPanel):
         settings: SettingsHandler,
         version: str,
         application: Adw.Application,
-        data_path: str
+        data_path: str,
+        description_handler=None
     ):
         self._version = version
         self._settings = settings
         self._brake_row = None
         self._data_path = data_path
 
-        super().__init__("Other", button_callback, connection_manager=cm, hid_handler=hid_handler)
+        super().__init__("Other", button_callback,
+            connection_manager=cm,
+            hid_handler=hid_handler,
+            description_handler=description_handler)
         self._application = application
 
 
     def prepare_ui(self):
         self.add_preferences_group("Other settings")
-        self._add_row(BoxflatSwitchRow("Base Bluetooth", "For the mobile app"))
+        self._add_row(BoxflatSwitchRow("Base Bluetooth", "For the mobile app"),
+            "main-set-ble-mode")
         self._current_row.reverse_values()
         self._current_row.set_expression("*85")
         self._current_row.set_reverse_expression("/85")
@@ -47,12 +52,14 @@ class OtherSettings(SettingsPanel):
         self._cm.subscribe("main-get-ble-mode", self._current_row.set_value)
         self._cm.subscribe_connected("base-limit", self._current_row.set_active)
 
-        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Please, disable this on Linux"))
+        self._add_row(BoxflatSwitchRow("Base FH5 compatibility mode", "Please, disable this on Linux"),
+            "main-set-compat-mode")
         self._current_row.subscribe(self._cm.set_setting, "main-set-compat-mode")
         self._cm.subscribe("main-get-compat-mode", self._current_row.set_value)
         self._cm.subscribe_connected("main-get-compat-mode", self._current_row.set_present, +1)
 
-        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Please, disable this on Linux"))
+        self._add_row(BoxflatSwitchRow("Pedals FH5 compatibility mode", "Please, disable this on Linux"),
+            "pedals-compat-mode")
         self._current_row.subscribe(self._cm.set_setting, "pedals-compat-mode")
         self._cm.subscribe("pedals-compat-mode", self._current_row.set_value)
         self._cm.subscribe_connected("pedals-compat-mode", self._current_row.set_present, +1)
@@ -60,13 +67,23 @@ class OtherSettings(SettingsPanel):
 
         self.add_preferences_group("Application settings")
 
-        self._add_row(BoxflatSwitchRow("Load default preset on application startup"))
+        self._add_row(BoxflatSwitchRow("Load default preset on application startup"),
+            description={
+                "description": "Automatically load the default preset when Boxflat starts.",
+                "default": "Off",
+                "recommended": "Enable if you want your default preset applied at startup."
+            })
         self._current_row.set_value(self._settings.read_setting("default-preset-on-startup") or 0)
         self._current_row.subscribe(self._settings.write_setting, "default-preset-on-startup")
 
         brake_row = BoxflatSwitchRow("Enable Brake Calibration", "Do it at your own risk")
         self._brake_row = brake_row
-        self._add_row(brake_row)
+        self._add_row(brake_row,
+            description={
+                "description": "Expose brake calibration controls in the Pedals panel.",
+                "default": "Off",
+                "recommended": "Only enable if you need to recalibrate brake limits; use with care."
+            })
 
         self._register_event("brake-calibration-enabled")
         brake_row.subscribe(self._settings.write_setting, "brake-calibration-enabled")
@@ -75,7 +92,12 @@ class OtherSettings(SettingsPanel):
 
         fix_row = BoxflatSwitchRow("Enable Moza detection fixes", "Not needed with Proton 10+")
         self._fix_row = fix_row
-        self._add_row(fix_row)
+        self._add_row(fix_row,
+            description={
+                "description": "Apply workarounds so some games detect MOZA devices correctly.",
+                "default": "Off",
+                "recommended": "Disable with Proton 10+ or Wine 10+; enable only if a game still fails to detect the wheel."
+            })
 
         self._register_event("moza-detection-fix-enabled")
         fix_row.subscribe(self._settings.write_setting, "moza-detection-fix-enabled")
@@ -108,9 +130,24 @@ class OtherSettings(SettingsPanel):
 
 
         self.add_preferences_group("Background settings")
-        self._add_row(background)
-        self._add_row(startup)
-        self._add_row(hidden)
+        self._add_row(background,
+            description={
+                "description": "Keep Boxflat running in the background after the window is closed.",
+                "default": "On",
+                "recommended": "Enable to keep presets and device handling active."
+            })
+        self._add_row(startup,
+            description={
+                "description": "Start Boxflat automatically when you log in.",
+                "default": "Off",
+                "recommended": "Enable if you want Boxflat available without manually launching it."
+            })
+        self._add_row(hidden,
+            description={
+                "description": "Start Boxflat without showing the main window.",
+                "default": "Off",
+                "recommended": "Enable only when running on startup with background mode active."
+            })
 
 
     def get_brake_valibration_enabled(self) -> int:
@@ -135,9 +172,21 @@ class OtherSettings(SettingsPanel):
         read.add_button("Write", self._write_custom)
         read.add_button("Database", self.open_url, commands_url)
 
-        self._add_row(self._command)
-        self._add_row(self._value)
-        self._add_row(read)
+        self._add_row(self._command,
+            description={
+                "description": "Serial command name to read or write.",
+                "recommended": "Use names from the serial command database."
+            })
+        self._add_row(self._value,
+            description={
+                "description": "Value to send with the write command.",
+                "recommended": "Enter a number; click Read first to see the current value."
+            })
+        self._add_row(read,
+            description={
+                "description": "Read the current value, write a new value, or open the command database.",
+                "recommended": "Use only if you know what the command does."
+            })
 
 
     def _read_custom(self, *args):

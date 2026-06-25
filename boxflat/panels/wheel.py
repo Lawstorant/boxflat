@@ -25,7 +25,7 @@ MOZA_TELEMETRY_FLAGS = [
 MOZA_IDLE_EFFECTS = ["Off", "Constant", "Breathing", "Color cycle", "Rainbow", "Sand flow"]
 
 class WheelSettings(SettingsPanel):
-    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
+    def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler, description_handler=None):
         self._settings = settings
         self._blinking_row = None
 
@@ -48,7 +48,7 @@ class WheelSettings(SettingsPanel):
             [6700, 6900, 7200, 7400, 7600, 7700, 7800, 7800, 8000, 8100]
         ]
 
-        super().__init__("Wheel", button_callback, connection_manager, hid_handler)
+        super().__init__("Wheel", button_callback, connection_manager, hid_handler, description_handler)
         self._cm.subscribe_connected("wheel-telemetry-mode", self.active)
         self.set_banner_title(f"Device disconnected. Trying wheel id: ...")
 
@@ -86,7 +86,7 @@ class WheelSettings(SettingsPanel):
         self._current_group.set_present(0)
 
         paddle_mode = BoxflatToggleButtonRow("Dual Clutch Paddles Mode")
-        self._add_row(paddle_mode)
+        self._add_row(paddle_mode, "wheel-paddles-mode")
         self._current_row.add_buttons("Buttons", "Combined", "Split")
         self._current_row.set_expression("+1")
         self._current_row.set_reverse_expression("-1")
@@ -117,7 +117,7 @@ class WheelSettings(SettingsPanel):
 
 
         slider = BoxflatSliderRow("Clutch Split Point", suffix="%", range_start=5, range_end=95)
-        self._add_row(slider)
+        self._add_row(slider, "wheel-clutch-point")
         self._current_row.set_active(False)
         self._current_row.subtitle = "Left paddle cutoff"
         self._current_row.add_marks(25, 50, 75)
@@ -129,14 +129,14 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe_connected("wheel-clutch-point", self._current_row.set_present)
 
         self.add_preferences_group("Input")
-        self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"))
+        self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"), "wheel-knob-mode")
         self._current_row.add_buttons("Buttons", "  Knob ")
         self._current_row.subscribe(self._cm.set_setting, "wheel-knob-mode")
         self._cm.subscribe("wheel-knob-mode", self._current_row.set_value)
         self._cm.subscribe_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
         self._stick_row = BoxflatToggleButtonRow("Left Stick Mode")
-        self._add_row(self._stick_row)
+        self._add_row(self._stick_row, "wheel-stick-mode")
         self._current_row.add_buttons("Buttons", "D-Pad")
         self._current_row.set_expression("*256")
         self._current_row.set_reverse_expression("/256")
@@ -145,25 +145,30 @@ class WheelSettings(SettingsPanel):
 
 
         self.add_preferences_group("Idle")
-        self._add_row(BoxflatToggleButtonRow("Mode"))
+        self._add_row(BoxflatToggleButtonRow("Mode"), "wheel-idle-mode")
         self._current_row.add_buttons("Off", "Breathing")
         self._current_row.subscribe(self._cm.set_setting, "wheel-idle-mode")
         self._cm.subscribe("wheel-idle-mode", self._current_row.set_value)
         self._cm.subscribe_connected("wheel-idle-mode", self._current_group.set_present, 1)
 
-        self._add_row(BoxflatSliderRow("Timeout minutes", 0, 30))
+        self._add_row(BoxflatSliderRow("Timeout minutes", 0, 30), "wheel-idle-timeout")
         self._current_row.add_mark(0, "Off", clear=True)
         self._current_row.add_marks(10, 20, 30)
         self._current_row.subscribe(self._cm.set_setting, "wheel-idle-timeout")
         self._cm.subscribe("wheel-idle-timeout", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500))
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500), "wheel-idle-speed")
         self._current_row.add_marks(2500)
         self._current_row.subscribe(self._cm.set_setting, "wheel-idle-speed")
         self._cm.subscribe("wheel-idle-speed", self._current_row.set_value)
         self._cm.subscribe("wheel-idle-mode", self._current_row.set_present)
 
-        self._add_row(BoxflatNewColorPickerRow(pickers=1))
+        self._add_row(BoxflatNewColorPickerRow(pickers=1),
+            description={
+                "description": "Color of the idle LED effect on the wheel.",
+                "default": "White",
+                "recommended": "White or any dim color to avoid distraction."
+            })
         self._current_row.subscribe("color0", self._cm.set_setting, "wheel-idle-color")
         self._cm.subscribe("wheel-idle-color", self._current_row.set_led_value, 0)
         self._cm.subscribe("wheel-idle-mode", self._current_row.set_present)
@@ -171,7 +176,7 @@ class WheelSettings(SettingsPanel):
 
         self.add_preferences_group("Misc")
         self._combination_row = BoxflatDialogRow("Key Combination Settings")
-        self._add_row(self._combination_row)
+        self._add_row(self._combination_row, "wheel-key-combination")
         self._current_row.add_switch("Left Stick Mode", "Press and hold both sticks")
         self._current_row.add_switch("Wheelbase Setting", "Button 34 + Up/Down/Left/Right")
         self._current_row.add_switch("Set angle to 360°", "Button 33 + Up")
@@ -188,12 +193,20 @@ class WheelSettings(SettingsPanel):
         # self._add_row(tsw_buttons_active)
 
         calibration = BoxflatCalibrationRow("Calibrate Paddles", "Follow instructions here", alternative=True)
-        self._add_row(calibration)
+        self._add_row(calibration,
+            description={
+                "description": "Calibrate the analog clutch paddle range.",
+                "recommended": "Follow the on-screen instructions and fully depress both paddles."
+            })
         calibration.subscribe("calibration-start", self._calibrate_paddles, 0)
         calibration.subscribe("calibration-stop", self._calibrate_paddles, 1)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"))
+        self._add_row(BoxflatButtonRow("Restore default settings", "Reset"),
+            description={
+                "description": "Reset all wheel settings to their default values.",
+                "recommended": "Use this if LED, paddle, or button behavior becomes inconsistent."
+            })
         self._current_row.subscribe(self.reset)
         self._current_row.subscribe(self.reset)
 
@@ -202,19 +215,19 @@ class WheelSettings(SettingsPanel):
         self.add_preferences_page("RPM")
         self.add_preferences_group("Indicator settings")
 
-        self._add_row(BoxflatToggleButtonRow("Telemetry Mode"))
+        self._add_row(BoxflatToggleButtonRow("Telemetry Mode"), "wheel-telemetry-mode")
         self._current_row.add_buttons("Off", "Telemetry", "Static")
         self._current_row.subscribe(self._cm.set_setting, "wheel-telemetry-mode")
         self._cm.subscribe("wheel-telemetry-mode", self._current_row.set_value)
 
-        self._add_row(BoxflatComboRow("Idle effect"))
+        self._add_row(BoxflatComboRow("Idle effect"), "wheel-telemetry-idle-effect")
         self._idle_telemetry_effect = self._current_row
         self._current_row.add_entries(*MOZA_IDLE_EFFECTS)
         self._current_row.subscribe(self._cm.set_setting, "wheel-telemetry-idle-effect")
         self._current_row.subscribe(self._handle_idle_telemetry_interval)
         self._cm.subscribe("wheel-telemetry-idle-effect", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500))
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500), "wheel-telemetry-idle-interval")
         self._idle_telemetry_speed = self._current_row
         self._current_row.set_value(self._settings.read_setting("wheel-telemetry-idle-interval") or 2500)
         self._current_row.add_marks(1000, 2000, 3000, 4000)
@@ -224,14 +237,19 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-telemetry-idle-effect", self._handle_idle_telemetry_interval)
 
         self.add_preferences_group("Colors")
-        self._add_row(BoxflatNewColorPickerRow(blinking=True))
+        self._add_row(BoxflatNewColorPickerRow(blinking=True),
+            description={
+                "description": "Colors of the RPM indicator LEDs from low to high engine speed.",
+                "default": "Green (low), Red (mid), Blue (high)",
+                "recommended": "Use distinct colors for each RPM range so they are easy to read at a glance."
+            })
         self._rpm_colors = self._current_row
         for i in range(MOZA_RPM_LEDS):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-rpm-color{i+1}")
             self._cm.subscribe(f"wheel-rpm-color{i+1}", self._current_row.set_led_value, i)
 
         self.add_preferences_group()
-        self._add_row(BoxflatSliderRow("Brightness"))
+        self._add_row(BoxflatSliderRow("Brightness"), "wheel-rpm-brightness")
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting, "wheel-rpm-brightness")
         self._cm.subscribe("wheel-rpm-brightness", self._current_row.set_value)
@@ -240,7 +258,11 @@ class WheelSettings(SettingsPanel):
         self._current_group.set_present(0)
         self._current_group.set_description("These colors are not saved to the wheel")
         self._blinking_row = BoxflatNewColorPickerRow()
-        self._add_row(self._blinking_row)
+        self._add_row(self._blinking_row,
+            description={
+                "description": "Colors used during the telemetry test blink sequence. These are not saved to the wheel.",
+                "recommended": "Used only for the Test button preview."
+            })
         for i in range(MOZA_RPM_LEDS):
             name = f"wheel-rpm-blink-color{i+1}"
             self._current_row.set_led_value(self._settings.read_setting(name), i)
@@ -248,7 +270,11 @@ class WheelSettings(SettingsPanel):
             self._current_row.subscribe(f"color{i}", self._settings.write_setting, name)
 
         self.add_preferences_group()
-        self._add_row(BoxflatButtonRow("Telemetry test", "Test"))
+        self._add_row(BoxflatButtonRow("Telemetry test", "Test"),
+            description={
+                "description": "Run a preview of the RPM and button LED telemetry patterns.",
+                "recommended": "Use to verify LED placement and colors without launching a game."
+            })
         self._current_row.subscribe(self.start_test)
 
         # self._add_row(BoxflatSliderRow("Flag Brightness", range_end=15))
@@ -313,14 +339,14 @@ class WheelSettings(SettingsPanel):
 
         self.add_preferences_page("Buttons")
         self.add_preferences_group("General mode")
-        self._add_row(BoxflatComboRow("Idle effect"))
+        self._add_row(BoxflatComboRow("Idle effect"), "wheel-buttons-idle-effect")
         self._idle_buttons_effect = self._current_row
         self._current_row.add_entries(*MOZA_IDLE_EFFECTS)
         self._current_row.subscribe(self._cm.set_setting, "wheel-buttons-idle-effect")
         self._current_row.subscribe(self._handle_idle_telemetry_interval)
         self._cm.subscribe("wheel-buttons-idle-effect", self._current_row.set_value)
 
-        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500))
+        self._add_row(BoxflatSliderRow("Blink interval (ms)", 125, 5000, increment=500), "wheel-buttons-idle-interval")
         self._idle_buttons_speed = self._current_row
         self._current_row.set_value(self._settings.read_setting("wheel-buttons-idle-interval") or 2500)
         self._current_row.add_marks(1000, 2000, 3000, 4000)
@@ -329,11 +355,19 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-buttons-idle-effect", self._current_row.set_active, -1)
         self._cm.subscribe("wheel-buttons-idle-effect", self._handle_idle_buttons_interval)
 
-        self._add_row(BoxflatButtonRow("Match with telemetry", "Match", "We are so in sync!"))
+        self._add_row(BoxflatButtonRow("Match with telemetry", "Match", "We are so in sync!"),
+            description={
+                "description": "Copy the current telemetry idle effect and interval to the button idle settings.",
+                "recommended": "Use this to keep button and RPM idle animations consistent."
+            })
         self._current_row.subscribe(self._match_idle)
 
         self.add_preferences_group("Colors")
-        self._add_row(BoxflatNewColorPickerRow(blinking=True))
+        self._add_row(BoxflatNewColorPickerRow(blinking=True),
+            description={
+                "description": "Colors of the RGB buttons on the wheel.",
+                "recommended": "Set per-button colors to help identify controls in the dark."
+            })
         self._button_colors = self._current_row
         self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
         for i in range(MOZA_RGB_BUTTONS):
@@ -341,7 +375,11 @@ class WheelSettings(SettingsPanel):
             self._cm.subscribe(f"wheel-button-color{i+1}", self._current_row.set_led_value, i)
 
         # TSW Buttons
-        self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4))
+        self._add_row(BoxflatNewColorPickerRow(blinking=True, pickers=4),
+            description={
+                "description": "Colors of the additional TSW/Racing-style button cluster.",
+                "recommended": "Only visible on wheels that have the extra TSW buttons."
+            })
         self._current_row.set_present(0)
         self._tsw_row = self._current_row
         self._cm.subscribe_connected("wheel-buttons-brightness", self._current_row.set_active, 1)
@@ -350,7 +388,7 @@ class WheelSettings(SettingsPanel):
             self._current_row.subscribe(f"color{i}", self._cm.set_setting, f"wheel-button-color{i+11}")
 
         self.add_preferences_group()
-        self._add_row(BoxflatSliderRow("Brightness"))
+        self._add_row(BoxflatSliderRow("Brightness"), "wheel-buttons-brightness")
         self._current_row.add_marks(25, 50, 75)
         self._current_row.subscribe(self._cm.set_setting, "wheel-buttons-brightness")
         self._cm.subscribe("wheel-buttons-brightness", self._current_row.set_value)
@@ -620,4 +658,3 @@ class WheelSettings(SettingsPanel):
         for i in range(4):
             value = self._cm.get_setting(f"wheel-button-color{i+11}")
             self._tsw_row.set_led_value(value, i)
-
