@@ -195,7 +195,7 @@ class PresetSettings(SettingsPanel):
         app = self._application
 
         notif.set_title(f"Detected: {pm.get_linked_process()}" if automatic else "No games detected")
-        notif.set_body(f"Loading {"default" if default else ""} preset: {preset_name}")
+        notif.set_body(f"Loading {default} if default else ""} preset: {preset_name}")
         notif.set_priority(NotificationPriority.NORMAL)
 
         app.send_notification("preset", notif)
