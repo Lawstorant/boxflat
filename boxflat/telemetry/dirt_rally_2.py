@@ -19,11 +19,15 @@ class DirtRally2(BaseTelemetry):
         self._last_max_rpm = 8000
         self._packets_received = 0
         self._packets_rejected = 0
+        self.FALLBACK_RPM = 8000
 
         # Codemasters/EGO telemetry packet floats: engineRate is rad/s, maxRPM is RPM.
         # We have to convert engineRate back to rpm
         self.OFFSET_RPM = 37 * 4
         self.OFFSET_CURRENT_MAX_RPM = 61 * 4
+        self.IDLE_RPM = 63 * 4
+        self.MAX_GEARS = 65 * 4
+
 
     def connect(self):
         if self.is_connected():
@@ -35,14 +39,17 @@ class DirtRally2(BaseTelemetry):
 
         return False
 
+
     def is_connected(self):
         return self._udp_socket is not None
+
 
     def get_rpm(self):
         if self._udp_socket is not None:
             return self._get_udp_rpm()
 
-        return 0, 8000
+        return 0, self.FALLBACK_RPM
+
 
     def close(self):
         if self._udp_socket is not None:
@@ -51,6 +58,7 @@ class DirtRally2(BaseTelemetry):
             except OSError:
                 pass
             self._udp_socket = None
+
 
     def _ensure_udp_socket(self):
         if self._udp_socket is not None:
@@ -69,6 +77,7 @@ class DirtRally2(BaseTelemetry):
         self._udp_socket = udp_socket
         return True
 
+
     def _get_udp_rpm(self):
         while True:
             try:
@@ -77,7 +86,7 @@ class DirtRally2(BaseTelemetry):
                 break
             except OSError as e:
                 print(f"DiRT Rally 2.0 UDP telemetry read failed: {e}")
-                return 0, 8000
+                return 0, self.FALLBACK_RPM
 
             if len(packet) < self.PACKET_SIZE:
                 continue
@@ -91,20 +100,23 @@ class DirtRally2(BaseTelemetry):
 
             rpm, max_rpm = rpm_data
             self._last_rpm = int(self._engine_rate_to_rpm(rpm))
-            self._last_max_rpm = int(max_rpm) if max_rpm > 0 else 8000
+            self._last_max_rpm = int(max_rpm) if max_rpm > 0 else self.FALLBACK_RPM
 
         return self._last_rpm, self._last_max_rpm
 
+
     def _engine_rate_to_rpm(self, engine_rate):
+        # convert Radians back to RPM
         return engine_rate * 60 / (2 * math.pi)
+
 
     def _extract_rpm(self, packet):
         for offset in range(0, len(packet) - self.PACKET_SIZE + 1, 4):
             try:
                 rpm = struct.unpack_from("=f", packet, offset + self.OFFSET_RPM)[0]
                 max_rpm = struct.unpack_from("=f", packet, offset + self.OFFSET_CURRENT_MAX_RPM)[0]
-                idle_rpm = struct.unpack_from("=f", packet, offset + (63 * 4))[0]
-                max_gears = struct.unpack_from("=f", packet, offset + (65 * 4))[0]
+                idle_rpm = struct.unpack_from("=f", packet, offset + self.IDLE_RPM)[0]
+                max_gears = struct.unpack_from("=f", packet, offset + self.MAX_GEARS)[0]
             except struct.error:
                 continue
 

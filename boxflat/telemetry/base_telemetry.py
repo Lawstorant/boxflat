@@ -10,14 +10,18 @@ class BaseTelemetry:
         self.GAME_NAME = type(self).GAME_NAME
         self.source_name = ""
 
+
     def connect(self):
         raise NotImplementedError
+
 
     def is_connected(self):
         return True
 
+
     def get_rpm(self):
         raise NotImplementedError
+
 
     def close(self):
         pass
@@ -35,6 +39,7 @@ class MmapTelemetry(BaseTelemetry):
     MAX_RPM_STRUCT = "=i"
     DEFAULT_MAX_RPM = 8000
 
+
     def __init__(self):
         super().__init__()
         self.phys = None
@@ -42,6 +47,7 @@ class MmapTelemetry(BaseTelemetry):
         self._file = None
         self._static_file = None
         self.source_name = self.PHYSICS_PATH
+
 
     def connect(self):
         if self.phys is not None:
@@ -77,6 +83,7 @@ class MmapTelemetry(BaseTelemetry):
 
         return True
 
+
     def is_connected(self):
         if self.phys is None or not os.path.exists(self.PHYSICS_PATH):
             return False
@@ -85,6 +92,7 @@ class MmapTelemetry(BaseTelemetry):
             return self.static is not None and os.path.exists(self.STATIC_PATH)
 
         return True
+
 
     def get_rpm(self):
         if self.phys is None:
@@ -108,6 +116,7 @@ class MmapTelemetry(BaseTelemetry):
             max_rpm = self.DEFAULT_MAX_RPM
 
         return int(rpm), int(max_rpm)
+
 
     def _connect_static(self):
         if self.OFFSET_STATIC_MAX_RPM is None:
@@ -141,6 +150,7 @@ class MmapTelemetry(BaseTelemetry):
             return False
 
         return True
+
 
     def close(self):
         if self.phys is not None:

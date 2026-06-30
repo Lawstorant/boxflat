@@ -15,6 +15,7 @@ def get_telemetries():
         telemetries.append((telemetry.name, telemetry.value))
     return telemetries
 
+
 def telemetry_from_game_name(game_name: str):
     for telemetry in Telemetries:
         if telemetry.value.GAME_NAME == game_name:
