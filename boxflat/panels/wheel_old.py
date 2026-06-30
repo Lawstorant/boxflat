@@ -1,10 +1,13 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
+import time
+from threading import Thread
+
 from boxflat.panels.settings_panel import SettingsPanel
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.bitwise import *
+from boxflat.telemetry.telemetry_manager import Telemetries, telemetry_from_game_name
 from boxflat.widgets import *
-
 from boxflat.hid_handler import MozaAxis
 from boxflat.settings_handler import SettingsHandler
 
@@ -57,6 +60,7 @@ class OldWheelSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler):
         self._settings = settings
         self._blinking_row = None
+        self._telemetry_row = None
 
         self._split = None
         self._timing_row = None
@@ -80,6 +84,7 @@ class OldWheelSettings(SettingsPanel):
         super().__init__("Wheel Old", button_callback, connection_manager, hid_handler)
         self._cm.subscribe_connected("wheel-rpm-value1", self.active)
         self.set_banner_title(f"Device disconnected...")
+        self.telemetry = None
 
 
     def active(self, value: int):
@@ -287,6 +292,27 @@ class OldWheelSettings(SettingsPanel):
         self._add_row(BoxflatButtonRow("Wheel indicator test", "Test"))
         self._current_row.subscribe(self.start_test)
 
+        self.add_preferences_group()
+        self._telemetry_row = BoxflatComboRow("Choose game", "Choose game")
+        self._add_row(self._telemetry_row)
+        self._telemetry_row.get_model().append("")
+        self._telemetry_row.add_entries(*[t.value.GAME_NAME for t in Telemetries])
+        self._telemetry_row.subscribe(self._change_telemetry, self._telemetry_row.get_selected_item)
+
+
+        self._add_row(BoxflatButtonRow("RPM to LED Connection", "Start"))
+        self._current_row.subscribe(self.start_led_rpm_connection)
+        self._current_row.add_button("Stop", self.stop_led_rpm_connection)
+
+    def _change_telemetry(self, value, func):
+        telemetry_string = func().get_string()
+
+        telemetry = telemetry_from_game_name(telemetry_string)
+        if telemetry is None:
+            return
+
+        self.telemetry = telemetry
+
 
     def _set_rpm_timings(self, timings: list):
         self._cm.set_setting(timings, "wheel-rpm-timings")
@@ -383,6 +409,30 @@ class OldWheelSettings(SettingsPanel):
 
     def start_test(self, *args):
         self._test_thread = Thread(daemon=True, target=self._wheel_rpm_test).start()
+
+
+    def start_led_rpm_connection(self, *args):
+        if self.telemetry is None:
+            print("No telemetry game selected.")
+            return
+
+        if getattr(self, "_led_rpm_running", False):
+            print("RPM bridge already running")
+            return
+
+        self._led_rpm_running = True
+        self._led_thread = Thread(
+            daemon=True,
+            target=self._wheel_led_rpm_connection
+        )
+        self._led_thread.start()
+
+    def stop_led_rpm_connection(self, *args):
+        self._led_rpm_running = False
+        if self.telemetry is not None:
+            self.telemetry.close()
+        time.sleep(0.1)
+        self.reset()
 
 
     def _sync_from_dash(self, *args):
@@ -490,6 +540,98 @@ class OldWheelSettings(SettingsPanel):
         time.sleep(0.9)
 
         self._cm.set_setting(initial_mode, "wheel-rpm-indicator-mode", exclusive=True)
+
+
+    def _wheel_led_rpm_connection(self, *args):
+        NUM_LEDS = 10
+        UPDATE_RATE = 1 / 50
+
+        def rpm_to_mask(rpm, max_rpm):
+            if rpm <= 0 or max_rpm <= 0:
+                return 0
+
+            rpm_mode = self._cm.get_setting("wheel-rpm-mode", exclusive=True)
+
+            if rpm_mode == 1:
+                thresholds = [
+                    self._cm.get_setting(f"wheel-rpm-value{i+1}", exclusive=True)
+                    for i in range(NUM_LEDS)
+                ]
+            else:
+                timings = self._cm.get_setting("wheel-rpm-timings", exclusive=True)
+                if timings is None or len(timings) < NUM_LEDS:
+                    timings = self._timings[0]
+
+                thresholds = [
+                    max_rpm * timing / 100
+                    for timing in timings[:NUM_LEDS]
+                ]
+
+            leds = 0
+            for threshold in thresholds:
+                if threshold is not None and rpm >= threshold:
+                    leds += 1
+
+            return (1 << leds) - 1 if leds > 0 else 0
+
+        initial_mode = self._cm.get_setting("wheel-rpm-indicator-mode", exclusive=True)
+
+        last_mode_refresh = 0
+        last_debug_print = 0
+
+        try:
+            while self._led_rpm_running:
+                # Keep wheel in RPM indicator mode
+                now = time.monotonic()
+                if now - last_mode_refresh > 2.0:
+                    self._cm.set_setting(1, "wheel-rpm-indicator-mode")
+                    last_mode_refresh = now
+
+                if not self.telemetry.connect():
+                    self._cm.set_setting(0, "wheel-old-send-telemetry")
+                    print(f"Waiting for {self.telemetry.GAME_NAME} telemetry...")
+                    time.sleep(1)
+                    continue
+
+                print(f"Connected to {self.telemetry.GAME_NAME} telemetry at {self.telemetry.source_name}.")
+
+                while self._led_rpm_running:
+                    try:
+                        # Re-check mode every 2 seconds
+                        now = time.monotonic()
+                        if now - last_mode_refresh > 2.0:
+                            self._cm.set_setting(1, "wheel-rpm-indicator-mode")
+                            last_mode_refresh = now
+
+                        if not self.telemetry.is_connected():
+                            print("Telemetry source disappeared; waiting again.")
+                            self.telemetry.close()
+                            break
+
+                        rpm, max_rpm = self.telemetry.get_rpm()
+
+                        mask = rpm_to_mask(rpm, max_rpm)
+                        self._cm.set_setting(mask, "wheel-old-send-telemetry")
+
+                        now = time.monotonic()
+                        if now - last_debug_print > 1.0:
+                            print(f"RPM telemetry: rpm={rpm} max_rpm={max_rpm} mask={mask}")
+                            last_debug_print = now
+
+                        time.sleep(UPDATE_RATE)
+
+                    except Exception as e:
+                        print(f"RPM telemetry bridge retrying: {e}")
+                        self._cm.set_setting(0, "wheel-old-send-telemetry")
+                        self.telemetry.close()
+                        time.sleep(1)
+                        break
+
+        finally:
+            self._cm.set_setting(0, "wheel-old-send-telemetry")
+            self._cm.set_setting(initial_mode, "wheel-rpm-indicator-mode", exclusive=True)
+            if self.telemetry is not None:
+                self.telemetry.close()
 
 
     def reset(self, *_) -> None:
