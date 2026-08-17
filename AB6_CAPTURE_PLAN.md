@@ -117,11 +117,19 @@ may each live in their own).*
 
 Cockpit's page structure, per the AB6 manual — visit these in order:
 
-- [ ] **Basic Settings** — base parameters, real-time status
-- [ ] **Expert Settings** — advanced per-aircraft tuning
+- [x] **Basic Settings** — base parameters, real-time status. **Done** —
+  see `AB6_STATUS.md` → "FFB Mode..." and "Seven more settings...".
+- [~] **Advanced Settings** (Cockpit's actual label — this doc's "Expert
+  Settings" guess was wrong). **Partially done, 2026-08-18** — Centering
+  (2 of ~7 controls) and Trim/Autopilot Following (4 of ~15+ controls)
+  confirmed; see `AB6_STATUS.md` → "Advanced Settings: Centering and
+  Trim/Autopilot Following". Physics Model Settings' "Advanced" mode
+  (distinct from "Simplified", which is just the already-confirmed Basic
+  Settings sliders again) not captured yet.
 - [ ] **Telemetry FFB** — telemetry-driven effects config
 - [ ] **Axis Travel** — axis output curves
-- [ ] **Panel Settings** — the 2 sliders and 8 RGB buttons
+- [x] **Panel Settings** — the 2 sliders and 8 RGB buttons. **Partially
+  done** — see `AB6_STATUS.md` → "Panel lighting...".
 - [ ] **MHG grip page** — click the grip icon on the main page
 
 Then:

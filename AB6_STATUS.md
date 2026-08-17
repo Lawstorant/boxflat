@@ -3,25 +3,25 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-17 — tested on real hardware, plus four Windows captures.**
+**Status as of 2026-08-18 — tested on real hardware, plus five Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ✅ **10 confirmed and wired up** — FFB Mode, Torque, FFB Intensity, Spring, Damper, Inertia, Friction, Game FFB Gain, Temp Control Mode, Backlit Brightness, Light Color |
+| Editable settings | ✅ **18 confirmed and wired up** — FFB Mode, Torque, FFB Intensity, Spring, Damper, Inertia, Friction, Game FFB Gain, Temp Control Mode, Backlit Brightness, Light Color, Centering Effect Strength, Centering Compensation Range, Follow Ratio X/Y, Roll/Pitch Breakout Force Strength, Roll/Pitch Breakout Force Range |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
-| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6's settings table — used by both Table 7 and Table 2 settings |
+| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6's settings table — spans Tables 2, 7 and 8, with a multi-byte-id addressing style for some (see "Advanced Settings" below) |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| AB6 settings tables | 🔍 4 diagnostic-log tables, 129 params — 12 attributed so far |
+| AB6 settings tables | 🔍 4 diagnostic-log tables, 129+ params — 20 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 10 settings live |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 18 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
 same wire framing as racing gear but its own command set, so the racing
-commands stay dead. Four user-provided Windows captures moved this
+commands stay dead. Five user-provided Windows captures moved this
 forward a lot:
 
 1. A passive capture of Cockpit's startup handshake found that the firmware
@@ -40,12 +40,17 @@ forward a lot:
    config) confirmed Light Color and Backlit Brightness exactly, and found
    the wire structure (though not the option meaning) of a Slider Axis
    Mode command — see "Panel lighting" below.
+5. A capture of **Advanced Settings** (Centering, Trim/Autopilot Following)
+   confirmed two more Centering settings and, for the first time, found a
+   *multiplexed* addressing style where one id carries a category+side byte
+   pair ahead of the value — used to confirm four Trim/Autopilot Following
+   settings at once. See "Advanced Settings" below.
 
-Ten settings are now working controls in the AB6 panel. Every one of them —
-across two different diagnostic-log tables (7 and 2) — lands on the same
-group 30 (read) / 31 (write) command pair, confirming this is the AB6's one
-general-purpose settings table, previously seen only as an unattributed
-binary burst.
+Eighteen settings are now working controls in the AB6 panel. Every one of
+them — across three different diagnostic-log tables (2, 7 and 8) — lands on
+the same group 30 (read) / 31 (write) command pair, confirming this is the
+AB6's one general-purpose settings table, previously seen only as an
+unattributed binary burst.
 
 Boxflat now models it correctly as **two devices on one port**: the AB6 base
 (ID 18, firmware 1.1.4.6) and the MHG grip (ID 19, firmware 1.1.1.11). Both
@@ -53,12 +58,13 @@ have panels, both are gated on real hardware reads, and the Home page lists
 only hardware that actually answers.
 
 What remains is **meaning** for everything else. Dozens of parameter
-addresses and their current values are known, but only 12 are attributed
+addresses and their current values are known, but only 20 are attributed
 to a specific Cockpit UI control (a few more have a confirmed wire format
-but unconfirmed option meaning — see "Panel lighting" below). See "Windows
-capture analysis" for the correlation method, now demonstrated three times
-at increasing scale — repeating it against Expert Settings, Axis Travel,
-and the MHG grip's own settings page is the direct path to covering the
+but unconfirmed option meaning — see "Panel lighting" and "Advanced
+Settings" below). See "Windows capture analysis" for the correlation
+method, now demonstrated four times at increasing scale — repeating it
+against Expert Settings, Axis Travel, and the MHG grip's own settings page
+is the direct path to covering the
 rest, and one more targeted capture (logging the specific value set at
 each step) would resolve the three still-ambiguous Panel Settings ids.
 
@@ -778,6 +784,94 @@ argument, not proof. Not added to `data/serial.yml`. A follow-up capture
 that logs the *specific* value set at each step (the way the previous
 capture's screenshot uniquely fixed Spring/Inertia/Friction) would resolve
 this in the same pass.
+
+## Advanced Settings: Centering and Trim/Autopilot Following (2026-08-18)
+
+A fifth capture, provided by the user, split into two parts (a long
+session saved in chunks — `part1` has no USB enumeration frames of its
+own, so `tools/ab6_pcap_decode.py` gained a `--device-address` flag to
+carry over the address `part0` autodetected). Covers three pages:
+Centering, Physics Model Settings (Simplified — the same seven sliders
+already confirmed, re-touched and re-confirmed here with identical values,
+nothing new there), and Trim/Autopilot Following. Decoded into
+[`captures/2026-08-18-advanced-settings/`](./captures/2026-08-18-advanced-settings/).
+
+### Centering: two more Table 7 settings
+
+Same correlation method as before, same group 30/31:
+
+| Setting | id | Values seen | Confidence |
+| :-- | --: | :-- | :-- |
+| Effect Strength | 209 | `10, 90, 100, 50` (final) | High — matches the screenshot's 50% exactly |
+| Compensation Effective Range | 210 | `90, 100, 10` (final, wire values) | High — same wire convention, adjacent id number |
+
+`centering-compensation-range` is worth a note: the *wire* values (90, 100,
+10) are the usual direct percentages, but Table 7's own internal float
+storage for this one doesn't scale linearly with them (wire 100 → stored
+0.55, not 1.0). That's a firmware-internal detail — boxflat only sends and
+reads the wire value, which behaves exactly like every other percentage
+setting in this file.
+
+Two more Table 7 ids were touched (116, 121 — single boolean values, no
+pairing) — plausible candidates are the page's **Link + and -** / **Link X
+and Y** checkboxes, in that order, but with no unique value to confirm
+against (both are simple 0/1 toggles). Not added to `data/serial.yml`.
+
+### Trim/Autopilot Following: a new addressing style, four more settings
+
+This page's settings live in **Table 8**, and introduced something new:
+instead of one `id` per setting (like everything found so far), **one id
+(225) multiplexes many Table 8 sub-settings** behind a 3-byte payload
+shaped `[category, side, value]`:
+
+```
+09 00 0a   ->  category 0x09, side 0 (X),    value 10   (Physical Stick Follow Ratio X)
+09 01 0a   ->  category 0x09, side 1 (Y),    value 10   (Physical Stick Follow Ratio Y)
+0a 00 0a   ->  category 0x0a, side 0 (Roll),  value 10   (Roll Breakout Force Strength)
+0a 01 0a   ->  category 0x0a, side 1 (Pitch), value 10   (Pitch Breakout Force Strength)
+0b 00 0a   ->  category 0x0b, side 0 (Roll),  value 10   (Roll Breakout Force Range)
+0b 01 0a   ->  category 0x0b, side 1 (Pitch), value 10   (Pitch Breakout Force Range)
+```
+
+This is the same shape as `slider-mode-left`/`-right`'s `id: [113, side]`
+finding from the Panel Settings capture, just one byte longer — modeled
+the same way, as extra `id` bytes (`id: [225, category, side]`) rather
+than as payload, so it's `data/serial.yml`'s existing multi-byte-id
+convention (see `base.ffb-curve-x1`'s `id: [34, 1]`) scaled up by one
+byte, not a new mechanism.
+
+All six ended at values that matched the screenshot exactly — 100% for
+both follow-ratio axes, 50% for both breakout-force-strength sides, 50%
+for both breakout-force-range sides (again with the same "wire is linear,
+Table 8's internal float isn't" pattern as `centering-compensation-range`,
+and again irrelevant to what boxflat sends). Added as `follow-ratio-x`/
+`-y`, `breakout-force-strength-roll`/`-pitch`, `breakout-force-range-roll`/
+`-pitch`, and wired up as sliders in a new "Trim & Autopilot Following"
+group in `panels/ab6.py`.
+
+### What's still unresolved on these two pages
+
+- **Three more single-value booleans** in Table 8 (params 32, 33, 34) —
+  not attributed; candidates include the page's own Link +/- and Link X/Y
+  checkboxes (this section has them too) or parts of the Trim/Autopilot
+  Following toggles.
+- **A compound "preset select" burst.** Around the same id (225), a
+  different category byte pattern (`0x0e`, `0x0f`, `0x11` seen) triggers a
+  *cascade* of writes across several Table 8 params at once, three times
+  in quick succession. This has the shape of clicking through a 3-option
+  preset selector — either **Axis follow mode** (No Follow / Full Follow /
+  Custom) or **Follow options** (Light Aircraft / Heavy Aircraft / Custom),
+  both 3-way selectors on this page. Not decoded — the payload structure
+  and which of the two selectors it is are both unclear, and getting it
+  wrong risks a command that changes several settings at once.
+- **Everything not touched in this capture**: the Trim Following and
+  Autopilot Following toggles themselves, Axis follow mode, X/Y-axis
+  follow ratio (a *different* -1..1 ranged control from the 0-100%
+  Physical Stick Follow Ratio confirmed above — easy to confuse, don't),
+  physical stick follow rate (1-20 range), Trim-stick curve, Sidestick AP
+  Lock, Roll/Pitch Follow Scale, Roll/Pitch Follow Rate. These simply never
+  produced a write in this capture (left at their defaults), not something
+  that was tried and failed to attribute.
 
 ## Home panel now lists only detected hardware
 
