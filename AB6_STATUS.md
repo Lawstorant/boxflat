@@ -3,23 +3,23 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-18 — tested on real hardware, plus ten Windows captures.**
+**Status as of 2026-08-19 — tested on real hardware, plus eleven Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ✅ **33 confirmed and wired up** — 27 on the AB6 base, 6 on the MHG grip |
+| Editable settings | ✅ **35 confirmed and wired up** — 29 on the AB6 base, 6 on the MHG grip |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
 | AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6 base's settings table — spans Tables 2, 7 and 8, with a multi-byte-id addressing style for some |
 | **MHG's own groups** | ✅ **Group 50 (read) / 51 (write) — a different pair from the base**, same multi-byte-id shape, on Table 13 |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| Settings tables | 🔍 4+ diagnostic-log tables (2, 7, 8, 13), 129+ params — 35 attributed so far |
+| Settings tables | 🔍 4+ diagnostic-log tables (2, 7, 8, 13), 129+ params — 37 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
 | Live force feedback | ℹ️ Confirmed out of scope — runs over standard USB HID, not this protocol (see "Out of scope") |
 | Telemetry FFB page | ℹ️ Likely never touches the serial protocol at all — see below |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 33 settings live |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 35 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
@@ -71,8 +71,12 @@ forward a lot:
     page inventory, found by the user browsing Cockpit's tabs directly —
     confirmed Trim Follow Rate and a 4-selector Trim Range. See "A page we
     didn't know about" below.
+11. A capture of **Slider Axis Calibration** confirmed a clean write-only
+    trigger command, and found the exact 750-unit margin the firmware
+    applies to its own calibration measurement before storing it. See
+    "Slider calibration" below.
 
-33 settings are now working controls across the AB6 and MHG panels — 27 on
+35 settings are now working controls across the AB6 and MHG panels — 29 on
 the base, spanning three diagnostic-log tables (2, 7, 8) on group 30/31,
 and 6 on the grip's own Table 13 on its own group 50/51. Two independent
 general-purpose settings tables, same underlying framing and addressing
@@ -87,7 +91,7 @@ What remains is **meaning** for everything still on the base's and grip's
 own pages (Special's five unattributed booleans, Panel Settings' Light
 Mode/Pattern/Effect, the Output Mapping Curve, Axis Offset, Invert Axis,
 the rest of MHG's Grip Settings) — Telemetry FFB looks to be structurally
-out of reach rather than merely unattributed, per above. 35 parameter
+out of reach rather than merely unattributed, per above. 37 parameter
 addresses are attributed to a specific Cockpit UI control so far (a few
 more have a confirmed wire format but unconfirmed option meaning, or a
 confirmed value but unconfirmed axis/direction identity — see "Panel
@@ -1115,6 +1119,56 @@ Compensation showed in an earlier capture. Not decoded further; the
 button-binding controls and calibration buttons on this page also aren't
 settings in this file's read/write sense and were excluded for the same
 reason as the AB6 base's "Reset" button and the MHG's calibration buttons.
+
+## Slider calibration: a trigger, and the firmware's own margin formula (2026-08-19)
+
+A ninth capture, provided by the user: Panel Settings → **Slider Axis
+Calibration** ("Start Calibration"). Decoded into
+[`captures/2026-08-19-panel-slider-calibration/`](./captures/2026-08-19-panel-slider-calibration/).
+Unlike every calibration button excluded so far, this one is worth
+implementing — it's a clean, safe, write-only trigger.
+
+### The trigger
+
+Cockpit's single button fires **two** writes, group 31, id 112, payload
+`[selector, 1]` — selector 0 for slider 1, 1 for slider 2:
+
+```
+70 00 01   id 112, selector 0 (slider 1), value 1 (start)
+70 01 01   id 112, selector 1 (slider 2), value 1 (start)
+```
+
+Added as `slider-calibration-start-1`/`-2` (write-only, matching this
+file's existing calibration-start convention), and wired up as a single
+"Start Calibration" button in `panels/ab6.py`'s new "Panel Settings"
+group, firing both writes together to match Cockpit's actual one-button
+UX rather than exposing two separate ones for a single physical wizard.
+
+### The firmware computes and stores the result on its own
+
+The diagnostic log names the raw measurement in plain English, once per
+slider, immediately followed by the stored values:
+
+```
+Panel calib_min_value: 22578, calib_max_value: 41989
+Panel calib_min_value: 21623, calib_max_value: 44408
+Table 2, Param 47 Written: 23328   Table 2, Param 48 Written: 22373
+Table 2, Param 49 Written: 41239   Table 2, Param 50 Written: 43658
+```
+
+The stored values are the raw measurement with an **exact 750-unit inward
+margin**: `23328 = 22578 + 750`, `22373 = 21623 + 750`,
+`41239 = 41989 - 750`, `43658 = 44408 - 750`. Param 47/48 are the two
+sliders' calibrated minimums, 49/50 the maximums — the device pads its own
+measured travel range inward by a fixed 750 units before storing it,
+presumably so the reported 0%/100% never sit exactly on the slider's
+physical hard stops.
+
+This computation is entirely firmware-internal — the host only sends the
+start trigger, never the resulting min/max — and no read or write id for
+these four params was seen in this capture (Cockpit didn't read them back
+afterward in this session). Nothing to expose as a "view calibrated range"
+command yet; would need a capture that reopens the page after calibrating.
 
 ## Home panel now lists only detected hardware
 

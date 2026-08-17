@@ -149,7 +149,10 @@ Cockpit's page structure, per the AB6 manual — visit these in order:
   `AB6_STATUS.md` → "Axis Travel...". The Output Mapping Curve itself,
   Axis Offset, Invert Axis, and the third axis remain open.
 - [x] **Panel Settings** — the 2 sliders and 8 RGB buttons. **Partially
-  done** — see `AB6_STATUS.md` → "Panel lighting...".
+  done** — see `AB6_STATUS.md` → "Panel lighting...". Slider Axis
+  Calibration's trigger also confirmed, 2026-08-19 — see "Slider
+  calibration...". Slider Axis Mode's option meaning, and Light Mode/
+  Pattern/Effect, remain open.
 - [x] **Special** — not in this list originally; found by the user
   browsing Cockpit's tabs directly. **Partially done, 2026-08-18** — Trim
   Follow Rate and a 4-selector Trim Range confirmed; see `AB6_STATUS.md` →
