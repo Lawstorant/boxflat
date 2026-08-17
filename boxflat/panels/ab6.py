@@ -26,10 +26,11 @@ class AB6Settings(SettingsPanel):
     """Flight base panel.
 
     Deliberately limited to what the hardware has actually been observed to
-    answer. The AB6 does not implement the racing command set, and the
-    meaning of its own settings group is not decoded yet, so this panel
-    reports identity and live axis state rather than pretending to offer
-    settings it cannot write. See AB6_STATUS.md.
+    answer. The AB6 does not implement the racing command set, so this
+    panel exposes only the settings confirmed against real hardware so far
+    (see AB6_STATUS.md) rather than the full Basic Settings page Cockpit
+    shows - Spring/Damper/Inertia/Friction curve shaping, Axis Travel,
+    Panel Settings and Expert Settings remain unmapped.
     """
 
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
@@ -68,10 +69,53 @@ class AB6Settings(SettingsPanel):
         self._add_row(BoxflatLevelRow("Slider 2", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
 
+        # Confirmed against real hardware (see data/serial.yml) by cycling
+        # each control in Cockpit and matching the write - and for FFB Mode
+        # and Torque, the read-back too - against the firmware's own
+        # diagnostic log, one-for-one across every transition.
         self.add_preferences_group("Settings")
-        self._add_row(BoxflatLabelRow(
-            "Not available yet",
-            "The AB6 uses its own command set, which is still being mapped"))
+
+        self._add_row(BoxflatToggleButtonRow("FFB Mode"))
+        self._current_row.add_buttons("Telemetry", "DirectInput", "Integrated")
+        self._current_row.subscribe(self._cm.set_setting, "ab6-ffb-mode")
+        self._cm.subscribe("ab6-ffb-mode", self._current_row.set_value)
+
+        # Only Conservative/Aggressive were exercised; a third mode at
+        # value 0 is plausible but unconfirmed - see data/serial.yml.
+        self._add_row(BoxflatToggleButtonRow("Temperature Control Mode"))
+        self._current_row.add_buttons("Conservative", "Aggressive")
+        self._current_row.set_expression("+1")
+        self._current_row.set_reverse_expression("-1")
+        self._current_row.subscribe(self._cm.set_setting, "ab6-temp-control-mode")
+        self._cm.subscribe("ab6-temp-control-mode", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Maximum Torque Output", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-torque")
+        self._cm.subscribe("ab6-torque", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Overall Force Feedback Intensity", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-ffb-intensity")
+        self._cm.subscribe("ab6-ffb-intensity", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Spring", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-spring")
+        self._cm.subscribe("ab6-spring", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Damper", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-damper")
+        self._cm.subscribe("ab6-damper", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Inertia", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-inertia")
+        self._cm.subscribe("ab6-inertia", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Friction", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-friction")
+        self._cm.subscribe("ab6-friction", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Game Force Feedback Gain", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-game-ffb-gain")
+        self._cm.subscribe("ab6-game-ffb-gain", self._current_row.set_value)
 
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:

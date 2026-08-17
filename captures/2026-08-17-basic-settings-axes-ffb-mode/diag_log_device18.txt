@@ -1,0 +1,15 @@
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 49 Written: 1 0.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 49 Written: 0 0.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 49 Written: 2 0.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 49 Written: 0 0.00000
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 7197s
+device connected: stick_reg

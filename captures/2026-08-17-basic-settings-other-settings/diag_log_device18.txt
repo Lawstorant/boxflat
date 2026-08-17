@@ -1,0 +1,40 @@
+[INFO]param_manage.c:340 Table 7, Param 99 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 7, Param 99 Written: 2 0.00000
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 7382s
+device connected: stick_reg
+[INFO]param_manage.c:340 Table 7, Param 17 Written: 1034469716 0.08239
+[INFO]param_manage.c:340 Table 7, Param 18 Written: 1034469716 0.08239
+[INFO]param_manage.c:340 Table 7, Param 100 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 17 Written: 1061017982 0.74159
+[INFO]param_manage.c:340 Table 7, Param 18 Written: 1061017982 0.74159
+[INFO]param_manage.c:340 Table 7, Param 100 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 17 Written: 1062400425 0.82399
+[INFO]param_manage.c:340 Table 7, Param 18 Written: 1062400425 0.82399
+[INFO]param_manage.c:340 Table 7, Param 100 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 52 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 52 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 52 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 15 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 15 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 15 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 15 Written: 1056293519 0.47999
+[INFO]param_manage.c:340 Table 7, Param 16 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 7, Param 16 Written: 1008981770 0.00999
+[INFO]param_manage.c:340 Table 7, Param 16 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 16 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 16 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 53 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 53 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 53 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 53 Written: 1060320051 0.70000
+[INFO]param_manage.c:340 Table 7, Param 54 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 54 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 54 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 54 Written: 1058642329 0.59999
+[INFO]param_manage.c:340 Table 7, Param 101 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 101 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 101 Written: 1065353216 1.00000
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 7444s
+device connected: stick_reg

@@ -2157,6 +2157,91 @@ commands:
       bytes: 4
       type: int
 
+    # Confirmed on real hardware from a Windows capture (2026-08-17):
+    # cycling Cockpit's FFB mode Telemetry -> DirectInput -> Telemetry ->
+    # Integrated -> Telemetry produced writes 1, 0, 2, 0 on this exact
+    # group/id, matched one-for-one by the read-back on group 30 and by the
+    # firmware's own diagnostic log ("Table 7, Param 49 Written").
+    # 0 = Telemetry FFB, 1 = DirectInput FFB, 2 = Integrated FFB.
+    # See captures/2026-08-17-basic-settings-axes-ffb-mode/.
+    ffb-mode:
+      read: 30
+      write: 31
+      id: [133]
+      bytes: 2
+      type: int
+
+    # Confirmed on real hardware from a second Windows capture (2026-08-17):
+    # each was cycled 10 -> 90 -> 100 (-> a device-specific original) in
+    # Cockpit's Basic Settings page, in the same on-screen top-to-bottom
+    # order as these entries, and every write matched the firmware's own
+    # diagnostic log ("Table 7, Param N Written") exactly across every
+    # transition, including three final revert values (48/70/60) unique
+    # enough that a wrong mapping would not have matched by chance. All are
+    # direct 0-100 percentages - no scaling. `write` is directly confirmed
+    # for all seven; `read` is confirmed independently only for `torque`
+    # (which is also polled continuously outside this page) and follows the
+    # write+1 convention used everywhere else in this file for the rest.
+    # See captures/2026-08-17-basic-settings-other-settings/.
+    torque:
+      read: 30
+      write: 31
+      id: [169]
+      bytes: 2
+      type: int
+
+    ffb-intensity:
+      read: 30
+      write: 31
+      id: [174]
+      bytes: 2
+      type: int
+
+    spring:
+      read: 30
+      write: 31
+      id: [175]
+      bytes: 2
+      type: int
+
+    damper:
+      read: 30
+      write: 31
+      id: [176]
+      bytes: 2
+      type: int
+
+    inertia:
+      read: 30
+      write: 31
+      id: [177]
+      bytes: 2
+      type: int
+
+    friction:
+      read: 30
+      write: 31
+      id: [178]
+      bytes: 2
+      type: int
+
+    game-ffb-gain:
+      read: 30
+      write: 31
+      id: [153]
+      bytes: 2
+      type: int
+
+    # Only two of Cockpit's (presumably three) modes were exercised, in
+    # this order: Conservative -> Aggressive, writing 1 then 2. A third
+    # mode at 0 is plausible but unconfirmed.
+    temp-control-mode:
+      read: 30
+      write: 31
+      id: [192]
+      bytes: 2
+      type: int
+
   mhg:
     version:
       read: 4
