@@ -1,0 +1,149 @@
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 25 Written: 0 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 25 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 25 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]stick_diag.c:126 Stick heart beat log
+thumb_x theta: [calib_min: 10.74953, calib_mid: 29.64034, calib_max: 49.29419]
+thumb_y theta: [calib_min: 8.86844, calib_mid: 29.04191, calib_max: 48.79039]
+axis_z theta: [calib_min: 6.35722, calib_mid: 7.49560, calib_max: 9.11345]
+hall_joystick_parm theta: [parm0: 0, parm1: 2,parm2: 0]
+hall_button work_mode: [work_mode: 2]
+thumb_x theta: [threshold_high 0: 49.29419, threshold_high 1: 48.79039, threshold_low 0: 10.74953, threshold_low 1: 8.86844]
+axis_z theta: [theta_raw: 7.48962, calib_mid: 7.49560]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 25 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 18 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 18 Written: 0 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 27 Written: 0 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 27 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 22 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 22 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 24 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 24 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 24 Written: 0 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 20 Written: 3 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 20 Written: 5 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 20 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 21 Written: 12 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 6 Written: 16711680 0.00000
+[INFO]param_manage.c:340 Table 13, Param 7 Written: 16711680 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 6 Written: 983040 0.00000
+[INFO]param_manage.c:340 Table 13, Param 7 Written: 983040 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 6 Written: 4980736 0.00000
+[INFO]param_manage.c:340 Table 13, Param 7 Written: 4980736 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 23 Written: 1 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 23 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 23 Written: 0 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 19 Written: 0 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 19 Written: 3 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 19 Written: 5 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 19 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 8 Written: 7 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 8 Written: 2 0.00000
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 8 Written: 15 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 5 Written: 16711680 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 5 Written: 3211264 0.00000
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]

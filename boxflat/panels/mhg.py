@@ -12,8 +12,9 @@ class MHGSettings(SettingsPanel):
 
     The grip is a separate addressable device that answers through the AB6
     base's serial port, the same way a wheel answers through a wheelbase.
-    Its own command set is not decoded yet, so this panel reports identity
-    only. See AB6_STATUS.md.
+    It has its own command set, addressed on group 50 (read) / 51 (write)
+    rather than the AB6 base's 30/31 - confirmed for its two lighting
+    zones so far. See AB6_STATUS.md.
     """
 
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler):
@@ -44,11 +45,53 @@ class MHGSettings(SettingsPanel):
         self._add_row(BoxflatLevelRow("Mini-stick / hat Y", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
 
-        self.add_preferences_group("Settings")
-        self._add_row(BoxflatLabelRow(
-            "Not available yet",
-            "The grip's command set is still being mapped"))
+        # Confirmed against real hardware from the MHG Basic Settings page
+        # capture - see data/serial.yml. Cogging Torque Calibration, the
+        # Yaw axis toggle/calibration, the grip Mode 1/Mode 2 mapping
+        # dropdowns, Axis Calibration and Mapping Range weren't confidently
+        # attributed and are left out.
+        self.add_preferences_group("Status Light")
+
+        self._add_row(BoxflatSliderRow("Brightness", range_end=15))
+        self._current_row.subscribe(self._cm.set_setting, "mhg-status-light-brightness")
+        self._cm.subscribe("mhg-status-light-brightness", self._current_row.set_value)
+
+        self._status_light_row = BoxflatNewColorPickerRow("Color", pickers=1)
+        self._add_row(self._status_light_row)
+        self._current_row.subscribe("color0", self._set_status_light_color)
+        self._cm.subscribe("mhg-status-light-color", self._set_status_light_color_row)
+
+        self.add_preferences_group("Button Light")
+
+        self._add_row(BoxflatSliderRow("Brightness", range_end=15))
+        self._current_row.subscribe(self._cm.set_setting, "mhg-button-light-brightness")
+        self._cm.subscribe("mhg-button-light-brightness", self._current_row.set_value)
+
+        self._button_light_row = BoxflatNewColorPickerRow("Color", pickers=1)
+        self._add_row(self._button_light_row)
+        self._current_row.subscribe("color0", self._set_button_light_color)
+        self._cm.subscribe("mhg-button-light-color", self._set_button_light_color_row)
 
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:
         row.set_label(format_version(value))
+
+
+    def _set_status_light_color(self, value: list) -> None:
+        self._cm.set_setting(value, "mhg-status-light-color")
+
+
+    def _set_status_light_color_row(self, value: list) -> None:
+        if not isinstance(value, list) or len(value) != 3:
+            return
+        self._status_light_row.set_led_value(value, 0)
+
+
+    def _set_button_light_color(self, value: list) -> None:
+        self._cm.set_setting(value, "mhg-button-light-color")
+
+
+    def _set_button_light_color_row(self, value: list) -> None:
+        if not isinstance(value, list) or len(value) != 3:
+            return
+        self._button_light_row.set_led_value(value, 0)

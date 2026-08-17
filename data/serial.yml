@@ -2416,3 +2416,61 @@ commands:
       id: []
       bytes: 4
       type: int
+
+    # Confirmed on real hardware from a seventh Windows capture (2026-08-18,
+    # MHG Basic Settings - the grip's only settings page). Unlike the AB6
+    # base (group 30 read / 31 write), the grip uses its OWN pair: group
+    # 50 read / 51 write, on device id 19 as always. Otherwise the same
+    # multi-byte-id convention as everywhere else in this file: a shared
+    # category id plus a side byte (0 = Status Light, 1 = Button Light -
+    # the grip's own two independently-colored light zones, not to be
+    # confused with the AB6 base's single Light Color/Backlit Brightness).
+    # Every value matched the accompanying screenshot exactly. See
+    # captures/2026-08-18-mhg-basic-settings/.
+    status-light-brightness:
+      read: 50
+      write: 51
+      id: [98, 0]
+      bytes: 1
+      type: int
+
+    button-light-brightness:
+      read: 50
+      write: 51
+      id: [98, 1]
+      bytes: 1
+      type: int
+
+    # Payload is [side, R, G, B] - 4 bytes, no leading padding (unlike the
+    # AB6 base's light-color, which pads with 2 leading zero bytes first).
+    status-light-color:
+      read: 50
+      write: 51
+      id: [99, 0]
+      bytes: 3
+      type: array
+
+    button-light-color:
+      read: 50
+      write: 51
+      id: [99, 1]
+      bytes: 3
+      type: array
+
+    # Both ended at the same wire value (1), matching "Always On" showing
+    # for both Status and Button light in the screenshot - a real, if
+    # modest, value confirmation (only one option out of the observed 0-3
+    # range is pinned down this way).
+    status-light-effect:
+      read: 50
+      write: 51
+      id: [100, 0]
+      bytes: 1
+      type: int
+
+    button-light-effect:
+      read: 50
+      write: 51
+      id: [100, 1]
+      bytes: 1
+      type: int
