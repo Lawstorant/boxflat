@@ -3,25 +3,25 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-17 — tested on real hardware, plus three Windows captures.**
+**Status as of 2026-08-17 — tested on real hardware, plus four Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ✅ **8 confirmed and wired up** — FFB Mode, Torque, FFB Intensity, Spring, Damper, Inertia, Friction, Game FFB Gain, Temp Control Mode |
+| Editable settings | ✅ **10 confirmed and wired up** — FFB Mode, Torque, FFB Intensity, Spring, Damper, Inertia, Friction, Game FFB Gain, Temp Control Mode, Backlit Brightness, Light Color |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
-| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6's settings table |
+| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6's settings table — used by both Table 7 and Table 2 settings |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| AB6 settings tables | 🔍 4 diagnostic-log tables, 129 params — 9 attributed so far |
+| AB6 settings tables | 🔍 4 diagnostic-log tables, 129 params — 12 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 8 settings live |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 10 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
 same wire framing as racing gear but its own command set, so the racing
-commands stay dead. Three user-provided Windows captures moved this
+commands stay dead. Four user-provided Windows captures moved this
 forward a lot:
 
 1. A passive capture of Cockpit's startup handshake found that the firmware
@@ -36,10 +36,16 @@ forward a lot:
    Temperature Control Mode** confirmed all eight in one pass, using the
    same correlation method at scale — see "Seven more settings confirmed
    in one pass" below.
+4. A capture of the **Panel Settings page** (button lighting, slider axis
+   config) confirmed Light Color and Backlit Brightness exactly, and found
+   the wire structure (though not the option meaning) of a Slider Axis
+   Mode command — see "Panel lighting" below.
 
-All eight are now working controls in the AB6 panel, all landing on the
-same group 30 (read) / 31 (write) command pair — this is the AB6's actual
-settings table, previously seen only as an unattributed binary burst.
+Ten settings are now working controls in the AB6 panel. Every one of them —
+across two different diagnostic-log tables (7 and 2) — lands on the same
+group 30 (read) / 31 (write) command pair, confirming this is the AB6's one
+general-purpose settings table, previously seen only as an unattributed
+binary burst.
 
 Boxflat now models it correctly as **two devices on one port**: the AB6 base
 (ID 18, firmware 1.1.4.6) and the MHG grip (ID 19, firmware 1.1.1.11). Both
@@ -47,12 +53,14 @@ have panels, both are gated on real hardware reads, and the Home page lists
 only hardware that actually answers.
 
 What remains is **meaning** for everything else. Dozens of parameter
-addresses and their current values are known, but only 9 (of Table 7's 52
-alone) are attributed to a specific Cockpit UI control. See "Windows
-capture analysis" for the correlation method, now demonstrated twice at
-increasing scale (points 2 and 3 above) — repeating it against Expert
-Settings, Axis Travel, Panel Settings, and the MHG grip's own settings page
-is the direct path to covering the rest.
+addresses and their current values are known, but only 12 are attributed
+to a specific Cockpit UI control (a few more have a confirmed wire format
+but unconfirmed option meaning — see "Panel lighting" below). See "Windows
+capture analysis" for the correlation method, now demonstrated three times
+at increasing scale — repeating it against Expert Settings, Axis Travel,
+and the MHG grip's own settings page is the direct path to covering the
+rest, and one more targeted capture (logging the specific value set at
+each step) would resolve the three still-ambiguous Panel Settings ids.
 
 ## Background
 
@@ -699,6 +707,77 @@ What's still unmapped from the Basic Settings page: axis output curves
 sub-controls, going by the racing base's `ffb-curve-x1..4`/`y1..5`
 precedent), and the Expert Settings / Telemetry FFB / Axis Travel / Panel
 Settings pages entirely (see `AB6_CAPTURE_PLAN.md`'s Phase 2 checklist).
+
+## Panel lighting: two more confirmed, plus a structural finding (2026-08-17)
+
+A fourth capture, provided by the user: the AB6's **Panel Settings** page
+(button lighting and slider axis config), with everything on the page
+touched except "Start Calibration". Decoded into
+[`captures/2026-08-17-panel-settings/`](./captures/2026-08-17-panel-settings/).
+
+This time the writes land on **Table 2**, not Table 7 — and every id here
+writes to *two* Table 2 params simultaneously with identical values, the
+same shape as `torque`'s Param 17/18 side effect from the first settings
+capture.
+
+### High confidence: two settings confirmed exactly
+
+- **`light-color`** (id 102): 5-byte wire payload `[0x00, 0x00, R, G, B]`.
+  The last value written, `0x5b0000`, decodes to `RGB(91, 0, 0)` — an exact
+  match for the screenshot's displayed color. Wired up with
+  `BoxflatNewColorPickerRow` in `panels/ab6.py`, following the existing
+  `wheel-idle-color` pattern, with a small wrapper to add/strip the
+  leading `[0, 0]`.
+- **`backlit-brightness`** (id 103): wire values were `15, 0, 11, 15` —
+  directly the 0–15 range the screenshot's slider shows, no scaling
+  needed. (Table 2's own copy multiplies this by ~17 internally to a
+  0–255 byte, matching `15 × 17 = 255` exactly against the raw
+  diagnostic-log value — but that scaling is firmware-internal and doesn't
+  affect what boxflat sends.)
+
+### A structural finding: `slider-mode-left` / `slider-mode-right`
+
+id 113 was written with a **2-byte payload where the first byte is 0 for
+the Left slider and 1 for the Right slider**, and the second byte the
+actual mode value (0, 1, 2 all seen, ending at 0 for both sides). That
+side-selector-as-payload-prefix is exactly the shape of a multi-byte `id`
+already used throughout this file (e.g. `base.ffb-curve-x1`'s `id: [34,
+1]`), so it maps cleanly to two commands:
+
+```yaml
+slider-mode-left:  { id: [113, 0], ... }
+slider-mode-right: { id: [113, 1], ... }
+```
+
+**The wire format is confirmed; the option meaning is not.** We know values
+0/1/2 exist and get written together on both sides, but not which UI
+choice each one names. `AB6_CAPTURE_PLAN.md` already guessed this control
+might be the manual's "Slider mapping mode — Button/Axis/Mixed" family;
+that's the leading hypothesis, unconfirmed. Added to `data/serial.yml` for
+the wire format (safe — it's independently verifiable and doesn't depend
+on the guess), but **not** wired into a panel control, since shipping the
+wrong option label would be worse than not shipping a label at all.
+
+### Three ids found but not attributed: Light Mode, Pattern, Light Effect
+
+Three more ids were touched, matching (in some order) the page's Light
+Mode toggle (Telemetry/Device/Manual), Pattern toggle (Step/Strength), and
+Light Effect dropdown ("Always On" in the screenshot):
+
+| id | Table 2 params | Values seen | Best guess |
+| --: | :-- | :-- | :-- |
+| 101 (`0x65`) | 54, 59 | `2,1,0,1,0,1,2,1,0` (9 writes, ending at 0) | Light Mode — most transitions, fits a 3-way toggle clicked around |
+| 104 (`0x68`) | 52, 57 | `1,0` (ending at 0) | Pattern — exactly 2 distinct values, fits a 2-way toggle |
+| 105 (`0x69`) | 53, 58 | `4` (one write) | Light Effect — single pick, fits a dropdown with several options |
+
+Unlike `light-color` and `backlit-brightness`, **none of these has a
+unique final value to check against the screenshot** — "0", "0" and "4"
+could each plausibly be several different UI states, and the "most
+transitions → most-clicked toggle" reasoning above is a plausibility
+argument, not proof. Not added to `data/serial.yml`. A follow-up capture
+that logs the *specific* value set at each step (the way the previous
+capture's screenshot uniquely fixed Spring/Inertia/Friction) would resolve
+this in the same pass.
 
 ## Home panel now lists only detected hardware
 

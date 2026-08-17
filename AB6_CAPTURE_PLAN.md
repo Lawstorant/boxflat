@@ -217,10 +217,23 @@ The manual describes several surfaces that are not FFB settings at all. Each
 is probably its own command group, and none of them exist in boxflat today
 for a flight device:
 
-- [ ] **Slider mapping mode** — cycle Button → Axis → Mixed
-- [ ] **Button RGB lighting** — set a static color, then change it
-- [ ] **Lighting effect** — cycle static / blinking / breathing / telemetry
-- [ ] **Lighting brightness** — low, then high
+- [x] **Button RGB lighting** — **Done, 2026-08-17.** `ab6-light-color`,
+  group 30/31, id 102, 5-byte payload `[0x00, 0x00, R, G, B]`. Confirmed
+  exactly against a screenshot.
+- [x] **Lighting brightness** — **Done, 2026-08-17.** `ab6-backlit-brightness`,
+  group 30/31, id 103, direct 0-15 int.
+- [~] **Slider mapping mode** — **Wire format found, meaning not confirmed,
+  2026-08-17.** id 113, second id byte selects Left(0)/Right(1) - see
+  `data/serial.yml`'s `ab6-slider-mode-left`/`-right`. Cycle Button → Axis
+  → Mixed **explicitly, one at a time, noting the exact UI label at each
+  step** to resolve which raw value (0/1/2) is which.
+- [~] **Lighting effect** — **Wire structure unclear, 2026-08-17.** Three
+  candidate ids (101, 104, 105) were touched together on the Panel
+  Settings page but not confidently separated into Light Mode / Pattern /
+  Light Effect - see `AB6_STATUS.md` → "Panel lighting". Cycle each
+  control **individually, logging the exact label selected each time**
+  (not just "changed it") so the three ids can be told apart by their
+  final values, not just plausibility.
 - [ ] **Axis Travel curve** — move one curve point, then reset
 
 > `boxflat/panels/base.py` already has curve infrastructure (`_curve_x`,
