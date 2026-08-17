@@ -1,0 +1,7 @@
+[INFO]steer.c:1427 steer set mode: 4
+[INFO]steer.c:1599 motor_y hand_cali start
+[INFO]steer_cali.c:146 hand_cali end, max_pos: 1.49535, min_pos :-1.49535
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 58 Written: 1069508553 1.49535
+[INFO]param_manage.c:340 Table 7, Param 59 Written: -1077975095 -1.49535
+[INFO]steer.c:1427 steer set mode: 2

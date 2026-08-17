@@ -45,11 +45,34 @@ class MHGSettings(SettingsPanel):
         self._add_row(BoxflatLevelRow("Mini-stick / hat Y", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
 
-        # Confirmed against real hardware from the MHG Basic Settings page
-        # capture - see data/serial.yml. Cogging Torque Calibration, the
-        # Yaw axis toggle/calibration, the grip Mode 1/Mode 2 mapping
-        # dropdowns, Axis Calibration and Mapping Range weren't confidently
-        # attributed and are left out.
+        # Confirmed against real hardware from three calibration captures -
+        # see data/serial.yml. Hat and Yaw calibration use a third group
+        # (52) on the grip, write-only, distinct from its usual read/write
+        # pair (50/51). Cogging Torque Calibration actually targets the
+        # AB6 base's own motors (group 31, device 18) despite living on
+        # this page - the correct compensation depends on the grip's
+        # weight, so it's surfaced per-grip even though the command itself
+        # targets the base. Cockpit's single "Grip Hat Axis Calibration"
+        # button fires both mini-stick axes together; mirrored here the
+        # same way. Enable Yaw Axis Output, the Mode 1/Mode 2 mapping
+        # dropdowns and Mapping Range weren't confidently attributed and
+        # are left out.
+        self.add_preferences_group("Calibration")
+
+        self._add_row(BoxflatButtonRow("Cogging Torque Calibration", "Start Calibration",
+            subtitle="Runs on its own afterward - the base's motors will move for a while"))
+        self._current_row.subscribe(self._start_cogging_calibration)
+
+        self._add_row(BoxflatCalibrationRow("Grip Hat Axis Calibration",
+            subtitle="Move the mini-stick through its full range"))
+        self._current_row.subscribe("calibration-start", self._calibrate_hat)
+        self._current_row.subscribe("calibration-stop", self._calibrate_hat)
+
+        self._add_row(BoxflatCalibrationRow("Yaw Axis Calibration",
+            subtitle="Twist the grip through its full range"))
+        self._current_row.subscribe("calibration-start", self._cm.set_setting, "mhg-yaw-calibration")
+        self._current_row.subscribe("calibration-stop", self._cm.set_setting, "mhg-yaw-calibration")
+
         self.add_preferences_group("Status Light")
 
         self._add_row(BoxflatSliderRow("Brightness", range_end=15))
@@ -95,3 +118,14 @@ class MHGSettings(SettingsPanel):
         if not isinstance(value, list) or len(value) != 3:
             return
         self._button_light_row.set_led_value(value, 0)
+
+
+    def _calibrate_hat(self, value: int) -> None:
+        self._cm.set_setting(value, "mhg-hat-x-calibration")
+        self._cm.set_setting(value, "mhg-hat-y-calibration")
+
+
+    def _start_cogging_calibration(self, *_) -> None:
+        # Targets the AB6 base (device 18), not the grip - see the comment
+        # above where this row is added.
+        self._cm.set_setting(0, "ab6-cogging-torque-calibration-start")

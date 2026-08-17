@@ -1,0 +1,52 @@
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]stick_diag.c:126 Stick heart beat log
+thumb_x theta: [calib_min: 10.39893, calib_mid: 29.69242, calib_max: 34.40108]
+thumb_y theta: [calib_min: 9.96236, calib_mid: 29.28062, calib_max: 46.70741]
+axis_z theta: [calib_min: 6.34563, calib_mid: 7.50012, calib_max: 9.06477]
+hall_joystick_parm theta: [parm0: 0, parm1: 1,parm2: 0]
+hall_button work_mode: [work_mode: 1]
+thumb_x theta: [threshold_high 0: 34.40108, threshold_high 1: 46.57691, threshold_low 0: 10.39893, threshold_low 1: 9.96236]
+axis_z theta: [theta_raw: 7.48894, calib_mid: 7.50012]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 9 Written: 1111975018 49.84806
+[INFO]param_manage.c:340 Table 13, Param 10 Written: 1093034507 10.39893
+[INFO]param_manage.c:340 Table 13, Param 11 Written: 1106086422 29.69242
+[INFO]param_manage.c:340 Table 13, Param 12 Written: 1112472385 51.74536
+[INFO]param_manage.c:340 Table 13, Param 13 Written: 1088699622 7.13243
+[INFO]param_manage.c:340 Table 13, Param 14 Written: 1105870521 29.28062
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 9 Written: 1111975018 49.84806
+[INFO]param_manage.c:340 Table 13, Param 10 Written: 1093034507 10.39893
+[INFO]param_manage.c:340 Table 13, Param 11 Written: 1106086422 29.69242
+[INFO]param_manage.c:340 Table 13, Param 12 Written: 1112472385 51.74536
+[INFO]param_manage.c:340 Table 13, Param 13 Written: 1088699622 7.13243
+Stick Error Cmd: [main_cmd: 67]
+[INFO]param_manage.c:340 Table 13, Param 14 Written: 1105870521 29.28062
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]
+Stick Error Cmd: [main_cmd: 67]

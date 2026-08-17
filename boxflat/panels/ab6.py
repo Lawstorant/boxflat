@@ -117,6 +117,22 @@ class AB6Settings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "ab6-game-ffb-gain")
         self._cm.subscribe("ab6-game-ffb-gain", self._current_row.set_value)
 
+        # Confirmed against real hardware from the X/Y stick calibration
+        # captures - see data/serial.yml. Each is a single write-only
+        # trigger; the firmware ends the hand-calibration on its own once
+        # the stick is released, no separate stop needed. A "Z" axis
+        # attempt on the AB6 itself was logged as invalid by the firmware -
+        # the AB6 has no such axis; Yaw calibration is under the MHG panel.
+        self.add_preferences_group("Stick Calibration")
+
+        self._add_row(BoxflatButtonRow("Roll Axis Calibration", "Start Calibration",
+            subtitle="Move the stick through its full range when prompted"))
+        self._current_row.subscribe(self._start_stick_x_calibration)
+
+        self._add_row(BoxflatButtonRow("Pitch Axis Calibration", "Start Calibration",
+            subtitle="Move the stick through its full range when prompted"))
+        self._current_row.subscribe(self._start_stick_y_calibration)
+
         # Confirmed against real hardware from the Slider Axis Calibration
         # capture - see data/serial.yml. Cockpit's single "Start
         # Calibration" button actually fires one trigger per slider; this
@@ -274,3 +290,11 @@ class AB6Settings(SettingsPanel):
     def _start_slider_calibration(self, *_) -> None:
         self._cm.set_setting(1, "ab6-slider-calibration-start-1")
         self._cm.set_setting(1, "ab6-slider-calibration-start-2")
+
+
+    def _start_stick_x_calibration(self, *_) -> None:
+        self._cm.set_setting(0, "ab6-stick-x-calibration-start")
+
+
+    def _start_stick_y_calibration(self, *_) -> None:
+        self._cm.set_setting(0, "ab6-stick-y-calibration-start")

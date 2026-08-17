@@ -1,0 +1,23 @@
+[INFO]steer.c:1427 steer set mode: 3
+[INFO]steer.c:1641 auto_cali start
+[INFO]param_manage.c:340 Table 3, Param 26 Written: 1036831949 0.10000
+[INFO]param_manage.c:340 Table 3, Param 27 Written: 1101004800 20.00000
+[INFO]param_manage.c:340 Table 3, Param 28 Written: 1036831949 0.10000
+[INFO]param_manage.c:340 Table 3, Param 29 Written: 1101004800 20.00000
+[INFO]param_manage.c:340 Table 4, Param 26 Written: 1036831949 0.10000
+[INFO]param_manage.c:340 Table 4, Param 27 Written: 1101004800 20.00000
+[INFO]param_manage.c:340 Table 4, Param 28 Written: 1036831949 0.10000
+[INFO]param_manage.c:340 Table 4, Param 29 Written: 1101004800 20.00000
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 3862s
+device connected: stick_reg
+[INFO]steer_cali.c:346 SteerCali Axis 1 max and min positions err:0.00115 small.
+[INFO]steer_cali.c:368 axis1 estimate torque is 0.05334
+[INFO]steer_cali.c:346 SteerCali Axis 0 max and min positions err:0.00153 small.
+[INFO]steer_cali.c:368 axis0 estimate torque is 0.06299
+[INFO]steer_ctrl.c:308 Axis0_angle_range = 3.90007.
+[INFO]steer_ctrl.c:308 Axis1_angle_range = 3.26958.
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]motor_middleware_cogging.c:720 Cogging Calib Initalized
+[INFO]steer.c:1427 steer set mode: 1

@@ -2484,6 +2484,63 @@ commands:
       bytes: 1
       type: int
 
+    # Confirmed on real hardware from a tenth/eleventh Windows capture
+    # (2026-08-19, Basic Settings -> X/Y stick calibration - the AB6's own
+    # motorized Roll/Pitch axes, "motor_x"/"motor_y" in the firmware's own
+    # log). Single write-only trigger, payload always 0 - unlike the
+    # slider calibration, there's no separate stop; the firmware ends the
+    # hand-calibration on its own once the user releases the stick.
+    # Result (Table 7 params 55/56 for X, 58/59 for Y - a symmetric
+    # +/-max_pos in radians) is entirely firmware-computed and stored, not
+    # sent by the host, and no read id was seen - trigger only, same as
+    # slider-calibration-start. A third capture attempted a "Z" axis on
+    # the AB6 base ("Stick_yaw calib start!" / "Stick_yaw calib invalid!"
+    # in the diagnostic log) - the user reports the AB6 has no such axis;
+    # real Yaw calibration belongs to the MHG grip (see mhg: below). No
+    # host trigger was observed for the AB6's own attempt either, so
+    # there's nothing to add for it regardless.
+    # See captures/2026-08-19-x-calibration/, .../2026-08-19-y-calibration/.
+    stick-x-calibration-start:
+      read: -1
+      write: 31
+      id: [128]
+      bytes: 2
+      type: int
+
+    stick-y-calibration-start:
+      read: -1
+      write: 31
+      id: [129]
+      bytes: 2
+      type: int
+
+    # Confirmed on real hardware from a two-part Windows capture
+    # (2026-08-18, MHG Basic Settings -> Grip Settings -> "Cogging Torque
+    # Calibration" button). Despite living on the MHG page in Cockpit,
+    # this targets the AB6 base's own motors (device 18, firmware's own
+    # "steer.c"/"motor_middleware_cogging.c"). Makes sense once you
+    # consider why it's needed: the correct cogging compensation depends
+    # on the inertia (weight) loaded onto the motor shaft, i.e. whichever
+    # grip is currently attached (the AB6 supports several: MHG, MH16,
+    # MA3X). Cockpit surfaces it per-grip since swapping grips changes
+    # what the base needs to compensate for, even though the command
+    # itself still targets the base. Single write-only trigger, payload
+    # always 0, same shape as stick-x/y-calibration-start.
+    # Runs autonomously afterward for a long time (tens of seconds to
+    # longer, motor moving on its own) and produces a genuinely huge
+    # firmware-internal result: 246 values across two 123-entry tables
+    # (5 and 6, one per axis) - almost certainly a cogging-torque lookup
+    # table sampled across the motor's full rotation. Not modeled as
+    # individual settings; nowhere close to something a user would want
+    # to view or edit entry-by-entry, and no read id was seen regardless.
+    # See captures/2026-08-18-mhg-cogging-torque-calibration/.
+    cogging-torque-calibration-start:
+      read: -1
+      write: 31
+      id: [194]
+      bytes: 2
+      type: int
+
   mhg:
     version:
       read: 4
@@ -2547,5 +2604,50 @@ commands:
       read: 50
       write: 51
       id: [100, 1]
+      bytes: 1
+      type: int
+
+    # Confirmed on real hardware from two more Windows captures (2026-08-19,
+    # MHG Basic Settings -> Grip Hat Axis Calibration and Yaw Axis
+    # Calibration). Uses a THIRD group, distinct from both the read (50)
+    # and write (51) pairs used everywhere else on the grip: group 52,
+    # write-only, no read counterpart seen. Value 1 starts, 0 stops -
+    # Cockpit's single button sends both, a few seconds apart, matching
+    # this file's calibration-start/-stop convention but as one command
+    # taking two values rather than two separate commands.
+    #
+    # Clicking "Grip Hat Axis Calibration" fires ids 4 and 5 together
+    # (mini-stick X and Y) in one user action; the resulting min/mid/max
+    # lands in Table 13 params 9-14 (max_x, min_x, mid_x, max_y, min_y,
+    # mid_y), firmware-computed and logged directly
+    # ("thumb_x theta: [calib_min: ..., calib_mid: ..., calib_max: ...]")
+    # - not sent by the host, no read id seen, same treatment as every
+    # other calibration result in this file.
+    #
+    # "Yaw Axis Calibration" fires id 6 alone (a single rotational axis).
+    # This is the AB6's real yaw/twist calibration - the AB6 base's own
+    # attempt at a "Z axis" (see ab6: stick-x/y-calibration-start above)
+    # logged "Stick_yaw calib invalid!" and never completed; the user
+    # confirms the AB6 has no such axis of its own.
+    # See captures/2026-08-19-mhg-hat-calibration/,
+    # .../2026-08-19-mhg-yaw-calibration/.
+    hat-x-calibration:
+      read: -1
+      write: 52
+      id: [4]
+      bytes: 1
+      type: int
+
+    hat-y-calibration:
+      read: -1
+      write: 52
+      id: [5]
+      bytes: 1
+      type: int
+
+    yaw-calibration:
+      read: -1
+      write: 52
+      id: [6]
       bytes: 1
       type: int

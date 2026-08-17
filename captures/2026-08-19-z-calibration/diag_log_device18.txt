@@ -1,0 +1,3 @@
+[INFO]stick_yaw.c:202 Stick_yaw calib start!
+[INFO]stick_yaw.c:238 Stick_yaw calib invalid!
+Stick_yaw calib_min_value: 12.07415, calib_mid_value: 12.34882, calib_max_value: 13.73861

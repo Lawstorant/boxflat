@@ -1,0 +1,24 @@
+=== Requests (host -> AB6), grouped ===
+
+  group=  6 (0x06)  device= 20  n=  88  ids=[]
+  group=  6 (0x06)  device= 21  n=  88  ids=[]
+  group=  6 (0x06)  device= 22  n=  88  ids=[]
+  group=  6 (0x06)  device= 23  n=  88  ids=[]
+  group=  6 (0x06)  device= 24  n=  88  ids=[]
+  group=  6 (0x06)  device= 25  n=  88  ids=[]
+  group=  6 (0x06)  device= 26  n=  88  ids=[]
+  group= 14 (0x0e)  device= 18  n=  36  ids=[0]
+  group= 30 (0x1e)  device= 18  n=3243  ids=[12, 133, 169, 184, 185, 194, 215, 216, 225]
+  group= 31 (0x1f)  device= 18  n=   1  ids=[194]
+  group= 32 (0x20)  device= 18  n= 400  ids=[19]
+  group= 50 (0x32)  device= 19  n= 436  ids=[85]
+  group= 67 (0x43)  device= 19  n=  88  ids=[6]
+
+=== Replies with the reply-marker bit set (device -> host) ===
+
+  group= 14 (0x0e)  device= 18  n=  34  ids=[0]
+  group= 30 (0x1e)  device= 18  n=2617  ids=[12, 133, 169, 184, 185, 194, 215, 216, 225]
+  group= 31 (0x1f)  device= 18  n=   1  ids=[]
+  group= 32 (0x20)  device= 18  n= 273  ids=[]
+  group= 50 (0x32)  device= 19  n= 216  ids=[85]
+  group= 67 (0x43)  device= 19  n=  63  ids=[]
