@@ -45,14 +45,30 @@ class AB6Settings(SettingsPanel):
         self._current_row.set_label("Unknown")
         self._cm.subscribe("ab6-protocol-version", self._set_version, self._current_row)
 
-        self.add_preferences_group("Stick", alt_level_bar=True)
-        self._current_group.set_bar_max(65535)
-        self._hid_handler.subscribe(MozaAxis.STEERING.name, self._current_group.set_alt_bar_level)
+        # Axis assignments confirmed with tools/ab6_axes.py. The names come
+        # from boxflat's shared racing map, so they are relabelled here for
+        # what the control actually is on a flight stick.
+        self.add_preferences_group("Stick axes")
 
+        self._add_row(BoxflatLevelRow("Roll", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.STEERING.name, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Pitch", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
+
+        # The manual puts the two analog sliders on the base itself.
+        self.add_preferences_group("Sliders")
+
+        self._add_row(BoxflatLevelRow("Slider 1", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Slider 2", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
+
+        self.add_preferences_group("Settings")
         self._add_row(BoxflatLabelRow(
-            "Settings",
-            "Not available yet — the AB6 uses its own command set, which is "
-            "still being mapped"))
+            "Not available yet",
+            "The AB6 uses its own command set, which is still being mapped"))
 
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:

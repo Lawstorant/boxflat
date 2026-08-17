@@ -61,6 +61,12 @@ class HomeSettings(SettingsPanel):
         self._add_row(BoxflatLevelRow("Pitch", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
 
+        self._add_row(BoxflatLevelRow("Slider 1", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.CLUTCH.name, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Slider 2", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
+
         # The grip is its own device on the same port, so it is listed
         # separately and appears only when actually attached.
         self.add_preferences_group("MHG Flightstick")
@@ -69,6 +75,17 @@ class HomeSettings(SettingsPanel):
         self._add_row(BoxflatLabelRow("Firmware version"))
         self._current_row.set_label("Unknown")
         self._cm.subscribe("mhg-version", self._set_ab6_version, self._current_row)
+
+        # ABS_RZ / ABS_RX / ABS_RY, confirmed with tools/ab6_axes.py. The
+        # firmware's diagnostics attribute these to the stick, not the base.
+        self._add_row(BoxflatLevelRow("Yaw (twist)", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.BRAKE.name, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Mini-stick X", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.RIGHT_PADDLE.name, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Mini-stick Y", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
 
         self.add_preferences_group("Pedals")
         self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_present, 1)
