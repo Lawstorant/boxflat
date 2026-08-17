@@ -3,25 +3,26 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-18 — tested on real hardware, plus five Windows captures.**
+**Status as of 2026-08-18 — tested on real hardware, plus seven Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ✅ **18 confirmed and wired up** — FFB Mode, Torque, FFB Intensity, Spring, Damper, Inertia, Friction, Game FFB Gain, Temp Control Mode, Backlit Brightness, Light Color, Centering Effect Strength, Centering Compensation Range, Follow Ratio X/Y, Roll/Pitch Breakout Force Strength, Roll/Pitch Breakout Force Range |
+| Editable settings | ✅ **28 confirmed and wired up** — 22 on the AB6 base, 6 on the MHG grip (Status/Button Light Brightness and Color) |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
-| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6's settings table — spans Tables 2, 7 and 8, with a multi-byte-id addressing style for some (see "Advanced Settings" below) |
+| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6 base's settings table — spans Tables 2, 7 and 8, with a multi-byte-id addressing style for some |
+| **MHG's own groups** | ✅ **Group 50 (read) / 51 (write) — a different pair from the base**, same multi-byte-id shape, on Table 13 |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| AB6 settings tables | 🔍 4 diagnostic-log tables, 129+ params — 20 attributed so far |
+| Settings tables | 🔍 4+ diagnostic-log tables (2, 7, 8, 13), 129+ params — 30 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 18 settings live |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 28 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
 same wire framing as racing gear but its own command set, so the racing
-commands stay dead. Five user-provided Windows captures moved this
+commands stay dead. Seven user-provided Windows captures moved this
 forward a lot:
 
 1. A passive capture of Cockpit's startup handshake found that the firmware
@@ -44,13 +45,24 @@ forward a lot:
    confirmed two more Centering settings and, for the first time, found a
    *multiplexed* addressing style where one id carries a category+side byte
    pair ahead of the value — used to confirm four Trim/Autopilot Following
-   settings at once. See "Advanced Settings" below.
+   settings at once. See "Advanced Settings" below. (The user later reported
+   that Autopilot Following is documented as **AB9-only** — the wire
+   commands are still correct, they may just not do anything physical on
+   an AB6.)
+6. A capture of the **Axis Travel** page confirmed four Travel Limit
+   settings the same multiplexed way, though which physical axis is which
+   isn't independently confirmed this time — see "Axis Travel" below.
+7. A capture of **MHG Basic Settings** — the grip's own, separate settings
+   page — found that the grip uses an entirely different group pair (50/51
+   read/write, not the base's 30/31), and confirmed both of its lighting
+   zones' Brightness and Color. See "The grip has its own command set"
+   below.
 
-Eighteen settings are now working controls in the AB6 panel. Every one of
-them — across three different diagnostic-log tables (2, 7 and 8) — lands on
-the same group 30 (read) / 31 (write) command pair, confirming this is the
-AB6's one general-purpose settings table, previously seen only as an
-unattributed binary burst.
+28 settings are now working controls across the AB6 and MHG panels — 22 on
+the base, spanning three diagnostic-log tables (2, 7, 8) on group 30/31,
+and 6 on the grip's own Table 13 on its own group 50/51. Two independent
+general-purpose settings tables, same underlying framing and addressing
+conventions, each previously seen only as an unattributed binary burst.
 
 Boxflat now models it correctly as **two devices on one port**: the AB6 base
 (ID 18, firmware 1.1.4.6) and the MHG grip (ID 19, firmware 1.1.1.11). Both
@@ -58,13 +70,14 @@ have panels, both are gated on real hardware reads, and the Home page lists
 only hardware that actually answers.
 
 What remains is **meaning** for everything else. Dozens of parameter
-addresses and their current values are known, but only 20 are attributed
+addresses and their current values are known, but only 30 are attributed
 to a specific Cockpit UI control (a few more have a confirmed wire format
-but unconfirmed option meaning — see "Panel lighting" and "Advanced
-Settings" below). See "Windows capture analysis" for the correlation
-method, now demonstrated four times at increasing scale — repeating it
-against Expert Settings, Axis Travel, and the MHG grip's own settings page
-is the direct path to covering the
+but unconfirmed option meaning, or a confirmed value but unconfirmed axis
+identity — see "Panel lighting", "Advanced Settings", "Axis Travel" and
+"The grip has its own command set" below). See "Windows capture analysis"
+for the correlation method, now demonstrated six times at increasing
+scale — repeating it against Telemetry FFB, the Output Mapping Curve, and
+the rest of the MHG's own Grip Settings is the direct path to covering the
 rest, and one more targeted capture (logging the specific value set at
 each step) would resolve the three still-ambiguous Panel Settings ids.
 
@@ -872,6 +885,144 @@ group in `panels/ab6.py`.
   Lock, Roll/Pitch Follow Scale, Roll/Pitch Follow Rate. These simply never
   produced a write in this capture (left at their defaults), not something
   that was tried and failed to attribute.
+
+> **Correction — Autopilot Following is reportedly AB9-only.** The user
+> reports that Moza documents this feature (`follow-ratio-x`/`-y`,
+> `breakout-force-strength`/`-range-roll`/`-pitch`) as only having a
+> physical effect on the AB9, not the AB6. The wire commands above are
+> still confirmed correct — the AB6 accepts and echoes them back over the
+> same protocol — they may just be inert on this hardware, since the AB6
+> has no motorized trim to physically follow an autopilot signal with.
+> Left in `data/serial.yml` and the panel (now with a note in the UI
+> itself), since the confirmed protocol work has value regardless of
+> whether the AB6 acts on it, and Cockpit clearly still shows and accepts
+> these settings for an AB6 user.
+
+## Axis Travel: travel limits confirmed, curve and offset still open (2026-08-18)
+
+A sixth capture, provided by the user: Cockpit's **Axis Travel** page
+(Output Mapping Curve, Invert Axis, Axis Positive/Negative Travel Limit,
+Axis Offset — per stick axis, X/Y/Z). Decoded into
+[`captures/2026-08-18-axis-travel/`](./captures/2026-08-18-axis-travel/).
+
+### Confirmed: Axis Travel Limit, both directions, two axes
+
+Same method, same group 30/31, clean `[axis_id, direction, value]`
+structure — direction byte 1 = positive, 2 = negative, matching the
+already-established multi-byte-id convention:
+
+| Setting | id | Values seen | Confidence |
+| :-- | --: | :-- | :-- |
+| Axis 1 Positive Travel Limit | `[171, 1]` | `1, 10, 90, 100` | High — matches screenshot's 100% |
+| Axis 1 Negative Travel Limit | `[171, 2]` | `10, 90, 100` | High — matches screenshot's 100% |
+| Axis 2 Positive Travel Limit | `[172, 1]` | `10, 90, 100` | High — matches screenshot's 100% |
+| Axis 2 Negative Travel Limit | `[172, 2]` | `10, 90, 100` | High — matches screenshot's 100% |
+
+**But which physical axis is "1" and which is "2" isn't independently
+confirmed** — both pairs end at the identical value (100%), so there's no
+unique number to disambiguate them the way Spring/Inertia/Friction's
+distinct final percentages did back in the first settings capture. The
+attribution rests on two *consistent but not proof-level* signals: id 171
+was touched before id 172 in this capture, and 171 also precedes 172 in
+the connect-time settings-read burst from the very first capture — both
+agree with the page's left-to-right X/Y/Z layout, neither is a value
+match. Labeled "Axis 1"/"Axis 2" in the panel rather than asserting X/Y,
+with a subtitle noting the ambiguity, rather than risk a user constraining
+the wrong physical axis while believing a UI label that isn't actually
+confirmed.
+
+### Found, not attributed: curve, offset, invert, and a reset button
+
+- **Output Mapping Curve** (id 15/`0x0f` on **Table 2**, a new table for
+  this session). Each drag of one of the curve's control points writes
+  *four* Table 2 params at once, with a payload shaped
+  `[point_selector_byte, 16-bit value]`. Multiple point selectors were seen
+  (`0x80`, `0x81`, `0x84`) but the exact point-index/axis encoding wasn't
+  pinned down — this needs a capture with one point moved to one specific,
+  logged value, the same discipline that resolved everything else in this
+  document.
+- **Axis Offset** (id 173) — only one sample per axis: wire value `175`.
+  The screenshot's range is `-75..75`; `175 - 100 = 75` fits one extreme of
+  that range under a `value + 100` bias hypothesis, but with a single data
+  point this isn't confirmed, and a wrong bias on a real axis-offset
+  setting is a worse failure mode than a cosmetic mislabel. Not added.
+- **Invert Axis** — two boolean candidates (Table 7 params 19 and 46,
+  final value 0, matching the screenshot's "off" for every axis shown).
+  Unlike every other id pair found this session, **their touch order
+  contradicts their id order** (46 touched before 19, despite 19 < 46 and
+  19 preceding 46 in the connect-time read burst) — the one internal
+  consistency check that supported the Axis Travel Limit attribution above
+  fails here. Not added, even generically.
+- **A "Reset" button click** (Table 2, param 9, id 90) — single boolean,
+  `1` then `0` in quick succession, shaped like a momentary button press
+  (matching the page's per-axis "Reset" button) rather than a persisted
+  setting. Not added — a button needs its own confirmed one-shot write
+  semantics, not the read/write pair this file's commands assume.
+
+## The grip has its own command set: two lighting zones confirmed (2026-08-18)
+
+A seventh capture, provided by the user: Cockpit's **MHG** page — the
+grip's only settings tab. Covers Grip Settings (Cogging Torque
+Calibration, Yaw Axis, Mode 1/Mode 2 mapping, Axis Calibration, Mapping
+Range) and two lighting zones, Status Light and Button Light. Decoded into
+[`captures/2026-08-18-mhg-basic-settings/`](./captures/2026-08-18-mhg-basic-settings/).
+
+### A different write group than the base
+
+Every AB6 base setting confirmed so far — 22 of them, across three
+diagnostic-log tables — landed on group 30 (read) / 31 (write). Applying
+that same pair to the grip's writes found **nothing**: every correlation
+attempt came back "no match". The actual traffic in this capture told a
+different story: the grip's Table 13 settings go out on **group 50
+(read) / 51 (write)** instead, on device id 19 as always. Once corrected,
+every write matched the diagnostic log exactly, the same as every other
+finding in this document.
+
+### Two lighting zones, six settings, same multi-byte-id shape as the base
+
+The grip has independently colored/lit **Status Light** and **Button
+Light** zones. Each of three "categories" (brightness, color, effect) uses
+one shared id with a side byte selecting which zone — structurally
+identical to `slider-mode-left`/`-right` and the Axis Travel Limit
+findings, just on the grip's own group 50/51:
+
+| Setting | id | Values seen | Confidence |
+| :-- | --: | :-- | :-- |
+| Status Light Brightness | `[98, 0]` | `12` (one sample) | High — matches screenshot exactly |
+| Button Light Brightness | `[98, 1]` | `7, 2, 15` | High — matches screenshot's 15 exactly |
+| Status Light Color | `[99, 0]` | ends `RGB(76,0,0)` | High — matches screenshot exactly |
+| Button Light Color | `[99, 1]` | ends `RGB(49,0,0)` | High — matches screenshot exactly |
+| Status Light Effect | `[100, 0]` | `2, 3, 1` (ends 1) | Medium — see below |
+| Button Light Effect | `[100, 1]` | `0, 3, 5, 2` → wire `1` (ends 1) | Medium — see below |
+
+The color payload is `[side, R, G, B]` — 4 bytes, notably **without** the
+AB6 base's leading `[0, 0]` padding (`light-color` there is 5 bytes for
+the same 3-byte color). Don't assume the two devices' commands share a
+byte layout just because they share a category-id/side-byte shape.
+
+Light Effect's confidence is lower for a specific reason: both zones ended
+at the *same* wire value (1), which matches both showing "Always On" in
+the screenshot — a real confirmation, but only one data point out of an
+observed 0–3 range, not a swept range like brightness's 0–15 or color's
+full RGB. Added to `data/serial.yml` for the confirmed structure, but — matching how the AB6 base's own unconfirmed Light Effect finding (id 105)
+was handled — **not** wired into the panel.
+
+### What's still open
+
+- **Four more Table 13 params** (18, 22, 25, 27) — booleans or small
+  ints, plausible candidates include Enable Yaw Axis Output, Press Stick
+  to Switch Mode, and the Mode 1/Mode 2 dropdowns, but none confidently
+  attributed.
+- **An inconsistency around params 23/24**: two different ids (101, 102)
+  both appeared to target these params, with wire values that didn't match
+  what the diagnostic log recorded as stored — unlike every other finding
+  in this document, where wire value and stored value agreed (give or take
+  a known firmware-internal transform). Not decoded; flagged rather than
+  guessed past.
+- **Cogging Torque Calibration, Yaw Axis Calibration, Axis Calibration**
+  are all momentary actions (buttons), not persisted settings — need their
+  own one-shot semantics, not this file's read/write pair, the same
+  reasoning that excluded the AB6 base's "Reset" button above.
 
 ## Home panel now lists only detected hardware
 

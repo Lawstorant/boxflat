@@ -127,7 +127,10 @@ Cockpit's page structure, per the AB6 manual — visit these in order:
   (distinct from "Simplified", which is just the already-confirmed Basic
   Settings sliders again) not captured yet.
 - [ ] **Telemetry FFB** — telemetry-driven effects config
-- [ ] **Axis Travel** — axis output curves
+- [~] **Axis Travel** — axis output curves. **Partially done, 2026-08-18**
+  — the 4 Travel Limit sliders (2 directions × 2 axes) confirmed; see
+  `AB6_STATUS.md` → "Axis Travel...". The Output Mapping Curve itself,
+  Axis Offset, Invert Axis, and the third axis remain open.
 - [x] **Panel Settings** — the 2 sliders and 8 RGB buttons. **Partially
   done** — see `AB6_STATUS.md` → "Panel lighting...".
 - [ ] **MHG grip page** — click the grip icon on the main page
@@ -242,7 +245,21 @@ for a flight device:
   control **individually, logging the exact label selected each time**
   (not just "changed it") so the three ids can be told apart by their
   final values, not just plausibility.
-- [ ] **Axis Travel curve** — move one curve point, then reset
+- [~] **Axis Travel curve** — **Found but not decoded, 2026-08-18.** id 15
+  (`0x0f`) on **Table 2** writes 4 params per point drag, payload shaped
+  `[point_selector_byte, 16-bit value]` - see `AB6_STATUS.md` → "Axis
+  Travel...". Needs exactly this recipe: **move one curve point, to one
+  specific logged value, then reset** - the previous capture moved several
+  points without logging which one or to what value, which is why the
+  point-selector encoding couldn't be pinned down from it alone.
+- [ ] **Axis Offset** — one sample per axis was seen (id 173, wire value
+  175, fitting a `value + 100` bias around the -75..75 UI range) but
+  that's one data point, not a confirmed formula. Set to a few distinct,
+  logged values (e.g. -50, 0, +50) to nail the exact bias/scale.
+- [ ] **Invert Axis** — two boolean candidates exist (Table 7 params 19,
+  46) but their touch order contradicts their id order, unlike every other
+  finding in this file - toggle each **individually, logging which axis
+  and which state**, to resolve the contradiction.
 
 > `boxflat/panels/base.py` already has curve infrastructure (`_curve_x`,
 > `_curve_presets`) for racing bases. If the AB6's Axis Travel curves use the
