@@ -13,6 +13,7 @@ Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/i
 | Protocol framing | ✅ Shared with racing gear, decoder reusable |
 | Command set | ❌ Different — firmware identifies as `Stick` |
 | AB6's own groups | 🔍 Found — 8 groups return stable data |
+| AB6 settings table | 🔍 Found — group 14, 9 command ids |
 | Diagnostic log | 🔍 Found — firmware streams ASCII internals |
 
 Short version: the branch successfully makes the AB6 **detected**, and that
@@ -257,6 +258,49 @@ noise. The payload echoes the requested command id (`01`) and then the value:
 Groups 4, 5 and 6 are the most promising leads: two version-shaped replies
 and one UID-shaped reply are exactly the kind of identity command needed to
 gate a panel, the AB6's equivalent of `base-limit`.
+
+### Command ids within those groups
+
+Mapped with `tools/ab6_sweep.py --ids <group>`. The groups fall into three
+kinds, and telling them apart matters — two of them look like results but
+are not.
+
+**1. Fixed queries — ignore the command id entirely.** Every id returns the
+same reply, so these are single commands, not addressable tables:
+
+| Group | Fixed payload | Reading |
+| :-- | :-- | :-- |
+| 2 | `02` | constant |
+| 4 | `01:01:0b:01` | version-shaped — `1.11.1`? |
+| 5 | `01:02:03:03` | version-shaped — `2.3.3`? |
+| 6 | `2d:57:3b:c4:80:73:30:0c:34:38:34:31` | UID/serial-shaped |
+
+Two version-shaped replies is suggestive given the two-device topology —
+plausibly base firmware and grip firmware, though unconfirmed.
+
+**2. Status/ack — echo the id but return a constant.** Groups 10, 12 and 19
+echo every id back and answer with the same value each time (`1`, `0`, `1`
+respectively, across all 48 ids tested). They parse the request but carry no
+per-id information. **Do not map these as separate commands.**
+
+**3. A real settings table — group 14.** Nine ids, seven distinct values:
+
+| Id | Value | Note |
+| :-- | :-- | :-- |
+| 0 | `00:01:00:00:80:00` | contains `0x8000` = 32768, centre-shaped |
+| 1 | `00:01:ff:ff:ff:ff` | |
+| 2 | `00:01:ff:ff:ff:ff` | |
+| 4 | `00:01:00:00` | |
+| 9 | `00:01` | |
+| 10 | `00:01:01:00` | |
+| 11 | `00:01` | |
+| 12 | `7f:ff:7f:ff:7f:ff:00:00` | three × `0x7fff` — axis maxima for 3 axes? |
+| 32 | `00:00` | |
+
+Note that **id 5 is absent** from that list — because group 14 / id 5 is the
+diagnostic log channel below, which replies with ASCII rather than an echoed
+id. The two coexist on the same group, which is a good consistency check on
+the mapping.
 
 ### The device has an ASCII diagnostic log
 

@@ -21,8 +21,13 @@ Usage (from the repository root):
 
     python3 tools/ab6_sweep.py                  # sweep groups 0-255
     python3 tools/ab6_sweep.py --groups 32-96   # sweep a narrower range
+    python3 tools/ab6_sweep.py --ids 4          # map command ids inside group 4
     python3 tools/ab6_sweep.py --devices        # sweep device ids instead
     python3 tools/ab6_sweep.py --known 40       # try racing command ids in a group
+
+Known-good starting points on the AB6 (see AB6_STATUS.md): groups 2, 4, 5,
+6, 10, 12, 14 and 19 return stable data. Group 14 / command id 5 is the
+device's asynchronous ASCII diagnostic log.
 """
 
 import argparse
@@ -140,6 +145,23 @@ class Probe:
         return b"".join(self._rx)
 
 
+def parse_frame(reply: bytes):
+    """Split a reply frame, or return None if it isn't one.
+
+    Reply frame: 0x7e | length | group | device-id | payload | checksum,
+    with bit 7 set on the group to mark it a response.
+    """
+    if len(reply) < 4 or reply[0] != MESSAGE_START:
+        return None
+    length = reply[1]
+    return {
+        "length": length,
+        "group": reply[2] & 0x7F,
+        "device_id": reply[3],
+        "payload": reply[4:4 + length],
+    }
+
+
 def classify(reply: bytes) -> tuple:
     """Return (kind, detail) for a reply blob.
 
@@ -157,14 +179,12 @@ def classify(reply: bytes) -> tuple:
         start = text.find("Stick")
         return REJECTED, text[start:].strip(".") if start != -1 else text.strip(".")
 
-    if len(reply) >= 4 and reply[0] == MESSAGE_START:
-        length = reply[1]
-        group = reply[2] & 0x7F
-        device_id = reply[3]
-        if length == 0:
-            return EMPTY, f"group {group}, device {device_id}"
-        payload = reply[4:4 + length]
-        return DATA, f"group {group}, device {device_id}, payload {payload.hex(':')}"
+    frame = parse_frame(reply)
+    if frame:
+        if frame["length"] == 0:
+            return EMPTY, f"group {frame['group']}, device {frame['device_id']}"
+        return DATA, (f"group {frame['group']}, device {frame['device_id']}, "
+                      f"payload {frame['payload'].hex(':')}")
 
     return DATA, reply.hex(":")
 
@@ -182,6 +202,81 @@ def sweep_groups(probe: Probe, groups: range, device_id: int) -> dict:
             print(f"  group {group:3d} (0x{group:02x})  {kind:8s}  {detail}")
 
     return results
+
+
+def sweep_ids(probe: Probe, group: int, device_id: int, ids: range) -> None:
+    """Map the command ids inside one group.
+
+    A genuine answer echoes the command id back as the first payload byte.
+    Anything else arriving in the window is almost certainly a line from the
+    device's asynchronous diagnostic log, so it is reported separately rather
+    than being mistaken for a result.
+    """
+    print(f"Mapping command ids {ids.start}-{ids.stop - 1} in group {group} "
+          f"at device id {device_id}\n")
+
+    # Some groups are a single fixed query and ignore the command id entirely.
+    # Detect that first: otherwise every id looks like a hit, and a constant
+    # leading payload byte is easily mistaken for an echo of the id.
+    probes = []
+    for cmd_id in list(ids)[:2] or [0]:
+        frame = parse_frame(probe.exchange(probe.build(group, device_id, cmd_id)))
+        probes.append(frame["payload"] if frame and frame["group"] == group else None)
+
+    if len(probes) == 2 and probes[0] is not None and probes[0] == probes[1]:
+        print(f"  Group {group} ignores the command id — every id returns the "
+              f"same reply.")
+        print(f"  Fixed payload: {probes[0].hex(':')}")
+        print("\n  This is a single fixed query, not an addressable group. "
+              "Treat it as one command.")
+        return
+
+    confirmed, unverified = [], []
+
+    for cmd_id in ids:
+        message = probe.build(group, device_id, cmd_id)
+        reply = probe.exchange(message)
+        kind, detail = classify(reply)
+
+        if kind != DATA:
+            continue
+
+        frame = parse_frame(reply)
+        if frame and frame["group"] == group and frame["payload"][:1] == bytes([cmd_id]):
+            value = frame["payload"][1:]
+            confirmed.append((cmd_id, value))
+            print(f"  id {cmd_id:3d} (0x{cmd_id:02x})  CONFIRMED  "
+                  f"value {value.hex(':') or '(none)'}"
+                  + (f"  = {int.from_bytes(value, 'big')}" if 0 < len(value) <= 4 else ""))
+        else:
+            unverified.append((cmd_id, detail))
+
+    print("\n--- summary ---")
+    print(f"  echoed the id : {len(confirmed)}")
+    print(f"  unverified    : {len(unverified)} (likely diagnostic-log lines)")
+
+    if not confirmed:
+        print(f"\nNo id in this range echoed back. Group {group} may take a "
+              "different payload size, or its ids lie outside the range.")
+        return
+
+    distinct = {value for _, value in confirmed}
+
+    if len(distinct) == 1:
+        # Echoing the id proves the group parses the request, but a value that
+        # never changes is a status/ack rather than a table of settings.
+        only = next(iter(distinct))
+        print(f"\nGroup {group} echoes the id but returns a constant "
+              f"{only.hex(':') or '(none)'} for every id.")
+        print("That is a status/ack, not a settings table — don't map these "
+              "as separate commands.")
+        return
+
+    print(f"\nGroup {group} has {len(distinct)} distinct values across "
+          f"{len(confirmed)} ids — a real settings table.")
+    print("Ids worth mapping: "
+          + ", ".join(str(i) for i, _ in confirmed))
+    print("Add these to a new 'ab6' section in data/serial.yml.")
 
 
 def sweep_devices(probe: Probe, group: int) -> None:
@@ -232,6 +327,10 @@ def main() -> None:
                         help=f"device id to address (default: {DEFAULT_DEVICE_ID})")
     parser.add_argument("--devices", action="store_true",
                         help="sweep device ids instead of groups")
+    parser.add_argument("--ids", type=int, metavar="GROUP",
+                        help="map the command ids inside GROUP")
+    parser.add_argument("--id-range", default="0-255",
+                        help="id range for --ids (default: 0-255)")
     parser.add_argument("--known", type=int, metavar="GROUP",
                         help="try the racing 'base' command ids inside GROUP")
     parser.add_argument("--timeout", type=float, default=0.5,
@@ -248,6 +347,8 @@ def main() -> None:
     try:
         if args.devices:
             sweep_devices(probe, parse_range(args.groups).start)
+        elif args.ids is not None:
+            sweep_ids(probe, args.ids, args.device_id, parse_range(args.id_range))
         elif args.known is not None:
             try_known_ids(probe, args.known, args.device_id,
                           os.path.join(args.data_path, "serial.yml"))
