@@ -184,7 +184,7 @@ class AB6Settings(SettingsPanel):
         # same protocol, so the controls below work in the sense that the
         # device acknowledges them - they may just have no physical effect
         # on AB6 hardware, which has no motorized trim to drive.
-        self.add_preferences_group("Trim & Autopilot Following")
+        self.add_preferences_group("Autopilot Following")
 
         self._add_row(BoxflatLabelRow(
             "AB9 feature",
