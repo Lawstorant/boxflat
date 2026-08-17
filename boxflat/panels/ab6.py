@@ -10,13 +10,16 @@ def format_version(value: int) -> str:
     """Render a packed version int as a four-part version.
 
     Group 4 ignores the command id, so the whole payload is version data:
-    the base answers 0x01010604 and the grip 0x01010b01, which read as
-    1.1.6.4 and 1.1.11.1.
+    the base answers 0x01010604 and the grip 0x01010b01. Cockpit itself
+    displays those as "1.1.4.6" and "1.1.1.11" (confirmed against real
+    hardware) - the wire order is major.minor.BUILD.patch, so the last two
+    bytes need swapping to match what Cockpit shows. See AB6_STATUS.md.
     """
     if value is None or value < 0:
         return "Unknown"
 
-    return ".".join(str(byte) for byte in value.to_bytes(4, "big"))
+    major, minor, build, patch = value.to_bytes(4, "big")
+    return f"{major}.{minor}.{patch}.{build}"
 
 
 class AB6Settings(SettingsPanel):
