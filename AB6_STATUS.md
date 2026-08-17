@@ -1124,3 +1124,20 @@ see [universal-pidff](https://github.com/JacKeTUs/universal-pidff) /
 `hid-universal-pidff`. Boxflat only manages device settings; once the kernel
 driver handles the AB6's PID descriptors, games get FFB regardless of
 boxflat.
+
+**Confirmed by a capture of an actual DCS session (2026-08-18, Integrated
+FFB mode).** The user shared a USBPcap capture of live gameplay. Two
+things worth recording:
+
+- **Live force feedback goes over standard USB HID interrupt transfers**
+  (report sizes 7–88 bytes, shaped like textbook HID PID — Set Effect, Set
+  Envelope, Set Condition, Set Periodic, Effect Operation, etc.), not the
+  CDC serial channel this document reverse-engineers. That's exactly
+  `universal-pidff`'s territory, not boxflat's or `data/serial.yml`'s —
+  independent confirmation that the "out of scope" line above is drawing
+  the boundary in the right place.
+- **The serial (CDC) traffic during the session was just the same
+  connect-time settings load already documented** in "Windows capture
+  analysis" above (Tables 2, 7, 8, same param numbers, same values) — a
+  third independent capture landing on the identical boot sequence is good
+  confirmation that model is right, but nothing new to attribute from it.
