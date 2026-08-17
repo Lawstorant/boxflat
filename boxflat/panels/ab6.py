@@ -117,6 +117,30 @@ class AB6Settings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "ab6-game-ffb-gain")
         self._cm.subscribe("ab6-game-ffb-gain", self._current_row.set_value)
 
+        # Confirmed against real hardware from the Panel Settings page
+        # capture - see data/serial.yml: ab6-light-color, ab6-backlit-brightness.
+        self.add_preferences_group("Panel Lighting")
+
+        self._add_row(BoxflatSliderRow("Backlit Brightness", range_end=15))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-backlit-brightness")
+        self._cm.subscribe("ab6-backlit-brightness", self._current_row.set_value)
+
+        self._light_color_row = BoxflatNewColorPickerRow("Light Color", pickers=1)
+        self._add_row(self._light_color_row)
+        self._current_row.subscribe("color0", self._set_light_color)
+        self._cm.subscribe("ab6-light-color", self._set_light_color_row)
+
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:
         row.set_label(format_version(value))
+
+
+    def _set_light_color(self, value: list) -> None:
+        # Wire format is [0, 0, R, G, B] - see data/serial.yml.
+        self._cm.set_setting([0, 0] + value, "ab6-light-color")
+
+
+    def _set_light_color_row(self, value: list) -> None:
+        if not isinstance(value, list) or len(value) != 5:
+            return
+        self._light_color_row.set_led_value(value[2:], 0)

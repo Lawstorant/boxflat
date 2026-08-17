@@ -1,0 +1,43 @@
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 124s
+device connected: stick_reg
+[INFO]param_manage.c:340 Table 2, Param 45 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 45 Written: 2 0.00000
+[INFO]param_manage.c:340 Table 2, Param 45 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 46 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 46 Written: 2 0.00000
+[INFO]param_manage.c:340 Table 2, Param 46 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 2 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 2 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 2 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 2 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 54 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 59 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 53 Written: 4 0.00000
+[INFO]param_manage.c:340 Table 2, Param 58 Written: 4 0.00000
+[INFO]param_manage.c:340 Table 2, Param 52 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 57 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 52 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 57 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 51 Written: 255 0.00000
+[INFO]param_manage.c:340 Table 2, Param 56 Written: 255 0.00000
+[INFO]param_manage.c:340 Table 2, Param 51 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 56 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 51 Written: 187 0.00000
+[INFO]param_manage.c:340 Table 2, Param 56 Written: 187 0.00000
+[INFO]param_manage.c:340 Table 2, Param 51 Written: 255 0.00000
+[INFO]param_manage.c:340 Table 2, Param 56 Written: 255 0.00000
+[INFO]param_manage.c:340 Table 2, Param 55 Written: 16711935 0.00000
+[INFO]param_manage.c:340 Table 2, Param 60 Written: 16711935 0.00000
+[INFO]param_manage.c:340 Table 2, Param 55 Written: 16711680 0.00000
+[INFO]param_manage.c:340 Table 2, Param 60 Written: 16711680 0.00000
+[INFO]param_manage.c:340 Table 2, Param 55 Written: 5963776 0.00000
+[INFO]param_manage.c:340 Table 2, Param 60 Written: 5963776 0.00000

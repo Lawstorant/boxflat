@@ -2242,6 +2242,50 @@ commands:
       bytes: 2
       type: int
 
+    # Confirmed on real hardware from a fourth Windows capture (2026-08-17,
+    # Panel Settings page). Wire payload is [0x00, 0x00, R, G, B] - 5 bytes,
+    # last 3 forming a plain RGB triplet. The final value observed
+    # (0x5b0000 = RGB(91,0,0)) matched the accompanying screenshot exactly.
+    # See captures/2026-08-17-panel-settings/.
+    light-color:
+      read: 30
+      write: 31
+      id: [102]
+      bytes: 5
+      type: array
+
+    # Wire value is the direct 0-15 UI value (matches the screenshot's
+    # slider range exactly - no scaling needed). The device's own internal
+    # storage multiplies this by ~17 to a 0-255 byte, but that's
+    # firmware-internal and irrelevant to the command boxflat sends.
+    backlit-brightness:
+      read: 30
+      write: 31
+      id: [103]
+      bytes: 2
+      type: int
+
+    # Confirmed wire format (id 113, second id byte selects side: 0 =
+    # Left, 1 = Right, matching the existing multi-byte id convention used
+    # elsewhere in this file e.g. base-ffb-curve-x1). Values 0/1/2 were
+    # exercised together on both sides, ending at 0, but which UI option
+    # each value names is NOT confirmed - the manual's "Slider mapping
+    # mode - Button/Axis/Mixed" family is the leading guess. Not yet wired
+    # into a panel control for that reason.
+    slider-mode-left:
+      read: 30
+      write: 31
+      id: [113, 0]
+      bytes: 1
+      type: int
+
+    slider-mode-right:
+      read: 30
+      write: 31
+      id: [113, 1]
+      bytes: 1
+      type: int
+
   mhg:
     version:
       read: 4
