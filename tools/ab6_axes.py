@@ -34,19 +34,23 @@ try:
 except ImportError:
     sys.exit("python-evdev is required: pip install evdev")
 
-# What each evdev axis is on the AB6, as far as the hardware inventory in
-# AB6_STATUS.md allows. Confirm with this tool rather than trusting it.
+# What each evdev axis is on an AB6 with an MHG grip, confirmed by moving
+# every control and checking against this tool. Re-confirm for other grips
+# (the base also takes MH16 and MA3X) rather than trusting these.
+#
+# Note the mini-stick IS the hat - ABS_HAT0X/Y are not a second hat, they are
+# simply never driven.
 LIKELY = {
     "ABS_X": "stick roll (left/right)",
     "ABS_Y": "stick pitch (fore/aft)",
-    "ABS_Z": "?",
-    "ABS_RX": "mini-stick X",
-    "ABS_RY": "mini-stick Y",
+    "ABS_Z": "unused — reported but never moves",
+    "ABS_RX": "mini-stick / hat X",
+    "ABS_RY": "mini-stick / hat Y",
     "ABS_RZ": "stick twist / yaw",
     "ABS_THROTTLE": "slider 1",
     "ABS_RUDDER": "slider 2",
-    "ABS_HAT0X": "hat left/right",
-    "ABS_HAT0Y": "hat up/down",
+    "ABS_HAT0X": "unused — reported but never moves",
+    "ABS_HAT0Y": "unused — reported but never moves",
 }
 
 # The racing names boxflat currently maps these to, for cross-reference.

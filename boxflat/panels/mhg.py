@@ -38,10 +38,10 @@ class MHGSettings(SettingsPanel):
         self._add_row(BoxflatLevelRow("Yaw (twist)", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.BRAKE.name, self._current_row.set_value)
 
-        self._add_row(BoxflatLevelRow("Mini-stick X", max_value=65535))
+        self._add_row(BoxflatLevelRow("Mini-stick / hat X", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.RIGHT_PADDLE.name, self._current_row.set_value)
 
-        self._add_row(BoxflatLevelRow("Mini-stick Y", max_value=65535))
+        self._add_row(BoxflatLevelRow("Mini-stick / hat Y", max_value=65535))
         self._hid_handler.subscribe(MozaAxis.LEFT_PADDLE.name, self._current_row.set_value)
 
         self.add_preferences_group("Settings")
