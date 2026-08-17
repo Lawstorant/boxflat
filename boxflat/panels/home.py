@@ -1,6 +1,7 @@
 # Copyright (c) 2025, Tomasz Pakuła Using Arch BTW
 
 from boxflat.panels.settings_panel import SettingsPanel
+from boxflat.panels.ab6 import format_version
 from boxflat.widgets import *
 from boxflat.hid_handler import MozaAxis, HidHandler
 from math import ceil, floor
@@ -25,8 +26,10 @@ class HomeSettings(SettingsPanel):
 
 
     def prepare_ui(self):
+        # Groups are shown or hidden rather than greyed out, so the page only
+        # lists hardware that is actually connected.
         self.add_preferences_group("Wheelbase")
-        self._cm.subscribe_connected("base-limit", self._current_group.set_active)
+        self._cm.subscribe_connected("base-limit", self._current_group.set_present)
 
         self._steer_row = BoxflatLabelRow("Steering position")
         self._add_row(self._steer_row)
@@ -45,8 +48,30 @@ class HomeSettings(SettingsPanel):
         self._cm.subscribe_connected("estop-get-status", self._current_row.set_present, 1)
 
 
+        self.add_preferences_group("AB6 Flight Base")
+        self._cm.subscribe_connected("ab6-version", self._current_group.set_present)
+
+        self._add_row(BoxflatLabelRow("Firmware version"))
+        self._current_row.set_label("Unknown")
+        self._cm.subscribe("ab6-version", self._set_ab6_version, self._current_row)
+
+        self._add_row(BoxflatLevelRow("Roll", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.STEERING.name, self._current_row.set_value)
+
+        self._add_row(BoxflatLevelRow("Pitch", max_value=65535))
+        self._hid_handler.subscribe(MozaAxis.COMBINED_PADDLES.name, self._current_row.set_value)
+
+        # The grip is its own device on the same port, so it is listed
+        # separately and appears only when actually attached.
+        self.add_preferences_group("MHG Flightstick")
+        self._cm.subscribe_connected("mhg-version", self._current_group.set_present)
+
+        self._add_row(BoxflatLabelRow("Firmware version"))
+        self._current_row.set_label("Unknown")
+        self._cm.subscribe("mhg-version", self._set_ab6_version, self._current_row)
+
         self.add_preferences_group("Pedals")
-        self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_active, 1)
+        self._cm.subscribe_connected("pedals-throttle-dir", self._current_group.set_present, 1)
 
         self._add_row(BoxflatMinMaxLevelRow("Throttle input", self._set_limit, "pedals-throttle", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.THROTTLE.name, self._current_row.set_value)
@@ -65,7 +90,7 @@ class HomeSettings(SettingsPanel):
 
         self._add_row(BoxflatMinMaxLevelRow("Input", self._set_limit, "handbrake", max_value=65_534))
         self._hid_handler.subscribe(MozaAxis.HANDBRAKE.name, self._current_row.set_value)
-        self._cm.subscribe_connected("handbrake-direction", self._current_group.set_active, 1)
+        self._cm.subscribe_connected("handbrake-direction", self._current_group.set_present, 1)
 
         self.add_preferences_group()
 
@@ -75,6 +100,10 @@ class HomeSettings(SettingsPanel):
 
         self._current_group.set_margin_start(240)
         self._current_group.set_margin_end(240)
+
+
+    def _set_ab6_version(self, value: int, row: BoxflatLabelRow) -> None:
+        row.set_label(format_version(value))
 
 
     def _get_rotation_limit(self, value: int):

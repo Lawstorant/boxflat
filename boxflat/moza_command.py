@@ -55,7 +55,9 @@ class MozaCommand():
         if device_id not in device_ids:
             return ret
 
-        if device_name == "base" or device_name == "hub":
+        # The AB6 carries two devices on one port - the base and the grip -
+        # so its replies are routed by ID just like base/hub replies are.
+        if device_name in ("base", "hub", "ab6"):
             device_name = device_ids[device_id]
 
         # Some ES wheels report on main/base IDs for some reason.

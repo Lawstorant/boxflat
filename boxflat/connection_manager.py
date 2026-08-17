@@ -16,6 +16,7 @@ CM_RETRY_COUNT=1
 
 HidDeviceMapping = {
     "base"       : MozaHidDevice.BASE,
+    "ab6"        : MozaHidDevice.AB6,
     "handbrake"  : MozaHidDevice.HANDBRAKE,
     "hpattern"   : MozaHidDevice.HPATTERN,
     "sequential" : MozaHidDevice.SEQUENTIAL,
@@ -26,6 +27,7 @@ HidDeviceMapping = {
 
 SerialDeviceMapping = {
     MozaHidDevice.BASE       : "base",
+    MozaHidDevice.AB6        : "ab6",
     MozaHidDevice.HANDBRAKE  : "handbrake",
     MozaHidDevice.HPATTERN   : "hpattern",
     MozaHidDevice.SEQUENTIAL : "sequential",
@@ -243,7 +245,10 @@ class MozaConnectionManager(EventDispatcher):
 
     def get_device_id(self, device_type: str) -> int:
         id = int(self._serial_data["device-ids"][device_type])
-        if device_type != "base" and device_type in self._serial_devices:
+        # A device on its own serial port is normally addressed as "main".
+        # The AB6 is the exception: it has its own port but only answers on
+        # its own ID, so it is excluded alongside "base".
+        if device_type not in ("base", "ab6") and device_type in self._serial_devices:
             id = int(self._serial_data["device-ids"]["main"])
         return id
 
@@ -258,6 +263,10 @@ class MozaConnectionManager(EventDispatcher):
                 # print(f"Redirect {device_type} to base")
                 device_handler = self._serial_devices["base"].serial_handler
 
+            elif "ab6" in self._serial_devices:
+                # The grip has no port of its own; it answers through the base.
+                device_handler = self._serial_devices["ab6"].serial_handler
+
         return device_handler
 
 
@@ -269,10 +278,16 @@ class MozaConnectionManager(EventDispatcher):
 
 
     def _receive_data(self, data: bytes, device_name: str):
+        # The AB6's two devices share one port, so its replies resolve against
+        # their own ID map rather than the racing one.
+        ids_to_names = self._serial_data["ids-to-names"]
+        if device_name == "ab6":
+            ids_to_names = self._serial_data["ab6-ids-to-names"]
+
         command, value = MozaCommand.value_from_response(
             data, device_name,
             self._serial_data["commands"],
-            self._serial_data["ids-to-names"])
+            ids_to_names)
 
         if value is None or command is None:
             return

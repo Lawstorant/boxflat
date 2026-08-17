@@ -18,7 +18,11 @@ JOYSTICK_RANGE = (BTN_DEAD - BTN_JOYSTICK) + 1
 
 
 class MozaHidDevice():
-    BASE = "gudsen (moza )?(r[0-9]{1,2} (ultra base|base|racing wheel and pedals)|ab[0-9]{1,2} ffb base)"
+    BASE = "gudsen (moza )?r[0-9]{1,2} (ultra base|base|racing wheel and pedals)"
+    # Flight base. Kept separate from BASE so it resolves against its own
+    # command set: the AB6 shares the wire framing but answers none of the
+    # racing commands. See AB6_STATUS.md.
+    AB6 = "gudsen (moza )?ab[0-9]{1,2} ffb base"
     PEDALS = "gudsen moza (srp|sr-p|crp)[0-9]? pedals"
     HANDBRAKE = "hbp handbrake"
     HPATTERN = "hgp shifter"
@@ -32,6 +36,7 @@ def is_moza_device(name: str):
     patterns = []
 
     patterns.append(MozaHidDevice.BASE)
+    patterns.append(MozaHidDevice.AB6)
     patterns.append(MozaHidDevice.PEDALS)
     patterns.append(MozaHidDevice.HANDBRAKE)
     patterns.append(MozaHidDevice.HPATTERN)
@@ -304,7 +309,7 @@ class HidHandler(EventDispatcher):
                 device.set_absinfo(ecode, flat=0)
 
             fuzz = 8
-            if pattern == MozaHidDevice.BASE and ecode == ABS_X:
+            if pattern in (MozaHidDevice.BASE, MozaHidDevice.AB6) and ecode == ABS_X:
                 fuzz = 0
 
             # detect current fuzz. Needed for ABS_HAT axes
@@ -328,7 +333,7 @@ class HidHandler(EventDispatcher):
         if isinstance(code, list):
             code = code[0]
 
-        if pattern in (MozaHidDevice.BASE, MozaHidDevice.HUB):
+        if pattern in (MozaHidDevice.BASE, MozaHidDevice.HUB, MozaHidDevice.AB6):
             name = MOZA_AXIS_BASE_CODES.get(code)
         else:
             name = MOZA_AXIS_CODES.get(code)

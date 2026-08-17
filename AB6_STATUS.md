@@ -15,6 +15,8 @@ Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/i
 | AB6's own groups | 🔍 Found — 8 groups return stable data |
 | AB6 settings table | 🔍 Found — group 14, 9 command ids |
 | Diagnostic log | 🔍 Found — firmware streams ASCII internals |
+| AB6 panel in boxflat | ✅ Works — gated on a real firmware read |
+| Home page | ✅ Now lists only detected hardware |
 
 Short version: the branch successfully makes the AB6 **detected**, and that
 is where it stops for now. The AB6 uses the same wire framing as racing gear
@@ -329,7 +331,66 @@ Two consequences:
   drives the device may reveal internals directly, and the log names source
   files and parameters. Worth a passive listen before any Windows capture.
 
-## Separate issue: Home panel shows undetected hardware
+## Two devices, confirmed at protocol level
+
+The device sweep settled the topology question. Sending an identity read
+across all device IDs produced diagnostic lines from **two** distinct
+sources:
+
+| Reply byte | Swapped ID | Identity | Firmware (group 4) |
+| :-- | :-- | :-- | :-- |
+| `0x21` | 18 | **Base** — `main_diag.c`, "Base heart beat log" | `01:06:04` → 1.6.4 |
+| `0x31` | 19 | **Grip** — `stick_diag.c`, "Stick heart beat log" | `01:0b:01` → 1.11.1 |
+
+The grip's diagnostics name `thumb_x`, `thumb_y`, `axis_z` and `hall_button`,
+which matches the MHG's mini-stick, twist axis and buttons.
+
+**Group 6 is the serial number.** At device 18 it returns
+`4d:00:40:00:05:51:35:31:33:38:34:38`, which is exactly the USB serial
+`4D0040000551353133383438` from the by-id path. The grip returns a different
+one, as expected for a separate device.
+
+Group 5 answers `02:03:03` on *both* devices, so it is a shared protocol
+version rather than per-device firmware.
+
+> **Correction.** An earlier revision of this document treated ID 19 as the
+> AB6 base, making "AB6 firmware 1.11.1" wrong — 1.11.1 is the *grip*. The
+> base is ID 18 at 1.6.4. Note that ID 18 is `main` and ID 19 is `base` in
+> the racing map, which is exactly the trap: the AB6's own map is separate.
+
+## The AB6 panel — implemented and working
+
+The AB6 is now its own device throughout boxflat rather than being disguised
+as a racing base, which is what lets it resolve against its own command set.
+
+- `MozaHidDevice.AB6` is a separate pattern; `BASE` is back to matching only
+  racing bases. `_update_axis` and `_configure_device` treat AB6 alongside
+  BASE so the axis map still applies.
+- `SerialDeviceMapping` / `HidDeviceMapping` register it as `"ab6"`. This is
+  the key move: `MozaCommand.value_from_response` only rewrote the device
+  name for `base` and `hub`, so any other name resolves against its own
+  section — no changes to racing behaviour.
+- Because the AB6 carries *two* devices on one port, `"ab6"` joins that
+  rewrite list and resolves through its own `ab6-ids-to-names` map
+  (18 → `ab6`, 19 → `mhg`). The racing map is untouched.
+- `_get_device_handler` falls back to the `ab6` handler, so the grip — which
+  has no port of its own — is reached through the base.
+- `get_device_id` excludes `ab6` alongside `base` from the "addressed as
+  main" rule, since the AB6 has its own port but answers on its own ID.
+- `data/serial.yml` gains `ab6:` and `mhg:` sections.
+- `boxflat/panels/ab6.py` and `panels/mhg.py` add **AB6 Base** and **MHG
+  Grip** panels, each gated on `subscribe_connected(..., self.active)`
+  against a real hardware read — the same mechanism the racing panels use.
+
+Verified on hardware: both panels appear in the sidebar, and Home shows the
+base at **1.6.4** with live Roll/Pitch bars plus the grip at **1.11.1**,
+each appearing only when its device answers.
+
+The panels deliberately report identity and live axis state only. Group 14's
+ids are located but their meanings are not decoded, so there is nothing yet
+that can honestly be presented as an editable setting.
+
+## Home panel now lists only detected hardware
 
 Independent of the protocol work, the Home panel hardcodes three groups —
 `Wheelbase`, `Pedals`, `Handbrake` (`boxflat/panels/home.py:28,48,63`) —

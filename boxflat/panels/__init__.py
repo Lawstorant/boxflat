@@ -2,6 +2,8 @@
 
 from .settings_panel import SettingsPanel
 from .base           import BaseSettings
+from .ab6            import AB6Settings
+from .mhg            import MHGSettings
 from .wheel          import WheelSettings
 from .wheel_old      import OldWheelSettings
 from .home           import HomeSettings
