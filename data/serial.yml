@@ -2409,6 +2409,55 @@ commands:
       bytes: 1
       type: int
 
+    # Confirmed on real hardware from an eighth Windows capture (2026-08-18,
+    # the "Special" page - not in the original page inventory, found by
+    # the user browsing Cockpit's tabs). Group 30/31 as always. Wire value
+    # is the direct 1-20 UI value, matching the screenshot's 8 exactly.
+    # Paired with an identical-value echo on param 115 (Table 7) the same
+    # way torque echoes to params 17/18 - not exposed separately.
+    trim-follow-rate:
+      read: 30
+      write: 31
+      id: [196]
+      bytes: 2
+      type: int
+
+    # Four-direction Trim Range, one shared id (198) with a selector byte
+    # 0-3 - the same [id, selector] shape as slider-mode-left/right and
+    # the Axis Travel Limit commands, just with 4 selectors instead of 2.
+    # All four ended at wire value 100, matching the screenshot's four
+    # 100% fields exactly. WHICH selector is -X/+X/-Y/+Y is not confirmed
+    # - no per-direction final value to disambiguate them, the same
+    # situation as axis-travel-limit-1/2. Named by selector number, not
+    # direction, for that reason.
+    trim-range-0:
+      read: 30
+      write: 31
+      id: [198, 0]
+      bytes: 1
+      type: int
+
+    trim-range-1:
+      read: 30
+      write: 31
+      id: [198, 1]
+      bytes: 1
+      type: int
+
+    trim-range-2:
+      read: 30
+      write: 31
+      id: [198, 2]
+      bytes: 1
+      type: int
+
+    trim-range-3:
+      read: 30
+      write: 31
+      id: [198, 3]
+      bytes: 1
+      type: int
+
   mhg:
     version:
       read: 4

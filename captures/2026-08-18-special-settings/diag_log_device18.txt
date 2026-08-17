@@ -1,0 +1,35 @@
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 102 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 7, Param 114 Written: 1 0.00000
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 2692s
+device connected: stick_reg
+[INFO]param_manage.c:340 Table 7, Param 114 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 7, Param 103 Written: 10 0.00000
+[INFO]param_manage.c:340 Table 7, Param 115 Written: 10 0.00000
+[INFO]param_manage.c:340 Table 7, Param 103 Written: 8 0.00000
+[INFO]param_manage.c:340 Table 7, Param 115 Written: 8 0.00000
+[INFO]param_manage.c:340 Table 7, Param 113 Written: 1048576000 0.25000
+[INFO]param_manage.c:340 Table 7, Param 113 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 110 Written: 1041194025 0.13999
+[INFO]param_manage.c:340 Table 7, Param 110 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 111 Written: 1052938076 0.37999
+[INFO]param_manage.c:340 Table 7, Param 111 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 112 Written: 1054280253 0.41999
+[INFO]param_manage.c:340 Table 7, Param 112 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 114 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 7, Param 114 Written: 0 0.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 102 Written: 0 0.00000
+[INFO]base.c:105 set base work mode: 1[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 8
+[INFO]param_manage.c:340 Table 2, Param 44 Written: 1 0.00000
+[INFO]base.c:105 set base work mode: 0[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 2, Param 44 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 7, Param 122 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 7, Param 122 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 7, Param 123 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 7, Param 123 Written: 1 0.00000

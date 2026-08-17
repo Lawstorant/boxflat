@@ -215,6 +215,35 @@ class AB6Settings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "ab6-axis-travel-limit-2-negative")
         self._cm.subscribe("ab6-axis-travel-limit-2-negative", self._current_row.set_value)
 
+        # Confirmed against real hardware from the "Special" page capture -
+        # a page not in the original inventory, found by the user browsing
+        # Cockpit's tabs. See data/serial.yml. Hardware Trim Mode, Trim
+        # Mode (Direct Input/Hardware), the trim button bindings, Base
+        # Force Model Selection, Grip Removal Protection and Extend Travel
+        # Range weren't confidently attributed and are left out.
+        self.add_preferences_group("Special")
+
+        self._add_row(BoxflatSliderRow("Trim Follow Rate", range_start=1, range_end=20))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-trim-follow-rate")
+        self._cm.subscribe("ab6-trim-follow-rate", self._current_row.set_value)
+
+        subtitle = "Which physical direction this is (+X/-X/+Y/-Y) is unconfirmed"
+        self._add_row(BoxflatSliderRow("Trim Range 1", suffix="%", subtitle=subtitle))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-trim-range-0")
+        self._cm.subscribe("ab6-trim-range-0", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Trim Range 2", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-trim-range-1")
+        self._cm.subscribe("ab6-trim-range-1", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Trim Range 3", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-trim-range-2")
+        self._cm.subscribe("ab6-trim-range-2", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Trim Range 4", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-trim-range-3")
+        self._cm.subscribe("ab6-trim-range-3", self._current_row.set_value)
+
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:
         row.set_label(format_version(value))
