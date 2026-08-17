@@ -3,10 +3,41 @@
 Field checklist for capturing Moza Cockpit ↔ AB6 traffic on Windows, so the
 AB6 command set can be added to `data/serial.yml`.
 
-Companion to [`AB6_STATUS.md`](./AB6_STATUS.md). Read the "Key finding"
-section there first — the framing is already known and confirmed, so this
-capture only needs to discover **command groups, command ids, and payload
-semantics**.
+Companion to [`AB6_STATUS.md`](./AB6_STATUS.md).
+
+## Already solved — do not re-derive
+
+The local sweep succeeded, so most of Phases 0–2 are done. Confirmed on
+hardware with `tools/ab6_sweep.py` and `tools/ab6_axes.py`:
+
+| Fact | Value |
+| :-- | :-- |
+| Base device ID | `18` — replies `0x21`, "Base heart beat" |
+| Grip device ID | `19` — replies `0x31`, "Stick heart beat" |
+| Base firmware | group 4 → `1.1.6.4` |
+| Grip firmware | group 4 → `1.1.11.1` |
+| Protocol version | group 5 → `1.2.3.3`, same on both |
+| Serial number | group 6 — matches the USB serial exactly |
+| **Settings table** | **group 14 — 9 command ids, meanings unknown** |
+| Diagnostic log | group 14 / id 5, ASCII, streams continuously |
+
+Both devices are detected, both panels work, and every axis is mapped.
+
+**What this capture is still for: decoding what group 14's command ids
+mean.** Matching an id to a named setting needs writes to correlate, which
+is the one thing a read-only sweep cannot do. Phase 3 is the point of the
+exercise; the earlier phases are now confirmation rather than discovery.
+
+> **The ID trap.** In the *racing* map ID 18 is `main` and ID 19 is `base`,
+> so reading the AB6 through that map attributes the grip's firmware to the
+> base. The AB6 has its own map. This already produced one wrong result.
+
+> **Versions are four-part.** Group 4 ignores the command id, so the whole
+> 4-byte payload is version data. Reading 3 bytes silently drops a field.
+
+An interactive version of this checklist, which stamps the time as you tick
+each step:
+<https://claude.ai/code/artifact/9ad549c7-1775-42fd-b75b-0270baf83f9f>
 
 ## Pick your tool
 
