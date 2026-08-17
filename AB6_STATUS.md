@@ -3,40 +3,56 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-17 — tested on real hardware, plus a Windows capture.**
+**Status as of 2026-08-17 — tested on real hardware, plus three Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ⛔ Parameter tables found, meanings not decoded |
+| Editable settings | ✅ **8 confirmed and wired up** — FFB Mode, Torque, FFB Intensity, Spring, Damper, Inertia, Friction, Game FFB Gain, Temp Control Mode |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
-| AB6's own groups | 🔍 Found — 8+ groups return stable data |
+| AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6's settings table |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| AB6 settings tables | 🔍 4 tables, 129 params found via a readable diagnostic log |
+| AB6 settings tables | 🔍 4 diagnostic-log tables, 129 params — 9 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 8 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
 same wire framing as racing gear but its own command set, so the racing
-commands stay dead. A user-provided Windows capture of Cockpit's startup
-handshake (see "Windows capture analysis" below) found that the firmware
-logs every setting it loads in **plain ASCII** on its existing diagnostic
-channel — 129 parameter values across 4 tables — and, cross-checked against
-what the user could read directly off Cockpit's UI, caught and fixed a real
-version-display bug already in this branch.
+commands stay dead. Three user-provided Windows captures moved this
+forward a lot:
+
+1. A passive capture of Cockpit's startup handshake found that the firmware
+   logs every setting it loads in **plain ASCII** on its existing
+   diagnostic channel — 129 parameter values across 4 tables — and, cross
+   -checked against what the user could read directly off Cockpit's UI,
+   caught and fixed a real version-display bug already in this branch.
+2. A capture of the user changing **FFB Mode** in Cockpit landed the first
+   fully confirmed, three-way-correlated editable AB6 setting — see "FFB
+   Mode: the first confirmed, editable AB6 setting" below.
+3. A capture of the user cycling **seven more Basic Settings sliders plus
+   Temperature Control Mode** confirmed all eight in one pass, using the
+   same correlation method at scale — see "Seven more settings confirmed
+   in one pass" below.
+
+All eight are now working controls in the AB6 panel, all landing on the
+same group 30 (read) / 31 (write) command pair — this is the AB6's actual
+settings table, previously seen only as an unattributed binary burst.
 
 Boxflat now models it correctly as **two devices on one port**: the AB6 base
 (ID 18, firmware 1.1.4.6) and the MHG grip (ID 19, firmware 1.1.1.11). Both
 have panels, both are gated on real hardware reads, and the Home page lists
 only hardware that actually answers.
 
-What remains is **meaning**. Dozens of parameter addresses and their current
-values are known, but none is attributed to a specific Cockpit UI control
-yet. See "Windows capture analysis" for a cheaper path to that than the
-original capture plan assumed.
+What remains is **meaning** for everything else. Dozens of parameter
+addresses and their current values are known, but only 9 (of Table 7's 52
+alone) are attributed to a specific Cockpit UI control. See "Windows
+capture analysis" for the correlation method, now demonstrated twice at
+increasing scale (points 2 and 3 above) — repeating it against Expert
+Settings, Axis Travel, Panel Settings, and the MHG grip's own settings page
+is the direct path to covering the rest.
 
 ## Background
 
@@ -546,6 +562,144 @@ live write), so it's the first thing to check in the next session: change
 one known-safe setting, and see whether a matching log line appears. If it
 does, `AB6_CAPTURE_PLAN.md` should be rewritten to lead with that method.
 
+> **Confirmed true by the next capture, below.** Live writes do log through
+> `param_manage.c` exactly like the boot-time load. The hypothesis paid off
+> immediately.
+
+## FFB Mode: the first confirmed, editable AB6 setting (2026-08-17)
+
+The user captured a second Windows session: opened the AB6's **Basic
+Settings** page in Cockpit, moved the X/Y/Z axes, then cycled **FFB Mode**
+Telemetry → DirectInput → Telemetry → Integrated → Telemetry. Decoded the
+same way, into
+[`captures/2026-08-17-basic-settings-axes-ffb-mode/`](./captures/2026-08-17-basic-settings-axes-ffb-mode/).
+
+### Three-way correlation
+
+The diagnostic log showed exactly 4 `Table 7, Param 49 Written` lines —
+matching the 4 mode *transitions* in the session — with values `1, 0, 2, 0`:
+
+| Time | Written value | Matches transition |
+| --: | --: | :-- |
+| 31.903s | 1 | → DirectInput |
+| 33.745s | 0 | → Telemetry |
+| 35.072s | 2 | → Integrated |
+| 36.389s | 0 | → Telemetry |
+
+Cross-checking against the binary traffic at those same timestamps found
+the actual wire command, on both directions:
+
+- **Write:** group **31**, device 18, id **133** (`0x85`), 2-byte int
+  payload — fires 60–200ms before each diagnostic-log line, every time,
+  with the exact same value.
+- **Read-back:** group **30**, device 18, id **133** — polled continuously
+  throughout the session (part of the "Basic Settings" page's live-refresh
+  burst; see "An unattributed binary settings-read burst" above), its value
+  changes from `0` to `1` to `0` to `2` to `0` at the same four moments.
+
+All three signals — the diagnostic log, the write, and the read-back — agree
+on every value at every timestamp, with zero ambiguity. This is as solid an
+attribution as a passive capture can produce.
+
+### Result
+
+```yaml
+ffb-mode:
+  read: 30
+  write: 31
+  id: [133]
+  bytes: 2
+  type: int
+```
+
+Added to `data/serial.yml` under `ab6:`, and wired up as a real
+`BoxflatToggleButtonRow` in `panels/ab6.py`'s "Settings" group — Telemetry
+/ DirectInput / Integrated, 0/1/2 respectively, no value offset needed
+since the protocol is already 0-based. This is the first AB6 setting that
+is both readable *and* writable through boxflat.
+
+### Bonus: live axis telemetry, unmapped
+
+Four more ids under the same group-30 burst (**184**, **185**, **215**,
+**216** — all on device 18) changed continuously and rapidly throughout the
+session, cycling through nearly the full signed 16-bit range including
+wraparound near `0x7fff`/`0x8000`. This lines up with the user moving the
+X/Y/Z axes during the capture and is almost certainly live axis position
+telemetry over the serial channel — a second, redundant path to the same
+data HID already provides via `MozaAxis`/`evdev` for the existing Roll/
+Pitch bars in `panels/ab6.py`. Not decoded further since the panel's HID
+axis display already covers this; noted here in case a future serial-only
+telemetry feature wants it. `id 12` (`0x0c`, constant `0x7fff`) sitting
+alongside them is plausibly an axis range/max constant.
+
+## Seven more settings confirmed in one pass (2026-08-17)
+
+A third capture, provided by the user: on the AB6's Basic Settings page,
+changed **Temperature control mode** from its default to Conservative then
+to Aggressive, then cycled each of the seven remaining sliders — in
+on-screen top-to-bottom order, per the accompanying screenshot — through
+10% → 90% → 100%, then back to original. Decoded into
+[`captures/2026-08-17-basic-settings-other-settings/`](./captures/2026-08-17-basic-settings-other-settings/).
+
+Applied the same method that confirmed FFB Mode, at scale: reassemble the
+diagnostic log with per-fragment timestamps, find every `Table 7, Param N
+Written` line, then search the ±1.5s window before each one for a group-31
+write on device 18 whose payload matches. It worked cleanly for all eight
+settings on the first pass — 34 param writes, all landing in exactly the
+windows expected, values matching every transition exactly with no manual
+correction needed:
+
+| Setting | Table 7 param | Group 31 id | Values seen | Cockpit order |
+| :-- | --: | --: | :-- | --: |
+| Temperature Control Mode | 99 | 192 (`0xc0`) | `1, 2` | 1st (before sliders) |
+| Maximum Torque Output | 100 (+17, 18) | 169 (`0xa9`) | `10, 90, 100` | 1st slider |
+| Overall Force Feedback Intensity | 52 | 174 (`0xae`) | `10, 90, 100` | 2nd |
+| Spring | 15 | 175 (`0xaf`) | `10, 90, 100, 48` | 3rd |
+| Damper | 16 | 176 (`0xb0`) | `0, 1, 10, 90, 100` | 4th |
+| Inertia | 53 | 177 (`0xb1`) | `10, 90, 100, 70` | 5th |
+| Friction | 54 | 178 (`0xb2`) | `10, 90, 100, 60` | 6th |
+| Game Force Feedback Gain | 101 | 153 (`0x99`) | `10, 90, 100` | 7th |
+
+All are direct 0–100 percentages — no scaling, unlike some racing-base
+commands (e.g. `base-ffb-strength` needs `*10`). Attribution confidence:
+
+- **Order matches the screenshot exactly**, top to bottom, with no gaps or
+  swaps.
+- **The three sliders with non-default endings (Spring 48%, Inertia 70%,
+  Friction 60%) landed on exactly their screenshot values.** These are
+  specific, non-round numbers — a wrong id-to-setting mapping would need an
+  implausible coincidence to reproduce three of them independently.
+- **Every write matches the diagnostic log's value exactly, every
+  transition** (up to 4 per setting), the same standard FFB Mode was held
+  to.
+- Unlike FFB Mode and `torque`, the other six **don't have an independently
+  confirmed read-back** in this capture — no reply was seen on group 30
+  (or on group 31 itself, checked as a second guess) for those ids at all,
+  suggesting Cockpit doesn't round-trip-confirm a drag in progress. `read:
+  30` for those six is inferred by analogy (matches `torque`, `ffb-mode`,
+  and the write+1 convention used everywhere else in `data/serial.yml`),
+  not independently verified. Worth confirming on a future capture that
+  includes reopening the Basic Settings page.
+- `torque`'s writes also touch two more Table 7 params (17 and 18) every
+  time, always equal to each other, and equal to roughly `torque × 0.824`
+  rather than the raw percentage — plausibly a pair of per-motor
+  (dual-servo) effective-torque values the firmware derives internally.
+  Not exposed as separate boxflat commands since `torque` (the percentage
+  Cockpit actually shows and writes) is the one that matters for a control.
+
+All eight settings (including `ffb-mode` from the previous capture) are now
+in `data/serial.yml` under `ab6:` and wired up as working controls in
+`panels/ab6.py`'s "Settings" group — `torque`/`ffb-intensity`/`spring`/
+`damper`/`inertia`/`friction`/`game-ffb-gain` as sliders,
+`temp-control-mode` as a toggle (only Conservative/Aggressive were
+exercised; a third mode at value 0 is plausible but unconfirmed).
+
+What's still unmapped from the Basic Settings page: axis output curves
+(Spring/Damper/Inertia/Friction each likely have their own curve-shaping
+sub-controls, going by the racing base's `ffb-curve-x1..4`/`y1..5`
+precedent), and the Expert Settings / Telemetry FFB / Axis Travel / Panel
+Settings pages entirely (see `AB6_CAPTURE_PLAN.md`'s Phase 2 checklist).
+
 ## Home panel now lists only detected hardware
 
 Independent of the protocol work, the Home panel hardcodes three groups —
@@ -568,39 +722,39 @@ mirroring how a wheel is listed separately from its wheelbase today.
 
 ## How to continue
 
-### Next step: attribute parameters to Cockpit UI controls
+### Next step: attribute more parameters to Cockpit UI controls
 
-The blocking task is no longer *finding* the AB6's settings — the Windows
-capture found 129 of them, across 4 tables, with current values. It's
-**attributing** them: matching a `(table, param)` address to what Cockpit
-labels it, which needs a capture where individual controls are changed one
-at a time.
+The method is proven — FFB Mode (see above) went from "unknown parameter
+table" to "working boxflat control" from one Wireshark capture, by
+correlating three independent signals (the write, the read-back, and the
+diagnostic log) at the timestamps where the user changed one thing at a
+time. Repeat it per setting:
 
-1. **Try the cheap path first.** Watch `/dev/ttyACM0` (or the by-id path)
-   for the diagnostic log while changing one Cockpit setting on Windows —
-   e.g. with a simple serial terminal, or a small script using
-   `SerialHandler`-style framing to print group-14/id-5 text as it arrives.
-   If live writes log through `param_manage.c` the same way the boot-time
-   load does (unconfirmed — see "Revised Phase 3 recommendation" above),
-   this needs no Wireshark at all: change **Spring strength** to `10`, look
-   for a new `Table N, Param M Written` line, change it to `90`, confirm the
-   *same* address changed. Repeat per setting from
-   [`AB6_CAPTURE_PLAN.md`](./AB6_CAPTURE_PLAN.md)'s Phase 3 checklist.
-2. **Fall back to a full Wireshark capture** if the log doesn't carry live
-   writes. Decode with `tools/ab6_pcap_decode.py capture.pcapng --out-dir
-   captures/<name>` — it now handles the AB6's dual framing (toggled
-   replies vs. untoggled async pushes) and reassembles the diagnostic log
-   automatically. Cross-check any version-like or percentage-like value it
-   finds against what Cockpit's own UI shows, the way this session caught
-   the version-display bug — Cockpit's UI is ground truth, this repo's
-   inferences are not.
-3. Once a `(table, param)` is attributed to a named setting, add it to a new
-   `ab6` command section in `data/serial.yml`. The existing binary groups
-   (30/31 on the base, 51/67 on the grip — see "An unattributed binary
-   settings-read burst") are the more likely candidates for a *read/write*
-   command mapping than the diagnostic log itself, since the log is
-   one-directional (device → host only); use the same capture to determine
-   whether a write actually goes out over one of those groups.
+1. Capture Cockpit with one control changed at a time — ideally per
+   [`AB6_CAPTURE_PLAN.md`](./AB6_CAPTURE_PLAN.md)'s Phase 3 checklist (one
+   setting, low value, high value, back to original, ~2s pauses).
+2. Decode with `tools/ab6_pcap_decode.py capture.pcapng --out-dir
+   captures/<name>`.
+3. Find the `Table N, Param M Written` lines that changed only around the
+   moment that setting was touched (`param_writes.csv` plus the log's
+   timestamps — see the FFB Mode section above for the exact method: search
+   requests in a ±0.5s window around each log line's timestamp for a write
+   whose payload matches the written value).
+4. Confirm three-way: the write, a read-back on the matching group (writes
+   and their read-back group appear to consistently differ by 1 — FFB
+   Mode's is read 30 / write 31 — worth checking as a first guess for any
+   new group pair), and the diagnostic log all agree at every timestamp.
+   Two independent transitions matching is a coincidence; three or more,
+   as with FFB Mode, is proof.
+5. Add the confirmed `read`/`write` group and command id to `data/
+   serial.yml` under `ab6:` (or `mhg:` for grip settings), and a row to
+   `panels/ab6.py` / `panels/mhg.py` — see "AB6-specific settings panel"
+   below for the exact pattern, now demonstrated once with FFB Mode.
+
+Cross-check anything version-like or percentage-like against what Cockpit's
+own UI shows wherever possible — that's what caught the version-display
+bug earlier in this session. Cockpit's UI is ground truth, this repo's
+inferences are not.
 
 Debug tip: uncomment the print in `SerialHandler._serial_write_handler` and
 add one in `_serial_read_handler` to log raw traffic while boxflat polls.

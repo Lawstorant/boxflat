@@ -171,19 +171,30 @@ Settings to cover, per
 [MOZA's Flight FFB documentation](https://support.mozaracing.com/en/support/solutions/articles/70000684205-force-feedback-telemetry-settings)
 — all shown as percentages in Cockpit:
 
-| Setting | Existing boxflat `base` equivalent |
-| :-- | :-- |
-| Overall Strength | `ffb-strength` |
-| Spring / Centering | `spring` |
-| Damping | `damper` |
-| Inertia | `inertia` |
-| Friction | `friction` |
-| **Vibration** | **none — new** |
+| Setting | `ab6` command | Status |
+| :-- | :-- | :-- |
+| Maximum Torque Output | `torque` | ✅ Done — group 30/31, id 169 |
+| Overall Strength | `ffb-intensity` | ✅ Done — group 30/31, id 174 |
+| Spring / Centering | `spring` | ✅ Done — group 30/31, id 175 |
+| Damping | `damper` | ✅ Done — group 30/31, id 176 |
+| Inertia | `inertia` | ✅ Done — group 30/31, id 177 |
+| Friction | `friction` | ✅ Done — group 30/31, id 178 |
+| Game FFB Gain | `game-ffb-gain` | ✅ Done — group 30/31, id 153 |
+| Temperature Control Mode | `temp-control-mode` | ✅ Done — group 30/31, id 192 (2 of presumably 3 modes seen) |
+| FFB Mode | `ffb-mode` | ✅ Done — group 30/31, id 133 |
+| **Vibration** | **none yet** | ⬜ Not in either Basic Settings capture — check Expert Settings |
 
-Five of the six already exist as racing-base commands with the same
-vocabulary, which fits the "shared framing, different command set" finding.
-**Vibration and the FFB mode switch are the genuinely new ones** — capture
-those most carefully.
+**Every setting reused the racing vocabulary but not the racing group/id
+space** — they all turned out to live in a *new* `ab6` command set on group
+30 (read) / 31 (write), confirmed against real hardware on 2026-08-17. See
+`AB6_STATUS.md` → "FFB Mode..." and "Seven more settings confirmed in one
+pass" for the full method and evidence. **Vibration wasn't in either
+capture** — Cockpit's Basic Settings page doesn't appear to expose it
+directly, so it's likely under Expert Settings or Telemetry FFB instead.
+
+The checklist below is kept for reference and for whatever's still
+unmapped (Vibration, Axis Travel curves, Expert Settings, Panel Settings,
+the MHG grip's own page) — for anything already ticked off above, skip it.
 
 For each setting:
 
@@ -195,9 +206,10 @@ For each setting:
 
 FFB modes are likely their own command — stamp each switch:
 
-- [ ] Switch to **Standard** FFB mode (DirectInput, no telemetry)
-- [ ] Switch to **Telemetry** FFB mode
-- [ ] Switch to **MCLS** mode (DCS control-loading model)
+- [x] **Done — confirmed 2026-08-17.** `ab6-ffb-mode`: group 30 (read) /
+  31 (write), id 133, `0 = Telemetry, 1 = DirectInput, 2 = Integrated`
+  (Cockpit's actual mode names, not Standard/MCLS as guessed above). See
+  `AB6_STATUS.md` → "FFB Mode: the first confirmed, editable AB6 setting".
 
 ### Beyond FFB — other command families
 
