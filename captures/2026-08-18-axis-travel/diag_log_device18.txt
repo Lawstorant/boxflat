@@ -1,0 +1,114 @@
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 336857096 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 673716248 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010584652 0.01149
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1347443804 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 336864035 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 673723444 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010580540 0.01148
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1347439435 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 336856582 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 673713678 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010572316 0.01148
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1347434038 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 336866862 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 673728584 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010587222 0.01149
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1347444318 2147483008.00000
+[INFO]param_manage.c:340 Table 7, Param 11 Written: 1008981770 0.00999
+[INFO]param_manage.c:340 Table 7, Param 11 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 11 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 11 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 12 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 12 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 12 Written: 1065353216 1.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 50 Written: -1086324736 -0.75000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]main_diag.c:131 Base heart beat log
+sys run_time: 1281s
+device connected: stick_reg
+[INFO]param_manage.c:340 Table 7, Param 50 Written: -1296039936 -0.00000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 50 Written: 1061158911 0.74999
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 50 Written: -1296039936 -0.00000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 336860180 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 673720360 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010580540 0.01148
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1347440720 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 134747156 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 404236328 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1280064572 53539056.00000
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1549553744 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 589501460 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 875833384 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010580540 0.01148
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1263226960 13324368.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 101061652 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 235808808 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 471612476 0.00000
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 909529168 0.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 774771732 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 1212688424 204960.62500
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1448492092 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1583239248 2147483008.00000
+[INFO]param_manage.c:340 Table 2, Param 63 Written: 336860180 0.00000
+[INFO]param_manage.c:340 Table 2, Param 65 Written: 673720360 0.00000
+[INFO]param_manage.c:340 Table 2, Param 67 Written: 1010580540 0.01148
+[INFO]param_manage.c:340 Table 2, Param 69 Written: 1347440720 2147483008.00000
+[INFO]param_manage.c:340 Table 7, Param 13 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 13 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 13 Written: 1065353216 1.00000
+[INFO]param_manage.c:340 Table 7, Param 14 Written: 1036831948 0.09999
+[INFO]param_manage.c:340 Table 7, Param 14 Written: 1063675494 0.90000
+[INFO]param_manage.c:340 Table 7, Param 14 Written: 1065353216 1.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 51 Written: -1086324736 -0.75000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 51 Written: -1296039936 -0.00000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 51 Written: 1061158911 0.74999
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 51 Written: -1296039936 -0.00000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 46 Written: 1 0.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 46 Written: 0 0.00000
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]param_manage.c:340 Table 7, Param 19 Written: 1 0.00000
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]steer.c:1427 steer set mode: 1
+[INFO]steer.c:1427 steer set mode: 2
+[INFO]param_manage.c:340 Table 7, Param 19 Written: 0 0.00000
+[INFO]param_manage.c:340 Table 2, Param 87 Written: 2056 0.00000
+[INFO]param_manage.c:340 Table 2, Param 89 Written: 6168 0.00000
+[INFO]param_manage.c:340 Table 2, Param 91 Written: 19532 0.00000
+[INFO]param_manage.c:340 Table 2, Param 93 Written: 23644 0.00000
+[INFO]param_manage.c:340 Table 2, Param 87 Written: 8995 0.00000
+[INFO]param_manage.c:340 Table 2, Param 89 Written: 13364 0.00000
+[INFO]param_manage.c:340 Table 2, Param 91 Written: 15420 0.00000
+[INFO]param_manage.c:340 Table 2, Param 93 Written: 19275 0.00000
+[INFO]param_manage.c:340 Table 2, Param 87 Written: 1542 0.00000
+[INFO]param_manage.c:340 Table 2, Param 89 Written: 3598 0.00000
+[INFO]param_manage.c:340 Table 2, Param 91 Written: 7196 0.00000
+[INFO]param_manage.c:340 Table 2, Param 93 Written: 13878 0.00000
+[INFO]param_manage.c:340 Table 2, Param 87 Written: 11822 0.00000
+[INFO]param_manage.c:340 Table 2, Param 89 Written: 18504 0.00000
+[INFO]param_manage.c:340 Table 2, Param 91 Written: 22102 0.00000
+[INFO]param_manage.c:340 Table 2, Param 93 Written: 24158 0.00000
+[INFO]param_manage.c:340 Table 2, Param 87 Written: 5140 0.00000
+[INFO]param_manage.c:340 Table 2, Param 89 Written: 10280 0.00000
+[INFO]param_manage.c:340 Table 2, Param 91 Written: 15420 0.00000
+[INFO]param_manage.c:340 Table 2, Param 93 Written: 20560 0.00000
+[INFO]param_manage.c:340 Table 2, Param 9 Written: 1 0.00000
+[INFO]param_manage.c:340 Table 2, Param 9 Written: 0 0.00000

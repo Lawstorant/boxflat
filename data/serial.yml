@@ -2361,6 +2361,54 @@ commands:
       bytes: 1
       type: int
 
+    # The user reports that Autopilot Following (follow-ratio-x/y,
+    # breakout-force-strength/range above) is documented by Moza as an
+    # AB9-only feature. The AB6 still accepts and echoes back these
+    # writes over this protocol - it just may not do anything physical
+    # with them, since the AB6 has no motorized trim hardware to drive.
+    # Left in data/serial.yml since the wire commands are confirmed
+    # correct regardless of what the AB6 itself does with them.
+
+    # Confirmed on real hardware from a sixth Windows capture (2026-08-18,
+    # Axis Travel page). Group 30/31 as always. Wire values are direct
+    # 0-100 percentages, matching the screenshot's 100%/100% exactly for
+    # both axes touched.
+    #
+    # WHICH axis is which (1 vs 2) is inferred only from touch order and
+    # from where these ids fall in the connect-time settings-read burst
+    # (both consistent with each other, and with the page's left-to-right
+    # X/Y/Z layout) - not independently confirmed the way the value itself
+    # is. Named generically rather than "x"/"y" for that reason. The
+    # third axis (Z) wasn't touched in this capture, so there's no third
+    # id pair to add yet.
+    axis-travel-limit-1-positive:
+      read: 30
+      write: 31
+      id: [171, 1]
+      bytes: 1
+      type: int
+
+    axis-travel-limit-1-negative:
+      read: 30
+      write: 31
+      id: [171, 2]
+      bytes: 1
+      type: int
+
+    axis-travel-limit-2-positive:
+      read: 30
+      write: 31
+      id: [172, 1]
+      bytes: 1
+      type: int
+
+    axis-travel-limit-2-negative:
+      read: 30
+      write: 31
+      id: [172, 2]
+      bytes: 1
+      type: int
+
   mhg:
     version:
       read: 4

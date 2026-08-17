@@ -151,7 +151,18 @@ class AB6Settings(SettingsPanel):
         # toggles themselves, Axis follow mode, the Follow preset buttons,
         # follow rate/scale sliders, Sidestick AP Lock) wasn't touched in
         # the capture or wasn't confidently attributed.
+        #
+        # Reported by a user: Moza documents Autopilot Following as an
+        # AB9-only feature. The AB6 still accepts these writes over this
+        # same protocol, so the controls below work in the sense that the
+        # device acknowledges them - they may just have no physical effect
+        # on AB6 hardware, which has no motorized trim to drive.
         self.add_preferences_group("Trim & Autopilot Following")
+
+        self._add_row(BoxflatLabelRow(
+            "AB9 feature",
+            "Reported to only have a physical effect on the AB9. The AB6 "
+            "accepts these settings but may not act on them."))
 
         self._add_row(BoxflatSliderRow("Physical Stick Follow Ratio X", suffix="%"))
         self._current_row.subscribe(self._cm.set_setting, "ab6-follow-ratio-x")
@@ -176,6 +187,33 @@ class AB6Settings(SettingsPanel):
         self._add_row(BoxflatSliderRow("Pitch Breakout Force Range", suffix="%"))
         self._current_row.subscribe(self._cm.set_setting, "ab6-breakout-force-range-pitch")
         self._cm.subscribe("ab6-breakout-force-range-pitch", self._current_row.set_value)
+
+        # Confirmed against real hardware from the Advanced Settings ->
+        # Axis Travel page capture - see data/serial.yml. WHICH physical
+        # axis is "1" vs "2" isn't confirmed (order-inferred only), so
+        # they're labeled generically rather than X/Y/Z - see the label
+        # subtitles and data/serial.yml for what that means in practice.
+        # The Output Mapping Curve, Invert Axis, Axis Offset and the third
+        # axis weren't confidently attributed and are left out.
+        self.add_preferences_group("Axis Travel")
+
+        self._add_row(BoxflatSliderRow("Axis 1 Positive Travel Limit", suffix="%",
+            subtitle="Physical axis identity (which stick axis this is) unconfirmed"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-axis-travel-limit-1-positive")
+        self._cm.subscribe("ab6-axis-travel-limit-1-positive", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Axis 1 Negative Travel Limit", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-axis-travel-limit-1-negative")
+        self._cm.subscribe("ab6-axis-travel-limit-1-negative", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Axis 2 Positive Travel Limit", suffix="%",
+            subtitle="Physical axis identity (which stick axis this is) unconfirmed"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-axis-travel-limit-2-positive")
+        self._cm.subscribe("ab6-axis-travel-limit-2-positive", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Axis 2 Negative Travel Limit", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-axis-travel-limit-2-negative")
+        self._cm.subscribe("ab6-axis-travel-limit-2-negative", self._current_row.set_value)
 
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:
