@@ -8,24 +8,29 @@ Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/i
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
-| Base panel activation | ❌ Device answers no racing commands |
-| Settings round-trip | ⛔ Blocked on the above |
+| Racing commands | ❌ Device answers none of them |
+| Editable settings | ⛔ Group 14 ids found, meanings not decoded |
 | Protocol framing | ✅ Shared with racing gear, decoder reusable |
 | Command set | ❌ Different — firmware identifies as `Stick` |
 | AB6's own groups | 🔍 Found — 8 groups return stable data |
 | AB6 settings table | 🔍 Found — group 14, 9 command ids |
 | Diagnostic log | 🔍 Found — firmware streams ASCII internals |
-| AB6 panel in boxflat | ✅ Works — gated on a real firmware read |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads |
 | Home page | ✅ Now lists only detected hardware |
 
-Short version: the branch successfully makes the AB6 **detected**, and that
-is where it stops for now. The AB6 uses the same wire framing as racing gear
-but a different command set, so no settings are readable or writable yet.
+Short version: the AB6 is detected, identified and displayed. It uses the
+same wire framing as racing gear but its own command set, so the racing
+commands stay dead — but a read-only sweep found where it *does* answer.
 
-A read-only sweep has since found where it *does* answer — groups 2, 4, 5, 6,
-10, 12, 14 and 19 return stable payloads, including two version-shaped and
-one UID-shaped reply — plus a live ASCII diagnostic log. See "Sweep results".
-Next step is mapping command ids inside those groups.
+Boxflat now models it correctly as **two devices on one port**: the AB6 base
+(ID 18, firmware 1.1.6.4) and the MHG grip (ID 19, firmware 1.1.11.1). Both
+have panels, both are gated on real hardware reads, and the Home page lists
+only hardware that actually answers.
+
+What remains is **meaning**. Group 14 is a real settings table and its nine
+command ids are located, but nothing yet maps an id to a named setting, so
+no editable controls are exposed. That is what the Windows capture in
+[`AB6_CAPTURE_PLAN.md`](./AB6_CAPTURE_PLAN.md) is for.
 
 ## Background
 
@@ -339,8 +344,8 @@ sources:
 
 | Reply byte | Swapped ID | Identity | Firmware (group 4) |
 | :-- | :-- | :-- | :-- |
-| `0x21` | 18 | **Base** — `main_diag.c`, "Base heart beat log" | `01:06:04` → 1.6.4 |
-| `0x31` | 19 | **Grip** — `stick_diag.c`, "Stick heart beat log" | `01:0b:01` → 1.11.1 |
+| `0x21` | 18 | **Base** — `main_diag.c`, "Base heart beat log" | `01:01:06:04` → 1.1.6.4 |
+| `0x31` | 19 | **Grip** — `stick_diag.c`, "Stick heart beat log" | `01:01:0b:01` → 1.1.11.1 |
 
 The grip's diagnostics name `thumb_x`, `thumb_y`, `axis_z` and `hall_button`,
 which matches the MHG's mini-stick, twist axis and buttons.
@@ -350,12 +355,18 @@ which matches the MHG's mini-stick, twist axis and buttons.
 `4D0040000551353133383438` from the by-id path. The grip returns a different
 one, as expected for a separate device.
 
-Group 5 answers `02:03:03` on *both* devices, so it is a shared protocol
-version rather than per-device firmware.
+Group 5 answers `01:02:03:03` on *both* devices, so it is a shared
+protocol version rather than per-device firmware.
+
+**Versions are four-part.** Because group 4 ignores the command id, the
+whole 4-byte payload is version data — there is no id byte to strip. An
+earlier revision read only 3 bytes and reported 1.6.4 / 1.11.1, dropping
+the leading field. The `ab6`/`mhg` commands use an empty `id: []` so the
+response parser strips nothing.
 
 > **Correction.** An earlier revision of this document treated ID 19 as the
-> AB6 base, making "AB6 firmware 1.11.1" wrong — 1.11.1 is the *grip*. The
-> base is ID 18 at 1.6.4. Note that ID 18 is `main` and ID 19 is `base` in
+> AB6 base, making "AB6 firmware 1.11.1" wrong — that version is the *grip*'s.
+> The base is ID 18. Note that ID 18 is `main` and ID 19 is `base` in
 > the racing map, which is exactly the trap: the AB6's own map is separate.
 
 ## The AB6 panel — implemented and working
@@ -383,7 +394,7 @@ as a racing base, which is what lets it resolve against its own command set.
   against a real hardware read — the same mechanism the racing panels use.
 
 Verified on hardware: both panels appear in the sidebar, and Home shows the
-base at **1.6.4** with live Roll/Pitch bars plus the grip at **1.11.1**,
+base at **1.1.6.4** with live Roll/Pitch bars plus the grip at **1.1.11.1**,
 each appearing only when its device answers.
 
 The panels deliberately report identity and live axis state only. Group 14's

@@ -7,14 +7,16 @@ from boxflat.widgets import *
 
 
 def format_version(value: int) -> str:
-    """Render a packed version int as major.minor.patch.
+    """Render a packed version int as a four-part version.
 
-    The AB6 answers 0x010b01 and 0x020303, which read as 1.11.1 and 2.3.3.
+    Group 4 ignores the command id, so the whole payload is version data:
+    the base answers 0x01010604 and the grip 0x01010b01, which read as
+    1.1.6.4 and 1.1.11.1.
     """
     if value is None or value < 0:
         return "Unknown"
 
-    return ".".join(str(byte) for byte in value.to_bytes(3, "big"))
+    return ".".join(str(byte) for byte in value.to_bytes(4, "big"))
 
 
 class AB6Settings(SettingsPanel):

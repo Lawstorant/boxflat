@@ -2138,29 +2138,29 @@ commands:
   # Everything below was found with tools/ab6_sweep.py against real hardware;
   # see AB6_STATUS.md.
   #
-  # Group 4 ignores the command id and always returns the same reply. id [1]
-  # is used because that reply happens to begin with 0x01, which is the byte
-  # the response parser matches on.
+  # Group 4 ignores the command id and always returns the same reply, so the
+  # whole 4-byte payload is data - there is no id to strip. An empty id list
+  # tells the response parser exactly that.
   ab6:
     version:
       read: 4
       write: -1
-      id: [1]
-      bytes: 3
+      id: []
+      bytes: 4
       type: int
 
-    # Answers 2.3.3 on both the base and the grip, so it is not per-device.
+    # Identical on both the base and the grip, so it is not per-device.
     protocol-version:
       read: 5
       write: -1
-      id: [1]
-      bytes: 3
+      id: []
+      bytes: 4
       type: int
 
   mhg:
     version:
       read: 4
       write: -1
-      id: [1]
-      bytes: 3
+      id: []
+      bytes: 4
       type: int
