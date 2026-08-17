@@ -3,6 +3,21 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
+**Status as of 2026-08-17 — tested on real hardware.**
+
+| Area | State |
+| :-- | :-- |
+| Detection (HID + serial) | ✅ Works |
+| Base panel activation | ❌ Device answers no racing commands |
+| Settings round-trip | ⛔ Blocked on the above |
+| Protocol framing | ✅ Shared with racing gear, decoder reusable |
+| Command set | ❌ Different — firmware identifies as `Stick` |
+
+Short version: the branch successfully makes the AB6 **detected**, and that
+is where it stops. The AB6 uses the same wire framing as racing gear but a
+different command set, so no settings are readable or writable yet. Next
+step is mapping its command groups.
+
 ## Background
 
 The AB6 is Moza's force-feedback flight joystick base:
@@ -13,6 +28,47 @@ The AB6 is Moza's force-feedback flight joystick base:
 | USB vendor:product | `346e:1002` |
 | Serial interface | CDC-ACM (`/dev/ttyACM*`), 115200 baud, same framing as racing gear |
 | Expected by-id path | `/dev/serial/by-id/usb-Gudsen_MOZA_AB6_FFB_Base_<serial>-if00` |
+
+All four confirmed on real hardware 2026-08-17 (see "Hardware test results").
+The by-id path is exactly as predicted:
+`/dev/serial/by-id/usb-Gudsen_MOZA_AB6_FFB_Base_4D0040000551353133383438-if00`.
+
+### Device topology
+
+From the [AB6 user manual](https://www.mozaracing.com) and MOZA's
+[AB6 guide](https://support.mozaracing.com/en/support/solutions/articles/70000684201-ab6-force-feedback-base-complete-guide):
+
+The AB6 is a **base with a detachable grip**, not a single device. The MHG
+flightstick connects to the base's aviation connector and "will appear on the
+main page along with its firmware version" in Cockpit. That is structurally
+the same arrangement boxflat already models for racing gear — a wheel on a
+wheelbase, with its own device ID on the serial bus.
+
+**Implication:** expect *two* addressable devices, not one. The grip almost
+certainly answers on its own device ID, and grip settings (button lighting,
+mini-stick calibration) are a separate command surface from base settings.
+This is also what the Home panel needs in order to list "AB6 base" and "MHG
+flightstick" separately.
+
+Hardware inventory, for correlating with evdev axes:
+
+| Element | Detail |
+| :-- | :-- |
+| Base torque | 4.4 N·m continuous, 6 N·m peak, dual servo |
+| Encoder | 15-bit magnetic, 1000 Hz USB polling |
+| Base inputs | 2 analog throttle sliders, 8 RGB-backlit buttons |
+| Grip (MHG) | mini-stick (X/Y), Z-axis twist, dual-stage trigger, several switches |
+| Accessory ports | RJ11 — rudder pedals, throttle, dash display |
+| Compatible grips | MH16, MHG, MA3X, plus third-party |
+
+This lines up with the 10 evdev axes observed: `ABS_X`/`ABS_Y` (stick),
+`ABS_RX`/`ABS_RY` (mini-stick), `ABS_RZ` (twist), `ABS_THROTTLE`/`ABS_RUDDER`
+(the two sliders), `ABS_Z`, and `ABS_HAT0X`/`ABS_HAT0Y`.
+
+Note the manual's warning: *"Do not use MOZA flight sim gear with the MOZA
+racing gear."*
+
+### The problem
 
 The reported problem (issue #157): the device works as a plain joystick with
 default autocenter, but boxflat never detects it, so no settings can be
@@ -42,52 +98,174 @@ Branch: `claude/moza-ab6-linux-support-i12g16`, commit `e790ea6`.
   `gudsen (moza )?(r[0-9]{1,2} (ultra base|base|racing wheel and pedals)|ab[0-9]{1,2} ffb base)`.
   One change covers both HID and serial discovery. The AB6 is treated as a
   base, so the Base/Home panels and generic base serial commands (FFB
-  strength, rotation limit, damper, torque, etc.) apply to it. The Moza
-  serial protocol is hardware-agnostic, so these are expected to work where
-  the AB6 firmware implements them.
+  strength, rotation limit, damper, torque, etc.) apply to it.
+
+  > **Superseded by hardware testing.** This bullet originally assumed "the
+  > Moza serial protocol is hardware-agnostic, so these are expected to work
+  > where the AB6 firmware implements them". That is now known to be wrong:
+  > the AB6 shares the *framing* but not the *command set*, and answers none
+  > of the racing commands. See "Hardware test results".
+
 - **`boxflat/hid_handler.py`** — `_update_axis()` now skips axis codes with
   no mapping instead of raising `KeyError`. The AB6 exposes joystick axes
   with no racing counterpart; previously an unknown axis crashed the HID
   read loop, which closed and reopened the device forever.
-- **`README.md`** — AB6 row added to the device table.
 
-Verified so far (no hardware available in this environment):
+  > **Not exercised by this device.** All 10 axes the AB6 actually exposes
+  > are already mapped, so the guard never fires here. See "Hardware test
+  > results". Harmless, but it is not fixing anything on the AB6.
+
+- **`README.md`** — AB6 row added to the device table. The row claims
+  "Detection, base settings"; **the "base settings" half is wrong** and
+  should be corrected before upstreaming.
+
+Verified without hardware (still true):
 
 - Pattern matches `gudsen moza ab6 ffb base` (HID) and
   `usb-gudsen_moza_ab6_ffb_base_…-if00` (serial), still matches
   R5/R9/R12/R25 Ultra bases, and does not match pedals/handbrake/hub.
 - Modified files compile cleanly.
 
-## Not yet verified (needs real hardware)
+## Hardware test results (2026-08-17)
 
-1. **Detection** — run boxflat with the AB6 plugged in. Expected console
-   output: `HID device found: Gudsen MOZA AB6 FFB Base` and
-   `"base" connected`.
-2. **Panel activation** — the Base and Home panels activate only if the
-   device answers a `base-limit` serial read. If they stay greyed out, the
-   AB6 answers on a different device ID or command group (see next section).
-3. **Settings round-trip** — change FFB strength / rotation limit in the
-   Base panel, confirm the device behavior changes, re-read after replug.
-4. **By-id name** — confirm the actual `/dev/serial/by-id` entry name;
-   if manufacturer/product strings differ from the expected form, the serial
-   pattern needs adjusting (`ls -l /dev/serial/by-id/`).
+Tested on CachyOS (Linux 7.1.8), Wayland/KDE, real AB6 attached, running the
+branch from a checkout with `python3 -u entrypoint.py --local`. All serial
+traffic below was **read-only**; no setting was written to the device.
+
+Environment was ready: udev rule installed, `/dev/ttyACM0` mode `0666`,
+`/dev/input/event24` reachable via ACL, all Python deps present.
+
+### 1. Detection — PASS
+
+Console output is exactly what this document predicted:
+
+```
+"base" connected
+HID device found: Gudsen MOZA AB6 FFB Base
+```
+
+Both device nodes are genuinely opened by the process (confirmed via
+`/proc/<pid>/fd`): `/dev/input/event24` (HID) and `/dev/ttyACM0` (serial).
+Serial discovery registers the AB6 under the name `base`. The regex change
+works on both discovery paths, with no regression for racing bases.
+
+Note: these prints are invisible when stdout is redirected to a file without
+`-u` — Python block-buffers them. Use `python3 -u` when capturing logs.
+
+### 2. Panel activation — FAIL
+
+The Base panel never activates, so it never appears in the sidebar (sidebar
+shows only Home / Presets / Generic Devices / Other). `BaseSettings` gates
+itself on `subscribe_connected("base-limit", self.active)`
+(`boxflat/panels/base.py:44`), and that read never succeeds.
+
+### 3. Settings round-trip — BLOCKED
+
+Every readable command in `data/serial.yml` was tried against the device
+using boxflat's own message builder. **0 of 231 commands responded:**
+
+| section | responded | section | responded |
+| :-- | :-- | :-- | :-- |
+| `main` | 0/11 | `dash` | 0/34 |
+| `base` | 0/45 | `hpattern` | 0/6 |
+| `pedals` | 0/31 | `sequential` | 0/8 |
+| `wheel` | 0/75 | `handbrake` | 0/12 |
+| `estop` | 0/2 | `hub` | 0/7 |
+
+### 4. By-id name — PASS
+
+`/dev/serial/by-id/usb-Gudsen_MOZA_AB6_FFB_Base_4D0040000551353133383438-if00`,
+matching the expected form. No pattern adjustment needed.
+
+### Key finding: the AB6 speaks a different command set
+
+The device is not silent — it *rejects* the racing commands. Raw reply to a
+`base-limit` read:
+
+```
+7e:21:0e:31:05:53:74:69:63:6b:20:45:72:72:6f:72:20:43:6d:64:3a:20
+5b:6d:61:69:6e:5f:63:6d:64:3a:20:34:30:5d:0a:5e
+```
+
+Decoded with the framing in [`moza-protocol.md`](./moza-protocol.md):
+
+| field | value |
+| :-- | :-- |
+| start | `0x7e` |
+| length | 33 |
+| group | `0x0e` |
+| device-id | 49 |
+| command-id | `0x05` |
+| payload | `Stick Error Cmd: [main_cmd: 40]\n` |
+| checksum | `0x5e` — **validates** against `(13 + sum) % 256` |
+
+Two things follow, and they matter for the plan below:
+
+- **The framing is shared.** The reply parses cleanly under the documented
+  structure and its checksum validates, so `moza-protocol.md` and boxflat's
+  `MozaCommand` encoder/decoder are reusable as-is.
+- **The command set is not.** `40` = `0x28`, the read-group byte for the
+  wheelbase `limit` command. The firmware calls itself a **`Stick`** and
+  rejects that `main_cmd` outright.
+
+This is *not* a device-ID mismatch. Sweeping IDs 16–31 with the wheelbase
+commands fails at every ID, and only the "Stick Error" reply ever comes
+back. Hypothesis (2) in "How to continue" below — "answers on a different
+device ID" — is therefore ruled out; it is the command groups that differ.
+
+The error string is itself a useful probe: the firmware echoes back the
+`main_cmd` it rejected, so a sweep of group bytes should separate accepted
+from rejected groups without needing Windows captures. Note that hand-rolled
+frames get silently ignored — a group sweep must be built through
+`MozaCommand.prepare_message()` to be framed correctly.
+
+## Separate issue: Home panel shows undetected hardware
+
+Independent of the protocol work, the Home panel hardcodes three groups —
+`Wheelbase`, `Pedals`, `Handbrake` (`boxflat/panels/home.py:28,48,63`) —
+built unconditionally at UI construction. They are wired to `set_active`,
+which greys them out rather than hiding them, so an AB6-only setup still
+shows all three racing sections greyed on the Home page.
+
+Desired behavior: **only show what is actually detected**, i.e. an AB6 base
+and an MHG flightstick for this setup. The fix is to drive these groups by
+visibility rather than sensitivity — compare `SettingsPanel.active()`, which
+already hides correctly via
+`GLib.idle_add(self._button.set_visible, value)` (`settings_panel.py:143`).
+
+Populating Home with AB6/MHG entries depends on the protocol work above,
+since nothing about the AB6 is currently readable to drive that detection.
+Per "Device topology", the MHG grip reports its own firmware version to
+Cockpit, so it should end up as its own entry driven by its own device ID —
+mirroring how a wheel is listed separately from its wheelbase today.
 
 ## How to continue
 
-### If the Base panel doesn't activate
+### Next step: map the AB6 command groups
 
-The AB6 likely uses its own device ID or command groups. To find out:
+This is now the blocking task — the Base panel definitively does not
+activate, and the cause is known to be the command set, not the device ID.
 
-- Uncomment the debug print in `SerialHandler._serial_write_handler` and add
-  one in `_serial_read_handler` to log raw traffic while boxflat polls.
-- Alternatively capture Moza Cockpit ↔ AB6 traffic on Windows with
-  Wireshark + USBPcap, filtering the CDC-ACM interface. The framing is
-  documented in [`moza-protocol.md`](./moza-protocol.md):
-  `0x7e | length | group | device-id | command-id | payload | checksum`
-  (checksum = (13 + sum of bytes) % 256).
-- If the AB6 answers on a new device ID, add it to `device-ids` /
-  `ids-to-names` in `data/serial.yml` and, if needed, a new `ab6` command
-  section — the YAML is the single source of truth for commands.
+1. **Group sweep (cheapest, no Windows needed).** Build messages via
+   `MozaCommand.prepare_message()` and vary only the read-group byte,
+   reading the reply for each. The firmware names the rejected `main_cmd` in
+   its error string, so accepted groups are the ones that answer with
+   something other than `Stick Error`. Hand-built frames are silently
+   dropped, so go through the real encoder.
+2. **Windows capture (authoritative).** Capture Moza Cockpit ↔ AB6 traffic
+   with Wireshark + USBPcap on the CDC-ACM interface. Framing is documented
+   in [`moza-protocol.md`](./moza-protocol.md):
+   `0x7e | length | group | device-id | command-id | payload | checksum`
+   (checksum = (13 + sum of bytes) % 256) — confirmed still accurate for the
+   AB6, so captures can be decoded with the existing tooling.
+3. Add the discovered commands as a new `ab6` section in `data/serial.yml` —
+   the YAML is the single source of truth for commands.
+
+Debug tip: uncomment the print in `SerialHandler._serial_write_handler` and
+add one in `_serial_read_handler` to log raw traffic while boxflat polls.
+
+Ruled out by testing: a different **device ID**. Wheelbase commands fail at
+every ID from 16–31, so only the group/command mapping needs discovering.
 
 ### AB6-specific settings panel (follow-up feature)
 
@@ -104,8 +282,20 @@ behavior). Once captures exist:
 
 The change is deliberately minimal and style-consistent. To upstream, open a
 PR from this branch against `Lawstorant/boxflat` `main` referencing
-issue #157, ideally after hardware confirmation from the issue reporter
-(they offered to provide logs/testing).
+issue #157.
+
+Hardware confirmation now exists (see "Hardware test results"), so the PR no
+longer needs to wait on the issue reporter. Two things to fix first:
+
+- **Correct the README row.** It currently promises "base settings", which
+  do not work. Detection is the honest claim.
+- **Consider dropping the `_update_axis` change** from this PR, or keep it
+  as an explicit standalone hardening commit — it does not affect the AB6
+  and the commit message overstates what it fixes.
+
+Framed accurately, this is still a worthwhile PR: it takes the AB6 from
+completely invisible to detected and connected on both transports, which is
+the prerequisite for all the settings work.
 
 ## Out of scope
 
