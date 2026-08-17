@@ -50,6 +50,42 @@ MozaDevicePresetSettings = {
         "base-ffb-reverse",
         "base-ffb-curve-x1",
     ],
+    # Only the settings the AB6 answers a read for, so a saved preset can be
+    # loaded back verbatim. The version reads are read-only and the
+    # calibration triggers are write-only, so neither round-trips; the two
+    # slider-mode commands do, but what their values actually name is
+    # unconfirmed (see data/serial.yml), so they're left out rather than
+    # replayed blind on every preset load.
+    "ab6" : [
+        "ab6-ffb-mode",
+        "ab6-temp-control-mode",
+        "ab6-torque",
+        "ab6-ffb-intensity",
+        "ab6-spring",
+        "ab6-damper",
+        "ab6-inertia",
+        "ab6-friction",
+        "ab6-game-ffb-gain",
+        "ab6-backlit-brightness",
+        "ab6-light-color",
+        "ab6-centering-effect-strength",
+        "ab6-centering-compensation-range",
+        "ab6-follow-ratio-x",
+        "ab6-follow-ratio-y",
+        "ab6-breakout-force-strength-roll",
+        "ab6-breakout-force-strength-pitch",
+        "ab6-breakout-force-range-roll",
+        "ab6-breakout-force-range-pitch",
+        "ab6-axis-travel-limit-1-positive",
+        "ab6-axis-travel-limit-1-negative",
+        "ab6-axis-travel-limit-2-positive",
+        "ab6-axis-travel-limit-2-negative",
+        "ab6-trim-follow-rate",
+        "ab6-trim-range-0",
+        "ab6-trim-range-1",
+        "ab6-trim-range-2",
+        "ab6-trim-range-3",
+    ],
     "dash" : [
         "dash-rpm-timings",
         "dash-rpm-indicator-mode",
