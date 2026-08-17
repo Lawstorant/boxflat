@@ -3,34 +3,40 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-17 — tested on real hardware.**
+**Status as of 2026-08-17 — tested on real hardware, plus a Windows capture.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ⛔ Group 14 ids found, meanings not decoded |
-| Protocol framing | ✅ Shared with racing gear, decoder reusable |
+| Editable settings | ⛔ Parameter tables found, meanings not decoded |
+| Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
-| AB6's own groups | 🔍 Found — 8 groups return stable data |
-| AB6 settings table | 🔍 Found — group 14, 9 command ids |
-| Diagnostic log | 🔍 Found — firmware streams ASCII internals |
+| AB6's own groups | 🔍 Found — 8+ groups return stable data |
+| Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
+| AB6 settings tables | 🔍 4 tables, 129 params found via a readable diagnostic log |
+| Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
 | AB6 + MHG panels | ✅ Work — gated on real firmware reads |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
 same wire framing as racing gear but its own command set, so the racing
-commands stay dead — but a read-only sweep found where it *does* answer.
+commands stay dead. A user-provided Windows capture of Cockpit's startup
+handshake (see "Windows capture analysis" below) found that the firmware
+logs every setting it loads in **plain ASCII** on its existing diagnostic
+channel — 129 parameter values across 4 tables — and, cross-checked against
+what the user could read directly off Cockpit's UI, caught and fixed a real
+version-display bug already in this branch.
 
 Boxflat now models it correctly as **two devices on one port**: the AB6 base
-(ID 18, firmware 1.1.6.4) and the MHG grip (ID 19, firmware 1.1.11.1). Both
+(ID 18, firmware 1.1.4.6) and the MHG grip (ID 19, firmware 1.1.1.11). Both
 have panels, both are gated on real hardware reads, and the Home page lists
 only hardware that actually answers.
 
-What remains is **meaning**. Group 14 is a real settings table and its nine
-command ids are located, but nothing yet maps an id to a named setting, so
-no editable controls are exposed. That is what the Windows capture in
-[`AB6_CAPTURE_PLAN.md`](./AB6_CAPTURE_PLAN.md) is for.
+What remains is **meaning**. Dozens of parameter addresses and their current
+values are known, but none is attributed to a specific Cockpit UI control
+yet. See "Windows capture analysis" for a cheaper path to that than the
+original capture plan assumed.
 
 ## Background
 
@@ -394,12 +400,151 @@ as a racing base, which is what lets it resolve against its own command set.
   against a real hardware read — the same mechanism the racing panels use.
 
 Verified on hardware: both panels appear in the sidebar, and Home shows the
-base at **1.1.6.4** with live Roll/Pitch bars plus the grip at **1.1.11.1**,
-each appearing only when its device answers.
+base and grip with live Roll/Pitch bars, each appearing only when its device
+answers.
+
+> **Correction (2026-08-17, Windows capture).** The panel displayed
+> **1.1.6.4** / **1.1.11.1** at the time — a straight big-endian read of the
+> raw `01:01:06:04` / `01:01:0b:01` payload. The user then reported the
+> version Cockpit itself shows for the same hardware: **1.1.4.6** / **1.1.1.11**.
+> Those are the same two bytes with the last pair swapped: the wire order is
+> major.minor.**build**.**patch**, not major.minor.patch.build. Fixed in
+> `format_version()` (`boxflat/panels/ab6.py`) — see "Windows capture
+> analysis" below.
 
 The panels deliberately report identity and live axis state only. Group 14's
 ids are located but their meanings are not decoded, so there is nothing yet
 that can honestly be presented as an editable setting.
+
+## Windows capture analysis (2026-08-17)
+
+The user captured Moza Cockpit's connection to a real AB6 on Windows with
+USBPcap + Wireshark (`0x346e:0x1002`, ~4.3s of traffic covering both
+devices' full startup handshake) and provided the `.pcapng`. This is
+exactly the "Phase 1 — Connect / startup" capture that
+[`AB6_CAPTURE_PLAN.md`](./AB6_CAPTURE_PLAN.md) called highest-value: no
+control was touched, so it is entirely passive, read-only traffic — but
+startup alone turned out to reveal far more than expected. Decoded with
+the new `tools/ab6_pcap_decode.py`; raw extracted artifacts are in
+[`captures/2026-08-17-cockpit-launch/`](./captures/2026-08-17-cockpit-launch/).
+
+### Framing correction: async pushes aren't bit7-toggled
+
+Every piece of tooling so far (`tools/ab6_sweep.py`, `MozaCommand`) assumed
+a response's group byte always has bit 7 set, and recovers the real group
+with `toggle_bit(byte, 7)`. That holds for synchronous replies (`0x84` →
+group 4, `0x86` → group 6, etc. — confirmed against this capture, still
+correct). It does **not** hold for the diagnostic log: those frames carry
+the plain group byte `0x0e` (14), unset, because they are asynchronous
+pushes, not a reply to any specific read. Applying the toggle uniformly
+turns `14` into `142` and makes the log frames impossible to attribute
+correctly. `tools/ab6_pcap_decode.py` filters on the raw untoggled byte for
+group 14 specifically; anything reusing `MozaCommand`-style bit7 recovery
+for this stream will misparse it.
+
+### The version-format bug (see correction above)
+
+This is the capture's most concrete outcome: comparing the raw `group 4`
+payload against the version the user read directly off Cockpit's own UI
+caught a real bug in already-merged code. Fixed in `format_version()`
+(`boxflat/panels/ab6.py`) — the wire order is
+major.minor.**build**.**patch**, confirmed against live Cockpit values for
+both devices, not just one:
+
+| Device | Raw payload | Old (wrong) display | Cockpit's actual display |
+| :-- | :-- | :-- | :-- |
+| Base (18) | `01:01:06:04` | 1.1.6.4 | **1.1.4.6** |
+| Grip (19) | `01:01:0b:01` | 1.1.11.1 | **1.1.1.11** |
+
+`protocol-version` (group 5, `01:02:03:03` on both devices) reuses the same
+formatter. Whether Cockpit displays that value anywhere to cross-check
+against is unknown — left as-is since there is no ground truth to verify
+against, and a cosmetic mislabel there is low-stakes.
+
+### The settings sync is a readable ASCII log, not just binary frames
+
+The most useful discovery in this capture: at connect, both firmware images
+log every configuration parameter they load, in plain ASCII, on the
+existing group-14/id-5 diagnostic channel:
+
+```
+[INFO]param_manage.c:340 Table 7, Param 53 Written: 1060320051 0.70000
+[INFO]param_manage.c:340 Table 7, Param 68 Written: 1095761920 13.00000
+[INFO]param_manage.c:340 Table 8, Param 44 Written: 1120403456 100.00000
+```
+
+Each line names a `(table, param)` address and gives the same value twice —
+as a raw `int32` and as that same 4 bytes reinterpreted as an IEEE-754
+`float32` (`param_manage.c` logs generically and doesn't know per-param
+type, so one of the two readings is nonsense for any given param — the
+plausible one is usually obvious, e.g. `0.70000` for a param that looks
+like a gain, versus `2147483008.00000` for one that's clearly not a float
+at all).
+
+129 param writes were captured across four tables — full dump in
+[`captures/2026-08-17-cockpit-launch/param_writes.csv`](./captures/2026-08-17-cockpit-launch/param_writes.csv):
+
+| Device | Table | Params | Param range | Reading (qualitative — unconfirmed) |
+| :-- | --: | --: | :-- | :-- |
+| Base (18) | 2 | 25 | 9–97 | Mostly near-zero/huge raw values that don't read as sane floats — likely motor/hall-sensor calibration constants, not user-facing settings |
+| Base (18) | 7 | 52 | 11–120 | Values in 0–100 with repeated/paired entries (13,25,20,20,28,45,40,40,45,65,60,60,66,83,80,80…) shaped like a curve table — candidate for "Axis Travel" (see capture plan Phase 2). Trailing pairs `(0.5, 0.1)` × 2 are candidate **Vibration** gain/frequency defaults |
+| Base (18) | 8 | 42 | 15–58 | 16 consecutive params all `1.0` (per-axis/per-effect gain matrix?), then three repeats of a `(1.0, 0.5, 0.1)` triple matching Table 7's vibration-shaped pair, then four repeats of a `(0, 100, 100)` triple (four FFB channels with the same default range?) |
+| Grip (19) | 13 | 10 | 5–25 | Small integers (`65280`×3, `15`, `0`, `2`×2, `1`) — plausibly button/LED/mode config, not FFB |
+
+None of this is attributed to a Cockpit UI label yet — that still needs a
+Phase 3 capture where one control is changed at a time. But it changes what
+Phase 3 needs to *be*: see "Revised Phase 3" below.
+
+### The grip's calibration is already human-readable
+
+Separately from the `Table/Param` writes, the grip's diagnostic log carries
+plain descriptive lines — no decoding needed at all:
+
+```
+thumb_x theta: [calib_min: 10.74953, calib_mid: 29.64034, calib_max: 49.29419]
+thumb_y theta: [calib_min: 8.86844, calib_mid: 29.04191, calib_max: 48.79039]
+axis_z theta: [calib_min: 6.35722, calib_mid: 7.49560, calib_max: 9.11345]
+hall_joystick_parm theta: [parm0: 0, parm1: 1, parm2: 0]
+hall_button work_mode: [work_mode: 1]
+```
+
+`thumb_x`/`thumb_y` are the mini-stick, `axis_z` the twist axis — this is
+its hall-sensor calibration range, streamed for free on every connect. This
+could plausibly back a read-only "Grip calibration" diagnostic display in
+`panels/mhg.py` without touching the binary protocol at all, though that is
+a nice-to-have, not a blocker.
+
+### An unattributed binary settings-read burst
+
+Independent of the ASCII log, Cockpit also read two AB6-specific binary
+groups in a tight ~50ms burst around the same time as the param-write log
+(group **31**/device 18: 35 distinct ids in one burst; group **30**/device
+18: 7 ids polled continuously and repeatedly, looking more like live status
+than static settings). The grip saw smaller reads on groups **51** and
+**67** (device 19) — group 67 is consistently rejected
+(`Stick Error Cmd: [main_cmd: 67]`, repeating every ~0.4–1s for the whole
+capture), so whatever Cockpit is polling there isn't implemented by this
+grip firmware and can be ignored. Full group/id breakdown:
+[`captures/2026-08-17-cockpit-launch/binary_traffic_summary.txt`](./captures/2026-08-17-cockpit-launch/binary_traffic_summary.txt).
+
+The burst's timing (concurrent with the Table 7/8 param-write log lines)
+and its id count (35, in the same ballpark as the 52+42 params in Tables
+7/8) are suggestive of group 31 being how these same settings get read back
+over the binary channel — but this is not confirmed, and no id has been
+matched to a specific table/param yet.
+
+### Revised Phase 3 recommendation
+
+Given the above, `AB6_CAPTURE_PLAN.md`'s Phase 3 ("per-setting writes") can
+likely be done far more cheaply than originally planned: **if live writes
+get logged through the same `param_manage.c` path as the boot-time load**,
+then changing one Cockpit control should produce one new
+`Table N, Param M Written` line, readable directly off the serial port —
+no Wireshark or USB decoding required, just a passive text capture. This is
+an unverified hypothesis (this capture only shows the boot-time load, not a
+live write), so it's the first thing to check in the next session: change
+one known-safe setting, and see whether a matching log line appears. If it
+does, `AB6_CAPTURE_PLAN.md` should be rewritten to lead with that method.
 
 ## Home panel now lists only detected hardware
 
@@ -423,42 +568,56 @@ mirroring how a wheel is listed separately from its wheelbase today.
 
 ## How to continue
 
-### Next step: map the AB6 command groups
+### Next step: attribute parameters to Cockpit UI controls
 
-This is now the blocking task — the Base panel definitively does not
-activate, and the cause is known to be the command set, not the device ID.
+The blocking task is no longer *finding* the AB6's settings — the Windows
+capture found 129 of them, across 4 tables, with current values. It's
+**attributing** them: matching a `(table, param)` address to what Cockpit
+labels it, which needs a capture where individual controls are changed one
+at a time.
 
-1. **Group sweep (cheapest, no Windows needed).** Build messages via
-   `MozaCommand.prepare_message()` and vary only the read-group byte,
-   reading the reply for each. The firmware names the rejected `main_cmd` in
-   its error string, so accepted groups are the ones that answer with
-   something other than `Stick Error`. Hand-built frames are silently
-   dropped, so go through the real encoder.
-2. **Windows capture (authoritative).** Capture Moza Cockpit ↔ AB6 traffic
-   with Wireshark + USBPcap on the CDC-ACM interface. Framing is documented
-   in [`moza-protocol.md`](./moza-protocol.md):
-   `0x7e | length | group | device-id | command-id | payload | checksum`
-   (checksum = (13 + sum of bytes) % 256) — confirmed still accurate for the
-   AB6, so captures can be decoded with the existing tooling.
-3. Add the discovered commands as a new `ab6` section in `data/serial.yml` —
-   the YAML is the single source of truth for commands.
+1. **Try the cheap path first.** Watch `/dev/ttyACM0` (or the by-id path)
+   for the diagnostic log while changing one Cockpit setting on Windows —
+   e.g. with a simple serial terminal, or a small script using
+   `SerialHandler`-style framing to print group-14/id-5 text as it arrives.
+   If live writes log through `param_manage.c` the same way the boot-time
+   load does (unconfirmed — see "Revised Phase 3 recommendation" above),
+   this needs no Wireshark at all: change **Spring strength** to `10`, look
+   for a new `Table N, Param M Written` line, change it to `90`, confirm the
+   *same* address changed. Repeat per setting from
+   [`AB6_CAPTURE_PLAN.md`](./AB6_CAPTURE_PLAN.md)'s Phase 3 checklist.
+2. **Fall back to a full Wireshark capture** if the log doesn't carry live
+   writes. Decode with `tools/ab6_pcap_decode.py capture.pcapng --out-dir
+   captures/<name>` — it now handles the AB6's dual framing (toggled
+   replies vs. untoggled async pushes) and reassembles the diagnostic log
+   automatically. Cross-check any version-like or percentage-like value it
+   finds against what Cockpit's own UI shows, the way this session caught
+   the version-display bug — Cockpit's UI is ground truth, this repo's
+   inferences are not.
+3. Once a `(table, param)` is attributed to a named setting, add it to a new
+   `ab6` command section in `data/serial.yml`. The existing binary groups
+   (30/31 on the base, 51/67 on the grip — see "An unattributed binary
+   settings-read burst") are the more likely candidates for a *read/write*
+   command mapping than the diagnostic log itself, since the log is
+   one-directional (device → host only); use the same capture to determine
+   whether a write actually goes out over one of those groups.
 
 Debug tip: uncomment the print in `SerialHandler._serial_write_handler` and
 add one in `_serial_read_handler` to log raw traffic while boxflat polls.
 
-Ruled out by testing: a different **device ID**. Wheelbase commands fail at
-every ID from 16–31, so only the group/command mapping needs discovering.
-
 ### AB6-specific settings panel (follow-up feature)
 
-Moza Cockpit exposes joystick-specific settings (spring/trim, per-axis
-behavior). Once captures exist:
+`panels/ab6.py` and `panels/mhg.py` already exist and are wired up (see
+"The AB6 panel — implemented and working"), deliberately showing identity
+and live axis state only. Once a setting is attributed per the step above:
 
-1. Add an `ab6` command section to `data/serial.yml`.
-2. Create `boxflat/panels/ab6.py` modeled on `panels/base.py`, register it
-   in `boxflat/app.py:_prepare_settings()` and `panels/__init__.py`.
-3. Gate activation on an AB6-only command via
-   `self._cm.subscribe_connected("ab6-<something>", self.active)`.
+1. Add its `read`/`write` group and command id to the `ab6` (or `mhg`)
+   section of `data/serial.yml`.
+2. Add a row to `panels/ab6.py` (or `panels/mhg.py`) under a real
+   "Settings" group, following the pattern already used in
+   `panels/base.py` — a widget, `self._cm.subscribe_connected(...)` for the
+   value, `self._current_row.subscribe(self._cm.set_setting, ...)` for
+   writes.
 
 ### Upstreaming
 

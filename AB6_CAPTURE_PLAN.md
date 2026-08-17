@@ -5,28 +5,55 @@ AB6 command set can be added to `data/serial.yml`.
 
 Companion to [`AB6_STATUS.md`](./AB6_STATUS.md).
 
+> **Phase 1 is done.** A user-provided USBPcap capture of Cockpit's launch
+> (passive, no control touched) is decoded in
+> [`captures/2026-08-17-cockpit-launch/`](./captures/2026-08-17-cockpit-launch/)
+> — see "Windows capture analysis" in `AB6_STATUS.md` for the full writeup.
+> It found 129 settings values across 4 parameter tables via a plain-ASCII
+> diagnostic log, and caught a real version-display bug by cross-checking
+> against Cockpit's own UI. **Read that section before repeating any of
+> Phases 0–2 below** — most of what they'd find is already known. What's
+> still missing is *attribution*: matching a `(table, param)` address to
+> the Cockpit control that changes it, which is what Phase 3 is for. Try
+> the "cheap path" noted there first — it may make the rest of this
+> document (and Wireshark entirely) unnecessary.
+
 ## Already solved — do not re-derive
 
 The local sweep succeeded, so most of Phases 0–2 are done. Confirmed on
-hardware with `tools/ab6_sweep.py` and `tools/ab6_axes.py`:
+hardware with `tools/ab6_sweep.py`, `tools/ab6_axes.py`, and the Windows
+capture above:
 
 | Fact | Value |
 | :-- | :-- |
 | Base device ID | `18` — replies `0x21`, "Base heart beat" |
 | Grip device ID | `19` — replies `0x31`, "Stick heart beat" |
-| Base firmware | group 4 → `1.1.6.4` |
-| Grip firmware | group 4 → `1.1.11.1` |
+| Base firmware | group 4 → `1.1.4.6` (Cockpit's own display — see version-format note below) |
+| Grip firmware | group 4 → `1.1.1.11` |
 | Protocol version | group 5 → `1.2.3.3`, same on both |
 | Serial number | group 6 — matches the USB serial exactly |
-| **Settings table** | **group 14 — 9 command ids, meanings unknown** |
-| Diagnostic log | group 14 / id 5, ASCII, streams continuously |
+| **Settings — ASCII log** | **129 values across 4 tables (2, 7, 8 on the base; 13 on the grip), read but not attributed to Cockpit labels — see `captures/2026-08-17-cockpit-launch/param_writes.csv`** |
+| **Settings — binary** | **Groups 30/31 (base) and 51/67 (grip) read in a burst at connect; ids located, not attributed** |
+| Diagnostic log | group 14 / id 5, ASCII, streams continuously — **its group byte is NOT bit7-toggled**, unlike every other reply (see `AB6_STATUS.md`) |
+
+> **Version-format trap.** The wire byte order is
+> major.minor.**build**.**patch**, not major.minor.patch.build — a plain
+> big-endian read of the 4-byte payload gives the *wrong* display string
+> (e.g. `1.1.6.4` instead of the correct `1.1.4.6`). This was found by
+> comparing the raw payload against what Cockpit itself displays. Fixed in
+> `format_version()` in `boxflat/panels/ab6.py`. If you decode a version
+> field by hand while doing this capture, swap the last two bytes before
+> trusting it, and cross-check against Cockpit's UI wherever possible —
+> that UI is ground truth, this repo's inferences are not.
 
 Both devices are detected, both panels work, and every axis is mapped.
 
-**What this capture is still for: decoding what group 14's command ids
-mean.** Matching an id to a named setting needs writes to correlate, which
-is the one thing a read-only sweep cannot do. Phase 3 is the point of the
-exercise; the earlier phases are now confirmation rather than discovery.
+**What this capture is still for: attributing table/param addresses (or
+binary group/id addresses) to named Cockpit settings.** That needs writes
+to correlate, which a read-only capture cannot do on its own. Phase 3 is
+the point of the exercise; the earlier phases are now confirmation rather
+than discovery — skip straight there unless something below turns out to
+be wrong.
 
 > **The ID trap.** In the *racing* map ID 18 is `main` and ID 19 is `base`,
 > so reading the AB6 through that map attributes the grip's firmware to the
@@ -114,6 +141,22 @@ Then:
 
 *Why: this is the write side and the payload semantics — scaling, ranges,
 byte count — which reads alone cannot tell you.*
+
+> **Try this first, before Wireshark.** The 2026-08-17 capture found that
+> the firmware logs every setting it loads at boot as plain ASCII —
+> `Table N, Param M Written: <raw> <float>` — on the existing diagnostic
+> channel (group 14 / id 5). If live writes get logged the same way (not
+> yet confirmed), you can do this entire phase by just watching the serial
+> port's text output while changing one Cockpit control at a time — no
+> USBPcap, no Wireshark, no frame decoding. Check this before setting up a
+> full capture: plug the AB6 into Linux, run something that prints the
+> group-14/id-5 text stream (or reuse `tools/ab6_pcap_decode.py`'s
+> reassembly logic against a live serial read instead of a pcap), then
+> switch to Windows and change **one** setting. If a new `Table N, Param M
+> Written` line appears, this phase is just "repeat that per setting" — see
+> `AB6_STATUS.md` → "Windows capture analysis" → "Revised Phase 3
+> recommendation". If nothing appears, live writes aren't logged this way,
+> and the checklist below (full USB capture) is necessary after all.
 
 Rules for this phase:
 
@@ -242,7 +285,15 @@ Frame structure (confirmed still accurate for the AB6):
 | Payload ints | 2 bytes, **big-endian**, in all existing racing commands |
 | Write group | `read group + 1` (e.g. base is read 40 / write 41) |
 | Rejection reply | `Stick Error Cmd: [main_cmd: N]` — names the rejected group |
-| Device-id seen | `49` (`0x31`) in AB6 replies |
+| Device-id seen | `49` (`0x31`) in AB6 replies (nibble-swapped `0x21`/`0x31` → 18/19 for base/grip) |
+
+> **The diagnostic log is the one exception to bit7-toggling.** Every other
+> reply sets bit 7 on the group byte (`toggle_bit(byte, 7)` recovers the
+> real group). The async diagnostic-log pushes (group 14 / id 5) do **not**
+> — their group byte is the plain, untoggled value `14`. Code that assumes
+> uniform toggling (including earlier revisions of this repo's own tooling)
+> misreads it as group 142. See `AB6_STATUS.md` → "Windows capture
+> analysis" → "Framing correction".
 
 What each discovered setting needs, to become a `serial.yml` entry:
 
@@ -259,8 +310,20 @@ What each discovered setting needs, to become a `serial.yml` entry:
 Then add an `ab6:` section to `data/serial.yml` and update
 [`AB6_STATUS.md`](./AB6_STATUS.md) with what was found.
 
-> **Possible shortcut — try before booting Windows.** The local group sweep
-> described in `AB6_STATUS.md` may cover Phases 1–2 for free, since the
-> firmware names the rejected `main_cmd` in its error reply. Reads are what
-> gate the UI, so a sweep alone might get the Base panel activating. The
-> capture's unique value is Phase 3 onward.
+To decode a new capture, run:
+
+```bash
+python3 tools/ab6_pcap_decode.py capture.pcapng --out-dir captures/<name>
+```
+
+It extracts the AB6's CDC traffic by USB VID:PID automatically, reassembles
+the diagnostic log (handling the async-push framing correctly), pulls out
+any `Table N, Param M Written` lines, and summarizes the binary group/id
+traffic seen. See `captures/2026-08-17-cockpit-launch/` for the shape of
+its output.
+
+> **The "shortcut" already paid off once.** A passive Phase-1-only capture
+> (Cockpit launch, no control touched) found 129 settings values and caught
+> a real bug — see `AB6_STATUS.md` → "Windows capture analysis". Reads
+> alone got much further than expected; **try the Phase 3 "cheap path"
+> above before planning a full write-by-write capture.**
