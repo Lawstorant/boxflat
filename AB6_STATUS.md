@@ -12,11 +12,17 @@ Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/i
 | Settings round-trip | ⛔ Blocked on the above |
 | Protocol framing | ✅ Shared with racing gear, decoder reusable |
 | Command set | ❌ Different — firmware identifies as `Stick` |
+| AB6's own groups | 🔍 Found — 8 groups return stable data |
+| Diagnostic log | 🔍 Found — firmware streams ASCII internals |
 
 Short version: the branch successfully makes the AB6 **detected**, and that
-is where it stops. The AB6 uses the same wire framing as racing gear but a
-different command set, so no settings are readable or writable yet. Next
-step is mapping its command groups.
+is where it stops for now. The AB6 uses the same wire framing as racing gear
+but a different command set, so no settings are readable or writable yet.
+
+A read-only sweep has since found where it *does* answer — groups 2, 4, 5, 6,
+10, 12, 14 and 19 return stable payloads, including two version-shaped and
+one UID-shaped reply — plus a live ASCII diagnostic log. See "Sweep results".
+Next step is mapping command ids inside those groups.
 
 ## Background
 
@@ -218,6 +224,66 @@ The error string is itself a useful probe: the firmware echoes back the
 from rejected groups without needing Windows captures. Note that hand-rolled
 frames get silently ignored — a group sweep must be built through
 `MozaCommand.prepare_message()` to be framed correctly.
+
+## Sweep results — the AB6 does answer, on its own groups
+
+Run with `tools/ab6_sweep.py` (read-only) over all 256 group bytes at device
+id 19. This supersedes the bleaker reading above: the racing commands all
+fail, but the device is far from mute.
+
+| Outcome | Count |
+| :-- | --: |
+| Carried a real payload | 14 |
+| Empty ack (group exists, command id 1 isn't one of its) | 67 |
+| Rejected with `Stick Error` | 49 |
+| Silent | 126 |
+
+### Groups that return real data
+
+Byte-identical across repeated runs, so these are stable responses, not
+noise. The payload echoes the requested command id (`01`) and then the value:
+
+| Group | Payload | Reading |
+| :-- | :-- | :-- |
+| 2 | `02` | single byte, no id echo |
+| 4 | `01:01:0b:01` | id 1 → `1.11.1`? version-shaped |
+| 5 | `01:02:03:03` | id 1 → `2.3.3`? version-shaped |
+| 6 | `2d:57:3b:c4:80:73:30:0c:34:38:34:31` | 12 bytes, no id echo — UID/serial-shaped |
+| 10 | `01:00:01` | id 1 → 1 |
+| 12 | `01:00:00:00` | id 1 → 0 |
+| 14 | `01:00:01:ff:ff:ff:ff` | id 1 → 1, plus `ff` padding |
+| 19 | `01:00:01` | id 1 → 1 |
+
+Groups 4, 5 and 6 are the most promising leads: two version-shaped replies
+and one UID-shaped reply are exactly the kind of identity command needed to
+gate a panel, the AB6's equivalent of `base-limit`.
+
+### The device has an ASCII diagnostic log
+
+Probing high groups produced framed **text** on response group 14, command
+id 5 — the same channel the `Stick Error` messages arrive on:
+
+```
+[INFO]stick_diag.c:126 Stick heart beat log
+thumb_y theta: [calib_min: 8.86844, calib_mid: 29.04191, calib_…
+hall_joystick_parm theta: [parm0: 0, parm1: 1, parm2: 0]
+thumb_x theta: [threshold_high 0: 49.29419, threshold_high 1: 4…
+```
+
+The firmware streams live internal diagnostics — mini-stick (`thumb_x` /
+`thumb_y`) calibration bounds, hall sensor parameters, thresholds, and a
+heartbeat.
+
+Two consequences:
+
+- **Caveat on the sweep output.** These lines are asynchronous, so any
+  "data" result whose *reply* group is 14 while a different group was
+  requested is a log line that happened to land in the window, not an answer.
+  The eight groups tabulated above all replied on the group they were asked,
+  which is why they are trustworthy.
+- **This is a free instrument.** Listening to group 14 / id 5 while Cockpit
+  drives the device may reveal internals directly, and the log names source
+  files and parameters. Worth a passive listen before any Windows capture.
 
 ## Separate issue: Home panel shows undetected hardware
 
