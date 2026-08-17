@@ -117,6 +117,17 @@ class AB6Settings(SettingsPanel):
         self._current_row.subscribe(self._cm.set_setting, "ab6-game-ffb-gain")
         self._cm.subscribe("ab6-game-ffb-gain", self._current_row.set_value)
 
+        # Confirmed against real hardware from the Slider Axis Calibration
+        # capture - see data/serial.yml. Cockpit's single "Start
+        # Calibration" button actually fires one trigger per slider; this
+        # mirrors that with a single button too, rather than exposing two
+        # separate ones for a single physical wizard flow.
+        self.add_preferences_group("Panel Settings")
+
+        self._add_row(BoxflatButtonRow("Slider Axis Calibration", "Start Calibration",
+            subtitle="Move both sliders through their full range when prompted"))
+        self._current_row.subscribe(self._start_slider_calibration)
+
         # Confirmed against real hardware from the Panel Settings page
         # capture - see data/serial.yml: ab6-light-color, ab6-backlit-brightness.
         self.add_preferences_group("Panel Lighting")
@@ -258,3 +269,8 @@ class AB6Settings(SettingsPanel):
         if not isinstance(value, list) or len(value) != 5:
             return
         self._light_color_row.set_led_value(value[2:], 0)
+
+
+    def _start_slider_calibration(self, *_) -> None:
+        self._cm.set_setting(1, "ab6-slider-calibration-start-1")
+        self._cm.set_setting(1, "ab6-slider-calibration-start-2")

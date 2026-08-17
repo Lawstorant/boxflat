@@ -2458,6 +2458,32 @@ commands:
       bytes: 1
       type: int
 
+    # Confirmed on real hardware from a ninth Windows capture (2026-08-19,
+    # Panel Settings -> Slider Axis Calibration). Clicking Cockpit's single
+    # "Start Calibration" button sends two writes, id 112 with a selector
+    # byte 0/1 for slider 1/2, value 1 to trigger. This is write-only: the
+    # resulting min/max isn't sent by the host, it's computed by the
+    # firmware as the user moves the sliders and logged directly -
+    # "Panel calib_min_value: N, calib_max_value: M" - then stored into
+    # Table 2 params 47-50 (mins 47/48, maxes 49/50, each offset from the
+    # logged raw value by an exact 750-unit inward margin). No read/write
+    # id for those stored values was seen in this capture, so there's
+    # nothing to expose as a readable "calibrated range" yet - only the
+    # trigger. See captures/2026-08-19-panel-slider-calibration/.
+    slider-calibration-start-1:
+      read: -1
+      write: 31
+      id: [112, 0]
+      bytes: 1
+      type: int
+
+    slider-calibration-start-2:
+      read: -1
+      write: 31
+      id: [112, 1]
+      bytes: 1
+      type: int
+
   mhg:
     version:
       read: 4

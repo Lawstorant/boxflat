@@ -1,0 +1,8 @@
+[INFO]main_panel.c:580 Panel calib start!
+[INFO]main_panel.c:580 Panel calib start!
+Panel calib_min_value: 22578, calib_max_value: 41989
+Panel calib_min_value: 21623, calib_max_value: 44408
+[INFO]param_manage.c:340 Table 2, Param 47 Written: 23328 0.00000
+[INFO]param_manage.c:340 Table 2, Param 48 Written: 22373 0.00000
+[INFO]param_manage.c:340 Table 2, Param 49 Written: 41239 0.00000
+[INFO]param_manage.c:340 Table 2, Param 50 Written: 43658 0.00000
