@@ -118,7 +118,9 @@ may each live in their own).*
 Cockpit's page structure, per the AB6 manual — visit these in order:
 
 - [x] **Basic Settings** — base parameters, real-time status. **Done** —
-  see `AB6_STATUS.md` → "FFB Mode..." and "Seven more settings...".
+  see `AB6_STATUS.md` → "FFB Mode..." and "Seven more settings...". X/Y/Z
+  stick calibration also done, 2026-08-19 — see "Stick and Cogging
+  Torque calibration...".
 - [~] **Advanced Settings** (Cockpit's actual label — this doc's "Expert
   Settings" guess was wrong). **Partially done, 2026-08-18** — Centering
   (2 of ~7 controls) and Trim/Autopilot Following (4 of ~15+ controls)
@@ -159,10 +161,13 @@ Cockpit's page structure, per the AB6 manual — visit these in order:
   "A page we didn't know about". Five booleans, the trim button bindings,
   and the Miscellaneous toggles (Base Force Model Selection, Grip Removal
   Protection, Extend Travel Range) remain open.
-- [ ] **MHG grip page** — click the grip icon on the main page. **Partially
-  done, 2026-08-18** — see `AB6_STATUS.md` → "The grip has its own command
-  set". The user confirmed the grip has only this one settings tab (no
-  separate Advanced/Panel/Special pages of its own).
+- [x] **MHG grip page** — click the grip icon on the main page. **Partially
+  done, 2026-08-18/19** — see `AB6_STATUS.md` → "The grip has its own
+  command set" and "Stick and Cogging Torque calibration...". The user
+  confirmed the grip has only this one settings tab (no separate
+  Advanced/Panel/Special pages of its own). Hat/Yaw/Cogging Torque
+  calibration all done; Enable Yaw Axis Output, the Mode 1/Mode 2 mapping
+  dropdowns and Mapping Range remain open.
 
 Then:
 

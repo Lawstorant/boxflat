@@ -3,23 +3,24 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-19 — tested on real hardware, plus eleven Windows captures.**
+**Status as of 2026-08-19 — tested on real hardware, plus seventeen Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ✅ **35 confirmed and wired up** — 29 on the AB6 base, 6 on the MHG grip |
+| Editable settings | ✅ **41 confirmed and wired up** — 32 on the AB6 base, 9 on the MHG grip |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
 | AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6 base's settings table — spans Tables 2, 7 and 8, with a multi-byte-id addressing style for some |
-| **MHG's own groups** | ✅ **Group 50 (read) / 51 (write) — a different pair from the base**, same multi-byte-id shape, on Table 13 |
+| **MHG's own groups** | ✅ **Two more pairs beyond the base's 30/31**: group 50 (read) / 51 (write) on Table 13, plus group **52** (write-only) for calibration triggers |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| Settings tables | 🔍 4+ diagnostic-log tables (2, 7, 8, 13), 129+ params — 37 attributed so far |
+| Settings tables | 🔍 6+ diagnostic-log tables (2, 3, 4, 5, 6, 7, 8, 13), 350+ params seen — 43 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
 | Live force feedback | ℹ️ Confirmed out of scope — runs over standard USB HID, not this protocol (see "Out of scope") |
 | Telemetry FFB page | ℹ️ Likely never touches the serial protocol at all — see below |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 35 settings live |
+| Calibration triggers | ✅ **6 confirmed** — X/Y stick, Cogging Torque (AB6), Hat X/Y, Yaw (MHG); a "Z" axis on the AB6 doesn't exist |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 41 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
@@ -1169,6 +1170,120 @@ start trigger, never the resulting min/max — and no read or write id for
 these four params was seen in this capture (Cockpit didn't read them back
 afterward in this session). Nothing to expose as a "view calibrated range"
 command yet; would need a capture that reopens the page after calibrating.
+
+## Stick and Cogging Torque calibration: five more triggers (2026-08-19)
+
+Five more captures, provided by the user, of every remaining calibration
+wizard across both devices: AB6 Basic Settings' X/Y/Z stick calibration,
+and MHG Basic Settings' Grip Hat, Yaw, and Cogging Torque calibration.
+Every one follows the same shape already established by Slider
+Calibration — a clean, write-only trigger, with the actual calibrated
+result computed and stored by the firmware on its own, never sent by or
+read back to the host. Four confirmed and added; one (the AB6's own "Z")
+turned out not to exist.
+
+| Capture | Device | Group | id(s) | Confirmed as |
+| :-- | :-- | --: | :-- | :-- |
+| X (Roll) stick calibration | AB6 base | 31 | 128 | `ab6-stick-x-calibration-start` |
+| Y (Pitch) stick calibration | AB6 base | 31 | 129 | `ab6-stick-y-calibration-start` |
+| "Z" stick calibration | AB6 base | — | — | **Rejected by firmware ("calib invalid!"), no host trigger found — this axis doesn't exist on the AB6** |
+| Grip Hat Axis Calibration | MHG grip | **52** (new) | 4, 5 | `mhg-hat-x-calibration`, `mhg-hat-y-calibration` |
+| Yaw Axis Calibration | MHG grip | 52 | 6 | `mhg-yaw-calibration` |
+| Cogging Torque Calibration | AB6 base (despite living on the MHG page) | 31 | 194 | `ab6-cogging-torque-calibration-start` |
+
+### X/Y stick calibration (AB6 base)
+
+Single write-only trigger each, payload always `[0x00, 0x00]`. The
+firmware runs a "hand calibration" — the user moves the stick to its
+physical extremes, the firmware measures and stores a symmetric
+`+/-max_pos` in radians:
+
+```
+[INFO]steer.c:1594 motor_x hand_cali start
+[INFO]steer_cali.c:146 hand_cali end, max_pos: 1.80925, min_pos: -1.80925
+[INFO]param_manage.c:340 Table 7, Param 55 Written: 1.80925
+[INFO]param_manage.c:340 Table 7, Param 56 Written: -1.80925
+```
+
+`motor_x`/`motor_y` in the firmware's own log confirms these are the AB6's
+two motorized axes — matching this panel's existing Roll/Pitch HID axis
+labels exactly (`MozaAxis.STEERING` and `MozaAxis.COMBINED_PADDLES`).
+Wired up as two buttons in a new "Stick Calibration" group.
+
+### The AB6's "Z" axis doesn't exist — confirmed by the firmware itself, and by the user
+
+A third capture attempted the same thing for a "Z" axis. Nothing like
+`steer.c`'s clean success showed up — instead:
+
+```
+[INFO]stick_yaw.c:202 Stick_yaw calib start!
+[INFO]stick_yaw.c:238 Stick_yaw calib invalid!
+```
+
+**No host write was found anywhere in this capture either** — unlike X/Y,
+there isn't even a trigger to record. The user independently confirmed the
+AB6 base has no such axis; real Yaw/twist calibration belongs to the MHG
+grip (below). Recorded as negative evidence rather than left a mystery —
+`stick_yaw.c` existing in the base's firmware at all is presumably shared
+code with a sibling product that does have a base-mounted yaw axis.
+
+### The grip's calibration commands use a third group (52)
+
+Neither of the grip's two known groups (50 read, 51 write) accounted for
+Hat or Yaw calibration. The actual traffic uses **group 52**, write-only,
+value 1 to start and 0 to stop:
+
+```
+04 01   id 4 (mini-stick X), start
+05 01   id 5 (mini-stick Y), start        <- fired together, one button
+  ... (user moves the mini-stick) ...
+04 00   id 4, stop
+05 00   id 5, stop
+```
+
+Yaw calibration is the same shape with a single id (6) instead of a pair,
+matching a single rotational axis rather than X+Y. Both wired up with
+`BoxflatCalibrationRow` — the same widget already used for pedal
+calibration elsewhere in boxflat, which handles the start/countdown/stop
+UX automatically. Results (Table 13 params 9–14 for the Hat) are
+firmware-computed and logged directly, same treatment as everything else.
+
+### Cogging Torque Calibration: a base command hiding on the grip's page
+
+Cockpit places this button under MHG → Grip Settings, but the traffic
+targets **the AB6 base**, not the grip — `device 18`, and the firmware's
+own `steer.c`/`motor_middleware_cogging.c`. That placement makes sense
+once you consider *why* it's needed: cogging torque compensation corrects
+for the motor's own detent/ripple, and the correct compensation curve
+depends on the inertia (weight) loaded onto the shaft — which is the
+grip. The AB6 supports multiple interchangeable grips (MHG, MH16, MA3X,
+per the hardware inventory), so swapping grips changes what the base's
+motors need to compensate for. Cockpit surfacing the trigger on the
+currently-attached grip's page, rather than as a fixed base-only setting,
+reflects that the calibration is really "recalibrate the base for *this*
+grip" — even though the command itself, unsurprisingly, still targets the
+base. Same write-only trigger shape as everything else (group 31, id 194,
+payload `[0x00, 0x00]`).
+
+**What happens afterward is by far the largest result in this whole
+project**: the calibration runs autonomously for a long time (the second
+half of this two-part capture alone is ~45,000 CDC frames) and produces
+**246 values across two 123-entry tables** (5 and 6, params 5–127, almost
+certainly one per motor axis) — a cogging-torque compensation lookup table
+sampled across the motor's full rotation:
+
+```
+Table 6, Param 113 Written: -1.49803
+Table 6, Param 114 Written: -6.02352
+Table 6, Param 115 Written: -24.21960
+Table 6, Param 116 Written: -97.37842
+```
+
+Not modeled as individual settings — nowhere close to something a user
+would want to view or edit entry-by-entry — and no read id was seen for it
+regardless. Only the trigger is exposed, in the MHG panel (matching
+Cockpit's own placement) via a small wrapper method that calls the AB6
+command by name, since `MozaConnectionManager` is shared across panels.
 
 ## Home panel now lists only detected hardware
 
