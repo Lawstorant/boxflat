@@ -3,26 +3,28 @@
 Tracking work on Moza AB6 FFB Base support for boxflat on Linux.
 Upstream issue: [Lawstorant/boxflat#157](https://github.com/Lawstorant/boxflat/issues/157)
 
-**Status as of 2026-08-18 — tested on real hardware, plus seven Windows captures.**
+**Status as of 2026-08-18 — tested on real hardware, plus ten Windows captures.**
 
 | Area | State |
 | :-- | :-- |
 | Detection (HID + serial) | ✅ Works |
 | Racing commands | ❌ Device answers none of them |
-| Editable settings | ✅ **28 confirmed and wired up** — 22 on the AB6 base, 6 on the MHG grip (Status/Button Light Brightness and Color) |
+| Editable settings | ✅ **33 confirmed and wired up** — 27 on the AB6 base, 6 on the MHG grip |
 | Protocol framing | ✅ Shared with racing gear; async pushes need a fix (see below) |
 | Command set | ❌ Different — firmware identifies as `Stick` |
 | AB6's own groups | ✅ Group 30 (read) / 31 (write) is the AB6 base's settings table — spans Tables 2, 7 and 8, with a multi-byte-id addressing style for some |
 | **MHG's own groups** | ✅ **Group 50 (read) / 51 (write) — a different pair from the base**, same multi-byte-id shape, on Table 13 |
 | Firmware/protocol version | ✅ Read correctly and **display-format bug fixed** |
-| Settings tables | 🔍 4+ diagnostic-log tables (2, 7, 8, 13), 129+ params — 30 attributed so far |
+| Settings tables | 🔍 4+ diagnostic-log tables (2, 7, 8, 13), 129+ params — 35 attributed so far |
 | Diagnostic log | ✅ Reassembled and parsed — see "Windows capture analysis" |
-| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 28 settings live |
+| Live force feedback | ℹ️ Confirmed out of scope — runs over standard USB HID, not this protocol (see "Out of scope") |
+| Telemetry FFB page | ℹ️ Likely never touches the serial protocol at all — see below |
+| AB6 + MHG panels | ✅ Work — gated on real firmware reads, 33 settings live |
 | Home page | ✅ Now lists only detected hardware |
 
 Short version: the AB6 is detected, identified and displayed. It uses the
 same wire framing as racing gear but its own command set, so the racing
-commands stay dead. Seven user-provided Windows captures moved this
+commands stay dead. Ten user-provided Windows captures moved this
 forward a lot:
 
 1. A passive capture of Cockpit's startup handshake found that the firmware
@@ -57,8 +59,20 @@ forward a lot:
    read/write, not the base's 30/31), and confirmed both of its lighting
    zones' Brightness and Color. See "The grip has its own command set"
    below.
+8. A capture of an actual **DCS session** with Integrated FFB active
+   confirmed live force feedback runs over standard USB HID, not this
+   protocol at all — see "Out of scope" below.
+9. A capture of the **Telemetry FFB** page's "Dynamic Damping (Aileron)"
+   effect had zero writes even after the user changed every control on
+   it — evidence this whole page's settings never reach the device over
+   the serial protocol in the first place. See "Telemetry FFB likely
+   never touches the serial protocol at all" below.
+10. A capture of the **Special** page — not in this project's original
+    page inventory, found by the user browsing Cockpit's tabs directly —
+    confirmed Trim Follow Rate and a 4-selector Trim Range. See "A page we
+    didn't know about" below.
 
-28 settings are now working controls across the AB6 and MHG panels — 22 on
+33 settings are now working controls across the AB6 and MHG panels — 27 on
 the base, spanning three diagnostic-log tables (2, 7, 8) on group 30/31,
 and 6 on the grip's own Table 13 on its own group 50/51. Two independent
 general-purpose settings tables, same underlying framing and addressing
@@ -69,14 +83,18 @@ Boxflat now models it correctly as **two devices on one port**: the AB6 base
 have panels, both are gated on real hardware reads, and the Home page lists
 only hardware that actually answers.
 
-What remains is **meaning** for everything else. Dozens of parameter
-addresses and their current values are known, but only 30 are attributed
-to a specific Cockpit UI control (a few more have a confirmed wire format
-but unconfirmed option meaning, or a confirmed value but unconfirmed axis
-identity — see "Panel lighting", "Advanced Settings", "Axis Travel" and
-"The grip has its own command set" below). See "Windows capture analysis"
-for the correlation method, now demonstrated six times at increasing
-scale — repeating it against Telemetry FFB, the Output Mapping Curve, and
+What remains is **meaning** for everything still on the base's and grip's
+own pages (Special's five unattributed booleans, Panel Settings' Light
+Mode/Pattern/Effect, the Output Mapping Curve, Axis Offset, Invert Axis,
+the rest of MHG's Grip Settings) — Telemetry FFB looks to be structurally
+out of reach rather than merely unattributed, per above. 35 parameter
+addresses are attributed to a specific Cockpit UI control so far (a few
+more have a confirmed wire format but unconfirmed option meaning, or a
+confirmed value but unconfirmed axis/direction identity — see "Panel
+lighting", "Advanced Settings", "Axis Travel", "The grip has its own
+command set", and "A page we didn't know about" below). See "Windows
+capture analysis" for the correlation method, now demonstrated seven times
+at increasing scale — repeating it against the Output Mapping Curve and
 the rest of the MHG's own Grip Settings is the direct path to covering the
 rest, and one more targeted capture (logging the specific value set at
 each step) would resolve the three still-ambiguous Panel Settings ids.
@@ -1023,6 +1041,80 @@ was handled — **not** wired into the panel.
   are all momentary actions (buttons), not persisted settings — need their
   own one-shot semantics, not this file's read/write pair, the same
   reasoning that excluded the AB6 base's "Reset" button above.
+
+## Telemetry FFB likely never touches the serial protocol at all
+
+The user changed every control on the "Dynamic Damping (Aileron)" effect
+(Enable Effect, Effect Strength, Aerodynamic Damping, the curve) in a
+follow-up to the capture noted in `AB6_CAPTURE_PLAN.md`'s Telemetry FFB
+entry — and confirmed **nothing showed up on USB**. That's not a capture
+mistake. It fits everything else observed about Telemetry FFB:
+
+- The DCS session capture (see "Out of scope" above) showed live force
+  feedback running entirely over standard USB HID interrupt transfers, not
+  the CDC serial channel this document reverse-engineers.
+- Telemetry FFB configuration is inherently per-aircraft (the page is
+  filtered by airframe, e.g. "Jet 27") and Cockpit's own preset selector
+  shows "DCS Hornet (Unsaved)" - language that fits a **local profile
+  database on the PC**, not a value synced to the device's own settings
+  table the way Basic/Advanced/Panel/Special settings all are.
+
+Working theory: Telemetry FFB curves and strengths live entirely in
+Cockpit's local per-aircraft profile, get evaluated against live telemetry
+on the PC, and only ever reach the AB6 as computed HID PID force commands
+during actual gameplay — never as a stored "setting" over the serial
+protocol at all. If that's right, this page is **permanently out of scope**
+for `data/serial.yml` in a way none of the other pages are - there's no
+serial command to find, because none exists. Nothing to do here unless
+this theory turns out to be wrong for some other effect or control on the
+page.
+
+## A page we didn't know about: Special settings (2026-08-18)
+
+An eighth capture, provided by the user: Cockpit's **Special** page —
+not in this project's original page inventory (`AB6_CAPTURE_PLAN.md`'s
+"Cockpit's page structure" list predates knowing this tab existed), found
+by the user browsing Cockpit's tabs directly. Covers **Controls**
+(Hardware Trim Mode, Trim Mode Direct Input/Hardware, hardware trim button
+bindings, Trim Follow Rate, Trim Range) and **Miscellaneous** (Base Force
+Model Selection, Grip Removal Protection, Extend Travel Range). Decoded
+into [`captures/2026-08-18-special-settings/`](./captures/2026-08-18-special-settings/).
+
+### Confirmed: Trim Follow Rate, and a 4-selector Trim Range
+
+Same method, same group 30/31:
+
+| Setting | id | Values seen | Confidence |
+| :-- | --: | :-- | :-- |
+| Trim Follow Rate | 196 | `10, 8` (final) | High — matches screenshot's 8 exactly, direct 1-20 range |
+| Trim Range (×4) | `[198, 0..3]` | each `X, 100` (final) | High on the value, unconfirmed on direction |
+
+The four Trim Range selectors are the **same `[id, selector]` shape** as
+`slider-mode-left`/`-right` and the Axis Travel Limit commands, just with
+4 selectors instead of 2 — matching the page's 4-direction (+X/-X/+Y/-Y)
+control. All four ended at wire value 100, matching all four screenshot
+fields showing 100% — but with all four landing on the *same* value, same
+situation as `axis-travel-limit-1`/`-2`: nothing to disambiguate which
+selector is which physical direction. Added as `trim-range-0` through
+`trim-range-3`, named by selector number rather than guessing a direction.
+
+### Found, not attributed: five booleans, one on a different table
+
+Params 102, 114, 122, 123 (Table 7) and 44 (Table 2, notably the only one
+*not* on Table 7 like everything else on this page — recalls how the
+Panel Settings lighting stuff also lived on Table 2 while Basic Settings
+lived on Table 7). Plausible candidates for the five: Hardware Trim Mode,
+Grip Removal Protection, Base Force Model Selection, Extend Travel Range —
+one candidate short of the five available slots even before considering
+that the trim button bindings (unbind/bind assignments) aren't settings
+in this file's sense at all. Two of the five (params 102 and 114) show a
+"touched near the start, long gap, touched again near the end" shape,
+suggestive of a top-level toggle that gates the visibility of everything
+below it — the same pattern the Centering page's Adaptive Centering
+Compensation showed in an earlier capture. Not decoded further; the
+button-binding controls and calibration buttons on this page also aren't
+settings in this file's read/write sense and were excluded for the same
+reason as the AB6 base's "Reset" button and the MHG's calibration buttons.
 
 ## Home panel now lists only detected hardware
 

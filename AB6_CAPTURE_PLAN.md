@@ -126,29 +126,40 @@ Cockpit's page structure, per the AB6 manual — visit these in order:
   Trim/Autopilot Following". Physics Model Settings' "Advanced" mode
   (distinct from "Simplified", which is just the already-confirmed Basic
   Settings sliders again) not captured yet.
-- [ ] **Telemetry FFB** — telemetry-driven effects config. **Scope seen,
-  2026-08-18, nothing captured yet.** This page is much bigger than every
-  other page combined: a searchable, filterable (per-aircraft, e.g. "Jet
-  27") tree of dozens of effects across categories like Q-feel, Pilot
-  Feel, Main Wing, Weapon System, Control Surface, Mechanical, Flaps,
-  Gears, Speedbrake, Spoilers, Atmosphere & Env, Jet Engine. Each effect
-  has its own Enable toggle, Effect Strength slider, and often a
-  parameter-specific curve (e.g. "Dynamic Damping (Aileron)" has an
-  Aerodynamic Damping toggle plus a Damper-vs-TAS curve, 0-600 m/s). A
-  first capture of this one effect had **zero writes** - the user only
-  viewed it, didn't toggle or drag anything - so there's nothing to
-  correlate yet. Same recipe as everything else in this file applies:
-  actually change one control to a specific, memorable value and capture
-  that. Given the sheer number of effects, prioritize ones representative
-  of different control shapes (a toggle, a plain slider, a curve) rather
-  than trying to cover all of them.
+- [x] **Telemetry FFB** — telemetry-driven effects config. **Likely
+  structurally out of scope, confirmed 2026-08-18 — stop capturing this
+  page.** This page is much bigger than every other page combined: a
+  searchable, filterable (per-aircraft, e.g. "Jet 27") tree of dozens of
+  effects across categories like Q-feel, Pilot Feel, Main Wing, Weapon
+  System, Control Surface, Mechanical, Flaps, Gears, Speedbrake, Spoilers,
+  Atmosphere & Env, Jet Engine, each with an Enable toggle, Effect
+  Strength slider, and often a curve. A first capture of one effect had
+  zero writes because nothing was touched; a **second capture, where the
+  user changed every control on that same effect, also had zero writes.**
+  Combined with the DCS session capture showing live FFB runs entirely
+  over standard USB HID (not this serial protocol), the working theory is
+  that Telemetry FFB curves/strengths live in Cockpit's own local
+  per-aircraft profile and only ever reach the device as computed HID PID
+  force commands during gameplay — never as a stored serial setting. See
+  `AB6_STATUS.md` → "Telemetry FFB likely never touches the serial
+  protocol at all". Don't spend another capture confirming this unless
+  something concrete suggests the theory is wrong for a specific control.
 - [~] **Axis Travel** — axis output curves. **Partially done, 2026-08-18**
   — the 4 Travel Limit sliders (2 directions × 2 axes) confirmed; see
   `AB6_STATUS.md` → "Axis Travel...". The Output Mapping Curve itself,
   Axis Offset, Invert Axis, and the third axis remain open.
 - [x] **Panel Settings** — the 2 sliders and 8 RGB buttons. **Partially
   done** — see `AB6_STATUS.md` → "Panel lighting...".
-- [ ] **MHG grip page** — click the grip icon on the main page
+- [x] **Special** — not in this list originally; found by the user
+  browsing Cockpit's tabs directly. **Partially done, 2026-08-18** — Trim
+  Follow Rate and a 4-selector Trim Range confirmed; see `AB6_STATUS.md` →
+  "A page we didn't know about". Five booleans, the trim button bindings,
+  and the Miscellaneous toggles (Base Force Model Selection, Grip Removal
+  Protection, Extend Travel Range) remain open.
+- [ ] **MHG grip page** — click the grip icon on the main page. **Partially
+  done, 2026-08-18** — see `AB6_STATUS.md` → "The grip has its own command
+  set". The user confirmed the grip has only this one settings tab (no
+  separate Advanced/Panel/Special pages of its own).
 
 Then:
 
