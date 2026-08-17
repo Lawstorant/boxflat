@@ -1,6 +1,20 @@
 # Boxflat
 Boxflat for Moza Racing. Control your Moza gear settings... and more!
 
+> [!IMPORTANT]
+> **This is a modified fork of [lawstorant/boxflat](https://github.com/lawstorant/boxflat).**
+>
+> Modified since 2026-08-17 to add support for the MOZA AB6 FFB flight base
+> and its MHG grip: device detection, the AB6 and MHG settings panels, the
+> AB6 serial command set in `data/serial.yml`, preset support for the AB6,
+> and the reverse-engineering notes and captures under `AB6_STATUS.md`,
+> `AB6_CAPTURE_PLAN.md`, `captures/` and `tools/`.
+>
+> Not affiliated with or endorsed by the upstream project. Bug reports for
+> this fork belong here, not upstream. Like the original, it is licensed
+> under [GPL-3.0-only](./LICENSE); see the commit history for the full
+> record of changes.
+
 <img alt="Wheelbase panel" src="screens/base.png">
 
 <a href="https://flathub.org/apps/io.github.lawstorant.boxflat">
