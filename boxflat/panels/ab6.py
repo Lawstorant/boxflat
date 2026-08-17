@@ -130,6 +130,53 @@ class AB6Settings(SettingsPanel):
         self._current_row.subscribe("color0", self._set_light_color)
         self._cm.subscribe("ab6-light-color", self._set_light_color_row)
 
+        # Confirmed against real hardware from the Advanced Settings ->
+        # Centering page capture - see data/serial.yml. Other controls on
+        # this page (Deadzone, the Link checkboxes, Adaptive Centering
+        # Compensation, Hands-off Detection) weren't confidently attributed
+        # and are left out rather than guessed.
+        self.add_preferences_group("Centering")
+
+        self._add_row(BoxflatSliderRow("Effect Strength", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-centering-effect-strength")
+        self._cm.subscribe("ab6-centering-effect-strength", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Compensation Effective Range", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-centering-compensation-range")
+        self._cm.subscribe("ab6-centering-compensation-range", self._current_row.set_value)
+
+        # Confirmed against real hardware from the Advanced Settings ->
+        # Trim/Autopilot Following pages capture - see data/serial.yml.
+        # Everything else on those pages (the Trim/Autopilot Following
+        # toggles themselves, Axis follow mode, the Follow preset buttons,
+        # follow rate/scale sliders, Sidestick AP Lock) wasn't touched in
+        # the capture or wasn't confidently attributed.
+        self.add_preferences_group("Trim & Autopilot Following")
+
+        self._add_row(BoxflatSliderRow("Physical Stick Follow Ratio X", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-follow-ratio-x")
+        self._cm.subscribe("ab6-follow-ratio-x", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Physical Stick Follow Ratio Y", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-follow-ratio-y")
+        self._cm.subscribe("ab6-follow-ratio-y", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Roll Breakout Force Strength", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-breakout-force-strength-roll")
+        self._cm.subscribe("ab6-breakout-force-strength-roll", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Pitch Breakout Force Strength", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-breakout-force-strength-pitch")
+        self._cm.subscribe("ab6-breakout-force-strength-pitch", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Roll Breakout Force Range", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-breakout-force-range-roll")
+        self._cm.subscribe("ab6-breakout-force-range-roll", self._current_row.set_value)
+
+        self._add_row(BoxflatSliderRow("Pitch Breakout Force Range", suffix="%"))
+        self._current_row.subscribe(self._cm.set_setting, "ab6-breakout-force-range-pitch")
+        self._cm.subscribe("ab6-breakout-force-range-pitch", self._current_row.set_value)
+
 
     def _set_version(self, value: int, row: BoxflatLabelRow) -> None:
         row.set_label(format_version(value))

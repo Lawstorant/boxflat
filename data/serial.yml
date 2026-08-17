@@ -2286,6 +2286,81 @@ commands:
       bytes: 1
       type: int
 
+    # Confirmed on real hardware from a fifth Windows capture (2026-08-18,
+    # Advanced Settings: Centering page). Same Table 7 write correlation
+    # method, same group 30/31. Final value (50%) matched the screenshot
+    # exactly. See captures/2026-08-18-advanced-settings/.
+    centering-effect-strength:
+      read: 30
+      write: 31
+      id: [209]
+      bytes: 2
+      type: int
+
+    # Wire value is a direct 0-100 percentage like everything else here;
+    # Table 7's own internal float storage does something non-linear with
+    # it (ends up 0.1 for a wire value of 50), which is a firmware detail
+    # that doesn't affect what boxflat sends or reads.
+    centering-compensation-range:
+      read: 30
+      write: 31
+      id: [210]
+      bytes: 2
+      type: int
+
+    # Same capture, Trim/Autopilot Following pages - group 30/31 as
+    # always, but id 225 multiplexes many Table 8 sub-settings behind a
+    # [category, side, value] payload rather than one id per setting. The
+    # category+side pair is modeled as extra id bytes, same convention as
+    # slider-mode-left/right above and base-ffb-curve-x1 elsewhere in this
+    # file. Side 0/1 = Roll/Pitch or X/Y depending on the setting; wire
+    # values are again direct 0-100 percentages matching the screenshot
+    # exactly (100% for follow ratio, 50% for both breakout settings).
+    # Several more Table 8 params were touched (booleans at 32/33/34) but
+    # aren't confidently attributed to a specific control - see
+    # AB6_STATUS.md.
+    follow-ratio-x:
+      read: 30
+      write: 31
+      id: [225, 9, 0]
+      bytes: 1
+      type: int
+
+    follow-ratio-y:
+      read: 30
+      write: 31
+      id: [225, 9, 1]
+      bytes: 1
+      type: int
+
+    breakout-force-strength-roll:
+      read: 30
+      write: 31
+      id: [225, 10, 0]
+      bytes: 1
+      type: int
+
+    breakout-force-strength-pitch:
+      read: 30
+      write: 31
+      id: [225, 10, 1]
+      bytes: 1
+      type: int
+
+    breakout-force-range-roll:
+      read: 30
+      write: 31
+      id: [225, 11, 0]
+      bytes: 1
+      type: int
+
+    breakout-force-range-pitch:
+      read: 30
+      write: 31
+      id: [225, 11, 1]
+      bytes: 1
+      type: int
+
   mhg:
     version:
       read: 4
