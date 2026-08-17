@@ -126,7 +126,22 @@ Cockpit's page structure, per the AB6 manual — visit these in order:
   Trim/Autopilot Following". Physics Model Settings' "Advanced" mode
   (distinct from "Simplified", which is just the already-confirmed Basic
   Settings sliders again) not captured yet.
-- [ ] **Telemetry FFB** — telemetry-driven effects config
+- [ ] **Telemetry FFB** — telemetry-driven effects config. **Scope seen,
+  2026-08-18, nothing captured yet.** This page is much bigger than every
+  other page combined: a searchable, filterable (per-aircraft, e.g. "Jet
+  27") tree of dozens of effects across categories like Q-feel, Pilot
+  Feel, Main Wing, Weapon System, Control Surface, Mechanical, Flaps,
+  Gears, Speedbrake, Spoilers, Atmosphere & Env, Jet Engine. Each effect
+  has its own Enable toggle, Effect Strength slider, and often a
+  parameter-specific curve (e.g. "Dynamic Damping (Aileron)" has an
+  Aerodynamic Damping toggle plus a Damper-vs-TAS curve, 0-600 m/s). A
+  first capture of this one effect had **zero writes** - the user only
+  viewed it, didn't toggle or drag anything - so there's nothing to
+  correlate yet. Same recipe as everything else in this file applies:
+  actually change one control to a specific, memorable value and capture
+  that. Given the sheer number of effects, prioritize ones representative
+  of different control shapes (a toggle, a plain slider, a curve) rather
+  than trying to cover all of them.
 - [~] **Axis Travel** — axis output curves. **Partially done, 2026-08-18**
   — the 4 Travel Limit sliders (2 directions × 2 axes) confirmed; see
   `AB6_STATUS.md` → "Axis Travel...". The Output Mapping Curve itself,
