@@ -37,22 +37,34 @@ from collections import defaultdict
 AB6_VID_PID = "346e:1002"
 
 
-def run_tshark(pcap_path: str) -> list[tuple[int, float, str, bytes]]:
-    """Extract (frame_no, time, src, bytes) for the AB6's CDC data frames."""
-    vid, pid = AB6_VID_PID.split(":")
+def run_tshark(pcap_path: str, device_address: str = None) -> list[tuple[int, float, str, bytes]]:
+    """Extract (frame_no, time, src, bytes) for the AB6's CDC data frames.
 
-    find_addr = subprocess.run(
-        ["tshark", "-r", pcap_path, "-Y", f"usb.idVendor==0x{vid} && usb.idProduct==0x{pid}",
-         "-T", "fields", "-e", "usb.device_address"],
-        capture_output=True, text=True, check=True,
-    )
-    addresses = sorted(set(a for a in find_addr.stdout.split() if a))
-    if not addresses:
-        sys.exit(f"No USB device {AB6_VID_PID} found in {pcap_path}")
-    if len(addresses) > 1:
-        print(f"Warning: device {AB6_VID_PID} seen at multiple addresses "
-              f"{addresses}; using {addresses[0]} (it may have re-enumerated)")
-    address = addresses[0]
+    A capture split into parts (a long session saved in chunks) may have no
+    enumeration frames at all in a later part - idVendor/idProduct only
+    appear in the device descriptor exchange, which happens once, at the
+    very start. Pass device_address (from an earlier part's autodetected
+    address, or `tshark -r part.pcapng -Y usb.capdata` and looking at which
+    address actually carries data) to skip autodetection for such parts.
+    """
+    if device_address:
+        address = device_address
+    else:
+        vid, pid = AB6_VID_PID.split(":")
+        find_addr = subprocess.run(
+            ["tshark", "-r", pcap_path, "-Y", f"usb.idVendor==0x{vid} && usb.idProduct==0x{pid}",
+             "-T", "fields", "-e", "usb.device_address"],
+            capture_output=True, text=True, check=True,
+        )
+        addresses = sorted(set(a for a in find_addr.stdout.split() if a))
+        if not addresses:
+            sys.exit(f"No USB device {AB6_VID_PID} found in {pcap_path}. "
+                      f"If this is part of a split capture, pass --device-address "
+                      f"with the address found in an earlier part.")
+        if len(addresses) > 1:
+            print(f"Warning: device {AB6_VID_PID} seen at multiple addresses "
+                  f"{addresses}; using {addresses[0]} (it may have re-enumerated)")
+        address = addresses[0]
 
     result = subprocess.run(
         ["tshark", "-r", pcap_path, "-Y", f"usb.device_address=={address} && usb.capdata",
@@ -199,9 +211,13 @@ def main() -> None:
     parser.add_argument("pcap", help="path to the .pcapng capture")
     parser.add_argument("--out-dir", default=".",
                          help="directory to write diag_log_*.txt and param_writes.csv into")
+    parser.add_argument("--device-address", default=None,
+                         help="skip autodetection and use this USB device address directly "
+                              "(needed for a later part of a split capture, which has no "
+                              "enumeration frames to autodetect from)")
     args = parser.parse_args()
 
-    entries = run_tshark(args.pcap)
+    entries = run_tshark(args.pcap, args.device_address)
     print(f"Extracted {len(entries)} CDC data frames from {args.pcap}")
 
     host_to_dev, dev_to_host = split_directions(entries)
