@@ -18,7 +18,7 @@ JOYSTICK_RANGE = (BTN_DEAD - BTN_JOYSTICK) + 1
 
 
 class MozaHidDevice():
-    BASE = "gudsen (moza )?r[0-9]{1,2} (ultra base|base|racing wheel and pedals)"
+    BASE = "gudsen (moza )?(r[0-9]{1,2} (ultra base|base|racing wheel and pedals)|ab[0-9]{1,2} ffb base)"
     PEDALS = "gudsen moza (srp|sr-p|crp)[0-9]? pedals"
     HANDBRAKE = "hbp handbrake"
     HPATTERN = "hgp shifter"
@@ -325,12 +325,18 @@ class HidHandler(EventDispatcher):
 
     def _update_axis(self, code: int, value: int, pattern: str):
         code = evdev.ecodes.ABS[code]
-        name = ""
+        if isinstance(code, list):
+            code = code[0]
 
         if pattern in (MozaHidDevice.BASE, MozaHidDevice.HUB):
-            name = MOZA_AXIS_BASE_CODES[code]
+            name = MOZA_AXIS_BASE_CODES.get(code)
         else:
-            name = MOZA_AXIS_CODES[code]
+            name = MOZA_AXIS_CODES.get(code)
+
+        # AB6 and other joystick-style devices expose axes
+        # that have no racing counterpart
+        if name is None:
+            return
 
         # print(f"axis {name} ({code}), value: {value}")
         self._axis_values[name].value = value

@@ -24,6 +24,7 @@ Boxflat for Moza Racing. Control your Moza gear settings... and more!
 | :-------------: | :-----------: | :-- |
 | Home page       | 100%          | |
 | Base            | 100%          | |
+| AB6 FFB Base    | Detection, base settings | AB6-specific settings |
 | Wheel           | 100%          | |
 | Pedals          | 100%          | |
 | Dashboard       | LED control   | Display Settings |
