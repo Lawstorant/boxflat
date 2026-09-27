@@ -287,6 +287,7 @@ class MyApp(Adw.Application):
             return
 
         self.navigation.set_content(new_content)
+        self._panels[new_title].on_shown()
 
 
     def set_content_title(self, title: str):

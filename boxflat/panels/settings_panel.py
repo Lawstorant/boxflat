@@ -109,6 +109,10 @@ class SettingsPanel(EventDispatcher):
         # self.hide_banner()
         print(f"Applying {self.title} settings...")
 
+    def on_shown(self):
+        # Called every time the panel becomes visible
+        pass
+
     @property
     def content(self) -> Adw.NavigationPage:
         return self._page

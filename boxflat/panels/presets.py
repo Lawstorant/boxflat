@@ -216,8 +216,27 @@ class PresetSettings(SettingsPanel):
         self.list_presets()
 
 
+    def on_shown(self):
+        # Reload presets from disk every time the panel is opened
+        self.list_presets()
+
+
     def list_presets(self, *rest):
         self.remove_preferences_group(self._presets_list_group)
+
+        self.add_preferences_group("Preset list")
+        self._presets_list_group = self._current_group
+
+        refresh = Gtk.Button()
+        refresh.set_icon_name("view-refresh-symbolic")
+        refresh.add_css_class("flat")
+        refresh.set_valign(Gtk.Align.CENTER)
+        refresh.set_tooltip_text("Reload presets from disk")
+        refresh.connect("clicked", lambda *_: self.list_presets())
+        self._presets_list_group.set_header_suffix(refresh)
+
+        self._observer.deregister_all_processes()
+        self._default_preset = None
 
         if not os.path.exists(self._presets_path):
             return
@@ -225,13 +244,8 @@ class PresetSettings(SettingsPanel):
         files = os.listdir(self._presets_path)
         files.sort()
 
-        self.add_preferences_group("Preset list")
-        self._presets_list_group = self._current_group
-
         pm = MozaPresetHandler(None)
         pm.set_path(self._presets_path)
-        self._observer.deregister_all_processes()
-        self._default_preset = None
 
         for file in files:
             filepath = os.path.join(self._presets_path, file)
