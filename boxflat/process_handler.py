@@ -4,6 +4,7 @@ from time import sleep
 from boxflat.subscription import EventDispatcher
 from os import environ, path
 import subprocess
+import ntpath
 
 
 def list_processes(filter: str="") -> list[str]:
@@ -16,15 +17,26 @@ def list_processes(filter: str="") -> list[str]:
 def _list_process_native(filter: str) -> list[str]:
     output = []
 
-    for p in psutil.process_iter(['name']):
-        name = p.name()
-        if not filter.lower() in name.lower():
-            continue
+    for p in psutil.process_iter(['name', 'cmdline']):
+        try:
+            process_name = p.info['name']
+            names = [process_name]
 
-        if name in output:
-            continue
+            for arg in p.info['cmdline'] or []:
+                if arg.lower().endswith(".exe"):
+                    names.append(ntpath.basename(arg))
 
-        output.append(name)
+            for name in names:
+                if not filter.lower() in name.lower():
+                    continue
+
+                if name in output:
+                    continue
+
+                output.append(name)
+
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
 
     return output
 
