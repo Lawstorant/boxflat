@@ -201,10 +201,10 @@ base-road-sensitivity:
   recommended: "5 is balanced; lower for smoother feel, higher for more detail."
 
 main-set-interpolation:
-  description: "Smooth FFB samples by interpolating between values."
+  description: "\"Improves\" FFB by interpolating between values."
   range: "0 – 10"
   default: "0"
-  recommended: "0 for lowest latency; increase only if FFB feels grainy."
+  recommended: "NEVER use it. It actually breaks FFB in a lot of games"
 
 base-ffb-curve-x1:
   description: "Offset the first curve point to the left or right."
