@@ -111,6 +111,17 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.37.0" date="2026-10-11">
+      <description>
+        <ul>
+          <li>Tooltips for settings (fuzunspm)</li>
+          <li>Fixed process detection for native install (8vinso8)</li>
+          <li>Fixed process detection for flatpak install</li>
+          <li>Auto-refresh for preset files (Mozart409)</li>
+          <li>Bumped Gnome SDK to version 51</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.36.2" date="2026-08-20">
       <description>
         <p>Add support for R5 PRO wheelbase</p>

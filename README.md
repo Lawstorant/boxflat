@@ -146,5 +146,9 @@ I give my heartfelt THANK YOU to every supporter who felt like this was worth a 
 - [@m4tx](https://github.com/m4tx)
 - [@TylerCode](https://github.com/TylerCode)
 - [@Petjes-je](https://github.com/Petjes-je)
+- [@inducer](https://github.com/inducer)
+- [@GianoM1](https://github.com/GianoM1)
+- [@mpevner](https://github.com/mpevner)
+- [@MarW1N](https://github.com/MarW1N)
 
 **© 2025 Tomasz Pakuła Using Arch BTW**
