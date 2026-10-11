@@ -5,6 +5,7 @@ from boxflat.subscription import EventDispatcher
 from os import environ, path
 import ntpath
 import subprocess
+import re
 
 
 FLATPAK = environ["BOXFLAT_FLATPAK_EDITION"] == "true"
@@ -14,7 +15,9 @@ def list_processes(filter: str="") -> list[str]:
     output: list[str] = []
 
     for arg in _ps():
-        if len(arg) < 3:
+        # starts with at least 3 word characters (letters, numbers)
+        # filters out arguments
+        if not re.search("^\\w{3,}", arg):
             continue
 
         if not filter.lower() in arg.lower():
