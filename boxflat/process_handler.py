@@ -3,71 +3,65 @@ from threading import Thread, Event
 from time import sleep
 from boxflat.subscription import EventDispatcher
 from os import environ, path
-import subprocess
 import ntpath
+import subprocess
+
+
+FLATPAK = environ["BOXFLAT_FLATPAK_EDITION"] == "true"
 
 
 def list_processes(filter: str="") -> list[str]:
-    if environ["BOXFLAT_FLATPAK_EDITION"] == "true":
-        return _list_process_flatpak(filter)
+    output: list[str] = []
 
-    return _list_process_native(filter)
+    for arg in _ps():
+        if len(arg) < 3:
+            continue
+
+        if not filter.lower() in arg.lower():
+            continue
+
+        if arg in output:
+            continue
+
+        output.append(arg)
+
+    return output
 
 
-def _list_process_native(filter: str) -> list[str]:
-    output = []
+def basename(name: str) -> str:
+    return ntpath.basename(path.basename(name))
 
-    for p in psutil.process_iter(['name', 'cmdline']):
+
+def _ps() -> list[str]:
+    ps = _ps_flatpak if FLATPAK else _ps_native
+    return [basename(cmd) for cmd in ps()]
+
+
+def _ps_native() -> list[str]:
+    output: list[str] = []
+
+    for p in psutil.process_iter(["name", "cmdline"]):
         try:
-            process_name = p.info['name']
-            names = [process_name]
-
-            for arg in p.info['cmdline'] or []:
-                if arg.lower().endswith(".exe"):
-                    names.append(ntpath.basename(arg))
-
-            for name in names:
-                if not filter.lower() in name.lower():
-                    continue
-
-                if name in output:
-                    continue
-
-                output.append(name)
+            output.append(p.info["name"])
+            for arg in p.info["cmdline"] or []:
+                output.append(arg)
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
+            pass
 
     return output
 
 
-def _list_process_flatpak(filter: str) -> list[str]:
-    output = []
-
-    for name in _flatpak_ps_comm():
-        if len(name) < 3:
-            continue
-
-        name = path.basename(name)
-        if not filter.lower() in name.lower():
-            continue
-
-        if name in output:
-            continue
-
-        output.append(name)
-
-    return output
-
-
-def _flatpak_ps_comm() -> list[str]:
-    processes = subprocess.check_output(["flatpak-spawn", "--host", "ps", "-wwu", psutil.Process().username(), "-o", "comm="])
-    return processes.decode().split()
-
-
-def _flatpk_ps_command() -> list[str]:
-    processes = subprocess.check_output(["flatpak-spawn", "--host", "ps", "-wwu", psutil.Process().username(), "-o", "command="])
-    return processes.decode().replace("\\", "/").split("\n")
+def _ps_flatpak() -> list[str]:
+    return subprocess.check_output([
+        "flatpak-spawn",
+        "--host",
+        "ps",
+        "-wwu",
+        psutil.Process().username(),
+        "-o",
+        "comm= command=",
+    ]).decode().split()
 
 
 class ProcessObserver(EventDispatcher):
@@ -81,22 +75,29 @@ class ProcessObserver(EventDispatcher):
 
     def _process_observer_worker(self) -> None:
         while not self._shutdown.is_set():
-            sleep(5)
-            process_list = list_processes()
+            try:
+                sleep(5)
+                self._observe()
+            except:
+                pass # some error in process observer
 
-            for name in self.list_events():
-                if name not in process_list:
-                    if name == self._current_processs:
-                        self._current_processs = "empty"
-                        self._dispatch("no-games")
-                    continue
 
+    def _observe(self) -> None:
+        process_list = list_processes()
+
+        for name in self.list_events():
+            if name not in process_list:
                 if name == self._current_processs:
-                    continue
+                    self._current_processs = "empty"
+                    self._dispatch("no-games")
+                continue
 
-                print(f"Process \"{name}\" found")
-                self._current_processs = name
-                self._dispatch(name)
+            if name == self._current_processs:
+                continue
+
+            print(f"Process \"{name}\" found")
+            self._current_processs = name
+            self._dispatch(name)
 
 
     def register_process(self, process_name: str) -> None:
