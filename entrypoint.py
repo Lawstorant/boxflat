@@ -3,59 +3,66 @@
 
 import argparse
 import os
+import sys
 
-parser = argparse.ArgumentParser("boxflat")
-parser.add_argument("--local", help="Run boxflat from repository folder", action="store_true", required=False)
-parser.add_argument("--dry-run", help="Don't send any data to the serial devices", action="store_true", required=False)
-parser.add_argument("--data-path", help="Use arbitrary data path", type=str, required=False)
-parser.add_argument("--flatpak", help="for flatpak usage", action="store_true", required=False)
-parser.add_argument("--custom", help="Enable custom commands entry", action="store_true", required=False)
-parser.add_argument("--autostart", help="For the autostart handling", action="store_true", required=False)
-args = parser.parse_args()
 
-data_path = "/usr/share/boxflat/data"
-config_path = "~/.config/boxflat/"
-os.environ["BOXFLAT_FLATPAK_EDITION"] = "false"
+def main() -> int:
+    parser = argparse.ArgumentParser("boxflat")
+    parser.add_argument("--local", help="Run boxflat from repository folder", action="store_true", required=False)
+    parser.add_argument("--dry-run", help="Don't send any data to the serial devices", action="store_true", required=False)
+    parser.add_argument("--data-path", help="Use arbitrary data path", type=str, required=False)
+    parser.add_argument("--flatpak", help="for flatpak usage", action="store_true", required=False)
+    parser.add_argument("--custom", help="Enable custom commands entry", action="store_true", required=False)
+    parser.add_argument("--autostart", help="For the autostart handling", action="store_true", required=False)
+    args = parser.parse_args()
 
-if args.data_path:
-    data_path = args.data_path
-    print(f"Data path: {args.data_path}")
+    data_path = "/usr/share/boxflat/data"
+    config_path = "~/.config/boxflat/"
+    os.environ["BOXFLAT_FLATPAK_EDITION"] = "false"
 
-if args.local:
-    data_path = "data"
+    if args.data_path:
+        data_path = args.data_path
+        print(f"Data path: {args.data_path}")
 
-if args.flatpak:
-    data_path = "/app/share/boxflat/data"
-    os.environ["BOXFLAT_FLATPAK_EDITION"] = "true"
+    if args.local:
+        data_path = "data"
 
-import boxflat.app as app
+    if args.flatpak:
+        data_path = "/app/share/boxflat/data"
+        os.environ["BOXFLAT_FLATPAK_EDITION"] = "true"
 
-box = app.MyApp(data_path,
-    config_path,
-    args.dry_run,
-    args.custom,
-    args.autostart,
-    application_id="io.github.lawstorant.boxflat"
-)
+    import boxflat.app as app
 
-try:
-    from trayer import TrayIcon
-
-    tray = TrayIcon(
-        app_id="io.github.lawstorant.boxflat",
-        title="Boxflat",
-        icon_name="io.github.lawstorant.boxflat"
+    box = app.MyApp(data_path,
+        config_path,
+        args.dry_run,
+        args.custom,
+        args.autostart,
+        application_id="io.github.lawstorant.boxflat"
     )
 
-    tray.set_left_click(box.show_window)
-    tray.add_menu_item("Show Window", callback=box.show_window)
-    tray.add_menu_item("Hide Window", callback=box.hide_window)
-    tray.add_menu_separator()
-    tray.add_menu_item("Quit", callback=box.quit)
+    try:
+        from trayer import TrayIcon
 
-    tray.setup()
+        tray = TrayIcon(
+            app_id="io.github.lawstorant.boxflat",
+            title="Boxflat",
+            icon_name="io.github.lawstorant.boxflat"
+        )
 
-except (ModuleNotFoundError, ImportError):
-    print("Mising support for tray icons (trayer python module)")
+        tray.set_left_click(box.show_window)
+        tray.add_menu_item("Show Window", callback=box.show_window)
+        tray.add_menu_item("Hide Window", callback=box.hide_window)
+        tray.add_menu_separator()
+        tray.add_menu_item("Quit", callback=box.quit)
 
-box.run()
+        tray.setup()
+
+    except (ModuleNotFoundError, ImportError):
+        print("Mising support for tray icons (trayer python module)")
+
+    return box.run()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
