@@ -5,13 +5,16 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 
 
-from gi.repository import Gtk, Gdk, Adw
+from gi.repository import Adw, Gdk, Gtk
 from boxflat.panels import *
 from boxflat.connection_manager import MozaConnectionManager
 from boxflat.hid_handler import HidHandler
 from boxflat.settings_handler import SettingsHandler
 from boxflat.description_handler import DescriptionHandler
 from threading import Thread, Event
+
+from gi.repository.Gio import Notification, NotificationPriority
+from time import sleep
 
 import os
 import subprocess
