@@ -13,6 +13,9 @@ from boxflat.settings_handler import SettingsHandler
 from boxflat.description_handler import DescriptionHandler
 from threading import Thread, Event
 
+from gi.repository.Gio import Notification, NotificationPriority
+from time import sleep
+
 import os
 import subprocess
 
