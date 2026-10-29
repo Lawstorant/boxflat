@@ -41,6 +41,12 @@ class MainWindow(Adw.ApplicationWindow):
 
         udev_exists = udev_exists()
 
+        if udev_exists and rules_version < 2:
+            content = self._get_installed_rules_content(is_flatpak)
+            if content and "uinput" in content:
+                rules_version = 2
+                self._settings.write_setting(2, "rules-version")
+
         if udev_exists and rules_version >= 2:
             return
 
@@ -96,6 +102,24 @@ class MainWindow(Adw.ApplicationWindow):
         if "99-boxflat.rules" in rules:
             return True
         return False
+
+
+    def _get_installed_rules_content(self, is_flatpak: bool) -> str | None:
+        if is_flatpak:
+            try:
+                command = [*self._spawn, "cat", "/etc/udev/rules.d/99-boxflat.rules"]
+                return subprocess.check_output(command).decode()
+            except Exception:
+                return None
+
+        for path in ["/etc/udev/rules.d/99-boxflat.rules", "/usr/lib/udev/rules.d/99-boxflat.rules"]:
+            if os.path.isfile(path):
+                try:
+                    with open(path, "r") as file:
+                        return file.read()
+                except Exception:
+                    pass
+        return None
 
 
     def _handle_udev_dialog(self, dialog, response: str, is_flatpak: bool) -> None:
