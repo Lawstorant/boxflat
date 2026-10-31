@@ -1182,7 +1182,7 @@ commands:
       read: 64
       write: 63
       id: [5]
-      bytes: 2
+      bytes: 1
       type: int
 
     set-rpm-display-mode:

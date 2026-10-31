@@ -135,11 +135,9 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe("wheel-knob-mode", self._current_row.set_value)
         self._cm.subscribe_connected("wheel-knob-mode", self._current_row.set_present, +1)
 
-        self._stick_row = BoxflatToggleButtonRow("Left Stick Mode")
+        self._stick_row = BoxflatToggleButtonRow("Stick D-Pad Mode")
         self._add_row(self._stick_row, "wheel-stick-mode")
-        self._current_row.add_buttons("Buttons", "D-Pad")
-        self._current_row.set_expression("*256")
-        self._current_row.set_reverse_expression("/256")
+        self._current_row.add_buttons("None", "Left", "Right")
         self._current_row.subscribe(self._cm.set_setting, "wheel-stick-mode")
         self._cm.subscribe("wheel-stick-mode", self._current_row.set_value)
 
@@ -572,7 +570,7 @@ class WheelSettings(SettingsPanel):
         self._cm.set_setting([255] * 3, "wheel-idle-color")
 
         self._cm.set_setting(1, "wheel-telemetry-mode")
-        self._cm.set_setting(256, "wheel-stick-mode")
+        self._cm.set_setting(1, "wheel-stick-mode")
         # self._cm.set_setting(0, "wheel-rpm-mode")
         self._cm.set_setting(2, "wheel-paddles-mode")
         self._cm.set_setting(50, "wheel-clutch-point")
