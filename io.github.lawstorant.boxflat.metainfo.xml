@@ -111,6 +111,15 @@
   <update_contact>forest10pl@gmail.com</update_contact>
 
   <releases>
+    <release version="v1.37.2" date="2026-10-31">
+      <description>
+        <ul>
+          <li>Fix Stick D-Pad mode setting (sorry for the long wait)</li>
+          <li>Better udev rule detection and misc internal updates (8vinso8)</li>
+          <li>Fix background operation notification (lexcibien)</li>
+        </ul>
+      </description>
+    </release>
     <release version="v1.37.1" date="2026-10-11">
       <description>
         <p>Less noisy process listing</p>
