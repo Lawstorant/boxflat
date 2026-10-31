@@ -98,7 +98,11 @@ MozaDevicePresetSettings = {
         "wheel-stick-mode",
         # "wheel-set-rpm-display-mode",
         "wheel-clutch-point",
-        "wheel-knob-mode",
+        "wheel-knob0-mode",
+        "wheel-knob1-mode",
+        "wheel-knob2-mode",
+        "wheel-knob3-mode",
+        "wheel-knob4-mode",
         "wheel-telemetry-idle-effect",
         "wheel-buttons-idle-effect"
     ],

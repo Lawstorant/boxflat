@@ -1746,6 +1746,41 @@ commands:
       bytes: 20
       type: array
 
+    knob0-mode:
+      read: 64
+      write: 63
+      id: [42, 0]
+      bytes: 1
+      type: int
+
+    knob1-mode:
+      read: 64
+      write: 63
+      id: [42, 1]
+      bytes: 1
+      type: int
+
+    knob2-mode:
+      read: 64
+      write: 63
+      id: [42, 2]
+      bytes: 1
+      type: int
+
+    knob3-mode:
+      read: 64
+      write: 63
+      id: [42, 3]
+      bytes: 1
+      type: int
+
+    knob4-mode:
+      read: 64
+      write: 63
+      id: [42, 4]
+      bytes: 1
+      type: int
+
 # old
     rpm-indicator-mode:
       read: 64

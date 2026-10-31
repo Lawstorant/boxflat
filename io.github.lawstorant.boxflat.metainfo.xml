@@ -115,6 +115,7 @@
       <description>
         <ul>
           <li>Fix Stick D-Pad mode setting (sorry for the long wait)</li>
+          <li>Separate rotary encoder mode switching (buttons/knob)</li>
           <li>Better udev rule detection and misc internal updates (8vinso8)</li>
           <li>Fix background operation notification (lexcibien)</li>
         </ul>

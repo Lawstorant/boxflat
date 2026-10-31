@@ -24,6 +24,8 @@ MOZA_TELEMETRY_FLAGS = [
 
 MOZA_IDLE_EFFECTS = ["Off", "Constant", "Breathing", "Color cycle", "Rainbow", "Sand flow"]
 
+MOZA_MAX_ROTARIES = 5
+
 class WheelSettings(SettingsPanel):
     def __init__(self, button_callback, connection_manager: MozaConnectionManager, hid_handler, settings: SettingsHandler, description_handler=None):
         self._settings = settings
@@ -129,18 +131,18 @@ class WheelSettings(SettingsPanel):
         self._cm.subscribe_connected("wheel-clutch-point", self._current_row.set_present)
 
         self.add_preferences_group("Input")
-        self._add_row(BoxflatToggleButtonRow("Rotary Encoder Mode"), "wheel-knob-mode")
-        self._current_row.add_buttons("Buttons", "  Knob ")
-        self._current_row.subscribe(self._cm.set_setting, "wheel-knob-mode")
-        self._cm.subscribe("wheel-knob-mode", self._current_row.set_value)
-        self._cm.subscribe_connected("wheel-knob-mode", self._current_row.set_present, +1)
-
         self._stick_row = BoxflatToggleButtonRow("Stick D-Pad Mode")
         self._add_row(self._stick_row, "wheel-stick-mode")
         self._current_row.add_buttons("None", "Left", "Right")
         self._current_row.subscribe(self._cm.set_setting, "wheel-stick-mode")
         self._cm.subscribe("wheel-stick-mode", self._current_row.set_value)
 
+        for i in range(MOZA_MAX_ROTARIES):
+            self._add_row(BoxflatToggleButtonRow(f"Rotary {i+1} mode"))
+            self._current_row.add_buttons("Buttons", "Knob (+/-)")
+            self._current_row.subscribe(self._cm.set_setting, f"wheel-knob{i}-mode")
+            self._cm.subscribe_connected(f"wheel-knob{i}-mode", self._current_row.set_present, 1)
+            self._cm.subscribe(f"wheel-knob{i}-mode", self._current_row.set_value)
 
         self.add_preferences_group("Idle")
         self._add_row(BoxflatToggleButtonRow("Mode"), "wheel-idle-mode")
