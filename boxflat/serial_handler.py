@@ -3,7 +3,7 @@
 import multiprocessing as mp
 mp.set_start_method("fork")
 
-from threading import Thread
+from threading import Thread, Lock
 from multiprocessing import Process, Queue, Event
 from serial import Serial
 from boxflat.subscription import SimpleEventDispatcher
@@ -26,6 +26,7 @@ class SerialHandler(SimpleEventDispatcher):
         self._message_start = msg_start
         self._device_name = device_name
         self._serial = None
+        self._reconnect_lock = Lock()
 
         Thread(target=self._notification_handler, daemon=True).start()
         Process(target=self._thread_spawner, daemon=True).start()
@@ -66,6 +67,31 @@ class SerialHandler(SimpleEventDispatcher):
         self._serial_available.set()
 
 
+    def _reconnect(self, failed_serial) -> None:
+        """
+        Reopen the port after an I/O error. Both the read and write threads
+        can hit the same dead port, so only the first one to get here does
+        the reconnect; the other sees the port was already replaced.
+        """
+        with self._reconnect_lock:
+            if self._serial is not failed_serial:
+                return
+
+            try:
+                failed_serial.close()
+            except:
+                pass
+
+            # Avoid a tight open/fail loop if the port reopens but stays broken
+            sleep(0.2)
+            self._serial_loader()
+
+            try:
+                self._serial.reset_input_buffer()
+            except:
+                pass
+
+
     def _thread_spawner(self) -> None:
         self._serial_loader()
 
@@ -96,18 +122,22 @@ class SerialHandler(SimpleEventDispatcher):
             if not self._serial_available.wait(timeout=0.1):
                 continue
 
+            serial = self._serial
             try:
-                if self._serial.read(1) != start:
+                if serial.read(1) != start:
                     continue
 
-                payload_length = int().from_bytes(self._serial.read(1))
+                payload_length = int().from_bytes(serial.read(1))
                 if not 2 <= payload_length <= 11:
                     continue
 
-                self._read_queue.put(self._serial.read(payload_length + 2))
+                self._read_queue.put(serial.read(payload_length + 2))
 
             except:
-                pass
+                # The port is dead (e.g. USB reset after suspend/resume).
+                # Retrying the read immediately would spin at 100% CPU, as
+                # a hung-up tty is always "ready" but returns no data.
+                self._reconnect(serial)
 
 
     def _serial_write_handler(self):
@@ -119,7 +149,8 @@ class SerialHandler(SimpleEventDispatcher):
                 continue
 
             # print(f"{self._device_name} writing: {data.hex(":")}")
+            serial = self._serial
             try:
-                self._serial.write(data)
+                serial.write(data)
             except:
-                self._serial_loader()
+                self._reconnect(serial)
